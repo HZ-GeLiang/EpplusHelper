@@ -1,0 +1,11 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/SampleApp/bin/Debug
+/SampleApp/obj/Debug
+/packages/EPPlus.4.0.5
+/EpplusHelper/bin/Debug
+/EpplusHelper/obj/Debug
+/.vs/EpplusHelper/v15/Server/sqlite3
+/.vs/EpplusHelper/v15
