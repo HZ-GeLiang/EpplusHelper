@@ -10,10 +10,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using OfficeOpenXml;
 using OfficeOpenXml.Style; 
-using EpplusHelper;
 
 
-namespace EpplusHelper
+namespace EpplusHelperExtensions
 {
     public class EpplusHelper
     {
