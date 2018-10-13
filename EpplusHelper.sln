@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpplusHelper", "EpplusHelper\EpplusHelper.csproj", "{9CF1F898-E37F-441E-B86E-60476C4AA4B4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9CF1F898-E37F-441E-B86E-60476C4AA4B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CF1F898-E37F-441E-B86E-60476C4AA4B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CF1F898-E37F-441E-B86E-60476C4AA4B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CF1F898-E37F-441E-B86E-60476C4AA4B4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1884036-2D3A-419A-81FC-B9E20943ABB8}
+	EndGlobalSection
+EndGlobal
