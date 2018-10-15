@@ -1035,6 +1035,7 @@ namespace EpplusHelperExtensions
         {
             var cell = ws.Cells[row, col];
             //if (cell.Merge) throw new Exception("没遇到过这个情况的");
+            // return cell.Text; //这个没有科学计数法  注:Text是Excel显示的值,Value是实际值.
             try
             {
                 return cell.Text;//有的单元格通过cell.Text取值会发生异常,但cell.Value却是有值的
@@ -1053,7 +1054,7 @@ namespace EpplusHelperExtensions
             }
 
 
-            // return cell.Text; //这个没有科学计数法  注:Text是Excel显示的值,Value是实际值.
+          
         }
 
         #endregion
@@ -1938,6 +1939,18 @@ namespace EpplusHelperExtensions
         /// 自定义设置值
         /// </summary>
         public Action<string, object, ExcelRange> SheetFootCellCustomSetValue;
+        //使用方式
+        //config.SheetBodyCellCustomSetValue.Add(1, (colName, val, cell) =>
+        //{
+        //    if (colName == "配置列名")
+        //    {
+        //        cell.Formula = (string)val;//值为公式
+        //    }
+        //    else
+        //    {
+        //        cell.Value = val;
+        //    }
+        //}
         #endregion
 
         /// <summary>
