@@ -56,9 +56,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EpplusHelper\EpplusHelperExtensions.csproj">
+    <ProjectReference Include="..\EpplusHelper\EpplusExtensions.csproj">
       <Project>{9cf1f898-e37f-441e-b86e-60476c4aa4b4}</Project>
-      <Name>EpplusHelperExtensions</Name>
+      <Name>EpplusExtensions</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

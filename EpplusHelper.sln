@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpplusHelperExtensions", "EpplusHelper\EpplusHelperExtensions.csproj", "{9CF1F898-E37F-441E-B86E-60476C4AA4B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpplusExtensions", "EpplusHelper\EpplusExtensions.csproj", "{9CF1F898-E37F-441E-B86E-60476C4AA4B4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\SampleApp.csproj", "{D9EFFCCE-D280-42FA-A513-3127E4DF8FAA}"
 EndProject
