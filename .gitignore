@@ -9,3 +9,7 @@
 /EpplusHelper/obj/Debug
 /.vs/EpplusHelper/v15/Server/sqlite3
 /.vs/EpplusHelper/v15
+/.vs/EpplusHelper/DesignTimeBuild
+/.vs
+/EpplusHelper/obj/Release
+/SampleApp/obj/Release

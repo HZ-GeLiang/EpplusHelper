@@ -9,10 +9,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using OfficeOpenXml;
-using OfficeOpenXml.Style; 
+using OfficeOpenXml.Style;
 
-
-namespace EpplusHelperExtensions
+namespace EpplusExtensions
 {
     public class EpplusHelper
     {
@@ -20,6 +19,98 @@ namespace EpplusHelperExtensions
         //类型参考网址: http://filext.com/faq/office_mime_types.php
         public const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+        #region GetExcelWorksheet
+
+        /// <summary>
+        /// 获得Excel的第N个Sheet
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="workSheetIndex">从1开始</param>
+        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, int workSheetIndex)
+        {
+            if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
+            int sheetCount = excelPackage.Workbook.Worksheets.Count;
+            if (workSheetIndex > sheetCount)
+            {
+                throw new ArgumentException($@"形参{nameof(workSheetIndex)}大于当前Excel的工作簿数量", nameof(workSheetIndex));//指定的参数已超出有效值的范围
+            }
+            return excelPackage.Workbook.Worksheets[workSheetIndex];
+        }
+
+        /// <summary>
+        /// 根据workSheetIndex获得模版worksheet,然后复制一份出来并重命名成workSheetName并返回 
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="workSheetIndex">从1开始</param>
+        /// <param name="workSheetNewName"></param>
+        /// <returns></returns>
+        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, int workSheetIndex, string workSheetNewName)
+        {
+            if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
+            if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
+            var wsMom = GetExcelWorksheet(excelPackage, workSheetIndex);
+            var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
+            ws.Name = workSheetNewName;
+            return ws;
+        }
+
+        /// <summary>
+        /// 根据worksheet名字获得worksheet
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="workName"></param>
+        /// <returns></returns>
+        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName)
+        {
+            return GetExcelWorksheet(excelPackage, workName, false);
+
+        }
+
+        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName, bool autoMappingWs)
+        {
+            if (workName == null) throw new ArgumentNullException(nameof(workName));
+            var ws = excelPackage.Workbook.Worksheets[workName];
+            if (autoMappingWs && ws == null && excelPackage.Workbook.Worksheets.Count == 1)
+            {
+                ws = excelPackage.Workbook.Worksheets[1];
+            }
+            if (ws == null) throw new ArgumentException($@"当前Excel中不存在名为'{workName}'的worksheet", nameof(workName));
+            return ws;
+        }
+        /// <summary>
+        /// 获得当前Excel的所有工作簿的名字
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <returns></returns>
+        public static List<string> GetExcelWorksheetNames(ExcelPackage excelPackage)
+        {
+            List<string> wsNameList = new List<string>();
+            for (int i = 1; i <= excelPackage.Workbook.Worksheets.Count; i++)
+            {
+                wsNameList.Add(GetExcelWorksheet(excelPackage, i).Name);
+            }
+            return wsNameList;
+        }
+
+        /// <summary>
+        /// 根据名字获取Worksheet,然后复制一份出来并重命名成workSheetName并返回 
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="destWorkSheetName"></param>
+        /// <param name="workSheetNewName"></param>
+        /// <returns></returns>
+        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string destWorkSheetName, string workSheetNewName)
+        {
+            if (destWorkSheetName == null) throw new ArgumentNullException(nameof(destWorkSheetName));
+            if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
+            var wsMom = GetExcelWorksheet(excelPackage, destWorkSheetName);
+            var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
+            ws.Name = workSheetNewName;
+            return ws;
+        }
+        #endregion
+
+        #region DeleteWorksheet
         /// <summary>
         /// 删除母版页
         /// </summary>
@@ -56,22 +147,7 @@ namespace EpplusHelperExtensions
                 excelPackage.Workbook.Worksheets.Delete(workSheetIndex);
             }
         }
-
-        /// <summary>
-        /// 获得合并单元格的值 
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
-        /// <returns></returns>
-        public static string GetMegerCellText(ExcelWorksheet ws, int row, int col)
-        {
-            //这个方法的是百度抄来的修改过的 http://blog.csdn.net/xuxiushi888/article/details/49001327
-            string range = ws.MergedCells[row, col];
-            if (range == null) return GetCellText(ws, row, col);
-            var ea = new ExcelAddress(range).Start;
-            return ws.Cells[ea.Row, ea.Column].Text;
-        }
+        #endregion
 
         #region FillData
 
@@ -108,30 +184,6 @@ namespace EpplusHelperExtensions
             ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetIndex, workSheetNewName);
             config.WorkSheetDefault?.Invoke(worksheet);
             FillData(config, configSource, worksheet);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cells">s结尾表示单元格有可能是合并单元格</param>
-        /// <param name="val">值</param>
-        /// <param name="colMapperName">excel填充的列名,不想传值请使用null</param> 
-        private static void SetWorksheetCellsValue(EpplusConfig config, ExcelRange cells, object val, string colMapperName)
-        {
-            if (config.UseFundamentals)
-            {
-                config.CellFormatDefault(colMapperName, val, cells);
-            }
-            cells.Value = val;
-            //注:排除3种值( DBNull.Value , null , "") 后 如果 cells.Value 仍然没有值,有可能是配置的单元格以 '开头.
-            //譬如: '$tb1Id. 对于这种配置我程序无法检测出来(或者说我没找到检测'开头的方法)
-            //下面代码有问题,当遇到日期类型的时候, 值是赋值上去的,但是 cells.value 却!= val .所以下面代码注释
-            //if (val != DBNull.Value  && val != null && val != "" && cells.Value != val)
-            //{
-            //    //如果值没赋值上去,那么抛异常
-            //    throw new Exception($"工作簿'{cells.Worksheet.Name}'的配置列'{colMapperName}'的单元格格式有问题,程序无法将值'{val}'赋值到对应的单元 格'{cells.Address}'中.配置的单元格中可能是'开头的,请把'去掉");
-            //}
         }
 
         /// <summary>
@@ -411,66 +463,67 @@ namespace EpplusHelperExtensions
                                 SetWorksheetCellsValue(config, cells, val, colMapperName);
                             }
 
-                            bool isAddTitle = false;
-                            if (j == startCellPointLine.Count - 1)
+                            if (j == startCellPointLine.Count - 1)//如果一行循环到了最后一列
                             {
-                                if (!configSource.SheetBodySync.ContainsKey(nth.Key))
+                                if (!configSource.SheetBodyFillModel.ContainsKey(nth.Key))
                                 {
                                     continue;
                                 }
-                                var syncConfig = configSource.SheetBodySync[nth.Key];
-                                if (syncConfig == null)
+                                var fillModel = configSource.SheetBodyFillModel[nth.Key];
+                                if (fillModel == null)
                                 {
                                     continue;
                                 }
-                                if (!syncConfig.SyncSheetBody)
+                                if (fillModel.FillDataMethodOption == SheetBodyFillDataMethodOption.Default)
                                 {
                                     continue;
                                 }
-
-                                var notMapperColumn = new Dictionary<string, bool>();
-
-                                foreach (DataColumn column in datatable.Columns)
+                                if (fillModel.FillDataMethodOption == SheetBodyFillDataMethodOption.SynchronizationDataSource)
                                 {
-                                    notMapperColumn.Add(column.ColumnName, false);
-                                }
-                                foreach (var item in nth.Value)
-                                {
-                                    notMapperColumn[item.Value] = true;
-                                }
+                                    //todo:改方法存在问题,需要修复
 
-                                if (!isAddTitle && syncConfig.SyncSheetBodyNeedTitle)
-                                {
-                                    var extensionDestRowStart_title = nth.Key == 1
-                                         ? startCellPointLine[0].Row
-                                         : startCellPointLine[0].Row + sheetBodyAddRowCount;
+                                    #region 获得未填充的列
+                                    var notFillDataColumns = new Dictionary<string, bool>();
 
-                                    var config_firstCell_col = new ExcelCellPoint(nth.Value.First().Key).Col;
-                                    var extensionDestColStart_title = config_firstCell_col + nth.Value.Count;
-                                    foreach (var item in notMapperColumn)
+                                    foreach (DataColumn column in datatable.Columns)
                                     {
-                                        if (item.Value) continue;
-
-                                        extensionDestColStart_title++;
-                                        var extTitleCells = worksheet.Cells[extensionDestRowStart_title, extensionDestColStart_title];
-                                        SetWorksheetCellsValue(config, extTitleCells, item.Key, colMapperName);//item.key 是列名
-
+                                        notFillDataColumns.Add(column.ColumnName, false);
                                     }
-                                    isAddTitle = true;
+                                    foreach (var item in nth.Value)
+                                    {
+                                        notFillDataColumns[item.Value] = true;
+                                    }
+                                    #endregion
 
+                                    if (fillModel.SynchronizationDataSource.NeedBody && fillModel.SynchronizationDataSource.NeedTitle)
+                                    {
+                                        var extensionDestRowStart_title = nth.Key == 1
+                                             ? startCellPointLine[0].Row
+                                             : startCellPointLine[0].Row + sheetBodyAddRowCount;
 
+                                        var config_firstCell_col = new ExcelCellPoint(nth.Value.First().Key).Col;
+                                        var extensionDestColStart_title = config_firstCell_col + nth.Value.Count;
+                                        foreach (var item in notFillDataColumns)
+                                        {
+                                            if (item.Value) continue;
+
+                                            extensionDestColStart_title++;
+                                            var extTitleCells = worksheet.Cells[extensionDestRowStart_title, extensionDestColStart_title];
+                                            SetWorksheetCellsValue(config, extTitleCells, item.Key, colMapperName);//item.key 是列名
+
+                                        }
+                                    }
+
+                                    var extensionDestRowStart = nth.Key == 1
+                                        ? startCellPointLine[0].Row
+                                        : startCellPointLine[0].Row + sheetBodyAddRowCount;
+
+                                    var extensionDestColStart = destCol;
+                                    extensionDestColStart++;
+
+                                    var extCells = worksheet.Cells[extensionDestRowStart, extensionDestColStart];
+                                    SetWorksheetCellsValue(config, cells, val, colMapperName);
                                 }
-
-                                var extensionDestRowStart = nth.Key == 1
-                                    ? startCellPointLine[0].Row
-                                    : startCellPointLine[0].Row + sheetBodyAddRowCount;
-
-                                var extensionDestColStart = destCol;
-                                extensionDestColStart++;
-
-                                var extCells = worksheet.Cells[extensionDestRowStart, extensionDestColStart];
-                                SetWorksheetCellsValue(config, cells, val, colMapperName);
-
                             }
                         }
 
@@ -537,6 +590,83 @@ namespace EpplusHelperExtensions
 
         #endregion
 
+        #region 私有方法
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cells">s结尾表示单元格有可能是合并单元格</param>
+        /// <param name="val">值</param>
+        /// <param name="colMapperName">excel填充的列名,不想传值请使用null</param> 
+        private static void SetWorksheetCellsValue(EpplusConfig config, ExcelRange cells, object val, string colMapperName)
+        {
+            if (config.UseFundamentals)
+            {
+                config.CellFormatDefault(colMapperName, val, cells);
+            }
+            cells.Value = val;
+            //注:排除3种值( DBNull.Value , null , "") 后 如果 cells.Value 仍然没有值,有可能是配置的单元格以 '开头.
+            //譬如: '$tb1Id. 对于这种配置我程序无法检测出来(或者说我没找到检测'开头的方法)
+            //下面代码有问题,当遇到日期类型的时候, 值是赋值上去的,但是 cells.value 却!= val .所以下面代码注释
+            //if (val != DBNull.Value  && val != null && val != "" && cells.Value != val)
+            //{
+            //    //如果值没赋值上去,那么抛异常
+            //    throw new Exception($"工作簿'{cells.Worksheet.Name}'的配置列'{colMapperName}'的单元格格式有问题,程序无法将值'{val}'赋值到对应的单元 格'{cells.Address}'中.配置的单元格中可能是'开头的,请把'去掉");
+            //}
+        }
+
+        /// <summary>
+        ///  从Excel 中获得符合C# 类属性定义的列名集合
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <param name="row">列名在Excel的第几行</param>
+        /// <returns></returns>
+        private static List<ExcelCellInfo> GetExcelColumnOfModel(ExcelWorksheet ws, int row, int colStart, int? colEnd)
+        {
+            if (colEnd == null) colEnd = EpplusConfig.MaxCol07;
+            var list = new List<ExcelCellInfo>();
+            for (int col = colStart; col < colEnd; col++)
+            {
+                //去掉不合理的属性命名的字符串(提取合法的字符并接成一个字符串)
+                string reg = @"[_a-zA-Z\u4e00-\u9FFF][A-Za-z0-9_\u4e00-\u9FFF]*";
+                string colName = RegexHelper.GetStringByReg(ws.Cells[row, col].Text, reg).Aggregate("", (current, item) => current + item);
+                if (string.IsNullOrEmpty(colName)) break;
+
+                list.Add(new ExcelCellInfo()
+                {
+                    WorkSheet = ws,
+                    Value = colName,
+                    ExcelCellPoint = new ExcelCellPoint(row, col)
+                });
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// excel的所有列均在model对象的属性中
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="colNameList"></param>
+        /// <param name="modelCheckMsg"></param>
+        /// <returns></returns>
+        private static bool IsAllExcelColumnExistsModel<T>(List<ExcelCellInfo> colNameList, out string modelCheckMsg) where T : class, new()
+        {
+            StringBuilder sb = new StringBuilder();
+            Type type = typeof(T);
+            foreach (var item in colNameList)
+            {
+                PropertyInfo pInfo = type.GetProperty(item.Value.ToString());
+                if (pInfo == null)
+                {
+                    sb.AppendLine($"WorkSheet:'{item.WorkSheet.Name}' 的'{item.ExcelCellPoint.R1C1}'值'{item.Value}'在'{type.FullName}'类型中没有定义该属性");
+                }
+            }
+            modelCheckMsg = sb.ToString();
+            return sb.Length <= 0;
+        }
+
+
         /// <summary>
         /// 设置报表(能折叠行的excel)格式
         /// </summary>
@@ -558,104 +688,16 @@ namespace EpplusHelperExtensions
             //worksheet.Row(destRow).Collapsed = config.Report.Collapsed;
             worksheet.OutLineSummaryBelow = config.Report.OutLineSummaryBelow;
         }
+        #endregion
 
-        /// <summary>
-        /// 获得Excel的第N个Sheet
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <param name="workSheetIndex">从1开始</param>
-        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, int workSheetIndex)
-        {
-            if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
-            int sheetCount = excelPackage.Workbook.Worksheets.Count;
-            if (workSheetIndex > sheetCount)
-            {
-                throw new ArgumentException($@"形参{nameof(workSheetIndex)}大于当前Excel的工作簿数量", nameof(workSheetIndex));//指定的参数已超出有效值的范围
-            }
-            return excelPackage.Workbook.Worksheets[workSheetIndex];
-        }
+        #region 获得空配置
 
-        /// <summary>
-        /// 根据workSheetIndex获得模版worksheet,然后复制一份出来并重命名成workSheetName并返回 
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <param name="workSheetIndex">从1开始</param>
-        /// <param name="workSheetNewName"></param>
-        /// <returns></returns>
-        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, int workSheetIndex, string workSheetNewName)
-        {
-            if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
-            if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
-            var wsMom = GetExcelWorksheet(excelPackage, workSheetIndex);
-            var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
-            ws.Name = workSheetNewName;
-            return ws;
-        }
+        public static EpplusConfig GetEmptyConfig => new EpplusConfig();
+        public static EpplusConfigSource GetEmptyConfigSource => new EpplusConfigSource();
 
-        /// <summary>
-        /// 根据worksheet名字获得worksheet
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <param name="workName"></param>
-        /// <returns></returns>
-        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName)
-        {
-            return GetExcelWorksheet(excelPackage, workName, false);
+        #endregion
 
-        }
-
-        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName, bool autoMappingWs)
-        {
-            if (workName == null) throw new ArgumentNullException(nameof(workName));
-            var ws = excelPackage.Workbook.Worksheets[workName];
-            if (autoMappingWs && ws == null && excelPackage.Workbook.Worksheets.Count == 1)
-            {
-                ws = excelPackage.Workbook.Worksheets[1];
-            }
-            if (ws == null) throw new ArgumentException($@"当前Excel中不存在名为'{workName}'的worksheet", nameof(workName));
-            return ws;
-        }
-        /// <summary>
-        /// 获得当前Excel的所有工作簿的名字
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <returns></returns>
-        public static List<string> GetExcelWorksheetNames(ExcelPackage excelPackage)
-        {
-            List<string> wsNameList = new List<string>();
-            for (int i = 1; i <= excelPackage.Workbook.Worksheets.Count; i++)
-            {
-                wsNameList.Add(GetExcelWorksheet(excelPackage, i).Name);
-            }
-            return wsNameList;
-        }
-
-        /// <summary>
-        /// 根据名字获取Worksheet,然后复制一份出来并重命名成workSheetName并返回 
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <param name="destWorkSheetName"></param>
-        /// <param name="workSheetNewName"></param>
-        /// <returns></returns>
-        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string destWorkSheetName, string workSheetNewName)
-        {
-            if (destWorkSheetName == null) throw new ArgumentNullException(nameof(destWorkSheetName));
-            if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
-            var wsMom = GetExcelWorksheet(excelPackage, destWorkSheetName);
-            var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
-            ws.Name = workSheetNewName;
-            return ws;
-        }
-
-        public static EpplusConfig GetEmptyConfig()
-        {
-            return new EpplusConfig();
-        }
-
-        public static EpplusConfigSource GetEmptyConfigSource()
-        {
-            return new EpplusConfigSource();
-        }
+        #region GetList<T>
 
         /// <summary>
         /// 只能是最普通的excel.(每个单元格都是未合并的,第一行是列名,数据从第一列开始填充的那种.)
@@ -705,7 +747,6 @@ namespace EpplusHelperExtensions
             });
         }
 
-
         public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellPrefix, Dictionary<string, string> everyCellReplace) where T : class, new()
         {
             return GetList<T>(new GetExcelListArgs<T>()
@@ -721,15 +762,15 @@ namespace EpplusHelperExtensions
             });
         }
 
-
         public static List<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
-
             ExcelWorksheet ws = args.ws;
             int rowIndex = args.rowIndex_Data;
             string everyCellPrefix = args.EveryCellPrefix;
             int dataNameRowIndex = args.rowIndex_DataName;
-            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplace == null ? args.EveryCellReplaceDefault : args.EveryCellReplace;
+            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplace == null
+                ? GetExcelListArgs<T>.EveryCellReplaceDefault
+                : args.EveryCellReplace;
             var havingFilter = args.HavingFilter;
             var whereFilter = args.WhereFilter;
 
@@ -855,172 +896,23 @@ namespace EpplusHelperExtensions
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T">T是给Filter用的</typeparam>
-        public class GetExcelListArgs<T> where T : class, new()
-        {
-            public ExcelWorksheet ws { get; set; }
-
-            /// <summary>
-            /// 数据起始行(不含列名),从1开始
-            /// </summary>
-            public int rowIndex_Data { get; set; } // = 2;
-
-            /// <summary>
-            /// 被遍历的单元格内容不为空时的起始字符必须是该字符,然后忽略该字符
-            /// </summary>
-            public string EveryCellPrefix { get; set; } = "";
-
-            public Dictionary<string, string> EveryCellReplace { get; set; } = null;
-
-            /// <summary>
-            /// 数据起始行(不含列名),从1开始
-            /// </summary>
-            public int rowIndex_DataName { get; set; }
-
-            public bool UseEveryCellReplace { get; set; } = true;
-
-            /// <summary>
-            /// EveryCellReplace的默认提供
-            /// </summary>
-            public Dictionary<string, string> EveryCellReplaceDefault = new Dictionary<string, string>
-            {
-                {"\t", ""},
-                {"\r", ""},
-                {"\n", ""},
-                {"\r\n", ""},
-            };
-            /// <summary>
-            /// 在return数据之前执行过滤操作
-            /// </summary>
-            public Func<T, bool> HavingFilter = null;
-
-            /// <summary>
-            /// 检查数据,如果数据正确,添加到 返回数据 集合中
-            /// </summary>
-            public Func<T, bool> WhereFilter = null;
-
-        }
-
-
-        /// <summary>
-        ///  从Excel 中获得符合C# 类属性定义的列名集合
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="row">列名在Excel的第几行</param>
-        /// <returns></returns>
-        public static List<CellInfo> GetExcelColumnOfModel(ExcelWorksheet ws, int row, int colStart, int? colEnd)
-        {
-            if (colEnd == null) colEnd = EpplusConfig.MaxCol07;
-            var list = new List<CellInfo>();
-            for (int col = colStart; col < colEnd; col++)
-            {
-                //去掉不合理的属性命名的字符串(提取合法的字符并接成一个字符串)
-                string colName = RegexHelper.GetStringByReg(ws.Cells[row, col].Text, @"[_a-zA-Z\u4e00-\u9FFF][A-Za-z0-9_\u4e00-\u9FFF]*")
-                    .Aggregate("", (current, item) => current + item);
-                if (string.IsNullOrEmpty(colName)) break;
-
-                list.Add(new CellInfo()
-                {
-                    WorkSheet = ws,
-                    Value = colName,
-                    ExcelCellPoint = new ExcelCellPoint(row, col)
-                });
-            }
-
-            return list;
-        }
-
-        /// <summary>
-        /// excel的所有列均在model对象的属性中
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="colNameList"></param>
-        /// <param name="modelCheckMsg"></param>
-        /// <returns></returns>
-        public static bool IsAllExcelColumnExistsModel<T>(List<CellInfo> colNameList, out string modelCheckMsg) where T : class, new()
-        {
-
-            StringBuilder sb = new StringBuilder();
-            Type type = typeof(T);
-            foreach (var item in colNameList)
-            {
-                PropertyInfo pInfo = type.GetProperty(item.Value.ToString());
-                if (pInfo == null)
-                {
-                    sb.AppendLine($"WorkSheet:'{item.WorkSheet.Name}' 的'{item.ExcelCellPoint.R1C1}'值'{item.Value}'在'{type.FullName}'类型中没有定义该属性");
-                }
-            }
-
-            if (sb.Length > 0)
-            {
-                modelCheckMsg = sb.ToString();
-                return false;
-            }
-            modelCheckMsg = "";
-            return true;
-        }
-
+        #endregion
 
         #region 一些帮助方法
 
         /// <summary>
-        /// 冻结窗口面板
+        /// 获得合并单元格的值 
         /// </summary>
         /// <param name="ws"></param>
-        /// <param name="row">冻结[1,Row)行</param>
-        /// <param name="column">冻结{1,Column) 列</param>
-        public static void FreezePanes(ExcelWorksheet ws, int row, int column)
-        {
-            ws.View.FreezePanes(row, column);
-        }
-
-        /// <summary>
-        /// 获取excel中对应的值
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="value"></param>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
         /// <returns></returns>
-        public static List<CellInfo> GetCellsBy(ExcelWorksheet ws, string value)
+        public static string GetMegerCellText(ExcelWorksheet ws, int row, int col)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            var cellsValue = ws.Cells.Value as object[,];
-            if (cellsValue == null) throw new ArgumentNullException();
-
-            return GetCellsBy(ws, cellsValue, a => a != null && a.ToString() == value);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cellsValue">一般通过ws.Cells.Value as object[,] 获得 </param>
-        /// <param name="match">示例: a => a != null && a.GetType() == typeof(string) && ((string) a == "备注")</param>
-        /// <returns></returns>
-        public static List<CellInfo> GetCellsBy(ExcelWorksheet ws, object[,] cellsValue, Predicate<object> match)
-        {
-            if (cellsValue == null) throw new ArgumentNullException(nameof(cellsValue));
-
-            var result = new List<CellInfo>();
-            for (int i = 0; i < cellsValue.GetLength(0); i++)
-            {
-                for (int j = 0; j < cellsValue.GetLength(1); j++)
-                {
-                    if (match != null && match.Invoke(cellsValue[i, j]))
-                    {
-                        result.Add(new CellInfo
-                        {
-                            WorkSheet = ws,
-                            ExcelCellPoint = new ExcelCellPoint(i + 1, j + 1),
-                            Value = cellsValue[i, j]
-                        });
-                    }
-                }
-            }
-
-            return result;
+            string range = ws.MergedCells[row, col];
+            if (range == null) return GetCellText(ws, row, col);
+            var ea = new ExcelAddress(range).Start;
+            return ws.Cells[ea.Row, ea.Column].Text;
         }
 
         /// <summary>
@@ -1052,10 +944,173 @@ namespace EpplusHelperExtensions
                     throw;
                 }
             }
-
-
-          
         }
+
+        /// <summary>
+        /// 根据dict检查指定单元格的值是否符合预先定义.
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <param name="dict">k:r1c1, v:具体值</param>
+        public static bool CheckWorkSheetCellValue(ExcelWorksheet ws, Dictionary<string, string> dict)
+        {
+            //var dict = new Dictionary<string, string>() { { "A1", "序号" } };
+            foreach (var key in dict.Keys)
+            {
+                var cell = new ExcelCellPoint(key);
+                if (EpplusHelper.GetCellText(ws, cell.Row, cell.Col) != dict[key])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 冻结窗口面板
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <param name="row">冻结[1,Row)行</param>
+        /// <param name="column">冻结{1,Column) 列</param>
+        public static void FreezePanes(ExcelWorksheet ws, int row, int column)
+        {
+            ws.View.FreezePanes(row, column);
+        }
+
+        #region 获得单元格
+        /// <summary>
+        /// 根据值获的excel中对应的单元格
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static List<ExcelCellInfo> GetCellsBy(ExcelWorksheet ws, string value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            var cellsValue = ws.Cells.Value as object[,];
+            if (cellsValue == null) throw new ArgumentNullException();
+
+            return GetCellsBy(ws, cellsValue, a => a != null && a.ToString() == value);
+        }
+
+        /// <summary>
+        /// 根据值获的excel中对应的单元格
+        /// </summary>
+        /// <param name="cellsValue">一般通过ws.Cells.Value as object[,] 获得 </param>
+        /// <param name="match">示例: a => a != null && a.GetType() == typeof(string) && ((string) a == "备注")</param>
+        /// <returns></returns>
+        public static List<ExcelCellInfo> GetCellsBy(ExcelWorksheet ws, object[,] cellsValue, Predicate<object> match)
+        {
+            if (cellsValue == null) throw new ArgumentNullException(nameof(cellsValue));
+
+            var result = new List<ExcelCellInfo>();
+            for (int i = 0; i < cellsValue.GetLength(0); i++)
+            {
+                for (int j = 0; j < cellsValue.GetLength(1); j++)
+                {
+                    if (match != null && match.Invoke(cellsValue[i, j]))
+                    {
+                        result.Add(new ExcelCellInfo
+                        {
+                            WorkSheet = ws,
+                            ExcelCellPoint = new ExcelCellPoint(i + 1, j + 1),
+                            Value = cellsValue[i, j]
+                        });
+                    }
+                }
+            }
+
+            return result;
+        }
+        #endregion
+
+        #region 科学计数法的cell转成文本格式的cell
+
+        /// <summary>
+        /// 科学计数法的cell转成文本格式的cell
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="savePath"></param>
+        /// <param name="containNoMatchCell">包含不匹配的单元格(即把所有的单元格变成文本格式),true:是.false:仅针对显示成科学计数法的cell变成文本</param>
+        /// <returns>是否有进行科学技术法的cell转换.true:是,fale:否</returns>
+        public static bool ScientificNotationFormatToString(ExcelPackage excelPackage, string savePath, bool containNoMatchCell = false)
+        {
+            long modifyCellCount = 0;//统计修改的次数
+
+            //下面代码之所以用if-else,是因为这样可以减少很多判断次数.
+            if (containNoMatchCell)
+            {
+                for (int workSheetIndex = 1; workSheetIndex <= excelPackage.Workbook.Worksheets.Count; workSheetIndex++)
+                {
+                    var sheet = GetExcelWorksheet(excelPackage, workSheetIndex);
+                    object[,] arr = sheet.Cells.Value as object[,];
+
+                    for (int i = 0; i < arr.GetLength(0); i++)
+                    {
+                        for (int j = 0; j < arr.GetLength(1); j++)
+                        {
+                            if (arr[i, j] != null)
+                            {
+                                modifyCellCount++;
+                                sheet.Cells[i + 1, j + 1].Value = sheet.Cells[i + 1, j + 1].Text;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int workSheetIndex = 1; workSheetIndex <= excelPackage.Workbook.Worksheets.Count; workSheetIndex++)
+                {
+                    var sheet = GetExcelWorksheet(excelPackage, workSheetIndex);
+                    object[,] arr = sheet.Cells.Value as object[,];
+
+                    for (int i = 0; i < arr.GetLength(0); i++)
+                    {
+                        for (int j = 0; j < arr.GetLength(1); j++)
+                        {
+                            if (arr[i, j] != null)
+                            {
+                                //两段代码唯一的区别
+                                var cell = sheet.Cells[i + 1, j + 1];
+                                if (cell.Value is double && cell.Text.Length > 11)
+                                {
+                                    modifyCellCount++;
+                                    cell.Value = cell.Text;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            using (var ms = new MemoryStream())
+            {
+                excelPackage.SaveAs(ms); // 导入数据到流中 
+                ms.Position = 0;
+                File.Delete(savePath); //删除文件。如果文件不存在,也不报错
+                ms.Save(savePath);
+            }
+
+            return modifyCellCount > 0;
+        }
+
+        /// <summary>
+        /// 处理Excel,将包含科学计数法的cell转成文本格式的cell
+        /// </summary>
+        /// <param name="fileFullPath">文件路径</param>
+        /// <param name="fileSaveAsPath">文件另存为路径</param>
+        /// <param name="containNoMatchCell">包含不匹配的单元格(即把所有的单元格变成文本格式),true:是.false:仅针对显示成科学计数法的cell变成文本</param>
+        /// <returns>是否有进行科学技术法的cell转换.true:是,fale:否</returns>
+        public static bool ScientificNotationFormatToString(string fileFullPath, string fileSaveAsPath, bool containNoMatchCell = false)
+        {
+            using (var fs = File.OpenRead(fileFullPath))
+            using (var excelPackage = new ExcelPackage(fs))
+            {
+                return ScientificNotationFormatToString(excelPackage, fileSaveAsPath, containNoMatchCell);
+            }
+        }
+
+        #endregion
 
         #endregion
 
@@ -1323,123 +1378,10 @@ namespace EpplusHelperExtensions
 
         #endregion
 
-        #region 科学计数法的cell转成文本格式的cell
+        #region 对单元格样式进行 Get Set
 
         /// <summary>
-        /// 科学计数法的cell转成文本格式的cell
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <param name="savePath"></param>
-        /// <param name="containNoMatchCell">包含不匹配的单元格(即把所有的单元格变成文本格式),true:是.false:仅针对显示成科学计数法的cell变成文本</param>
-        /// <returns>是否有进行科学技术法的cell转换.true:是,fale:否</returns>
-        public static bool ScientificNotationFormatToString(ExcelPackage excelPackage, string savePath, bool containNoMatchCell = false)
-        {
-            long modifyCellCount = 0;//有几处修改
-                                     //下面代码之所以用if-else,是因为这样可以减少很多判断次数.
-            if (containNoMatchCell)
-            {
-                for (int workSheetIndex = 1; workSheetIndex <= excelPackage.Workbook.Worksheets.Count; workSheetIndex++)
-                {
-                    var sheet = GetExcelWorksheet(excelPackage, workSheetIndex);
-                    object[,] arr = sheet.Cells.Value as object[,];
-
-                    for (int i = 0; i < arr.GetLength(0); i++)
-                    {
-                        for (int j = 0; j < arr.GetLength(1); j++)
-                        {
-                            if (arr[i, j] != null)
-                            {
-                                modifyCellCount++;
-                                sheet.Cells[i + 1, j + 1].Value = sheet.Cells[i + 1, j + 1].Text;
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (int workSheetIndex = 1; workSheetIndex <= excelPackage.Workbook.Worksheets.Count; workSheetIndex++)
-                {
-                    var sheet = GetExcelWorksheet(excelPackage, workSheetIndex);
-                    object[,] arr = sheet.Cells.Value as object[,];
-
-                    for (int i = 0; i < arr.GetLength(0); i++)
-                    {
-                        for (int j = 0; j < arr.GetLength(1); j++)
-                        {
-                            if (arr[i, j] != null)
-                            {
-                                //两段代码唯一的区别
-                                var cell = sheet.Cells[i + 1, j + 1];
-                                if (cell.Value is double && cell.Text.Length > 11)
-                                {
-                                    modifyCellCount++;
-                                    cell.Value = cell.Text;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            using (MemoryStream ms = new MemoryStream())
-            {
-                excelPackage.SaveAs(ms); // 导入数据到流中 
-                ms.Position = 0;
-                //if (File.Exists(savePath))
-                //{
-                //    File.Delete(savePath);
-                //}
-                File.Delete(savePath); //删除文件。如果文件不存在,也不报错
-                ms.Save(savePath);
-            }
-
-            return modifyCellCount > 0;
-        }
-
-        /// <summary>
-        ///  科学计数法的cell转成文本格式的cell
-        /// </summary>
-        /// <param name="fileFullPath">文件路径</param>
-        /// <param name="fileSaveAsPath">文件另存为路径</param>
-        /// <param name="containNoMatchCell">包含不匹配的单元格(即把所有的单元格变成文本格式),true:是.false:仅针对显示成科学计数法的cell变成文本</param>
-        /// <returns>是否有进行科学技术法的cell转换.true:是,fale:否</returns>
-        public static bool ScientificNotationFormatToString(string fileFullPath, string fileSaveAsPath, bool containNoMatchCell = false)
-        {
-            using (FileStream fs = File.OpenRead(fileFullPath))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
-            {
-                return ScientificNotationFormatToString(excelPackage, fileSaveAsPath, containNoMatchCell);
-            }
-        }
-
-        #endregion
-
-        /// <summary>
-        /// 设置Cell样式(没用过,方法体中的代码是大熊发我的)
-        /// </summary>
-        /// <param name="cell"></param>
-        /// <param name="style"></param>
-        public static void SetCellStyle(ExcelRange cell, EpplusCellStyle style)
-        {
-            cell.Style.HorizontalAlignment = style.HorizontalAlignment;
-            cell.Style.VerticalAlignment = style.VerticalAlignment;
-            cell.Style.WrapText = style.WrapText;
-            cell.Style.Font.Bold = style.FontBold;
-            cell.Style.Font.Color.SetColor(style.FontColor);
-            if (!string.IsNullOrEmpty(style.FontName))
-            {
-                cell.Style.Font.Name = style.FontName;
-            }
-
-            cell.Style.Font.Size = style.FontSize;
-            cell.Style.Fill.PatternType = style.PatternType;
-            cell.Style.Fill.BackgroundColor.SetColor(style.BackgroundColor);
-            cell.Style.ShrinkToFit = style.ShrinkToFit;
-        }
-
-        /// <summary>
-        ///  获取Cell样式(没用过,方法体中的代码是大熊发我的)
+        ///  获取Cell样式
         /// </summary>
         /// <param name="cell"></param>
         /// <returns></returns>
@@ -1462,6 +1404,30 @@ namespace EpplusHelperExtensions
 
             return cellStyle;
         }
+
+        /// <summary>
+        /// 设置Cell样式
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <param name="style"></param>
+        public static void SetCellStyle(ExcelRange cell, EpplusCellStyle style)
+        {
+            cell.Style.HorizontalAlignment = style.HorizontalAlignment;
+            cell.Style.VerticalAlignment = style.VerticalAlignment;
+            cell.Style.WrapText = style.WrapText;
+            cell.Style.Font.Bold = style.FontBold;
+            cell.Style.Font.Color.SetColor(style.FontColor);
+            if (!string.IsNullOrEmpty(style.FontName))
+            {
+                cell.Style.Font.Name = style.FontName;
+            }
+            cell.Style.Font.Size = style.FontSize;
+            cell.Style.Fill.PatternType = style.PatternType;
+            cell.Style.Fill.BackgroundColor.SetColor(style.BackgroundColor);
+            cell.Style.ShrinkToFit = style.ShrinkToFit;
+        }
+
+        #endregion
 
         #region 一些默认的sql语句
 
@@ -1584,516 +1550,5 @@ namespace EpplusHelperExtensions
 
         #endregion
 
-        /// <summary>
-        /// 我自定义的Cell样式类(根据上面2个方法推出来的)
-        /// </summary>
-        public class EpplusCellStyle
-        {
-            public ExcelHorizontalAlignment HorizontalAlignment { get; set; }
-            public ExcelVerticalAlignment VerticalAlignment { get; set; }
-            public bool WrapText { get; set; }
-            public bool FontBold { get; set; }
-            public Color FontColor { get; set; }
-            public Color BackgroundColor { get; set; }
-            public string FontName { get; set; }
-            public float FontSize { get; set; }
-            public ExcelFillStyle PatternType { get; set; }
-            public bool ShrinkToFit { get; set; }
-        }
-
-        /// <summary>
-        /// 根据dict检查指定单元格的值是否符合预先定义.
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="dict">k:r1c1, v:具体值</param>
-        public static bool CheckWorkSheetCellValue(ExcelWorksheet ws, Dictionary<string, string> dict)
-        {
-            //var dict = new Dictionary<string, string>() { { "A1", "序号" } };
-            foreach (var key in dict.Keys)
-            {
-                var cell = new ExcelCellPoint(key);
-                if (EpplusHelper.GetCellText(ws, cell.Row, cell.Col) != dict[key])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-    }
-
-    /// <summary>
-    /// 保存一个合并单元格的结构体
-    /// </summary>
-    public struct ExcelCellRange
-    {
-        public ExcelCellRange(string range)
-        {
-            Range = range;
-            var cellPoints = range.Split(':');
-
-            switch (cellPoints.Length)
-            {
-                case 1:
-                    Start = new ExcelCellPoint(cellPoints[0].Trim());
-                    End = default(ExcelCellPoint);
-                    IntervalCol = 0;
-                    IntervalRow = 0;
-                    IsMerge = false;
-                    break;
-                case 2:
-                    Start = new ExcelCellPoint(cellPoints[0].Trim());
-                    End = new ExcelCellPoint(cellPoints[1].Trim());
-                    IntervalCol = End.Col - Start.Col;
-                    IntervalRow = End.Row - Start.Row;
-                    IsMerge = true;
-                    break;
-                default:
-                    throw new Exception("程序的配置有问题");
-            }
-
-        }
-
-        /// <summary>
-        /// 范围(保存的是配置时的字符串.在程序中用来当作key使用)
-        /// </summary>
-        public string Range { get; private set; }
-
-        /// <summary>
-        /// 开始Point
-        /// </summary>
-        public ExcelCellPoint Start { get; private set; }
-
-        /// <summary>
-        /// 结束Point
-        /// </summary>
-        public ExcelCellPoint End { get; private set; }
-
-        /// <summary>
-        /// 间距行是多少
-        /// </summary>
-        public int IntervalRow { get; private set; }
-
-        /// <summary>
-        /// 间距列是多少
-        /// </summary>
-        public int IntervalCol { get; private set; }
-
-        /// <summary>
-        /// 是否是合并单元格
-        /// </summary>
-        public bool IsMerge { get; private set; }
-    }
-
-    /// <summary>
-    /// 记录ExcelCell位置的一个结构体
-    /// </summary>
-    public struct ExcelCellPoint
-    {
-        public int Row;
-        public int Col;
-
-        /// <summary>
-        /// 譬如A2等
-        /// </summary>
-        public string R1C1;
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="row">从1开始的整数</param>
-        ///// <param name="col">只能是字母</param>
-        ///// <param name="r1C1">譬如A2 等</param>
-        //public ExcelCellPoint(int row, string col, string r1C1)
-        //{
-        //    Row = row;
-        //    Col = R1C1Formulas(col);
-        //    R1C1 = r1C1;
-        //}
-        public ExcelCellPoint(string r1C1)
-        {
-            //K3 = row:3, col:11
-            r1C1 = r1C1.Split(':')[0].Trim(); //防止传入 "A1:B3" 这种的配置格式的
-            Row = Convert.ToInt32(RegexHelper.GetLastNumber(r1C1));//3
-            Col = R1C1Formulas(RegexHelper.GetFirstStringByReg(r1C1, "[A-Za-z]+"));//K -> 11
-            R1C1 = r1C1;
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="row">从1开始的整数</param>
-        /// <param name="col">从1开始的整数</param>
-        public ExcelCellPoint(int row, int col)
-        {
-            Row = row;
-            Col = col;
-            R1C1 = R1C1FormulasReverse(col) + row;
-        }
-
-        /// <summary>
-        /// 譬如: A->1 . 在excel的选项->属性->公式  下有个 R1C1引用样式
-        /// </summary>
-        /// <param name="col">只能是字母</param>
-        /// <returns></returns>
-        public static int R1C1Formulas(string col)
-        {
-            col = col.ToUpper();
-            Dictionary<string, int> r1C1 = new Dictionary<string, int>
-            {
-                {"A", 1},{"B", 2},{"C", 3},{"D", 4},{"E", 5},{"F", 6},
-                {"G", 7},{"H", 8},{"I", 9},{"J", 10},{"K", 11},{"L", 12},
-                {"M", 13},{"N", 14},{"O", 15},{"P", 16},{"Q", 17},{"R", 18},
-                {"S", 19},{"T", 20},{"U", 21},{"V", 22},{"W", 23},{"X", 24},
-                {"Y", 25},{"Z", 26},
-            };
-            int colLength = col.Length;
-            if (colLength == 1)
-            {
-                return r1C1[col];
-            }
-            int sum = 0;
-            for (int i = 0; i < colLength; i++)
-            {
-                char c = col[i];
-                int num = r1C1[c + ""];
-                sum += (int)(num * Math.Pow(26, colLength - i - 1));
-            }
-            return sum;
-        }
-
-        /// <summary>
-        /// 譬如1->A 
-        /// </summary>
-        /// <param name="num">excel的第几列</param>
-        /// <returns></returns>
-        public static string R1C1FormulasReverse(int num)
-        {
-            if (num <= 0)
-            {
-                throw new Exception("parameter 'col' can not less zero");
-            }
-            Dictionary<int, char> r1C1 = new Dictionary<int, char>
-            {
-                {1,'A'},{2,'B'},{3,'C'},{4,'D'},{5,'E'},{6,'F'},
-                {7,'G'},{8,'H'},{9,'I'},{10,'J'},{11,'K'},{12,'L'},
-                {13,'M'},{14,'N'},{15,'O'},{16,'P'},{17,'Q'},{18,'R'},
-                {19,'S'},{20,'T'},{21,'U'},{22,'V'},{23,'W'},{24,'X'},
-                {25,'Y'},{26,'Z'},{0,'A'}
-            };
-            if (num <= 26) //这个if属于优化,若删掉.也没有关系
-            {
-                return r1C1[num].ToString();
-            }
-            List<char> charList = new List<char>();
-            int cimi = -1; //次幂数
-
-            while (true)
-            {
-                cimi++;
-                var num2 = (long)Math.Pow(26, cimi); //while的终止条件与计算条件
-                if (num >= num2)
-                {
-                    int mod = num / (int)num2 % 26;//余数
-                    charList.Add(mod != 0 ? r1C1[mod] : r1C1[26]);
-                    num -= (int)num2;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = charList.Count - 1; i >= 0; i--)
-            {
-                sb.Append(charList[i]);
-            }
-            return sb.ToString();
-
-        }
-    }
-
-    public class CellInfo
-    {
-        public ExcelWorksheet WorkSheet { get; set; }
-        public ExcelCellPoint ExcelCellPoint { get; set; }
-        public object Value { get; set; }
-    }
-    /// <summary>
-    /// 配置信息 
-    /// </summary>
-    public class EpplusConfig
-    {
-        #region Excel的最大行与列
-        /// <summary>
-        /// Excel2007开始最大行是1048576,2^20次方
-        /// </summary>
-        public static readonly int MaxRow07 = 1048576;
-
-        /// <summary>
-        /// excel 2007 和excel 2010最大有2^20=1048576行,2^14=16384列
-        /// </summary>
-        public static readonly int MaxCol07 = 16384;
-
-        /// <summary>
-        /// Excel2003的最大行是65536行
-        /// </summary>
-        public static readonly int MaxRow03 = 65536;
-
-        /// <summary>
-        ///  excel 2003 工作表最大有2^16=65536行,2^8=256列
-        /// </summary>
-        public static readonly int MaxCol03 = 256;
-        #endregion
-
-        /// <summary>
-        /// 用来初始化的一些数据的
-        /// </summary>
-        public EpplusConfig()
-        {
-            SheetHeadMapperExcel = new Dictionary<string, string>();
-            SheetHeadMapperSource = new Dictionary<string, string>();
-            SheetHeadCellCustomSetValue = null;
-
-            //注:body是没有数据源的配置的,全靠一个默认约定
-            SheetBodyMapperExcel = new Dictionary<int, Dictionary<string, string>>();
-            SheetBodyCellCustomSetValue = new Dictionary<int, Action<string, object, ExcelRange>>();
-            SheetBodySummaryMapperExcel = new Dictionary<int, Dictionary<string, string>>();
-            SheetBodySummaryMapperSource = new Dictionary<int, Dictionary<string, string>>();
-            SheetBodySummaryCellCustomSetValue = new Dictionary<int, Action<string, object, ExcelRange>>();
-            SheetBodyMapperExceltemplateLine = new Dictionary<int, int>();
-
-            SheetFootMapperExcel = new Dictionary<string, string>();
-            SheetFootMapperSource = new Dictionary<string, string>();
-            SheetFootCellCustomSetValue = null;
-
-            Report = new EpplusReport();
-            IsReport = false;
-            DeleteFillDateStartLineWhenDataSourceEmpty = false;
-        }
-
-        #region head
-        /// <summary>
-        /// sheet head 用来完成指定单元格的内容配置
-        /// 譬如A2,Name. key不区分大小写,即A2与a2是一样的.建议大写
-        /// </summary>
-        public Dictionary<string, string> SheetHeadMapperExcel { get; set; }
-
-        /// <summary>
-        /// sheet head 的数据源的配置
-        /// 譬如Name,张三. key严格区分大小写
-        /// </summary>
-        public Dictionary<string, string> SheetHeadMapperSource { get; set; }
-        /// <summary>
-        /// 自定义设置值
-        /// </summary>
-        public Action<string, object, ExcelRange> SheetHeadCellCustomSetValue;
-
-        #endregion
-
-        #region body
-        /// <summary>
-        /// sheet body 的内容配置.注.int必须是从1开始的且递增+1的自然数
-        /// </summary>
-        public Dictionary<int, Dictionary<string, string>> SheetBodyMapperExcel;
-        /// <summary>
-        /// 自定义设置值
-        /// </summary>
-        public Dictionary<int, Action<string, object, ExcelRange>> SheetBodyCellCustomSetValue;
-
-        /// <summary>
-        /// sheet body中固定的单元格. 譬如汇总信息等.譬如A8,Name,前面的int表示这个汇总是哪个SheetBody的
-        /// </summary>
-        public Dictionary<int, Dictionary<string, string>> SheetBodySummaryMapperExcel { get; set; }
-
-        /// <summary>
-        /// sheet body中固定的单元格的数据源,譬如Name,张三
-        /// </summary>
-        public Dictionary<int, Dictionary<string, string>> SheetBodySummaryMapperSource { get; set; }
-        /// <summary>
-        /// 自定义设置值
-        /// </summary>
-        public Dictionary<int, Action<string, object, ExcelRange>> SheetBodySummaryCellCustomSetValue;
-
-        /// <summary>
-        /// SheetBody模版自带(提供)多少行(根据这个,在结合数据源,程序内部判断是否新增行)
-        /// </summary>
-        public Dictionary<int, int> SheetBodyMapperExceltemplateLine { get; set; }
-        #endregion
-
-        #region foot
-
-        /// <summary>
-        /// sheet foot 用来完成指定单元格的内容配置
-        /// 譬如A8,Name
-        /// </summary>
-        public Dictionary<string, string> SheetFootMapperExcel { get; set; }
-
-        /// <summary>
-        /// sheet foot 的数据源
-        /// 譬如Name,张三</summary>
-        public Dictionary<string, string> SheetFootMapperSource { get; set; }
-        /// <summary>
-        /// 自定义设置值
-        /// </summary>
-        public Action<string, object, ExcelRange> SheetFootCellCustomSetValue;
-        //使用方式
-        //config.SheetBodyCellCustomSetValue.Add(1, (colName, val, cell) =>
-        //{
-        //    if (colName == "配置列名")
-        //    {
-        //        cell.Formula = (string)val;//值为公式
-        //    }
-        //    else
-        //    {
-        //        cell.Value = val;
-        //    }
-        //}
-        #endregion
-
-        /// <summary>
-        /// 报表(excel能折叠的那种)的显示的一些配置
-        /// </summary>
-        public EpplusReport Report { get; set; }
-
-        /// <summary>
-        /// 标识是否是一个报表格式(excel能折叠的)的Worksheet(目前该属性表示每一个worksheet), 默认False
-        /// </summary>
-        public bool IsReport { get; set; }
-
-        /// <summary>
-        /// 当填充的数据源为空时,是否删除填充的起始行,默认false
-        /// </summary>
-        public bool DeleteFillDateStartLineWhenDataSourceEmpty;
-
-        /// <summary>
-        /// 是否使用默认(单元格格式)约定,默认true 注:settingCellFormat若与默认的发成冲突,会把默认的cell格式给覆盖.
-        /// </summary>
-        public bool UseFundamentals = true;
-        /// <summary>
-        /// 默认的单元格格式设置,colMapperName 是配置单元格的名字 譬如 $tb1Id, 那么colMapperName值就为Id
-        /// </summary>
-
-        public Action<string, object, ExcelRange> CellFormatDefault = (colMapperName, val, cells) =>
-        {
-            //关于格式,可以参考右键单元格->设置单元格格式->自定义中的类型 或看文档: https://support.office.microsoft.com/zh-CN/excel ->自定义 Excel->创建或删除自定义数字格式
-            string formatStr = cells.Style.Numberformat.Format;
-            //含有Id的列,默认是文本类型,目的是放防止出现科学计数法
-            if (colMapperName != null && colMapperName.ToLower().EndsWith("id"))
-            {
-                if (formatStr != "@")
-                {
-                    cells.Style.Numberformat.Format = "@"; //Format as text
-                }
-                val = val.ToString(); //确保值是string类型的
-            }
-            //若没有设置日期格式,默认是yyyy-mm-dd
-            //大写字母是为了冗错.注:excel的日期格式写成大写的是不会报错的,但文档中全是小写的.
-            var dateCode = new List<char> { '@', 'y', 'Y', 's', 'S', 'm', 'M', 'h', 'H', 'd', 'D', 'A', 'P', ':', '.', '0', '[', ']' };
-            if (val is DateTime)
-            {
-                bool changeformat = true;
-                foreach (var c in formatStr) //这边不能用优化成linq,优化成linq有问题
-                {
-                    if (dateCode.Contains(c))
-                    {
-                        changeformat = false;
-                        break;
-                    }
-                }
-                if (changeformat) //若为true,表示没有人为的设置该cell的日期显示格式
-                {
-                    cells.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
-                }
-            }
-        };
-
-        public Action<ExcelWorksheet> WorkSheetDefault;
-        //= worksheet =>
-        //{
-        //    //worksheet.DefaultColWidth = 72; //默认列宽
-        //    //worksheet.DefaultRowHeight = 18; //默认行高
-        //    //worksheet.TabColor = Color.Blue; //Sheet Tab的颜色
-        //    //worksheet.Cells.Style.WrapText = true; //单元格文字自动换行
-        //};
-
-
-
-    }
-
-    public class EpplusReport
-    {
-        /// <summary>
-        /// 行折叠的deth(Level)在DataRow中什么列表示.默认:Level
-        /// </summary>
-        public string RowLevelColumnName { get; set; } = "Level";
-
-        #region 行折叠默认配置
-
-        /// <summary>
-        /// 行是否合并显示
-        /// </summary>
-        public bool Collapsed { get; set; } = true;
-
-        /// <summary>
-        /// 合并/展开 行 的折叠符号是否在右边
-        /// </summary>
-        public bool OutLineSummaryBelow { get; set; } = false;
-
-        #endregion
-
-        #region 列 折叠默认配置(暂不支持该功能,主要是还没遇到列合并的导出需求)
-
-        ///// <summary>
-        ///// 列 是否合并显示
-        ///// </summary>
-        //public bool RowCollaspsed { get; set; } = true;
-        ///// <summary>
-        ///// 合并/展开 列 的折叠符号是否在下面
-        ///// </summary>
-        //public bool OutLineSummaryRight { get; set; } = false;
-
-        #endregion
-    }
-
-    public class SheetBodySync
-    {
-        /// <summary>
-        /// 与数据源进行同步,当数据源的数据列多余excel的配置时生效
-        /// </summary>
-        public bool SyncSheetBody { get; set; } = false;
-
-        public bool SyncSheetBodyNeedTitle { get; set; } = true;
-    }
-    /// <summary>
-    /// 配置信息的数据源
-    /// </summary>
-    public class EpplusConfigSource
-    {
-        public EpplusConfigSource()
-        {
-            SheetHead = new Dictionary<string, string>();
-            SheetBody = new Dictionary<int, DataTable>();
-            SheetBodySync = new Dictionary<int, SheetBodySync>();
-            SheetBodySummary = new Dictionary<int, Dictionary<object, object>>();
-            SheetFoot = new Dictionary<string, string>();
-        }
-        public Dictionary<string, string> SheetHead { get; set; }
-        public Dictionary<int, DataTable> SheetBody { get; set; }
-        public Dictionary<int, SheetBodySync> SheetBodySync { get; set; }
-        public Dictionary<int, Dictionary<object, object>> SheetBodySummary { get; set; }
-        public Dictionary<string, string> SheetFoot { get; set; }
-
-    }
-
-    /// <summary>
-    /// excel列不在Model中异常
-    /// </summary>
-    public class ExcelColumnNotExistsWithModelException : Exception
-    {
-        public ExcelColumnNotExistsWithModelException() : base() { }
-        public ExcelColumnNotExistsWithModelException(string message) : base(message) { }
     }
 }

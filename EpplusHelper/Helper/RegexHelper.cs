@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace EpplusHelperExtensions
+namespace EpplusExtensions
 {
     public static class RegexHelper
     {
