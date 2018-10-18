@@ -688,12 +688,130 @@ namespace EpplusExtensions
             //worksheet.Row(destRow).Collapsed = config.Report.Collapsed;
             worksheet.OutLineSummaryBelow = config.Report.OutLineSummaryBelow;
         }
+
+        private static void GetList_SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
+        {
+            value = value.Trim();
+            #region string
+            if (pInfo.PropertyType == typeof(string))
+            {
+                pInfo.SetValue(model, value);
+                //pInfo.SetValue(model, ws.Cells[row, col].Text);
+                //type.GetProperty(colName)?.SetValue(model, ws.Cells[row, col].Text);
+                return;
+            }
+            #endregion
+            #region DateTime
+            var isNullable_DateTime = pInfo.PropertyType == typeof(DateTime?);
+            if (isNullable_DateTime && value.Length <= 0)
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_DateTime || pInfo.PropertyType == typeof(DateTime))
+            {
+                pInfo.SetValue(model, Convert.ToDateTime(value));
+                return;
+            }
+            #endregion
+            #region decimal
+            var isNullable_decimal = pInfo.PropertyType == typeof(decimal?);
+            if (isNullable_decimal && value.Length <= 0)
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_decimal || pInfo.PropertyType == typeof(decimal))
+            {
+                pInfo.SetValue(model, Convert.ToDecimal(value));
+                return;
+            }
+            #endregion
+            #region Int16
+            var isNullable_Int16 = pInfo.PropertyType == typeof(Int16?);
+            if (isNullable_Int16 && value.Length <= 0)
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_Int16 || pInfo.PropertyType == typeof(Int16))
+            {
+                pInfo.SetValue(model, Convert.ToInt16(value));
+                return;
+            }
+            #endregion
+            #region Int32
+            var isNullable_Int32 = pInfo.PropertyType == typeof(Int32?);
+            if (isNullable_Int32 && value.Length <= 0)
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_Int32 || pInfo.PropertyType == typeof(Int32))
+            {
+                pInfo.SetValue(model, Convert.ToInt32(value));
+                return;
+            }
+
+            #endregion
+            #region Int64
+            var isNullable_Int64 = pInfo.PropertyType == typeof(Int64?);
+            if (isNullable_Int64 && value.Length <= 0)
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_Int64 || pInfo.PropertyType == typeof(Int64))
+            {
+                pInfo.SetValue(model, Convert.ToInt64(value));
+                return;
+            }
+            #endregion
+            #region Enum
+            var pInfoType = pInfo.PropertyType;
+
+            bool isNullable_Enum = Nullable.GetUnderlyingType(pInfoType)?.IsEnum == true;
+            if (isNullable_Enum)
+            {
+                if (value.Length <= 0)
+                {
+                    pInfo.SetValue(model, null);
+                }
+                else
+                {
+                    var isDefined = Enum.IsDefined(pInfoType.GetProperty("Value").PropertyType, value);
+                    if (!isDefined)
+                    {
+                        throw new Exception($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                    }
+                    var enumValue = Enum.Parse(pInfoType.GetProperty("Value").PropertyType, value);
+                    pInfo.SetValue(model, enumValue);
+                }
+                return;
+            }
+            if (pInfoType.IsEnum)
+            {
+                var isDefined = Enum.IsDefined(pInfoType, value);
+                if (!isDefined)
+                {
+                    throw new Exception($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                }
+                var enumValue = Enum.Parse(pInfoType, value);
+                pInfo.SetValue(model, enumValue);
+                return;
+            }
+            #endregion
+
+            throw new Exception("未考虑到的情况!!!请完善程序");
+        }
+
         #endregion
 
         #region 获得空配置
 
-        public static EpplusConfig GetEmptyConfig => new EpplusConfig();
-        public static EpplusConfigSource GetEmptyConfigSource => new EpplusConfigSource();
+        public static EpplusConfig GetEmptyConfig() => new EpplusConfig();
+
+        public static EpplusConfigSource GetEmptyConfigSource() => new EpplusConfigSource();
 
         #endregion
 
@@ -826,65 +944,7 @@ namespace EpplusExtensions
                         }
                     }
 
-                    if (pInfo.PropertyType == typeof(string))
-                    {
-                        pInfo.SetValue(model, value);
-                        //pInfo.SetValue(model, ws.Cells[row, col].Text);
-                        //type.GetProperty(colName)?.SetValue(model, ws.Cells[row, col].Text);
-                    }
-                    else if (pInfo.PropertyType == typeof(DateTime?))
-                    {
-                        value = value.Trim();
-                        if (value.Length > 0)
-                        {
-                            pInfo.SetValue(model, Convert.ToDateTime(value));
-                        }
-                        else
-                        {
-                            pInfo.SetValue(model, null);
-                        }
-                    }
-                    else if (pInfo.PropertyType == typeof(DateTime))
-                    {
-                        value = value.Trim();
-                        pInfo.SetValue(model, Convert.ToDateTime(value));
-                    }
-                    else if (pInfo.PropertyType == typeof(decimal?))
-                    {
-                        value = value.Trim();
-                        if (value.Length > 0)
-                        {
-                            pInfo.SetValue(model, Convert.ToDecimal(value));
-                        }
-                        else
-                        {
-                            pInfo.SetValue(model, null);
-                        }
-                    }
-                    else if (pInfo.PropertyType == typeof(decimal))
-                    {
-                        value = value.Trim();
-                        pInfo.SetValue(model, Convert.ToDecimal(value));
-                    }
-                    else if (pInfo.PropertyType == typeof(Int16))
-                    {
-                        value = value.Trim();
-                        pInfo.SetValue(model, Convert.ToInt16(value));
-                    }
-                    else if (pInfo.PropertyType == typeof(Int32))
-                    {
-                        value = value.Trim();
-                        pInfo.SetValue(model, Convert.ToInt32(value));
-                    }
-                    else if (pInfo.PropertyType == typeof(Int64))
-                    {
-                        value = value.Trim();
-                        pInfo.SetValue(model, Convert.ToInt64(value));
-                    }
-                    else
-                    {
-                        throw new Exception("未考虑到的情况!!!请完善程序");
-                    }
+                    GetList_SetModelValue(pInfo, model, value);
                 }
 
                 if (whereFilter == null || whereFilter.Invoke(model))
@@ -895,6 +955,8 @@ namespace EpplusExtensions
             return havingFilter == null ? list : list.Where(item => havingFilter.Invoke(item)).ToList();
 
         }
+
+
 
         #endregion
 
