@@ -34,7 +34,39 @@
         /// 需要同步Title
         /// </summary>
         public bool NeedTitle { get; set; } = true;
+        /// <summary>
+        /// 多余列只需要哪些列
+        /// </summary>
+        public string Include { get; set; }
+        /// <summary>
+        /// 多余列中不要那些列
+        /// </summary>
+        public string Exclude { get; set; }
     }
 
+
+    public class FillDataColums
+    {
+        public FillDataColumsState State;
+        public string ColumName;
+    }
+
+    public enum FillDataColumsState
+    {
+        /// <summary>
+        /// 未使用
+        /// </summary>
+        Unchanged = 1,
+        /// <summary>
+        /// 已使用
+        /// </summary>
+        Used = 2,
+        /// <summary>
+        /// 将要使用
+        /// </summary>
+        WillUse = 3,
+        // 将不会使用
+        WillNotUse = 4
+    }
 
 }

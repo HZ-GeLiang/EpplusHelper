@@ -194,6 +194,18 @@ namespace EpplusExtensions
         /// <param name="worksheet"></param>
         private static void FillData(EpplusConfig config, EpplusConfigSource configSource, ExcelWorksheet worksheet)
         {
+            FillData_Head(config, configSource, worksheet);
+            var sheetBodyAddRowCount = FillData_Body(config, configSource, worksheet);
+            FillData_Foot(config, configSource, worksheet, sheetBodyAddRowCount);
+        }
+
+
+        #endregion
+
+        #region 私有方法
+
+        private static void FillData_Head(EpplusConfig config, EpplusConfigSource configSource, ExcelWorksheet worksheet)
+        {
             //填充head
             foreach (var item in config.SheetHeadMapperExcel)
             {
@@ -220,71 +232,84 @@ namespace EpplusExtensions
                     SetWorksheetCellsValue(config, cells, val, colMapperName);
                 }
             }
+        }
+
+        private static int FillData_Body(EpplusConfig config, EpplusConfigSource configSource, ExcelWorksheet worksheet)
+        {
             //填充body
             int sheetBodyDeleteRowCount = 0; //sheet body 中删除了多少行(只含配置的行,对于FillData()内的删除行则不包括在内).  
             var sheetBodyAddRowCount = 0; //新增了几行 (统计sheet body 在原有的模版上新增了多少行)
             foreach (var nth in config.SheetBodyMapperExcel) //body的第N个配置
             {
-                int currentLoopAddLines = 0;
+                #region get datatable
                 DataTable datatable;
                 if (!configSource.SheetBody.ContainsKey(nth.Key)) //如果没有数据源中没有excle中配置
                 {
-                    if (config.DeleteFillDateStartLineWhenDataSourceEmpty) //需要删除配置行(当数据源为空[无,null.rows.count=0])
+                    //需要删除配置行(当数据源为空[无,null.rows.count=0])
+                    if (!config.DeleteFillDateStartLineWhenDataSourceEmpty)
                     {
-                        datatable = null;
+                        continue; //不需要删除删除配置空行,那么直接跳过
                     }
-                    else
-                    {
-                        continue; //不许要删除删除配置空行,那么直接跳过
-                    }
+                    datatable = null;
                 }
                 else
                 {
                     datatable = configSource.SheetBody[nth.Key]; //body的第N个配置的数据源
                 }
 
+                #endregion
+
+                #region When datable is empty
                 if (datatable == null || datatable.Rows.Count <= 0) //数据源为null或为空
                 {
                     //throw new ArgumentNullException($"configSource.SheetBody[{nth.Key}]没有可读取的数据");
-                    if (config.DeleteFillDateStartLineWhenDataSourceEmpty && nth.Value.Keys.Count > 0)
+
+                    if (!config.DeleteFillDateStartLineWhenDataSourceEmpty || nth.Value.Keys.Count <= 0)
                     {
-                        foreach (var r1c1 in nth.Value.Keys) //只遍历一次
-                        {
-                            int driftVale = 1; //浮动值,如果是合并单元格,则取合并单元格的行数
-                            int delRow; //要删除的行号
-                            if (r1c1.Contains(":")) //如果是合并单元格,修改浮动的行数
-                            {
-                                var cells = r1c1.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                                if (cells.Length != 2) throw new Exception("该合并单元格的标识有问题,不是类似于A1:A2这个格式的");
-                                int mergeCellStartRow = Convert.ToInt32(RegexHelper.GetLastNumber(cells[0]));
-                                int mergeCellEndRow = Convert.ToInt32(RegexHelper.GetLastNumber(cells[1]));
-
-                                driftVale = mergeCellEndRow - mergeCellStartRow + 1;
-                                if (driftVale <= 0) throw new Exception("合并单元格的合并行数小于1");
-
-                                delRow = mergeCellStartRow + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
-                            }
-                            else //不是合并单元格
-                            {
-                                delRow = Convert.ToInt32(RegexHelper.GetLastNumber(r1c1)) + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
-                            }
-                            if (delRow <= 0) throw new Exception("要删除的行号不能小于0");
-
-                            worksheet.DeleteRow(delRow, driftVale, true);
-                            sheetBodyDeleteRowCount += driftVale;
-                            break; //结束删除行循环,因为我只要删一次即可
-                        }
+                        continue; //跳过本次fillDate的循环
                     }
-                    continue; //跳过本次fillDate的循环
+
+                    #region DeleteFillDateStartLine
+
+                    foreach (var r1c1 in nth.Value.Keys) //只遍历一次
+                    {
+                        int driftVale = 1; //浮动值,如果是合并单元格,则取合并单元格的行数
+                        int delRow; //要删除的行号
+                        if (r1c1.Contains(":")) //如果是合并单元格,修改浮动的行数
+                        {
+                            var cells = r1c1.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                            if (cells.Length != 2) throw new Exception("该合并单元格的标识有问题,不是类似于A1:A2这个格式的");
+                            int mergeCellStartRow = Convert.ToInt32(RegexHelper.GetLastNumber(cells[0]));
+                            int mergeCellEndRow = Convert.ToInt32(RegexHelper.GetLastNumber(cells[1]));
+
+                            driftVale = mergeCellEndRow - mergeCellStartRow + 1;
+                            if (driftVale <= 0) throw new Exception("合并单元格的合并行数小于1");
+
+                            delRow = mergeCellStartRow + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+                        }
+                        else //不是合并单元格
+                        {
+                            delRow = Convert.ToInt32(RegexHelper.GetLastNumber(r1c1)) + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+                        }
+
+                        if (delRow <= 0) throw new Exception("要删除的行号不能小于0");
+
+                        worksheet.DeleteRow(delRow, driftVale, true);
+                        sheetBodyDeleteRowCount += driftVale;
+                        break; //只要删一次即可
+                    }
+
+                    #endregion
                 }
-                int tempLine = 1; //获得第N个配置中excel模版提供了多少行,默认1行
-                if (config.SheetBodyMapperExceltemplateLine.ContainsKey(nth.Key))
-                {
-                    tempLine = config.SheetBodyMapperExceltemplateLine[nth.Key];
-                }
+                #endregion
+
+                int currentLoopAddLines = 0;
                 var deleteLastSpaceLine = false; //是否删除最后一空白行(可能有多行组成的)
                 int lastSpaceLineInterval = 0; //表示最后一空白行由多少行组成,默认为0
                 int lastSpaceLineRowNumber = 0; //表示最后一行的行号是多少
+                int tempLine = config.SheetBodyMapperExceltemplateLine.ContainsKey(nth.Key)
+                    ? config.SheetBodyMapperExceltemplateLine[nth.Key]
+                    : 1; //获得第N个配置中excel模版提供了多少行,默认1行
 
                 var hasMergeCell = nth.Value.Keys.ToList().Find(a => a.Contains(":")) != null;
                 if (hasMergeCell)
@@ -305,8 +330,10 @@ namespace EpplusExtensions
                         else
                         {
                             destRow = currentLoopAddLines > 0
-                                   ? cellRange[0].Start.Row + (tempLine - 1) * (maxIntervalRow + 1) + sheetBodyAddRowCount - sheetBodyDeleteRowCount
-                                   : cellRange[0].Start.Row + i * (maxIntervalRow + 1) + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+                                ? cellRange[0].Start.Row + (tempLine - 1) * (maxIntervalRow + 1) + sheetBodyAddRowCount -
+                                  sheetBodyDeleteRowCount
+                                : cellRange[0].Start.Row + i * (maxIntervalRow + 1) + sheetBodyAddRowCount -
+                                  sheetBodyDeleteRowCount;
                         }
 
                         if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
@@ -319,17 +346,21 @@ namespace EpplusExtensions
                                     deleteLastSpaceLine = true;
                                     lastSpaceLineInterval = maxIntervalRow + 1;
                                 }
-                                lastSpaceLineRowNumber = destRow + maxIntervalRow + 1;//最后一行空行的位置
-                                worksheet.InsertRow(destRow, maxIntervalRow + 1, destRow + maxIntervalRow + 1);//新增N行,注意,此时新增行的高度是有问题的
-                                                                                                               //2.复制样式(含修正)
+
+                                lastSpaceLineRowNumber = destRow + maxIntervalRow + 1; //最后一行空行的位置
+                                worksheet.InsertRow(destRow, maxIntervalRow + 1,
+                                    destRow + maxIntervalRow + 1); //新增N行,注意,此时新增行的高度是有问题的
+                                //2.复制样式(含修正)
                                 for (int j = 0; j <= maxIntervalRow; j++) //修正height
                                 {
                                     worksheet.Row(destRow + j).Height = worksheet.Row(destRow + j + maxIntervalRow + 1).Height;
                                 }
+
                                 sheetBodyAddRowCount += maxIntervalRow + 1;
                                 currentLoopAddLines++;
                             }
                         }
+
                         //3.赋值
                         for (int j = 0; j < cellRange.Count; j++)
                         {
@@ -354,7 +385,8 @@ namespace EpplusExtensions
 
                                 ExcelRange cells = worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol];
 
-                                if (config.SheetBodyCellCustomSetValue.ContainsKey(nth.Key) && config.SheetBodyCellCustomSetValue[nth.Key] != null)
+                                if (config.SheetBodyCellCustomSetValue.ContainsKey(nth.Key) &&
+                                    config.SheetBodyCellCustomSetValue[nth.Key] != null)
                                 {
                                     config.SheetBodyCellCustomSetValue[nth.Key].Invoke(colMapperName, val, cells);
                                 }
@@ -370,10 +402,9 @@ namespace EpplusExtensions
 #else
                 return ;
 #endif
-
                             }
-
                         }
+
                         if (config.IsReport)
                         {
                             SetReport(worksheet, row, config, destRow, maxIntervalRow);
@@ -382,7 +413,7 @@ namespace EpplusExtensions
                 }
                 else //sheet body是常规类型的,即,没有合并单元格的(或者是同行多列的单元格)
                 {
-                    List<ExcelCellPoint> startCellPointLine = nth.Value.Keys.Select(a => new ExcelCellPoint(a)).ToList(); // 将配置的值 转换成 ExcelCellPoint
+                    var startCellPointLine = nth.Value.Keys.Select(a => new ExcelCellPoint(a)).ToList(); // 将配置的值 转换成 ExcelCellPoint
 
                     #region 等价于上面的写法
 
@@ -397,6 +428,8 @@ namespace EpplusExtensions
 
                     #endregion
 
+                    Dictionary<string, FillDataColums> fillDataColumsStat = null;//Datatable 的列是否被使用了
+
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
                         DataRow row = datatable.Rows[i];
@@ -410,11 +443,11 @@ namespace EpplusExtensions
                         else
                         {
                             destRow = currentLoopAddLines > 0
-                                    ? startCellPointLine[0].Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
-                                    : startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+                                ? startCellPointLine[0].Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
+                                : startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
                         }
 
-                        if (datatable.Rows.Count > 1)//1.数据源中的数据行数大于1才增行
+                        if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
                         {
                             if (i > tempLine - 2) //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2  
                             {
@@ -423,6 +456,7 @@ namespace EpplusExtensions
                                     deleteLastSpaceLine = true;
                                     lastSpaceLineInterval = 1;
                                 }
+
                                 lastSpaceLineRowNumber = destRow + 1; //最后一行空行的位置
                                 //必须先新增,在赋值(若先赋值后新增,会造成赋值后的行被新增行覆盖).
                                 //1.新增一行,在destRow 前 插入 1行
@@ -431,7 +465,8 @@ namespace EpplusExtensions
                                 //worksheet.InsertRow(destRow, 1);//注,这行代码与上一行代码的作用是一样的,因为我下面用了Copy.
 
                                 //2.复制样式(含修正)
-                                //然后把原本的destRow的样式格式化到新增行中.注意:copy 会把copy行的文本也复制出来.//这里可以说是一个潜在的隐患bug把.因为和我的本意不一样.主要是我不知道要怎么写,只找到一个copy方法,而且copy方法也能帮我解决掉 同一行的 单元格合并问题
+                                //然后把原本的destRow的样式格式化到新增行中.注意:copy 会把copy行的文本也复制出来.
+                                //这里可以说是一个潜在的隐患bug把.因为和我的本意不一样.主要是我不知道要怎么写,只找到一个copy方法,而且copy方法也能帮我解决掉 同一行的 单元格合并问题
                                 string copyRowSource = (destRow + 1) + ":" + (destRow + 1); //7:7表示第7行,Copy中的Dest行
                                 string copyRowDest = (destRow) + ":" + (destRow);
                                 worksheet.Cells[copyRowSource].Copy(worksheet.Cells[copyRowDest]);
@@ -440,12 +475,11 @@ namespace EpplusExtensions
 
                                 sheetBodyAddRowCount++;
                                 currentLoopAddLines++;
-
                             }
-
                         }
+
                         //3.赋值.
-                        //变量 j 的终止条件不能是 datatable.Rows.Count. 因为datatable可能会包含多余的字段信息,与 配置信息列的个数不一致.
+                        //注:遍历时变量 j 的终止条件不能是 datatable.Rows.Count. 因为datatable可能会包含多余的字段信息,与 配置信息列的个数不一致.
                         for (int j = 0; j < startCellPointLine.Count; j++)
                         {
                             //worksheet.Cells[destRow, destCol].Value = row[j];
@@ -463,7 +497,8 @@ namespace EpplusExtensions
                                 SetWorksheetCellsValue(config, cells, val, colMapperName);
                             }
 
-                            if (j == startCellPointLine.Count - 1)//如果一行循环到了最后一列
+                            //todo:下面if中的作用在if(hasMergeCell)中未实现,待移植
+                            if (j == startCellPointLine.Count - 1) //如果一行循环到了最后一列
                             {
                                 if (!configSource.SheetBodyFillModel.ContainsKey(nth.Key))
                                 {
@@ -478,51 +513,76 @@ namespace EpplusExtensions
                                 {
                                     continue;
                                 }
+
                                 if (fillModel.FillDataMethodOption == SheetBodyFillDataMethodOption.SynchronizationDataSource)
                                 {
-                                    //todo:改方法存在问题,需要修复
-
-                                    #region 获得未填充的列
-                                    var notFillDataColumns = new Dictionary<string, bool>();
-
-                                    foreach (DataColumn column in datatable.Columns)
+                                    var isFillData_Title = fillModel.SynchronizationDataSource.NeedTitle && i == 0;
+                                    var isFillData_Body = fillModel.SynchronizationDataSource.NeedBody;
+                                    if ((isFillData_Title) || isFillData_Body)
                                     {
-                                        notFillDataColumns.Add(column.ColumnName, false);
-                                    }
-                                    foreach (var item in nth.Value)
-                                    {
-                                        notFillDataColumns[item.Value] = true;
-                                    }
-                                    #endregion
+                                        #region 获得填充所有列,Value是false的表示未填充
 
-                                    if (fillModel.SynchronizationDataSource.NeedBody && fillModel.SynchronizationDataSource.NeedTitle)
-                                    {
-                                        var extensionDestRowStart_title = nth.Key == 1
-                                             ? startCellPointLine[0].Row
-                                             : startCellPointLine[0].Row + sheetBodyAddRowCount;
-
-                                        var config_firstCell_col = new ExcelCellPoint(nth.Value.First().Key).Col;
-                                        var extensionDestColStart_title = config_firstCell_col + nth.Value.Count;
-                                        foreach (var item in notFillDataColumns)
+                                        if (fillDataColumsStat == null)
                                         {
-                                            if (item.Value) continue;
+                                            fillDataColumsStat = new Dictionary<string, FillDataColums>(); // new Dictionary<string, bool?>();
+                                            foreach (DataColumn column in datatable.Columns)
+                                            {
+                                                fillDataColumsStat.Add(column.ColumnName, new FillDataColums()
+                                                {
+                                                    ColumName = column.ColumnName,
+                                                    State = FillDataColumsState.Unchanged
+                                                });
+                                            }
 
-                                            extensionDestColStart_title++;
-                                            var extTitleCells = worksheet.Cells[extensionDestRowStart_title, extensionDestColStart_title];
-                                            SetWorksheetCellsValue(config, extTitleCells, item.Key, colMapperName);//item.key 是列名
+                                            foreach (var item in nth.Value)
+                                            {
+                                                fillDataColumsStat[item.Value].State = FillDataColumsState.Used;
+                                            }
 
+                                            var isEmptyInclude = string.IsNullOrEmpty(fillModel.SynchronizationDataSource.Include);
+                                            var isEmptyExclude = string.IsNullOrEmpty(fillModel.SynchronizationDataSource.Exclude);
+                                            if (isEmptyInclude != isEmptyExclude) //只能有一个值有效
+                                            {
+                                                if (!isEmptyInclude)
+                                                {
+                                                    Modify_DataColumnsIsUsedStat(fillDataColumsStat, fillModel.SynchronizationDataSource.Include, true);
+                                                }
+                                                if (!isEmptyExclude)
+                                                {
+                                                    Modify_DataColumnsIsUsedStat(fillDataColumsStat, fillModel.SynchronizationDataSource.Exclude, false);
+                                                }
+                                            }
+                                        }
+
+                                        #endregion
+
+                                        if (isFillData_Title)
+                                        {
+                                            var eachCount = 0;
+                                            var config_firstCell_col = new ExcelCellPoint(nth.Value.First().Key).Col;
+                                            foreach (var item in fillDataColumsStat.Values)
+                                            {
+                                                if (item.State != FillDataColumsState.WillUse) continue;
+                                                var extensionDestCol_title = config_firstCell_col + nth.Value.Count + eachCount;
+                                                var extensionCell_Title = worksheet.Cells[destRow - 1, extensionDestCol_title];
+                                                SetWorksheetCellsValue(config, extensionCell_Title, item.ColumName, item.ColumName);
+                                                eachCount++;
+                                            }
+                                        }
+                                        if (isFillData_Body)
+                                        {
+                                            var eachCount = 0;
+                                            foreach (var item in fillDataColumsStat.Values)
+                                            {
+                                                if (item.State != FillDataColumsState.WillUse) continue;
+                                                var extensionDestCol = startCellPointLine[j].Col + 1 + eachCount;
+
+                                                var extensionCell = worksheet.Cells[destRow, extensionDestCol];
+                                                SetWorksheetCellsValue(config, extensionCell, row[item.ColumName], item.ColumName);
+                                                eachCount++;
+                                            }
                                         }
                                     }
-
-                                    var extensionDestRowStart = nth.Key == 1
-                                        ? startCellPointLine[0].Row
-                                        : startCellPointLine[0].Row + sheetBodyAddRowCount;
-
-                                    var extensionDestColStart = destCol;
-                                    extensionDestColStart++;
-
-                                    var extCells = worksheet.Cells[extensionDestRowStart, extensionDestColStart];
-                                    SetWorksheetCellsValue(config, cells, val, colMapperName);
                                 }
                             }
                         }
@@ -533,42 +593,77 @@ namespace EpplusExtensions
                         }
                     }
                 }
-                //已经修复bug:当只有一个配置时,这个deleteLastSpaceLine 为false,然后在excel筛选的时候能出来一行空白.以后有空修复
+
+                //已经修复bug:当只有一个配置时,这个deleteLastSpaceLine 为false,然后在excel筛选的时候能出来一行空白 
                 if (deleteLastSpaceLine)
                 {
                     worksheet.DeleteRow(lastSpaceLineRowNumber, lastSpaceLineInterval, true);
                     sheetBodyAddRowCount -= lastSpaceLineInterval;
                 }
-                if (config.SheetBodySummaryMapperExcel.Keys.Contains(nth.Key))
+
+                FillData_Body_Summary(config, configSource, worksheet, nth, sheetBodyAddRowCount);
+            }
+
+            return sheetBodyAddRowCount;
+        }
+
+        private static void Modify_DataColumnsIsUsedStat(Dictionary<string, FillDataColums> fillDataColumsStat, string columns, bool selectColumnIsWillUse)
+        {
+            var splitInclude = columns.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var key in fillDataColumsStat.Keys)
+            {
+                if (fillDataColumsStat[key].State == FillDataColumsState.Unchanged)
                 {
-                    foreach (var item in config.SheetBodySummaryMapperExcel[nth.Key])//填充第N个配置的一些零散的单元格的值(譬如汇总信息等)
+                    if (splitInclude.Contains(key))
                     {
-                        var cellpoint = new ExcelCellPoint(item.Key);
-                        // worksheet.Cells[cellpoint.Row + sheetBodyAddRowCount, cellpoint.Col].Value = configSource.SheetBodySummary[nth.Key][item.Value];
-                        //item.Key -> A24 , item.Value -> 平均值
-                        string colMapperName = item.Value;
-                        object val = configSource.SheetBodySummary[nth.Key][item.Value];
-                        ExcelRange cells = worksheet.Cells[cellpoint.Row + sheetBodyAddRowCount, cellpoint.Col];
-
-                        if (config.SheetBodySummaryCellCustomSetValue.ContainsKey(nth.Key) && config.SheetBodySummaryCellCustomSetValue[nth.Key] != null)
-                        {
-                            config.SheetBodySummaryCellCustomSetValue[nth.Key].Invoke(colMapperName, val, cells);
-                        }
-                        else
-                        {
-
-                            SetWorksheetCellsValue(config, cells, val, colMapperName);
-                        }
+                        fillDataColumsStat[key].State = selectColumnIsWillUse ? FillDataColumsState.WillUse : FillDataColumsState.WillNotUse;
+                    }
+                    else
+                    {
+                        fillDataColumsStat[key].State = selectColumnIsWillUse ? FillDataColumsState.WillNotUse : FillDataColumsState.WillUse;
                     }
                 }
             }
+        }
+
+        private static void FillData_Body_Summary(EpplusConfig config, EpplusConfigSource configSource,
+            ExcelWorksheet worksheet, KeyValuePair<int, Dictionary<string, string>> nth, int sheetBodyAddRowCount)
+        {
+            if (!config.SheetBodySummaryMapperExcel.Keys.Contains(nth.Key)) return;
+
+            foreach (var item in config.SheetBodySummaryMapperExcel[nth.Key]) //填充第N个配置的一些零散的单元格的值(譬如汇总信息等)
+            {
+                var cellpoint = new ExcelCellPoint(item.Key);
+                // worksheet.Cells[cellpoint.Row + sheetBodyAddRowCount, cellpoint.Col].Value = configSource.SheetBodySummary[nth.Key][item.Value];
+                //item.Key -> A24 , item.Value -> 平均值
+                string colMapperName = item.Value;
+                object val = configSource.SheetBodySummary[nth.Key][item.Value];
+                ExcelRange cells = worksheet.Cells[cellpoint.Row + sheetBodyAddRowCount, cellpoint.Col];
+
+                if (config.SheetBodySummaryCellCustomSetValue.ContainsKey(nth.Key) &&
+                    config.SheetBodySummaryCellCustomSetValue[nth.Key] != null)
+                {
+                    config.SheetBodySummaryCellCustomSetValue[nth.Key].Invoke(colMapperName, val, cells);
+                }
+                else
+                {
+                    SetWorksheetCellsValue(config, cells, val, colMapperName);
+                }
+            }
+        }
+
+        private static void FillData_Foot(EpplusConfig config, EpplusConfigSource configSource, ExcelWorksheet worksheet,
+            int sheetBodyAddRowCount)
+        {
             //填充foot
             foreach (var item in config.SheetFootMapperExcel)
             {
-                if (configSource.SheetFoot.Keys.Count == 0)//excel中有配置foot,但是程序中没有进行值的映射(没映射的原因之一是没有查询出数据)
+                if (configSource.SheetFoot.Keys.Count == 0) //excel中有配置foot,但是程序中没有进行值的映射(没映射的原因之一是没有查询出数据)
                 {
                     break;
                 }
+
                 //worksheet.Cells["A1"].Value = "名称";//直接指定单元格进行赋值
                 //var cellpoint = R1C1ToExcelCellPoint(item.Key);
                 var cellpoint = new ExcelCellPoint(item.Key);
@@ -587,10 +682,6 @@ namespace EpplusExtensions
                 }
             }
         }
-
-        #endregion
-
-        #region 私有方法
 
         /// <summary>
         /// 
@@ -1347,7 +1438,7 @@ namespace EpplusExtensions
                     //arr[i,j] = "";//把当前单元格值清空
                     //sheet.Cells[i + 1, j + 1].Value = ""; //不知道为什么上面的清空不了,但是有时候有能清除掉
                     sheet.Cells[i + 1, j + 1].Value = null;//修复bug:当只有一个配置时,这个deleteLastSpaceLine 为false,然后在excel筛选的时候能出来一行空白
-                    //如果有用 sheet.Cells[i + 1, j + 1].Value = "" 代码 ,每个单元格 会有一个 ascii 为 9 (\t) 的符号进去
+                                                           //如果有用 sheet.Cells[i + 1, j + 1].Value = "" 代码 ,每个单元格 会有一个 ascii 为 9 (\t) 的符号进去
                 }
 
             }
@@ -1392,7 +1483,8 @@ namespace EpplusExtensions
 
                     dict.Add(key.Trim(), val.Trim());
                     //arr[i,j] = "";//把当前单元格值清空
-                    sheet.Cells[i + 1, j + 1].Value = ""; //不知道为什么上面的清空不了,但是有时候有能清除掉
+                    //sheet.Cells[i + 1, j + 1].Value = ""; //不知道为什么上面的清空不了,但是有时候有能清除掉
+                    sheet.Cells[i + 1, j + 1].Value = null; //统一用 null 来清空单元格
                 }
             }
             config.SheetFootMapperExcel = dict;
