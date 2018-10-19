@@ -47,8 +47,8 @@
 
     public class FillDataColums
     {
-        public FillDataColumsState State;
-        public string ColumName;
+        public FillDataColumsState State { get; set; }
+        public string ColumName { get; set; }
     }
 
     public enum FillDataColumsState
@@ -65,7 +65,9 @@
         /// 将要使用
         /// </summary>
         WillUse = 3,
-        // 将不会使用
+        /// <summary>
+        /// 将不会使用
+        /// </summary>
         WillNotUse = 4
     }
 
