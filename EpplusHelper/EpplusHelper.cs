@@ -310,8 +310,9 @@ namespace EpplusExtensions
                 int tempLine = config.SheetBodyMapperExceltemplateLine.ContainsKey(nth.Key)
                     ? config.SheetBodyMapperExceltemplateLine[nth.Key]
                     : 1; //获得第N个配置中excel模版提供了多少行,默认1行
-
                 var hasMergeCell = nth.Value.Keys.ToList().Find(a => a.Contains(":")) != null;
+                Dictionary<string, FillDataColums> fillDataColumsStat = null;//Datatable 的列的使用情况
+
                 if (hasMergeCell)
                 {
                     //注:进入这里的条件是单元格必须是多行合并的,如果是同行多列合并的单元格,最后生成的excel会有问题,打开时会提示修复(修复完成后内容是正确的(不保证,因为我测试的几个内容是正确的))
@@ -364,45 +365,104 @@ namespace EpplusExtensions
                         //3.赋值
                         for (int j = 0; j < cellRange.Count; j++)
                         {
+                            #region 赋值
                             string colMapperName = nth.Value[cellRange[j].Range];
                             var val = row[colMapperName];
-                            if (cellRange[j].IsMerge)
-                            {
-                                //int destRowStart = cellRange[j].Start.Row;
-                                int destStartCol = cellRange[j].Start.Col;
-                                //int destEndRow = cellRange[j].End.Row;
-                                int destEndCol = cellRange[j].End.Col;
-                                if (!worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Merge)
-                                {
-                                    /*
-                                     注:假设原有的cell单元格是同行多列合并,那么上面的if判断还是会返回false.(但在worksheet.MergedCells中能发现单元格是合并的).多列合并的没试过.
-                                     后来做了限制,进入这个if语句内的单元格必须是多行合并的,对于单行多列合并的cell,后果自负
-                                     */
-                                    worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Merge = true;
-                                }
-
-                                //worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Value = val;
-
-                                ExcelRange cells = worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol];
-
-                                if (config.SheetBodyCellCustomSetValue.ContainsKey(nth.Key) &&
-                                    config.SheetBodyCellCustomSetValue[nth.Key] != null)
-                                {
-                                    config.SheetBodyCellCustomSetValue[nth.Key].Invoke(colMapperName, val, cells);
-                                }
-                                else
-                                {
-                                    SetWorksheetCellsValue(config, cells, val, colMapperName);
-                                }
-                            }
-                            else
+                            if (!cellRange[j].IsMerge)
                             {
 #if DEBUG
                                 throw new Exception("还没遇到这种情况的模版,代码暂时不知道要怎么写.但觉的这种情况应该不会出现");
 #else
                 return ;
-#endif
+#endif 
                             }
+
+                            //int destRowStart = cellRange[j].Start.Row;
+                            int destStartCol = cellRange[j].Start.Col;
+                            //int destEndRow = cellRange[j].End.Row;
+                            int destEndCol = cellRange[j].End.Col;
+                            if (!worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Merge)
+                            {
+                                /*
+                                 注:假设原有的cell单元格是同行多列合并,那么上面的if判断还是会返回false.(但在worksheet.MergedCells中能发现单元格是合并的).多列合并的没试过.
+                                 后来做了限制,进入这个if语句内的单元格必须是多行合并的,对于单行多列合并的cell,后果自负
+                                 */
+                                worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Merge = true;
+                            }
+
+                            //worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Value = val;
+
+                            ExcelRange cells = worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol];
+
+                            if (config.SheetBodyCellCustomSetValue.ContainsKey(nth.Key) && config.SheetBodyCellCustomSetValue[nth.Key] != null)
+                            {
+                                config.SheetBodyCellCustomSetValue[nth.Key].Invoke(colMapperName, val, cells);
+                            }
+                            else
+                            {
+                                SetWorksheetCellsValue(config, cells, val, colMapperName);
+                            }
+                            #endregion
+
+                            #region 同步数据源
+                            if (j == cellRange.Count - 1) //如果一行循环到了最后一列
+                            {
+                                if (!configSource.SheetBodyFillModel.ContainsKey(nth.Key))
+                                {
+                                    continue;
+                                }
+                                var fillModel = configSource.SheetBodyFillModel[nth.Key];
+                                if (fillModel == null)
+                                {
+                                    continue;
+                                }
+                                if (fillModel.FillDataMethodOption == SheetBodyFillDataMethodOption.Default)
+                                {
+                                    continue;
+                                }
+
+                                if (fillModel.FillDataMethodOption == SheetBodyFillDataMethodOption.SynchronizationDataSource)
+                                {
+                                    var isFillData_Title = fillModel.SynchronizationDataSource.NeedTitle && i == 0;
+                                    var isFillData_Body = fillModel.SynchronizationDataSource.NeedBody;
+                                    if ((isFillData_Title) || isFillData_Body)
+                                    {
+                                        if (fillDataColumsStat == null)
+                                        {
+                                            fillDataColumsStat = InitFlilDataColumsStat(datatable, nth, fillModel);
+                                        }
+
+                                        if (isFillData_Title)
+                                        {
+                                            var eachCount = 0;
+                                            var config_firstCell_col = new ExcelCellPoint(nth.Value.First().Key).Col;
+                                            foreach (var item in fillDataColumsStat.Values)
+                                            {
+                                                if (item.State != FillDataColumsState.WillUse) continue;
+                                                var extensionDestCol_title = config_firstCell_col + nth.Value.Count + eachCount;
+                                                var extensionCell_Title = worksheet.Cells[destRow - 1, extensionDestCol_title];
+                                                SetWorksheetCellsValue(config, extensionCell_Title, item.ColumName, item.ColumName);
+                                                eachCount++;
+                                            }
+                                        }
+                                        if (isFillData_Body)
+                                        {
+                                            var eachCount = 0;
+                                            foreach (var item in fillDataColumsStat.Values)
+                                            {
+
+                                                if (item.State != FillDataColumsState.WillUse) continue;
+                                                int extensionDestStartCol = cellRange[j].Start.Col + 1;
+                                                int extensionDestEndCol = cellRange[j].End.Col + 1;
+                                                var extensionCell = worksheet.Cells[destRow, extensionDestStartCol, destRow + maxIntervalRow, extensionDestEndCol];
+                                                SetWorksheetCellsValue(config, extensionCell, row[item.ColumName], item.ColumName);
+                                                eachCount++;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            #endregion
                         }
 
                         if (config.IsReport)
@@ -427,8 +487,6 @@ namespace EpplusExtensions
                     //}
 
                     #endregion
-
-                    Dictionary<string, FillDataColums> fillDataColumsStat = null;//Datatable 的列是否被使用了
 
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
@@ -482,9 +540,9 @@ namespace EpplusExtensions
                         //注:遍历时变量 j 的终止条件不能是 datatable.Rows.Count. 因为datatable可能会包含多余的字段信息,与 配置信息列的个数不一致.
                         for (int j = 0; j < startCellPointLine.Count; j++)
                         {
+                            #region 赋值
                             //worksheet.Cells[destRow, destCol].Value = row[j];
                             string colMapperName = nth.Value[startCellPointLine[j].R1C1];
-
                             object val = row[colMapperName];
                             int destCol = startCellPointLine[j].Col;
                             ExcelRange cells = worksheet.Cells[destRow, destCol];
@@ -496,8 +554,9 @@ namespace EpplusExtensions
                             {
                                 SetWorksheetCellsValue(config, cells, val, colMapperName);
                             }
+                            #endregion
 
-                            //todo:下面if中的作用在if(hasMergeCell)中未实现,待移植
+                            #region 同步数据源
                             if (j == startCellPointLine.Count - 1) //如果一行循环到了最后一列
                             {
                                 if (!configSource.SheetBodyFillModel.ContainsKey(nth.Key))
@@ -520,41 +579,10 @@ namespace EpplusExtensions
                                     var isFillData_Body = fillModel.SynchronizationDataSource.NeedBody;
                                     if ((isFillData_Title) || isFillData_Body)
                                     {
-                                        #region 获得填充所有列,Value是false的表示未填充
-
                                         if (fillDataColumsStat == null)
                                         {
-                                            fillDataColumsStat = new Dictionary<string, FillDataColums>(); // new Dictionary<string, bool?>();
-                                            foreach (DataColumn column in datatable.Columns)
-                                            {
-                                                fillDataColumsStat.Add(column.ColumnName, new FillDataColums()
-                                                {
-                                                    ColumName = column.ColumnName,
-                                                    State = FillDataColumsState.Unchanged
-                                                });
-                                            }
-
-                                            foreach (var item in nth.Value)
-                                            {
-                                                fillDataColumsStat[item.Value].State = FillDataColumsState.Used;
-                                            }
-
-                                            var isEmptyInclude = string.IsNullOrEmpty(fillModel.SynchronizationDataSource.Include);
-                                            var isEmptyExclude = string.IsNullOrEmpty(fillModel.SynchronizationDataSource.Exclude);
-                                            if (isEmptyInclude != isEmptyExclude) //只能有一个值有效
-                                            {
-                                                if (!isEmptyInclude)
-                                                {
-                                                    Modify_DataColumnsIsUsedStat(fillDataColumsStat, fillModel.SynchronizationDataSource.Include, true);
-                                                }
-                                                if (!isEmptyExclude)
-                                                {
-                                                    Modify_DataColumnsIsUsedStat(fillDataColumsStat, fillModel.SynchronizationDataSource.Exclude, false);
-                                                }
-                                            }
+                                            fillDataColumsStat = InitFlilDataColumsStat(datatable, nth, fillModel);
                                         }
-
-                                        #endregion
 
                                         if (isFillData_Title)
                                         {
@@ -585,6 +613,7 @@ namespace EpplusExtensions
                                     }
                                 }
                             }
+                            #endregion
                         }
 
                         if (config.IsReport)
@@ -605,6 +634,48 @@ namespace EpplusExtensions
             }
 
             return sheetBodyAddRowCount;
+        }
+        /// <summary>
+        ///  获得Database数据源的所有的列的使用状态
+        /// </summary>
+        /// <param name="fillDataColumsStat"></param>
+        /// <param name="datatable"></param>
+        /// <param name="nth"></param>
+        /// <param name="fillModel"></param>
+        /// <returns></returns>
+        private static Dictionary<string, FillDataColums> InitFlilDataColumsStat(DataTable datatable, KeyValuePair<int, Dictionary<string, string>> nth, SheetBodyFillDataMethod fillModel)
+        {
+            var fillDataColumsStat = new Dictionary<string, FillDataColums>();
+            foreach (DataColumn column in datatable.Columns)
+            {
+                fillDataColumsStat.Add(column.ColumnName, new FillDataColums()
+                {
+                    ColumName = column.ColumnName,
+                    State = FillDataColumsState.Unchanged
+                });
+            }
+
+            foreach (var item in nth.Value)
+            {
+                fillDataColumsStat[item.Value].State = FillDataColumsState.Used;
+            }
+
+            var isEmptyInclude = string.IsNullOrEmpty(fillModel.SynchronizationDataSource.Include);
+            var isEmptyExclude = string.IsNullOrEmpty(fillModel.SynchronizationDataSource.Exclude);
+            if (isEmptyInclude != isEmptyExclude) //只能有一个值有效
+            {
+                if (!isEmptyInclude)
+                {
+                    Modify_DataColumnsIsUsedStat(fillDataColumsStat, fillModel.SynchronizationDataSource.Include, true);
+                }
+
+                if (!isEmptyExclude)
+                {
+                    Modify_DataColumnsIsUsedStat(fillDataColumsStat, fillModel.SynchronizationDataSource.Exclude, false);
+                }
+            }
+
+            return fillDataColumsStat;
         }
 
         private static void Modify_DataColumnsIsUsedStat(Dictionary<string, FillDataColums> fillDataColumsStat, string columns, bool selectColumnIsWillUse)
@@ -1419,15 +1490,32 @@ namespace EpplusExtensions
                             //只有多行合并时才会影响填充数据时每次新增的行数(多列合并不影响数据的填充)
                             //所以,{"A15:A17", "发生日期"}, 这种情况的key可以写成A15,也可以是A15:K17
                             //{"A15:K17", "发生日期"},只有这种情况的key才要写成A15:K17
-                            //后续补充:如果是{"A15:A17", "发生日期"}这种单元格,然后key是A15:K17.在生成excel打开后会提示在
-                            //***.xlsx中发现不可读取的内容。是否恢复此工作簿的内容.然后修复后的文档内容是正确的(至少我测试的几个是正确的)
+                            //后续补充:如果单元格类型是{"A15:A17", "发生日期"},然后key是A15:K17.
+                            //在生成excel后打开时会提示***.xlsx中发现不可读取的内容。是否恢复此工作簿的内容.
+                            //选择修复文档内容后,里面的内容是正确的(至少我测试的几个是这样的)
                             //所以,同行多列合并的单元格的key 必须是 A15 这种格式的
                             var newKey = sheetMergedCellsList.Find(a => a.Contains(key));
+                            if (newKey == null)
+                            {
+                                //描述出现null的情况
+                                /*
+                                 * F10 G10
+                                 * F11 G11
+                                 * F12 G12
+                                 * 这些单元格被合并为一个单元格,即用F10:G12来描述
+                                 * 此时,配置单元格读取应该是F10,G10将不会被读取,
+                                 * 直到上面为止,都是正确的,但是,偏偏有一个神一样的工具,
+                                 * 当excel模版出现不规范操作(Excel一眼看上去将没有问题),G10单元格被读取出来后,那么在sheetMergedCellsList中肯定找不到
+                                 * 然后下面一行代码就抛出未将对象引用设置到对象的实例异常
+                                 * 该操作是:B10, D10, F10, G10单元格均有配置项,B10:C12进行单元格合并,然后用格式刷,对D10:E12, F10:G10进行格式化
+                                 * 结果就是G10的配置项将会被隐藏
+                                 * 如果手动的合并F10:G10,Excel将会alert此操作会仅保留左上角的值
+                                 */
+                                throw new Exception($"excel的单元格{key}存在配置问题,请检查");
+                            }
                             var cells = newKey.Split(':');
-                            dictList[nth - 1].Add(
-                                RegexHelper.GetFirstNumber(cells[0]) == RegexHelper.GetFirstNumber(cells[1])
-                                    ? key
-                                    : newKey, val);
+                            var dictListKey = RegexHelper.GetFirstNumber(cells[0]) == RegexHelper.GetFirstNumber(cells[1]) ? key : newKey;
+                            dictList[nth - 1].Add(dictListKey, val);
                         }
                         else
                         {
