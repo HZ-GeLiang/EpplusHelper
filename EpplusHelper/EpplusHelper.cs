@@ -762,11 +762,7 @@ namespace EpplusExtensions
         /// <param name="colMapperName">excel填充的列名,不想传值请使用null</param> 
         private static void SetWorksheetCellsValue(EpplusConfig config, ExcelRange cells, object val, string colMapperName)
         {
-            if (config.UseFundamentals)
-            {
-                config.CellFormatDefault(colMapperName, val, cells);
-            }
-            cells.Value = val;
+            cells.Value = config.UseFundamentals ? config.CellFormatDefault(colMapperName, val, cells) : val;
             //注:排除3种值( DBNull.Value , null , "") 后 如果 cells.Value 仍然没有值,有可能是配置的单元格以 '开头.
             //譬如: '$tb1Id. 对于这种配置我程序无法检测出来(或者说我没找到检测'开头的方法)
             //下面代码有问题,当遇到日期类型的时候, 值是赋值上去的,但是 cells.value 却!= val .所以下面代码注释
