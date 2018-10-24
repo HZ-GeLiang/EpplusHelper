@@ -12,26 +12,15 @@ namespace EpplusExtensions
     /// </summary>
     public class EpplusConfig
     {
-        #region Excel的最大行与列
-        /// <summary>
-        /// Excel2007开始最大行是1048576,2^20次方
-        /// </summary>
-        public static readonly int MaxRow07 = 1048576;
+        #region Excel的最大行与列 
 
-        /// <summary>
-        /// excel 2007 和excel 2010最大有2^20=1048576行,2^14=16384列
-        /// </summary>
+        //excel 2007 和 excel 2010 工作表最大有 2^20=1048576行,2^14=16384列
+        public static readonly int MaxRow07 = 1048576;
         public static readonly int MaxCol07 = 16384;
 
-        /// <summary>
-        /// Excel2003的最大行是65536行
-        /// </summary>
-        public static readonly int MaxRow03 = 65536;
-
-        /// <summary>
-        ///  excel 2003 工作表最大有2^16=65536行,2^8=256列
-        /// </summary>
-        public static readonly int MaxCol03 = 256;
+        //excel 2003 工作表最大有 2^16=65536行,2^8=256列
+        //public static readonly int MaxRow03 = 65536;
+        //public static readonly int MaxCol03 = 256;
 
         #endregion
 
@@ -163,39 +152,41 @@ namespace EpplusExtensions
         /// 默认的单元格格式设置,colMapperName 是配置单元格的名字 譬如 $tb1Id, 那么colMapperName值就为Id
         /// </summary>
 
-        public Action<string, object, ExcelRange> CellFormatDefault = (colMapperName, val, cells) =>
-        {
+        public Func<string, object, ExcelRange, object> CellFormatDefault = (colMapperName, val, cells) =>
+       {
             //关于格式,可以参考右键单元格->设置单元格格式->自定义中的类型 或看文档: https://support.office.microsoft.com/zh-CN/excel ->自定义 Excel->创建或删除自定义数字格式
             string formatStr = cells.Style.Numberformat.Format;
             //含有Id的列,默认是文本类型,目的是放防止出现科学计数法
             if (colMapperName != null && colMapperName.ToLower().EndsWith("id"))
-            {
-                if (formatStr != "@")
-                {
-                    cells.Style.Numberformat.Format = "@"; //Format as text
+           {
+               if (formatStr != "@")
+               {
+                   cells.Style.Numberformat.Format = "@"; //Format as text
                 }
-                val = val.ToString(); //确保值是string类型的
+               val = val.ToString(); //确保值是string类型的
             }
             //若没有设置日期格式,默认是yyyy-mm-dd
             //大写字母是为了冗错.注:excel的日期格式写成大写的是不会报错的,但文档中全是小写的.
             var dateCode = new List<char> { '@', 'y', 'Y', 's', 'S', 'm', 'M', 'h', 'H', 'd', 'D', 'A', 'P', ':', '.', '0', '[', ']' };
-            if (val is DateTime)
-            {
-                bool changeformat = true;
-                foreach (var c in formatStr) //这边不能用优化成linq,优化成linq有问题
+           if (val is DateTime)
+           {
+               bool changeformat = true;
+               foreach (var c in formatStr) //这边不能用优化成linq,优化成linq有问题
                 {
-                    if (dateCode.Contains(c))
-                    {
-                        changeformat = false;
-                        break;
-                    }
-                }
-                if (changeformat) //若为true,表示没有人为的设置该cell的日期显示格式
+                   if (dateCode.Contains(c))
+                   {
+                       changeformat = false;
+                       break;
+                   }
+               }
+               if (changeformat) //若为true,表示没有人为的设置该cell的日期显示格式
                 {
-                    cells.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
+                   cells.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
                 }
-            }
-        };
+           }
+
+           return val;
+       };
 
         public Action<ExcelWorksheet> WorkSheetDefault;
         //= worksheet =>
