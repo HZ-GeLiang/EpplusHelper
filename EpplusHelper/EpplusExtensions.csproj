@@ -59,6 +59,8 @@
     <Compile Include="ExcelCellRange.cs" />
     <Compile Include="ExcelColumnNotExistsWithModelException.cs" />
     <Compile Include="MethodExtension\MemoryStreamExtensions.cs" />
+    <Compile Include="Attributes\EnumUndefinedAttribute.cs" />
+    <Compile Include="Helper\ReflectionHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helper\RegexHelper.cs" />
     <Compile Include="MethodExtension\StringBuilderExtensions.cs" />
