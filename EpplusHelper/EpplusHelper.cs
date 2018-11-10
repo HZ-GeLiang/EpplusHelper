@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using EpplusExtensions.Attributes;
+using EpplusExtensions.Helper;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
@@ -937,23 +939,56 @@ namespace EpplusExtensions
                 }
                 else
                 {
-                    var isDefined = Enum.IsDefined(pInfoType.GetProperty("Value").PropertyType, value);
-                    if (!isDefined)
-                    {
-                        throw new Exception($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
-                    }
-                    var enumValue = Enum.Parse(pInfoType.GetProperty("Value").PropertyType, value);
+                    var enumType = pInfoType.GetProperty("Value").PropertyType;
+                    TryThrowExceptionForEnum(pInfo, model, value, enumType, pInfoType);
+                    var enumValue = Enum.Parse(enumType, value);
                     pInfo.SetValue(model, enumValue);
                 }
                 return;
             }
             if (pInfoType.IsEnum)
             {
-                var isDefined = Enum.IsDefined(pInfoType, value);
-                if (!isDefined)
-                {
-                    throw new Exception($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
-                }
+                #region 方法已经重构
+                //var isDefined = Enum.IsDefined(pInfoType, value);
+                //if (!isDefined)
+                //{
+                //    var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
+                //    if (attrs.Length == 1)
+                //    {
+                //        var attr = (EnumUndefinedAttribute)attrs[0];
+                //        if (attr.Args != null && attr.Args.Length > 0)
+                //        {
+                //            var allProp = ReflectionHelper.GetProperties<T>();
+                //            for (int i = 0; i < attr.Args.Length; i++)
+                //            {
+                //                var propertyName = attr.Args[i];
+                //                if (string.IsNullOrEmpty(propertyName))
+                //                {
+                //                    continue;
+                //                }
+                //                //如果占位符这是常量且刚好和属性名一直,请把占位符拆成多个占位符使用
+                //                if (propertyName == pInfo.Name)
+                //                {
+                //                    attr.Args[i] = value;
+                //                }
+                //                else
+                //                {
+                //                    var prop = ReflectionHelper.GetProperty(allProp, propertyName, true);
+                //                    if (prop == null)
+                //                    {
+                //                        continue;
+                //                    }
+                //                    attr.Args[i] = prop.GetValue(model).ToString();
+                //                }
+                //            }
+                //            string message = string.Format(attr.ErrorMessage, attr.Args);
+                //            throw new Exception(message);
+                //        }
+                //    }
+                //    throw new Exception($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                //} 
+                #endregion
+                TryThrowExceptionForEnum(pInfo, model, value, pInfoType, pInfoType);
                 var enumValue = Enum.Parse(pInfoType, value);
                 pInfo.SetValue(model, enumValue);
                 return;
@@ -961,6 +996,53 @@ namespace EpplusExtensions
             #endregion
 
             throw new Exception("未考虑到的情况!!!请完善程序");
+        }
+
+        private static void TryThrowExceptionForEnum<T>(PropertyInfo pInfo, T model, string value, Type enumType,Type pInfoType) where T : class, new()
+        {
+            var isDefined = Enum.IsDefined(enumType, value);
+            if (!isDefined)
+            {
+                var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
+                if (attrs.Length == 1)
+                {
+                    var attr = (EnumUndefinedAttribute) attrs[0];
+                    if (attr.Args != null && attr.Args.Length > 0)
+                    {
+                        var allProp = ReflectionHelper.GetProperties<T>();
+
+                        for (int i = 0; i < attr.Args.Length; i++)
+                        {
+                            var propertyName = attr.Args[i];
+                            if (string.IsNullOrEmpty(propertyName))
+                            {
+                                continue;
+                            }
+
+                            //如果占位符这是常量且刚好和属性名一直,请把占位符拆成多个占位符使用
+                            if (propertyName == pInfo.Name)
+                            {
+                                attr.Args[i] = value;
+                            }
+                            else
+                            {
+                                var prop = ReflectionHelper.GetProperty(allProp, propertyName, true);
+                                if (prop == null)
+                                {
+                                    continue;
+                                }
+
+                                attr.Args[i] = prop.GetValue(model).ToString();
+                            }
+                        }
+
+                        string message = string.Format(attr.ErrorMessage, attr.Args);
+                        throw new Exception(message);
+                    }
+                }
+
+                throw new Exception($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+            }
         }
 
         #endregion
