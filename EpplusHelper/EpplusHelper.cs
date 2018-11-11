@@ -243,7 +243,7 @@ namespace EpplusExtensions
             var sheetBodyAddRowCount = 0; //新增了几行 (统计sheet body 在原有的模版上新增了多少行)
             foreach (var nth in config.SheetBodyMapperExcel) //body的第N个配置
             {
-                #region get datatable
+                #region get dataTable
                 DataTable datatable;
                 if (!configSource.SheetBody.ContainsKey(nth.Key)) //如果没有数据源中没有excle中配置
                 {
@@ -261,7 +261,7 @@ namespace EpplusExtensions
 
                 #endregion
 
-                #region When datable is empty
+                #region When dataTable is empty
                 if (datatable == null || datatable.Rows.Count <= 0) //数据源为null或为空
                 {
                     //throw new ArgumentNullException($"configSource.SheetBody[{nth.Key}]没有可读取的数据");
@@ -370,14 +370,12 @@ namespace EpplusExtensions
                             #region 赋值
                             string colMapperName = nth.Value[cellRange[j].Range];
                             var val = row[colMapperName];
+#if DEBUG
                             if (!cellRange[j].IsMerge)
                             {
-#if DEBUG
-                                throw new Exception("还没遇到这种情况的模版,代码暂时不知道要怎么写.但觉的这种情况应该不会出现");
-#else
-                return ;
-#endif 
+                                throw new Exception("填充数据时,合并单元格填充处不是合并单元格,请修改组件代码");
                             }
+#endif
 
                             //int destRowStart = cellRange[j].Start.Row;
                             int destStartCol = cellRange[j].Start.Col;
@@ -1075,7 +1073,7 @@ namespace EpplusExtensions
                 rowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
-                WhereFilter = null, 
+                WhereFilter = null,
             });
         }
 
@@ -1101,7 +1099,7 @@ namespace EpplusExtensions
                 rowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
-                WhereFilter = null, 
+                WhereFilter = null,
             });
         }
 
@@ -1116,7 +1114,7 @@ namespace EpplusExtensions
                 rowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
-                WhereFilter = null, 
+                WhereFilter = null,
             });
         }
 
@@ -1131,7 +1129,7 @@ namespace EpplusExtensions
                 : args.EveryCellReplace;
             var havingFilter = args.HavingFilter;
             var whereFilter = args.WhereFilter;
-            
+
             if (rowIndex == default(int) || dataNameRowIndex == default(int))
             {
                 throw new ArgumentException("请初始化数据");
@@ -1146,7 +1144,7 @@ namespace EpplusExtensions
             if (!IsAllExcelColumnExistsModel<T>(colNameList, out modelCheckMsg)) throw new ExcelColumnNotExistsWithModelException(modelCheckMsg);
 
             bool canEveryCellReplace = everyCellReplace != null;
-            
+
             for (int row = rowIndex; row <= EpplusConfig.MaxRow07; row++)
             {
                 if (string.IsNullOrEmpty(ws.Cells[row, 1].Text))//列名为空
