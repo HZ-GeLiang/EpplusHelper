@@ -998,7 +998,7 @@ namespace EpplusExtensions
             throw new Exception("未考虑到的情况!!!请完善程序");
         }
 
-        private static void TryThrowExceptionForEnum<T>(PropertyInfo pInfo, T model, string value, Type enumType,Type pInfoType) where T : class, new()
+        private static void TryThrowExceptionForEnum<T>(PropertyInfo pInfo, T model, string value, Type enumType, Type pInfoType) where T : class, new()
         {
             var isDefined = Enum.IsDefined(enumType, value);
             if (!isDefined)
@@ -1006,7 +1006,7 @@ namespace EpplusExtensions
                 var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
                 if (attrs.Length == 1)
                 {
-                    var attr = (EnumUndefinedAttribute) attrs[0];
+                    var attr = (EnumUndefinedAttribute)attrs[0];
                     if (attr.Args != null && attr.Args.Length > 0)
                     {
                         var allProp = ReflectionHelper.GetProperties<T>();
@@ -1075,12 +1075,12 @@ namespace EpplusExtensions
                 rowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
-                WhereFilter = null,
+                WhereFilter = null, 
             });
         }
 
         /// <summary>
-        /// 只能是最普通的excel.(每个单元格都是未合并的,第一行是列名,数据从第一列开始填充的那种.)
+        /// 只能是最普通的excel.(第一行是必须是列名,数据填充列起始必须是A2单元格,且每个单元格都是未合并的)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ws"></param>
@@ -1101,7 +1101,7 @@ namespace EpplusExtensions
                 rowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
-                WhereFilter = null,
+                WhereFilter = null, 
             });
         }
 
@@ -1116,7 +1116,7 @@ namespace EpplusExtensions
                 rowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
-                WhereFilter = null,
+                WhereFilter = null, 
             });
         }
 
@@ -1131,6 +1131,11 @@ namespace EpplusExtensions
                 : args.EveryCellReplace;
             var havingFilter = args.HavingFilter;
             var whereFilter = args.WhereFilter;
+            
+            if (rowIndex == default(int) || dataNameRowIndex == default(int))
+            {
+                throw new ArgumentException("请初始化数据");
+            }
 
             List<T> list = new List<T>();
 
@@ -1140,12 +1145,20 @@ namespace EpplusExtensions
             string modelCheckMsg;
             if (!IsAllExcelColumnExistsModel<T>(colNameList, out modelCheckMsg)) throw new ExcelColumnNotExistsWithModelException(modelCheckMsg);
 
+            bool canEveryCellReplace = everyCellReplace != null;
+            
             for (int row = rowIndex; row <= EpplusConfig.MaxRow07; row++)
             {
                 if (string.IsNullOrEmpty(ws.Cells[row, 1].Text))//列名为空
                 {
                     break;
                 }
+
+                if (ws.Cells[row, 1].Merge)
+                {
+                    throw new Exception($@"数据的每一行的首列不能有合并单元格,当前行是第{row}行");
+                }
+
                 Type type = typeof(T);
                 var ctor = type.GetConstructor(new Type[] { });
                 if (ctor == null) throw new ArgumentException($"通过反射无法得到{type.FullName}的一个无构造参数的构造器:");
@@ -1161,30 +1174,49 @@ namespace EpplusExtensions
                     if (string.IsNullOrEmpty(colName)) break;
                     PropertyInfo pInfo = type.GetProperty(colName);
 
-                    string value = ws.Cells[row, col].Text;
-                    if (everyCellPrefix?.Length > 0)
+                    string value;
+                    if (ws.Cells[row, col].Merge)
                     {
-                        var indexof = value.IndexOf(everyCellPrefix);
-                        if (indexof == -1)
-                        {
-                            throw new Exception($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + everyCellPrefix + "'开头的");
-                        }
-                        value = value.RemovePrefix(everyCellPrefix);
+                        value = EpplusHelper.GetMegerCellText(ws, row, col);
                     }
-                    if (everyCellReplace != null)
+                    else
                     {
-                        foreach (var item in everyCellReplace)
-                        {
-                            var everyCellReplaceOldValue = item.Key;
-                            var everyCellReplaceNewValue = item.Value ?? "";
-                            if (everyCellReplaceOldValue?.Length > 0)
-                            {
-                                value = value.Replace(everyCellReplaceOldValue, everyCellReplaceNewValue);
-                            }
-                        }
+                        value = ws.Cells[row, col].Text;
                     }
 
-                    GetList_SetModelValue(pInfo, model, value);
+                    if (value == null || value.Length <= 0)
+                    {
+                        GetList_SetModelValue(pInfo, model, value);
+                    }
+                    else
+                    {
+                        if (everyCellPrefix?.Length > 0)
+                        {
+                            var indexof = value.IndexOf(everyCellPrefix);
+                            if (indexof == -1)
+                            {
+                                throw new Exception($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + everyCellPrefix + "'开头的");
+                            }
+                            value = value.RemovePrefix(everyCellPrefix);
+                        }
+                        if (canEveryCellReplace)
+                        {
+                            foreach (var item in everyCellReplace)
+                            {
+                                if (!value.Contains(item.Key))
+                                {
+                                    continue;
+                                }
+                                var everyCellReplaceOldValue = item.Key;
+                                var everyCellReplaceNewValue = item.Value ?? "";
+                                if (everyCellReplaceOldValue?.Length > 0)
+                                {
+                                    value = value.Replace(everyCellReplaceOldValue, everyCellReplaceNewValue);
+                                }
+                            }
+                        }
+                        GetList_SetModelValue(pInfo, model, value);
+                    }
                 }
 
                 if (whereFilter == null || whereFilter.Invoke(model))
@@ -1193,9 +1225,7 @@ namespace EpplusExtensions
                 }
             }
             return havingFilter == null ? list : list.Where(item => havingFilter.Invoke(item)).ToList();
-
         }
-
 
 
         #endregion

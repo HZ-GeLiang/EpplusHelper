@@ -13,3 +13,13 @@
 /.vs
 /EpplusHelper/obj/Release
 /SampleApp/obj/Release
+/SampleApp/bin/x64/Debug
+/SampleApp/obj
+/SampleApp/bin/x86/Debug/SampleApp.pdb
+/SampleApp/bin/x86/Debug/SampleApp.exe.config
+/SampleApp/bin/x86/Debug/SampleApp.exe
+/SampleApp/bin/x86/Debug/EpplusExtensions.pdb
+/SampleApp/bin/x86/Debug/EpplusExtensions.dll
+/SampleApp/bin/x86/Debug/EPPlus.xml
+/SampleApp/bin/x86/Debug/EPPlus.dll
+/SampleApp/bin/x86/Debug/模版
