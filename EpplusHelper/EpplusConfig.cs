@@ -154,25 +154,28 @@ namespace EpplusExtensions
 
         public Func<string, object, ExcelRange, object> CellFormatDefault = (colMapperName, val, cells) =>
        {
-            //关于格式,可以参考右键单元格->设置单元格格式->自定义中的类型 或看文档: https://support.office.microsoft.com/zh-CN/excel ->自定义 Excel->创建或删除自定义数字格式
-            string formatStr = cells.Style.Numberformat.Format;
-            //含有Id的列,默认是文本类型,目的是放防止出现科学计数法
-            if (colMapperName != null && colMapperName.ToLower().EndsWith("id"))
+           //关于格式,可以参考右键单元格->设置单元格格式->自定义中的类型 或看文档: https://support.office.microsoft.com/zh-CN/excel ->自定义 Excel->创建或删除自定义数字格式
+           string formatStr = cells.Style.Numberformat.Format;
+           //含有Id的列,默认是文本类型,目的是放防止出现科学计数法
+           if (colMapperName != null && colMapperName.ToLower().EndsWith("id"))
            {
                if (formatStr != "@")
                {
                    cells.Style.Numberformat.Format = "@"; //Format as text
-                }
-               val = val.ToString(); //确保值是string类型的
-            }
-            //若没有设置日期格式,默认是yyyy-mm-dd
-            //大写字母是为了冗错.注:excel的日期格式写成大写的是不会报错的,但文档中全是小写的.
-            var dateCode = new List<char> { '@', 'y', 'Y', 's', 'S', 'm', 'M', 'h', 'H', 'd', 'D', 'A', 'P', ':', '.', '0', '[', ']' };
+               }
+               if (val.GetType() != typeof(string))
+               {
+                   val = val.ToString(); //确保值是string类型的
+               }
+           }
+           //若没有设置日期格式,默认是yyyy-mm-dd
+           //大写字母是为了冗错.注:excel的日期格式写成大写的是不会报错的,但文档中全是小写的.
+           var dateCode = new List<char> { '@', 'y', 'Y', 's', 'S', 'm', 'M', 'h', 'H', 'd', 'D', 'A', 'P', ':', '.', '0', '[', ']' };
            if (val is DateTime)
            {
                bool changeformat = true;
                foreach (var c in formatStr) //这边不能用优化成linq,优化成linq有问题
-                {
+               {
                    if (dateCode.Contains(c))
                    {
                        changeformat = false;
@@ -180,9 +183,9 @@ namespace EpplusExtensions
                    }
                }
                if (changeformat) //若为true,表示没有人为的设置该cell的日期显示格式
-                {
+               {
                    cells.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
-                }
+               }
            }
 
            return val;
