@@ -635,6 +635,7 @@ namespace EpplusExtensions
 
             return sheetBodyAddRowCount;
         }
+
         /// <summary>
         ///  获得Database数据源的所有的列的使用状态
         /// </summary>
@@ -785,11 +786,10 @@ namespace EpplusExtensions
             var list = new List<ExcelCellInfo>();
             for (int col = colStart; col < colEnd; col++)
             {
-                //去掉不合理的属性命名的字符串(提取合法的字符并接成一个字符串)
-                string reg = @"[_a-zA-Z\u4e00-\u9FFF][A-Za-z0-9_\u4e00-\u9FFF]*";
-                string colName = RegexHelper.GetStringByReg(ws.Cells[row, col].Text, reg).Aggregate("", (current, item) => current + item);
+                string colName = ws.Cells[row, col].Text;
                 if (string.IsNullOrEmpty(colName)) break;
-
+                colName = ExtractName(colName);
+                if (string.IsNullOrEmpty(colName)) break;
                 list.Add(new ExcelCellInfo()
                 {
                     WorkSheet = ws,
@@ -799,6 +799,18 @@ namespace EpplusExtensions
             }
 
             return list;
+        }
+        /// <summary>
+        /// 提取符合c#规范的名字
+        /// </summary>
+        /// <param name="colName"></param>
+        /// <returns></returns>
+        private static string ExtractName(string colName)
+        {
+            //去掉不合理的属性命名的字符串(提取合法的字符并接成一个字符串)
+            string reg = @"[_a-zA-Z\u4e00-\u9FFF][A-Za-z0-9_\u4e00-\u9FFF]*";
+            colName = RegexHelper.GetStringByReg(colName, reg).Aggregate("", (current, item) => current + item);
+            return colName;
         }
 
         /// <summary>
@@ -937,6 +949,7 @@ namespace EpplusExtensions
                 }
                 else
                 {
+                    value = ExtractName(value);
                     var enumType = pInfoType.GetProperty("Value").PropertyType;
                     TryThrowExceptionForEnum(pInfo, model, value, enumType, pInfoType);
                     var enumValue = Enum.Parse(enumType, value);
@@ -986,6 +999,7 @@ namespace EpplusExtensions
                 //    throw new Exception($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
                 //} 
                 #endregion
+                value = ExtractName(value);
                 TryThrowExceptionForEnum(pInfo, model, value, pInfoType, pInfoType);
                 var enumValue = Enum.Parse(pInfoType, value);
                 pInfo.SetValue(model, enumValue);
@@ -1164,9 +1178,6 @@ namespace EpplusExtensions
 
                 for (int col = 1; col < EpplusConfig.MaxCol07; col++)
                 {
-                    //string colName = ws.Cells[1, col].Text;
-                    //去掉不合理的属性命名的字符串(提取合法的字符并接成一个字符串)
-                    //string colName = RegexHelper.GetStringByReg(ws.Cells[1, col].Text, @"[_a-zA-Z\u4e00-\u9FFF][A-Za-z0-9_\u4e00-\u9FFF]*").Aggregate("", (current, item) => current + item);
                     if (!dictColName.ContainsKey(col)) break;
                     string colName = dictColName[col];
                     if (string.IsNullOrEmpty(colName)) break;
