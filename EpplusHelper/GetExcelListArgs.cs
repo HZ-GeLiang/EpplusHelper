@@ -56,5 +56,19 @@ namespace EpplusExtensions
         /// </summary>
         public Func<T, bool> WhereFilter = null;
 
+        /// <summary>
+        /// 读取每个单元格值时做的处理
+        /// </summary>
+        public ReadCellValueOption ReadCellValueOption = ReadCellValueOption.Trim;
+
+    }
+
+    public enum ReadCellValueOption
+    {
+        None = 1,
+        Trim = 2,
+        MergeLine =3,
+        MergeLineAndTrim = 4,
+
     }
 }
