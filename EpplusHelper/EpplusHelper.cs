@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using EpplusExtensions.Attributes;
+using EpplusExtensions.Exceptions;
 using EpplusExtensions.Helper;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -861,7 +862,8 @@ namespace EpplusExtensions
 
         private static void GetList_SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
         {
-            value = value.Trim();
+            //todo: System.ComponentModel.DataAnnotations 的添加
+
             #region string
             if (pInfo.PropertyType == typeof(string))
             {
@@ -873,67 +875,87 @@ namespace EpplusExtensions
             #endregion
             #region DateTime
             var isNullable_DateTime = pInfo.PropertyType == typeof(DateTime?);
-            if (isNullable_DateTime && value.Length <= 0)
+            if (isNullable_DateTime && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
             if (isNullable_DateTime || pInfo.PropertyType == typeof(DateTime))
             {
-                pInfo.SetValue(model, Convert.ToDateTime(value));
+                if (!DateTime.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的日期", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
                 return;
             }
             #endregion
             #region decimal
             var isNullable_decimal = pInfo.PropertyType == typeof(decimal?);
-            if (isNullable_decimal && value.Length <= 0)
+            if (isNullable_decimal && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
             if (isNullable_decimal || pInfo.PropertyType == typeof(decimal))
             {
-                pInfo.SetValue(model, Convert.ToDecimal(value));
+                if (!Decimal.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
                 return;
             }
             #endregion
             #region Int16
             var isNullable_Int16 = pInfo.PropertyType == typeof(Int16?);
-            if (isNullable_Int16 && value.Length <= 0)
+            if (isNullable_Int16 && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
             if (isNullable_Int16 || pInfo.PropertyType == typeof(Int16))
             {
-                pInfo.SetValue(model, Convert.ToInt16(value));
+                if (!Int16.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
                 return;
             }
             #endregion
             #region Int32
             var isNullable_Int32 = pInfo.PropertyType == typeof(Int32?);
-            if (isNullable_Int32 && value.Length <= 0)
+            if (isNullable_Int32 && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
             if (isNullable_Int32 || pInfo.PropertyType == typeof(Int32))
             {
-                pInfo.SetValue(model, Convert.ToInt32(value));
+                if (!Int16.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
                 return;
             }
 
             #endregion
             #region Int64
             var isNullable_Int64 = pInfo.PropertyType == typeof(Int64?);
-            if (isNullable_Int64 && value.Length <= 0)
+            if (isNullable_Int64 && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
             if (isNullable_Int64 || pInfo.PropertyType == typeof(Int64))
             {
-                pInfo.SetValue(model, Convert.ToInt64(value));
+                if (!Int16.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
                 return;
             }
             #endregion
@@ -943,62 +965,24 @@ namespace EpplusExtensions
             bool isNullable_Enum = Nullable.GetUnderlyingType(pInfoType)?.IsEnum == true;
             if (isNullable_Enum)
             {
-                if (value.Length <= 0)
+                if (value == null || value.Length <= 0)
                 {
                     pInfo.SetValue(model, null);
+                    return;
                 }
-                else
-                {
-                    value = ExtractName(value);
-                    var enumType = pInfoType.GetProperty("Value").PropertyType;
-                    TryThrowExceptionForEnum(pInfo, model, value, enumType, pInfoType);
-                    var enumValue = Enum.Parse(enumType, value);
-                    pInfo.SetValue(model, enumValue);
-                }
+                value = ExtractName(value);
+                var enumType = pInfoType.GetProperty("Value").PropertyType;
+                TryThrowExceptionForEnum(pInfo, model, value, enumType, pInfoType);
+                var enumValue = Enum.Parse(enumType, value);
+                pInfo.SetValue(model, enumValue);
                 return;
             }
             if (pInfoType.IsEnum)
             {
-                #region 方法已经重构
-                //var isDefined = Enum.IsDefined(pInfoType, value);
-                //if (!isDefined)
-                //{
-                //    var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
-                //    if (attrs.Length == 1)
-                //    {
-                //        var attr = (EnumUndefinedAttribute)attrs[0];
-                //        if (attr.Args != null && attr.Args.Length > 0)
-                //        {
-                //            var allProp = ReflectionHelper.GetProperties<T>();
-                //            for (int i = 0; i < attr.Args.Length; i++)
-                //            {
-                //                var propertyName = attr.Args[i];
-                //                if (string.IsNullOrEmpty(propertyName))
-                //                {
-                //                    continue;
-                //                }
-                //                //如果占位符这是常量且刚好和属性名一直,请把占位符拆成多个占位符使用
-                //                if (propertyName == pInfo.Name)
-                //                {
-                //                    attr.Args[i] = value;
-                //                }
-                //                else
-                //                {
-                //                    var prop = ReflectionHelper.GetProperty(allProp, propertyName, true);
-                //                    if (prop == null)
-                //                    {
-                //                        continue;
-                //                    }
-                //                    attr.Args[i] = prop.GetValue(model).ToString();
-                //                }
-                //            }
-                //            string message = string.Format(attr.ErrorMessage, attr.Args);
-                //            throw new Exception(message);
-                //        }
-                //    }
-                //    throw new Exception($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
-                //} 
-                #endregion
+                if ((value == null || value.Length <= 0))
+                {
+                    throw new ArgumentException($@"无效的{pInfoType.FullName}枚举值", nameof(pInfo.Name));
+                }
                 value = ExtractName(value);
                 TryThrowExceptionForEnum(pInfo, model, value, pInfoType, pInfoType);
                 var enumValue = Enum.Parse(pInfoType, value);
@@ -1007,54 +991,57 @@ namespace EpplusExtensions
             }
             #endregion
 
-            throw new Exception("未考虑到的情况!!!请完善程序");
+            throw new System.Exception("未考虑到的情况!!!请完善程序");
         }
 
         private static void TryThrowExceptionForEnum<T>(PropertyInfo pInfo, T model, string value, Type enumType, Type pInfoType) where T : class, new()
         {
             var isDefined = Enum.IsDefined(enumType, value);
-            if (!isDefined)
+            if (isDefined)
             {
-                var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
-                if (attrs.Length == 1)
+                return;
+            }
+            var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
+            if (attrs.Length != 1)
+            {
+                throw new System.ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+            }
+
+            var attr = (EnumUndefinedAttribute)attrs[0];
+            if (attr.Args == null || attr.Args.Length <= 0)
+            {
+                throw new System.ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+            }
+
+            var allProp = ReflectionHelper.GetProperties<T>();
+
+            for (int i = 0; i < attr.Args.Length; i++)
+            {
+                var propertyName = attr.Args[i];
+                if (string.IsNullOrEmpty(propertyName))
                 {
-                    var attr = (EnumUndefinedAttribute)attrs[0];
-                    if (attr.Args != null && attr.Args.Length > 0)
-                    {
-                        var allProp = ReflectionHelper.GetProperties<T>();
-
-                        for (int i = 0; i < attr.Args.Length; i++)
-                        {
-                            var propertyName = attr.Args[i];
-                            if (string.IsNullOrEmpty(propertyName))
-                            {
-                                continue;
-                            }
-
-                            //如果占位符这是常量且刚好和属性名一直,请把占位符拆成多个占位符使用
-                            if (propertyName == pInfo.Name)
-                            {
-                                attr.Args[i] = value;
-                            }
-                            else
-                            {
-                                var prop = ReflectionHelper.GetProperty(allProp, propertyName, true);
-                                if (prop == null)
-                                {
-                                    continue;
-                                }
-
-                                attr.Args[i] = prop.GetValue(model).ToString();
-                            }
-                        }
-
-                        string message = string.Format(attr.ErrorMessage, attr.Args);
-                        throw new Exception(message);
-                    }
+                    continue;
                 }
 
-                throw new Exception($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                //如果占位符这是常量且刚好和属性名一直,请把占位符拆成多个占位符使用
+                if (propertyName == pInfo.Name)
+                {
+                    attr.Args[i] = value;
+                }
+                else
+                {
+                    var prop = ReflectionHelper.GetProperty(allProp, propertyName, true);
+                    if (prop == null)
+                    {
+                        continue;
+                    }
+                    attr.Args[i] = prop.GetValue(model).ToString();
+                }
             }
+
+            string message = string.Format(attr.ErrorMessage, attr.Args);
+            throw new System.ArgumentException(message);
+
         }
 
         #endregion
@@ -1088,6 +1075,7 @@ namespace EpplusExtensions
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
+                ReadCellValueOption = ReadCellValueOption.Trim,
             });
         }
 
@@ -1114,6 +1102,7 @@ namespace EpplusExtensions
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
+                ReadCellValueOption = ReadCellValueOption.Trim,
             });
         }
 
@@ -1129,6 +1118,7 @@ namespace EpplusExtensions
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
+                ReadCellValueOption = ReadCellValueOption.Trim,
             });
         }
 
@@ -1143,6 +1133,7 @@ namespace EpplusExtensions
                 : args.EveryCellReplace;
             var havingFilter = args.HavingFilter;
             var whereFilter = args.WhereFilter;
+            var readCellValueOption = args.ReadCellValueOption;
 
             if (rowIndex == default(int) || dataNameRowIndex == default(int))
             {
@@ -1168,7 +1159,7 @@ namespace EpplusExtensions
 
                 if (ws.Cells[row, 1].Merge)
                 {
-                    throw new Exception($@"数据的每一行的首列不能有合并单元格,当前行是第{row}行");
+                    throw new System.ArgumentException($@"数据的每一行的首列不能有合并单元格,当前行是第{row}行");
                 }
 
                 Type type = typeof(T);
@@ -1182,7 +1173,10 @@ namespace EpplusExtensions
                     string colName = dictColName[col];
                     if (string.IsNullOrEmpty(colName)) break;
                     PropertyInfo pInfo = type.GetProperty(colName);
-
+                    if (pInfo == null)
+                    {
+                        throw new ArgumentException($@"Type:{type} 的 property {colName} 未找到");
+                    }
                     string value;
                     if (ws.Cells[row, col].Merge)
                     {
@@ -1196,36 +1190,51 @@ namespace EpplusExtensions
                     if (value == null || value.Length <= 0)
                     {
                         GetList_SetModelValue(pInfo, model, value);
+                        continue;
                     }
-                    else
+
+                    if (everyCellPrefix?.Length > 0)
                     {
-                        if (everyCellPrefix?.Length > 0)
+                        var indexof = value.IndexOf(everyCellPrefix);
+                        if (indexof == -1)
                         {
-                            var indexof = value.IndexOf(everyCellPrefix);
-                            if (indexof == -1)
-                            {
-                                throw new Exception($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + everyCellPrefix + "'开头的");
-                            }
-                            value = value.RemovePrefix(everyCellPrefix);
+                            throw new System.ArgumentException($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + everyCellPrefix + "'开头的");
                         }
-                        if (canEveryCellReplace)
-                        {
-                            foreach (var item in everyCellReplace)
-                            {
-                                if (!value.Contains(item.Key))
-                                {
-                                    continue;
-                                }
-                                var everyCellReplaceOldValue = item.Key;
-                                var everyCellReplaceNewValue = item.Value ?? "";
-                                if (everyCellReplaceOldValue?.Length > 0)
-                                {
-                                    value = value.Replace(everyCellReplaceOldValue, everyCellReplaceNewValue);
-                                }
-                            }
-                        }
-                        GetList_SetModelValue(pInfo, model, value);
+                        value = value.RemovePrefix(everyCellPrefix);
                     }
+                    if (canEveryCellReplace)
+                    {
+                        foreach (var item in everyCellReplace)
+                        {
+                            if (!value.Contains(item.Key))
+                            {
+                                continue;
+                            }
+                            var everyCellReplaceOldValue = item.Key;
+                            var everyCellReplaceNewValue = item.Value ?? "";
+                            if (everyCellReplaceOldValue?.Length > 0)
+                            {
+                                value = value.Replace(everyCellReplaceOldValue, everyCellReplaceNewValue);
+                            }
+                        }
+                    }
+                    switch (args.ReadCellValueOption)
+                    {
+                        case ReadCellValueOption.None:
+                            break;
+                        case ReadCellValueOption.Trim:
+                            value = value.Trim();
+                            break;
+                        case ReadCellValueOption.MergeLine:
+                            value = value.MergeLines();
+                            break;
+                        case ReadCellValueOption.MergeLineAndTrim:
+                            value = value.Trim().MergeLines().Trim();
+                            break;
+                        default:
+                            throw new System.Exception("未指定读取单元格值时的操作方式");
+                    }
+                    GetList_SetModelValue(pInfo, model, value);
                 }
 
                 if (whereFilter == null || whereFilter.Invoke(model))
