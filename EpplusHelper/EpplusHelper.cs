@@ -863,41 +863,55 @@ namespace EpplusExtensions
 
         private static void GetList_SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
         {
-            //todo: System.ComponentModel.DataAnnotations 的添加
-            //if System.ComponentModel.DataAnnotations.ValidationAttribute  
-            //调用方法 IsValid
-            //System.ComponentModel.DataAnnotations.ValidationAttribute
-
             object[] validAttrs = ReflectionHelper.GetAttributeForProperty<T, System.ComponentModel.DataAnnotations.ValidationAttribute>(pInfo.Name, true);
             if (validAttrs != null && validAttrs.Length > 0)
             {
+                //同一个特性的的属性值肯定是一样的,所以可以优化;
+                //ArrayList objArr = null;
+                Object[] objArr = null;//第二次优化
                 foreach (var validAttr in validAttrs)
                 {
                     MethodInfo methodIsValid = validAttr.GetType().GetMethod("IsValid");
-                    var objArr = new ArrayList();
-                    var paras = methodIsValid.GetParameters();
-                    if (paras.Length != 1)
-                    {
-                        throw new Exception($@"遇到了在说");
-                    }
-                    foreach (ParameterInfo paraInfo in paras)
-                    {
-                        objArr.Add(value);
-                        /*
-                         *ValidationAttribute的IsValid的2个方法参数都是非值类型,所以,直接Add就好了;
-                       if (paraInfo.ParameterType.IsValueType)
-                       {
-                           //todo:...
-                       }
-                       else
-                       {
-                           objArr.Add(value);
-                       }
-                        */
+                    #region 代码优化第二次,还是因为只有一个参数进行优化
+                    ////var objArr = new ArrayList();
+                    //var paras = methodIsValid.GetParameters();
+                    ////ValidationAttribute的IsValid 只有一个Object的参数, 所以不需要判断 (但不绝对),如果自定义的存在多个,那么上面一行代码就会抛出异常:发现不明确的匹配。
+                    ////if (paras.Length != 1)
+                    ////{
+                    ////    throw new Exception($@"遇到了在说");
+                    ////}
+                    
+                    //if (objArr == null)
+                    //{
+                    //    objArr = new ArrayList();
+                    //    #region 只有一个参数,可以优化如下
+                    //    objArr.Add(value);
+                    //    //foreach (ParameterInfo paraInfo in paras)
+                    //    //{
+                    //    //    objArr.Add(value);
+                    //    //    /*
+                    //    //     *ValidationAttribute的IsValid 只有一个Object的参数,所以,直接Add就好了;
+                    //    //   if (paraInfo.ParameterType.IsValueType)
+                    //    //   {
+                    //    //       //todo:...
+                    //    //   }
+                    //    //   else
+                    //    //   {
+                    //    //       objArr.Add(value);
+                    //    //   }
+                    //    //    */ 
+                    //    //}  
+                    //    #endregion
+                    //} 
+                    //var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr.ToArray());
 
+                    if (objArr == null)
+                    {
+                        objArr = new object[] { value };
                     }
+                    var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr);
 
-                    var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr.ToArray());
+                    #endregion
 
                     if (!IsValid)
                     {
