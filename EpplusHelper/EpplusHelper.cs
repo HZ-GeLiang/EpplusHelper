@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -863,9 +864,53 @@ namespace EpplusExtensions
         private static void GetList_SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
         {
             //todo: System.ComponentModel.DataAnnotations 的添加
+            //if System.ComponentModel.DataAnnotations.ValidationAttribute  
+            //调用方法 IsValid
+            //System.ComponentModel.DataAnnotations.ValidationAttribute
+
+            object[] validAttrs = ReflectionHelper.GetAttributeForProperty<T, System.ComponentModel.DataAnnotations.ValidationAttribute>(pInfo.Name, true);
+            if (validAttrs != null && validAttrs.Length > 0)
+            {
+                foreach (var validAttr in validAttrs)
+                {
+                    MethodInfo methodIsValid = validAttr.GetType().GetMethod("IsValid");
+                    var objArr = new ArrayList();
+                    var paras = methodIsValid.GetParameters();
+                    if (paras.Length != 1)
+                    {
+                        throw new Exception($@"遇到了在说");
+                    }
+                    foreach (ParameterInfo paraInfo in paras)
+                    {
+                        objArr.Add(value);
+                        /*
+                         *ValidationAttribute的IsValid的2个方法参数都是非值类型,所以,直接Add就好了;
+                       if (paraInfo.ParameterType.IsValueType)
+                       {
+                           //todo:...
+                       }
+                       else
+                       {
+                           objArr.Add(value);
+                       }
+                        */
+
+                    }
+
+                    var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr.ToArray());
+
+                    if (!IsValid)
+                    {
+                        var msg = $@"'{model.GetType().FullName}'类型的'{pInfo.Name}'属性验证未通过:'{((System.ComponentModel.DataAnnotations.ValidationAttribute)validAttr).ErrorMessage}'";
+                        throw new ArgumentException(msg);
+
+                    }
+                }
+            }
+            var pInfo_PropertyType = pInfo.PropertyType;
 
             #region string
-            if (pInfo.PropertyType == typeof(string))
+            if (pInfo_PropertyType == typeof(string))
             {
                 pInfo.SetValue(model, value);
                 //pInfo.SetValue(model, ws.Cells[row, col].Text);
@@ -874,13 +919,13 @@ namespace EpplusExtensions
             }
             #endregion
             #region DateTime
-            var isNullable_DateTime = pInfo.PropertyType == typeof(DateTime?);
+            var isNullable_DateTime = pInfo_PropertyType == typeof(DateTime?);
             if (isNullable_DateTime && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
-            if (isNullable_DateTime || pInfo.PropertyType == typeof(DateTime))
+            if (isNullable_DateTime || pInfo_PropertyType == typeof(DateTime))
             {
                 if (!DateTime.TryParse(value, out var result))
                 {
@@ -891,13 +936,13 @@ namespace EpplusExtensions
             }
             #endregion
             #region decimal
-            var isNullable_decimal = pInfo.PropertyType == typeof(decimal?);
+            var isNullable_decimal = pInfo_PropertyType == typeof(decimal?);
             if (isNullable_decimal && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
-            if (isNullable_decimal || pInfo.PropertyType == typeof(decimal))
+            if (isNullable_decimal || pInfo_PropertyType == typeof(decimal))
             {
                 if (!Decimal.TryParse(value, out var result))
                 {
@@ -908,13 +953,13 @@ namespace EpplusExtensions
             }
             #endregion
             #region Int16
-            var isNullable_Int16 = pInfo.PropertyType == typeof(Int16?);
+            var isNullable_Int16 = pInfo_PropertyType == typeof(Int16?);
             if (isNullable_Int16 && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
-            if (isNullable_Int16 || pInfo.PropertyType == typeof(Int16))
+            if (isNullable_Int16 || pInfo_PropertyType == typeof(Int16))
             {
                 if (!Int16.TryParse(value, out var result))
                 {
@@ -925,13 +970,13 @@ namespace EpplusExtensions
             }
             #endregion
             #region Int32
-            var isNullable_Int32 = pInfo.PropertyType == typeof(Int32?);
+            var isNullable_Int32 = pInfo_PropertyType == typeof(Int32?);
             if (isNullable_Int32 && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
-            if (isNullable_Int32 || pInfo.PropertyType == typeof(Int32))
+            if (isNullable_Int32 || pInfo_PropertyType == typeof(Int32))
             {
                 if (!Int16.TryParse(value, out var result))
                 {
@@ -943,13 +988,13 @@ namespace EpplusExtensions
 
             #endregion
             #region Int64
-            var isNullable_Int64 = pInfo.PropertyType == typeof(Int64?);
+            var isNullable_Int64 = pInfo_PropertyType == typeof(Int64?);
             if (isNullable_Int64 && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
-            if (isNullable_Int64 || pInfo.PropertyType == typeof(Int64))
+            if (isNullable_Int64 || pInfo_PropertyType == typeof(Int64))
             {
                 if (!Int16.TryParse(value, out var result))
                 {
@@ -960,9 +1005,9 @@ namespace EpplusExtensions
             }
             #endregion
             #region Enum
-            var pInfoType = pInfo.PropertyType;
 
-            bool isNullable_Enum = Nullable.GetUnderlyingType(pInfoType)?.IsEnum == true;
+
+            bool isNullable_Enum = Nullable.GetUnderlyingType(pInfo_PropertyType)?.IsEnum == true;
             if (isNullable_Enum)
             {
                 if (value == null || value.Length <= 0)
@@ -971,21 +1016,21 @@ namespace EpplusExtensions
                     return;
                 }
                 value = ExtractName(value);
-                var enumType = pInfoType.GetProperty("Value").PropertyType;
-                TryThrowExceptionForEnum(pInfo, model, value, enumType, pInfoType);
+                var enumType = pInfo_PropertyType.GetProperty("Value").PropertyType;
+                TryThrowExceptionForEnum(pInfo, model, value, enumType, pInfo_PropertyType);
                 var enumValue = Enum.Parse(enumType, value);
                 pInfo.SetValue(model, enumValue);
                 return;
             }
-            if (pInfoType.IsEnum)
+            if (pInfo_PropertyType.IsEnum)
             {
                 if ((value == null || value.Length <= 0))
                 {
-                    throw new ArgumentException($@"无效的{pInfoType.FullName}枚举值", nameof(pInfo.Name));
+                    throw new ArgumentException($@"无效的{pInfo_PropertyType.FullName}枚举值", nameof(pInfo.Name));
                 }
                 value = ExtractName(value);
-                TryThrowExceptionForEnum(pInfo, model, value, pInfoType, pInfoType);
-                var enumValue = Enum.Parse(pInfoType, value);
+                TryThrowExceptionForEnum(pInfo, model, value, pInfo_PropertyType, pInfo_PropertyType);
+                var enumValue = Enum.Parse(pInfo_PropertyType, value);
                 pInfo.SetValue(model, enumValue);
                 return;
             }
@@ -1152,9 +1197,16 @@ namespace EpplusExtensions
 
             for (int row = rowIndex; row <= EpplusConfig.MaxRow07; row++)
             {
-                if (string.IsNullOrEmpty(ws.Cells[row, 1].Text))//列名为空
+                if (string.IsNullOrEmpty(ws.Cells[row, 1].Text))//每一行的第一列为空
                 {
-                    break;
+                    if (row == rowIndex)
+                    {
+                        throw new Exception("不要上传一份空的模版文件");
+                    }
+                    else
+                    {
+                        break; //读取模版结束
+                    }
                 }
 
                 if (ws.Cells[row, 1].Merge)
