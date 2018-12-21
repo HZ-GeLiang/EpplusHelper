@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OfficeOpenXml;
 using EpplusExtensions.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace SampleApp
 {
@@ -72,4 +73,7 @@ namespace SampleApp
         public string 部门负责人 { get; set; }
         public string 部门负责人确认签字 { get; set; }
     }
+
+
+
 }
