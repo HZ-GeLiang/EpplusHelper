@@ -1,30 +1,45 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 
 namespace EpplusExtensions.Helper
 {
     public class ReflectionHelper
     {
+        #region GetAttributeForProperty
+
         public static object[] GetAttributeForProperty<T, TAttribute>(string propertyName)
         {
-            if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
-            var pi = GetProperties<T>();
-            return GetProperty(pi, propertyName).GetCustomAttributes(typeof(TAttribute), false);
+            return GetAttributeForProperty<T, TAttribute>(propertyName, false);
         }
 
         public static object[] GetAttributeForProperty<TAttribute>(Type propertyType, string propertyName)
         {
+            return GetAttributeForProperty<TAttribute>(propertyType, propertyName, false);
+        }
+
+        public static object[] GetAttributeForProperty<T, TAttribute>(string propertyName, bool notFindReturnNull)
+        {
+            if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+            var pi = GetProperties<T>();
+            return GetProperty(pi, propertyName, notFindReturnNull)?.GetCustomAttributes(typeof(TAttribute), false);
+        }
+
+
+        public static object[] GetAttributeForProperty<TAttribute>(Type propertyType, string propertyName, bool notFindReturnNull)
+        {
             if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
             var pi = GetProperties(propertyType);
-            return GetProperty(pi, propertyName).GetCustomAttributes(typeof(TAttribute), false);
+            return GetProperty(pi, propertyName, notFindReturnNull)?.GetCustomAttributes(typeof(TAttribute), false);
         }
+
+        #endregion
 
         public static PropertyInfo[] GetProperties<T>()
         {
             Type type = typeof(T);
             return GetProperties(type);
         }
-
 
         public static PropertyInfo[] GetProperties(Type type)
         {
@@ -54,7 +69,25 @@ namespace EpplusExtensions.Helper
             return GetProperty(pi, propertyName).GetValue(model);
         }
 
+        public static object[] GetMethodParameterDefault(MethodInfo method)
+        {
+            // MethodInfo method = type.GetMethod(methodName);
+            var objArr = new ArrayList();
+            var paras = method.GetParameters();
+            foreach (ParameterInfo paraInfo in paras)
+            {
+                if (paraInfo.ParameterType.IsValueType)
+                {
+                    objArr.Add(0);
+                }
+                else
+                {
+                    objArr.Add(null);
 
+                }
+            }
+            return objArr.ToArray();
 
+        }
     }
 }
