@@ -96,6 +96,8 @@
     <Compile Include="Sample02 _1.cs" />
     <Compile Include="Sample02.cs" />
     <Compile Include="Sample01.cs" />
+    <Compile Include="Sample04_2.cs" />
+    <Compile Include="Sample04_1.cs" />
     <Compile Include="Sample03_1.cs" />
     <Compile Include="Sample03.cs" />
   </ItemGroup>
@@ -119,6 +121,9 @@
     </None>
     <None Include="模版\Product_1.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\各项导出模板.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
