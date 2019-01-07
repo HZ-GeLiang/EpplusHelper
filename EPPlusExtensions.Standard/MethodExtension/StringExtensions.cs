@@ -26,5 +26,12 @@ namespace EPPlusExtensions
             return src.Replace("\r", "").Replace("\n", "").Replace("\r\n", "");
         }
 
+        public static string RemoveLastChar(this string value, char c)
+        {
+            return value == null || value.Length <= 0
+                ? value
+                : (value[value.Length - 1] == c ? value.Remove(value.Length - 1, 1) : value);
+        }
+
     }
 }

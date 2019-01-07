@@ -880,7 +880,7 @@ namespace EPPlusExtensions
                     ////{
                     ////    throw new Exception($@"遇到了在说");
                     ////}
-                    
+
                     //if (objArr == null)
                     //{
                     //    objArr = new ArrayList();
@@ -1390,6 +1390,237 @@ namespace EPPlusExtensions
         public static void FreezePanes(ExcelWorksheet ws, int row, int column)
         {
             ws.View.FreezePanes(row, column);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="sheetTitleLine">工作簿标题行,key:工作簿名字,value:行号</param>
+        /// <returns>工作簿Name,DatTable的创建代码</returns>
+        public static Dictionary<string, string> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<string, int> sheetTitleLine)
+        {
+            if (sheetTitleLine == null)
+            {
+                sheetTitleLine = new Dictionary<string, int>();
+            }
+            ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
+            var dict = new Dictionary<string, string>();
+            foreach (var ws in wss)
+            {
+                int titleLine;
+                if (sheetTitleLine != null || sheetTitleLine.ContainsKey(ws.Name))
+                {
+                    titleLine = sheetTitleLine[ws.Name];
+                }
+                else
+                {
+                    titleLine = 2;
+                }
+
+                var crateDateTableSnippet = FillExcelDefaultConfig(ws, titleLine);
+                dict.Add(ws.Name, crateDateTableSnippet);
+            }
+
+            return dict;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="sheetTitleLine">工作簿标题行,key:第几个工作簿,从1开始,value:行号</param>
+        /// <returns>工作簿Name,DatTable的创建代码</returns>
+        public static Dictionary<string, string> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<int, int> sheetTitleLine)
+        {
+            if (sheetTitleLine == null)
+            {
+                sheetTitleLine = new Dictionary<int, int>();
+            }
+            ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
+            var dict = new Dictionary<string, string>();
+            var eachCount = 0;
+            foreach (var ws in wss)
+            {
+                eachCount++;
+
+                int titleLine;
+                if (sheetTitleLine != null || sheetTitleLine.ContainsKey(eachCount))
+                {
+                    titleLine = sheetTitleLine[eachCount];
+                }
+                else
+                {
+                    titleLine = 2;
+                }
+                var crateDateTableSnippet = FillExcelDefaultConfig(ws, titleLine);
+                dict.Add(ws.Name, crateDateTableSnippet);
+            }
+            return dict;
+        }
+
+        public static void FillExcelDefaultConfig(string filePath, string FileOutPath)
+        {
+
+            using (MemoryStream ms = new MemoryStream())
+            using (FileStream fs = System.IO.File.OpenRead(filePath))
+            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            {
+                var dict = EPPlusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
+                excelPackage.SaveAs(ms);
+                ms.Position = 0;
+                ms.Save($@"{FileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
+                foreach (var item in dict)
+                {
+                    File.WriteAllText($@"{FileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result_snippet_{item.Key}.txt", item.Value); //将字符串全部写入文件
+                }
+                System.Diagnostics.Process.Start(FileOutPath);
+            }
+        }
+
+        private static string FillExcelDefaultConfig(ExcelWorksheet ws, int titleLine)
+        {
+            var colNameList = new List<string>();
+            var colNames_Counter = new Dictionary<string, int>();
+            for (int col = 1; col <= EPPlusConfig.MaxCol07; col++)
+            {
+                var destColVal = ExtractName(
+                    ws.Cells[titleLine, col].Merge
+                    ? GetMegerCellText(ws, titleLine, col)
+                    : GetCellText(ws, titleLine, col)).Trim().MergeLines();
+                if (string.IsNullOrEmpty(destColVal))
+                {
+                    break;
+                }
+
+                if (!colNames_Counter.ContainsKey(destColVal))
+                {
+                    colNames_Counter.Add(destColVal, 0);
+                }
+
+                if (!colNameList.Contains(destColVal) && colNames_Counter[destColVal] == 0)
+                {
+                    colNameList.Add(destColVal);
+                }
+                else
+                {
+                    //如果出现重复,把第一个名字添加后缀1
+                    if (colNames_Counter[destColVal] == 1)
+                    {
+                        for (int i = 0; i < colNameList.Count; i++)
+                        {
+                            if (colNameList[i] == destColVal)
+                            {
+                                colNameList[i] = colNameList[i] + "1";
+                                break;
+                            }
+                        }
+                    }
+                    //必须要先用一个变量保存,使用 ++colNames_Counter[destColVal] 会把 colNames_Counter[destColVal] 值变掉
+                    var currentCounterVal = colNames_Counter[destColVal];
+                    colNameList.Add($@"{destColVal}{++currentCounterVal}");
+                }
+
+                colNames_Counter[destColVal] = ++colNames_Counter[destColVal];
+            }
+
+            //var config = new EpplusConfig();
+            for (int i = 0; i < colNameList.Count; i++)
+            {
+                //var cells = ws.Cells[titleLine + 1, i + 1];
+                //SetWorksheetCellsValue(config, cells, $@"$tb1{colNameList[i]}", colNameList[i]);
+                ws.Cells[titleLine + 1, i + 1].Value = $@"$tb1{colNameList[i]}";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($@"DataTable dt = new DataTable();");
+            StringBuilder sbColumn = new StringBuilder();
+            StringBuilder sbAddDr = new StringBuilder();
+            StringBuilder sbColumnType = new StringBuilder();
+            sbAddDr.AppendLine($@"//var dr = dt.NewRow();");
+
+            var columnTypeList_DateTime = new List<string>()
+            {
+                "时间", "日期", "date", "time"
+            };
+            var columnTypeList_String = new List<string>()
+            {
+                "id","身份证","银行卡","卡号","手机","mobile","tel",
+            };
+
+            for (int i = 0; i < columnTypeList_DateTime.Count; i++)
+            {
+                columnTypeList_DateTime[i] = columnTypeList_DateTime[i].ToLower();
+            }
+            for (int i = 0; i < columnTypeList_String.Count; i++)
+            {
+                columnTypeList_String[i] = columnTypeList_String[i].ToLower();
+            }
+
+            foreach (var colName in colNameList)
+            {
+                sbColumn.AppendLine($"dt.Columns.Add(\"{colName}\");");
+                sbAddDr.AppendLine($"//dr[\"{colName}\"] = ");
+
+                var colName_Lower = colName.ToLower();
+
+                foreach (var item in columnTypeList_DateTime)
+                {
+                    if (colName_Lower.IndexOf(item) != -1)
+                    {
+                        sbColumnType.AppendLine($"dt.Columns[\"{colName}\"].DataType = typeof(DateTime);");
+                        break;
+                    }
+                }
+
+                foreach (var item in columnTypeList_String)
+                {
+                    if (colName_Lower.IndexOf(item) != -1)
+                    {
+                        sbColumnType.AppendLine($"dt.Columns[\"{colName}\"].DataType = typeof(String);");
+                        break;//处理过了就break,不然会重复处理 譬如 银行卡号, 此时符合 银行卡 和卡号
+                    }
+                }
+
+            }
+            sb.Append(sbColumn.ToString());
+            sb.Append(sbColumnType.ToString());
+            sbAddDr.AppendLine($@"//dt.Rows.Add(dr);");
+            sb.Append(sbAddDr.ToString());
+
+            var returnStr = sb.ToString();
+            return returnStr;
+
+        }
+
+        /// <summary>
+        /// 获得excel填写的配置内容
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="outResultPrefix"></param>
+        /// <returns></returns>
+        public static string GetFillConfig(string content, string outResultPrefix = "$tb1")
+        {
+            if (string.IsNullOrEmpty(content)) return content;
+            content = content.TrimEnd();
+            content.RemoveLastChar('\n');//excel选择列复制出来到文本上有换行,最后一个字符的ascii 是10 \n
+            var excel_cell_split = '	';// 两个单元格之间间隔的符号
+            string[] splites = content.Split(new char[] { excel_cell_split }, StringSplitOptions.RemoveEmptyEntries);
+            StringBuilder sb = new StringBuilder();
+            StringBuilder sbColumn = new StringBuilder();
+            foreach (var item in splites)
+            {
+                var newName = ExtractName(item);
+                sb.Append($@"{outResultPrefix}{newName}{excel_cell_split}");
+                sbColumn.AppendLine($"dt.Columns.Add(\"{newName}\");");
+            }
+
+            sb.RemoveLastChar(excel_cell_split.ToString().Length);
+
+            sb.AppendLine().AppendLine().AppendLine();
+            sb.AppendLine($@"DataTable dt = new DataTable();");
+            sb.Append(sbColumn.ToString());
+
+            return sb.ToString();
         }
 
         #region 获得单元格
