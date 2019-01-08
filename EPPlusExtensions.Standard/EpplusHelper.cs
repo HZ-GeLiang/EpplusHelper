@@ -304,6 +304,8 @@ namespace EPPlusExtensions
                     }
 
                     #endregion
+
+                    continue; //强制跳过本次fillDate的循环
                 }
                 #endregion
 
