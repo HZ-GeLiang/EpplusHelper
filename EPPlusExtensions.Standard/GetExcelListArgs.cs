@@ -49,25 +49,34 @@ namespace EPPlusExtensions
         /// <summary>
         /// 在return数据之前执行过滤操作
         /// </summary>
-        public Func<T, bool> HavingFilter = null;
+        public Func<T, bool> HavingFilter { get; set; } = null;
 
         /// <summary>
         /// 检查数据,如果数据正确,添加到 返回数据 集合中
         /// </summary>
-        public Func<T, bool> WhereFilter = null;
+        public Func<T, bool> WhereFilter { get; set; } = null;
 
         /// <summary>
         /// 读取每个单元格值时做的处理
         /// </summary>
-        public ReadCellValueOption ReadCellValueOption = ReadCellValueOption.Trim;
+        public ReadCellValueOption ReadCellValueOption { get; set; } = ReadCellValueOption.Trim;
 
+        /// <summary>
+        /// poco属性重名时自动命名
+        /// </summary>
+        public bool POCO_Property_AutoRename_WhenRepeat { get; set; } = false;
+
+        /// <summary>
+        /// poco属性重命名修改第一个名字
+        /// </summary>
+        public bool POCO_Property_AutoRenameFirtName_WhenRepeat { get; set; } = true;
     }
 
     public enum ReadCellValueOption
     {
         None = 1,
         Trim = 2,
-        MergeLine =3,
+        MergeLine = 3,
         MergeLineAndTrim = 4,
 
     }
