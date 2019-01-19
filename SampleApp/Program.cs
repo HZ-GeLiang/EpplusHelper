@@ -14,7 +14,7 @@ namespace SampleApp
     {
         static void Main(string[] args)
         {
-            new Sample04_1().Run();
+            new Sample02().Run();
         }
     }
 }

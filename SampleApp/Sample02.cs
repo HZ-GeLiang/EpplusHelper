@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OfficeOpenXml;
 using EpplusExtensions.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace SampleApp
 {
@@ -57,8 +58,11 @@ namespace SampleApp
 
     internal class PeopleInfo
     {
+        public string 序号 { get; set; }
+        //[Required(AllowEmptyStrings = false)]
+        [Required(AllowEmptyStrings = true )]
         public string 名字 { get; set; }
-        [EnumUndefined("{0}的性别'{1}'填写不正确","名字","性别" )]
+        [EnumUndefined("{0}的性别'{1}'填写不正确", "名字", "性别")]
         public Gender? 性别 { get; set; }
         public DateTime? 出生日期 { get; set; }
         public string 身份证号码 { get; set; }
@@ -69,6 +73,7 @@ namespace SampleApp
     {
         男 = 1,
         女 = 2,
+        未知 = 3,
     }
 
 }
