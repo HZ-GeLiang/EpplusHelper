@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -865,64 +866,6 @@ namespace EPPlusExtensions
 
         private static void GetList_SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
         {
-            object[] validAttrs = ReflectionHelper.GetAttributeForProperty<T, System.ComponentModel.DataAnnotations.ValidationAttribute>(pInfo.Name, true);
-            if (validAttrs != null && validAttrs.Length > 0)
-            {
-                //同一个特性的的属性值肯定是一样的,所以可以优化;
-                //ArrayList objArr = null;
-                Object[] objArr = null;//第二次优化
-                foreach (var validAttr in validAttrs)
-                {
-                    MethodInfo methodIsValid = validAttr.GetType().GetMethod("IsValid");
-                    #region 代码优化第二次,还是因为只有一个参数进行优化
-                    ////var objArr = new ArrayList();
-                    //var paras = methodIsValid.GetParameters();
-                    ////ValidationAttribute的IsValid 只有一个Object的参数, 所以不需要判断 (但不绝对),如果自定义的存在多个,那么上面一行代码就会抛出异常:发现不明确的匹配。
-                    ////if (paras.Length != 1)
-                    ////{
-                    ////    throw new Exception($@"遇到了在说");
-                    ////}
-
-                    //if (objArr == null)
-                    //{
-                    //    objArr = new ArrayList();
-                    //    #region 只有一个参数,可以优化如下
-                    //    objArr.Add(value);
-                    //    //foreach (ParameterInfo paraInfo in paras)
-                    //    //{
-                    //    //    objArr.Add(value);
-                    //    //    /*
-                    //    //     *ValidationAttribute的IsValid 只有一个Object的参数,所以,直接Add就好了;
-                    //    //   if (paraInfo.ParameterType.IsValueType)
-                    //    //   {
-                    //    //       //todo:...
-                    //    //   }
-                    //    //   else
-                    //    //   {
-                    //    //       objArr.Add(value);
-                    //    //   }
-                    //    //    */ 
-                    //    //}  
-                    //    #endregion
-                    //} 
-                    //var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr.ToArray());
-
-                    if (objArr == null)
-                    {
-                        objArr = new object[] { value };
-                    }
-                    var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr);
-
-                    #endregion
-
-                    if (!IsValid)
-                    {
-                        var msg = $@"'{model.GetType().FullName}'类型的'{pInfo.Name}'属性验证未通过:'{((System.ComponentModel.DataAnnotations.ValidationAttribute)validAttr).ErrorMessage}'";
-                        throw new ArgumentException(msg);
-
-                    }
-                }
-            }
             var pInfo_PropertyType = pInfo.PropertyType;
 
             #region string
@@ -1054,6 +997,67 @@ namespace EPPlusExtensions
 
             throw new System.Exception("未考虑到的情况!!!请完善程序");
         }
+        private static void GetList_ValidAttribute<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
+        {
+            object[] validAttrs = ReflectionHelper.GetAttributeForProperty<T, ValidationAttribute>(pInfo.Name, true);
+            if (validAttrs != null && validAttrs.Length > 0)
+            {
+                //同一个特性的的属性值肯定是一样的,所以可以优化;
+                //ArrayList objArr = null;
+                Object[] objArr = null;//第二次优化
+                foreach (var validAttr in validAttrs)
+                {
+                    MethodInfo methodIsValid = validAttr.GetType().GetMethod("IsValid");
+                    #region 代码优化第二次,还是因为只有一个参数进行优化
+                    ////var objArr = new ArrayList();
+                    //var paras = methodIsValid.GetParameters();
+                    ////ValidationAttribute的IsValid 只有一个Object的参数, 所以不需要判断 (但不绝对),如果自定义的存在多个,那么上面一行代码就会抛出异常:发现不明确的匹配。
+                    ////if (paras.Length != 1)
+                    ////{
+                    ////    throw new Exception($@"遇到了在说");
+                    ////}
+
+                    //if (objArr == null)
+                    //{
+                    //    objArr = new ArrayList();
+                    //    #region 只有一个参数,可以优化如下
+                    //    objArr.Add(value);
+                    //    //foreach (ParameterInfo paraInfo in paras)
+                    //    //{
+                    //    //    objArr.Add(value);
+                    //    //    /*
+                    //    //     *ValidationAttribute的IsValid 只有一个Object的参数,所以,直接Add就好了;
+                    //    //   if (paraInfo.ParameterType.IsValueType)
+                    //    //   {
+                    //    //       //todo:...
+                    //    //   }
+                    //    //   else
+                    //    //   {
+                    //    //       objArr.Add(value);
+                    //    //   }
+                    //    //    */ 
+                    //    //}  
+                    //    #endregion
+                    //} 
+                    //var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr.ToArray());
+
+                    if (objArr == null)
+                    {
+                        objArr = new object[] { value };
+                    }
+                    var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr);
+
+                    #endregion
+
+                    if (!IsValid)
+                    {
+                        var msg = $@"'{model.GetType().FullName}'类型的'{pInfo.Name}'属性验证未通过:'{((ValidationAttribute)validAttr).ErrorMessage}'";
+                        throw new ArgumentException(msg);
+
+                    }
+                }
+            }
+        }
 
         private static void TryThrowExceptionForEnum<T>(PropertyInfo pInfo, T model, string value, Type enumType, Type pInfoType) where T : class, new()
         {
@@ -1063,17 +1067,24 @@ namespace EPPlusExtensions
                 return;
             }
             var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
-            if (attrs.Length != 1)
+            if (attrs.Length <= 0)
             {
-                throw new System.ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                return;
             }
 
             var attr = (EnumUndefinedAttribute)attrs[0];
             if (attr.Args == null || attr.Args.Length <= 0)
             {
-                throw new System.ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                if (string.IsNullOrEmpty(attr.ErrorMessage))
+                {
+                    throw new System.ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                }
+
+                throw new System.ArgumentException(attr.ErrorMessage);
+
             }
 
+            //拼接ErrorMessage
             var allProp = ReflectionHelper.GetProperties<T>();
 
             for (int i = 0; i < attr.Args.Length; i++)
@@ -1211,6 +1222,8 @@ namespace EPPlusExtensions
 
             bool canEveryCellReplace = everyCellReplace != null;
 
+            var dictPropAttrs = new Dictionary<string, Dictionary<string, Attribute>>();//属性里包含的Attriute
+            var dictRequired = new Dictionary<string, Dictionary<string, bool>>();//属性的RequiredAttribute值
             for (int row = rowIndex; row <= EPPlusConfig.MaxRow07; row++)
             {
                 if (string.IsNullOrEmpty(ws.Cells[row, 1].Text))//每一行的第一列为空
@@ -1243,65 +1256,105 @@ namespace EPPlusExtensions
                     PropertyInfo pInfo = type.GetProperty(colName);
                     if (pInfo == null)
                     {
-                        throw new ArgumentException($@"Type:{type} 的 property {colName} 未找到");
+                        throw new ArgumentException($@"Type:'{type}'的property'{colName}'未找到");
                     }
-                    string value;
-                    if (ws.Cells[row, col].Merge)
-                    {
-                        value = EPPlusHelper.GetMegerCellText(ws, row, col);
-                    }
-                    else
-                    {
-                        value = ws.Cells[row, col].Text;
-                    }
+                    #region 初始化Attr要处理相关的数据
 
-                    if (value == null || value.Length <= 0)
+                    if (row == rowIndex) //遍历第一行数据的时候初始化
                     {
-                        GetList_SetModelValue(pInfo, model, value);
-                        continue;
-                    }
+                        dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>() { });
 
-                    if (everyCellPrefix?.Length > 0)
-                    {
-                        var indexof = value.IndexOf(everyCellPrefix);
-                        if (indexof == -1)
+                        string key_RequiredAttribute = typeof(RequiredAttribute).FullName;
+                        var requireAttrs = ReflectionHelper.GetAttributeForProperty<RequiredAttribute>(pInfo.DeclaringType, pInfo.Name);
+                        if (requireAttrs.Length > 0)
                         {
-                            throw new System.ArgumentException($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + everyCellPrefix + "'开头的");
+
+                            //dictPropAttrs[pInfo.Name].Add(key_RequiredAttribute, requireAttrs.Length > 0 ? (RequiredAttribute)requireAttrs[0] : null);
+                            dictPropAttrs[pInfo.Name].Add(key_RequiredAttribute, (RequiredAttribute)requireAttrs[0]);
                         }
-                        value = value.RemovePrefix(everyCellPrefix);
-                    }
-                    if (canEveryCellReplace)
-                    {
-                        foreach (var item in everyCellReplace)
+
+                        var hasRequireAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_RequiredAttribute);
+                        if (hasRequireAttr)
                         {
-                            if (!value.Contains(item.Key))
-                            {
-                                continue;
-                            }
-                            var everyCellReplaceOldValue = item.Key;
-                            var everyCellReplaceNewValue = item.Value ?? "";
-                            if (everyCellReplaceOldValue?.Length > 0)
-                            {
-                                value = value.Replace(everyCellReplaceOldValue, everyCellReplaceNewValue);
-                            }
+                            dictRequired.Add(pInfo.Name, new Dictionary<string, bool>());
                         }
                     }
-                    switch (args.ReadCellValueOption)
+
+                    #endregion
+
+                    string value = ws.Cells[row, col].Merge ? GetMegerCellText(ws, row, col) : ws.Cells[row, col].Text;
+                    bool valueIsNullOrEmpty = string.IsNullOrEmpty(value); // value == null || value.Length <= 0
+                    if (!valueIsNullOrEmpty)
                     {
-                        case ReadCellValueOption.None:
-                            break;
-                        case ReadCellValueOption.Trim:
-                            value = value.Trim();
-                            break;
-                        case ReadCellValueOption.MergeLine:
-                            value = value.MergeLines();
-                            break;
-                        case ReadCellValueOption.MergeLineAndTrim:
-                            value = value.Trim().MergeLines().Trim();
-                            break;
-                        default:
-                            throw new System.Exception("未指定读取单元格值时的操作方式");
+                        if (everyCellPrefix?.Length > 0)
+                        {
+                            var indexof = value.IndexOf(everyCellPrefix);
+                            if (indexof == -1)
+                            {
+                                throw new System.ArgumentException($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + everyCellPrefix + "'开头的");
+                            }
+                            value = value.RemovePrefix(everyCellPrefix);
+                        }
+                        if (canEveryCellReplace)
+                        {
+                            foreach (var item in everyCellReplace)
+                            {
+                                if (!value.Contains(item.Key))
+                                {
+                                    continue;
+                                }
+                                var everyCellReplaceOldValue = item.Key;
+                                var everyCellReplaceNewValue = item.Value ?? "";
+                                if (everyCellReplaceOldValue?.Length > 0)
+                                {
+                                    value = value.Replace(everyCellReplaceOldValue, everyCellReplaceNewValue);
+                                }
+                            }
+                        }
+                        switch (args.ReadCellValueOption)
+                        {
+                            case ReadCellValueOption.None:
+                                break;
+                            case ReadCellValueOption.Trim:
+                                value = value.Trim();
+                                break;
+                            case ReadCellValueOption.MergeLine:
+                                value = value.MergeLines();
+                                break;
+                            case ReadCellValueOption.MergeLineAndTrim:
+                                value = value.Trim().MergeLines().Trim();
+                                break;
+                            default:
+                                throw new System.Exception("未指定读取单元格值时的操作方式");
+                        }
                     }
+                    //处理内置的Attribute
+                    {
+                        string key_RequiredAttribute = typeof(RequiredAttribute).FullName;
+                        var hasRequireAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_RequiredAttribute);
+                        if (hasRequireAttr)
+                        {
+                            var requireAttr = (RequiredAttribute)dictPropAttrs[pInfo.Name][key_RequiredAttribute];
+                            var requireAttr_ErrorMsg_IsNullOrEmpty = string.IsNullOrEmpty(requireAttr.ErrorMessage);
+                            if (!requireAttr.AllowEmptyStrings && valueIsNullOrEmpty)
+                            {
+                                string exception_msg = requireAttr_ErrorMsg_IsNullOrEmpty ? $@"属性'{pInfo.Name}'的值不允许为空" : requireAttr.ErrorMessage;
+                                throw new ArgumentNullException(pInfo.Name, exception_msg);
+                            }
+
+                            if (!dictRequired[pInfo.Name].ContainsKey(value))
+                            {
+                                dictRequired[pInfo.Name].Add(value, default(bool));
+                            }
+                            else
+                            {
+                                string exception_msg = requireAttr_ErrorMsg_IsNullOrEmpty ? $@"属性'{pInfo.Name}'的值:'{value}'出现了重复" : requireAttr.ErrorMessage;
+                                throw new ArgumentException(exception_msg, pInfo.Name);
+                            }
+                        }
+                    }
+                    //验证特性
+                    GetList_ValidAttribute(pInfo, model, value);
                     GetList_SetModelValue(pInfo, model, value);
                 }
 
