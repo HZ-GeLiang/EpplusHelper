@@ -780,13 +780,24 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        ///  从Excel 中获得符合C# 类属性定义的列名集合
+        /// 从Excel 中获得符合C# 类属性定义的列名集合
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="row">列名在Excel的第几行</param>
+        /// <param name="colStart"></param>
+        /// <param name="colEnd"></param>
+        /// <param name="POCO_Property_AutoReame_WhenRepeat"></param>
+        /// <param name=""></param>
         /// <returns></returns>
-        private static List<ExcelCellInfo> GetExcelColumnOfModel(ExcelWorksheet ws, int row, int colStart, int? colEnd)
+        private static List<ExcelCellInfo> GetExcelColumnOfModel(ExcelWorksheet ws, int row, int colStart, int? colEnd, bool POCO_Property_AutoReame_WhenRepeat = false, bool renameFirtNameWhenRepeat = true)
         {
+            List<string> colNameList = null;
+            Dictionary<string, int> colNames_Counter = null;
+            if (POCO_Property_AutoReame_WhenRepeat)
+            {
+                colNameList = new List<string>();
+                colNames_Counter = new Dictionary<string, int>();
+            }
             if (colEnd == null) colEnd = EPPlusConfig.MaxCol07;
             var list = new List<ExcelCellInfo>();
             for (int col = colStart; col < colEnd; col++)
@@ -795,12 +806,24 @@ namespace EPPlusExtensions
                 if (string.IsNullOrEmpty(colName)) break;
                 colName = ExtractName(colName);
                 if (string.IsNullOrEmpty(colName)) break;
+                if (POCO_Property_AutoReame_WhenRepeat)
+                {
+                    AutoRename(colNameList, colNames_Counter, colName, renameFirtNameWhenRepeat);
+                }
                 list.Add(new ExcelCellInfo()
                 {
                     WorkSheet = ws,
                     Value = colName,
                     ExcelCellPoint = new ExcelCellPoint(row, col)
                 });
+            }
+            if (POCO_Property_AutoReame_WhenRepeat)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var item = list[i];
+                    item.Value = colNameList[i];
+                }
             }
 
             return list;
@@ -997,6 +1020,7 @@ namespace EPPlusExtensions
 
             throw new System.Exception("未考虑到的情况!!!请完善程序");
         }
+
         private static void GetList_ValidAttribute<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
         {
             object[] validAttrs = ReflectionHelper.GetAttributeForProperty<T, ValidationAttribute>(pInfo.Name, true);
@@ -1004,11 +1028,13 @@ namespace EPPlusExtensions
             {
                 //同一个特性的的属性值肯定是一样的,所以可以优化;
                 //ArrayList objArr = null;
-                Object[] objArr = null;//第二次优化
+                Object[] objArr = null; //第二次优化
                 foreach (var validAttr in validAttrs)
                 {
                     MethodInfo methodIsValid = validAttr.GetType().GetMethod("IsValid");
+
                     #region 代码优化第二次,还是因为只有一个参数进行优化
+
                     ////var objArr = new ArrayList();
                     //var paras = methodIsValid.GetParameters();
                     ////ValidationAttribute的IsValid 只有一个Object的参数, 所以不需要判断 (但不绝对),如果自定义的存在多个,那么上面一行代码就会抛出异常:发现不明确的匹配。
@@ -1045,6 +1071,7 @@ namespace EPPlusExtensions
                     {
                         objArr = new object[] { value };
                     }
+
                     var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr);
 
                     #endregion
@@ -1081,7 +1108,6 @@ namespace EPPlusExtensions
                 }
 
                 throw new System.ArgumentException(attr.ErrorMessage);
-
             }
 
             //拼接ErrorMessage
@@ -1148,6 +1174,8 @@ namespace EPPlusExtensions
                 HavingFilter = null,
                 WhereFilter = null,
                 ReadCellValueOption = ReadCellValueOption.Trim,
+                POCO_Property_AutoRename_WhenRepeat = false,
+                POCO_Property_AutoRenameFirtName_WhenRepeat = true,
             });
         }
 
@@ -1175,6 +1203,8 @@ namespace EPPlusExtensions
                 HavingFilter = null,
                 WhereFilter = null,
                 ReadCellValueOption = ReadCellValueOption.Trim,
+                POCO_Property_AutoRename_WhenRepeat = false,
+                POCO_Property_AutoRenameFirtName_WhenRepeat = true,
             });
         }
 
@@ -1191,6 +1221,8 @@ namespace EPPlusExtensions
                 HavingFilter = null,
                 WhereFilter = null,
                 ReadCellValueOption = ReadCellValueOption.Trim,
+                POCO_Property_AutoRename_WhenRepeat = false,
+                POCO_Property_AutoRenameFirtName_WhenRepeat = true,
             });
         }
 
@@ -1206,6 +1238,8 @@ namespace EPPlusExtensions
             var havingFilter = args.HavingFilter;
             var whereFilter = args.WhereFilter;
             var readCellValueOption = args.ReadCellValueOption;
+            var autoRename = args.POCO_Property_AutoRename_WhenRepeat;
+            var autoRenameFirtName = args.POCO_Property_AutoRenameFirtName_WhenRepeat;
 
             if (rowIndex == default(int) || dataNameRowIndex == default(int))
             {
@@ -1214,7 +1248,7 @@ namespace EPPlusExtensions
 
             List<T> list = new List<T>();
 
-            var colNameList = GetExcelColumnOfModel(ws, dataNameRowIndex, 1, EPPlusConfig.MaxCol07);
+            var colNameList = GetExcelColumnOfModel(ws, dataNameRowIndex, 1, EPPlusConfig.MaxCol07, autoRename, autoRenameFirtName);
             var dictColName = colNameList.ToDictionary(item => item.ExcelCellPoint.Col, item => item.Value.ToString());
 
             string modelCheckMsg;
@@ -1328,6 +1362,7 @@ namespace EPPlusExtensions
                                 throw new System.Exception("未指定读取单元格值时的操作方式");
                         }
                     }
+
                     //处理内置的Attribute
                     {
                         string key_RequiredAttribute = typeof(RequiredAttribute).FullName;
@@ -1355,6 +1390,7 @@ namespace EPPlusExtensions
                     }
                     //验证特性
                     GetList_ValidAttribute(pInfo, model, value);
+                    //赋值
                     GetList_SetModelValue(pInfo, model, value);
                 }
 
@@ -1447,26 +1483,27 @@ namespace EPPlusExtensions
             ws.View.FreezePanes(row, column);
         }
 
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="excelPackage"></param>
-        /// <param name="sheetTitleLine">工作簿标题行,key:工作簿名字,value:行号</param>
+        /// <param name="sheetTitleLineNumber">工作簿标题行,key:工作簿名字,value:行号</param>
         /// <returns>工作簿Name,DatTable的创建代码</returns>
-        public static Dictionary<string, string> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<string, int> sheetTitleLine)
+        public static Dictionary<string, string> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<string, int> sheetTitleLineNumber)
         {
-            if (sheetTitleLine == null)
+            if (sheetTitleLineNumber == null)
             {
-                sheetTitleLine = new Dictionary<string, int>();
+                sheetTitleLineNumber = new Dictionary<string, int>();
             }
             ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
             var dict = new Dictionary<string, string>();
             foreach (var ws in wss)
             {
                 int titleLine;
-                if (sheetTitleLine != null || sheetTitleLine.ContainsKey(ws.Name))
+                if (sheetTitleLineNumber != null || sheetTitleLineNumber.ContainsKey(ws.Name))
                 {
-                    titleLine = sheetTitleLine[ws.Name];
+                    titleLine = sheetTitleLineNumber[ws.Name];
                 }
                 else
                 {
@@ -1483,13 +1520,13 @@ namespace EPPlusExtensions
         /// 
         /// </summary>
         /// <param name="excelPackage"></param>
-        /// <param name="sheetTitleLine">工作簿标题行,key:第几个工作簿,从1开始,value:行号</param>
+        /// <param name="sheetTitleLineNumber">工作簿标题行,key:第几个工作簿,从1开始,value:行号</param>
         /// <returns>工作簿Name,DatTable的创建代码</returns>
-        public static Dictionary<string, string> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<int, int> sheetTitleLine)
+        public static Dictionary<string, string> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<int, int> sheetTitleLineNumber)
         {
-            if (sheetTitleLine == null)
+            if (sheetTitleLineNumber == null)
             {
-                sheetTitleLine = new Dictionary<int, int>();
+                sheetTitleLineNumber = new Dictionary<int, int>();
             }
             ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
             var dict = new Dictionary<string, string>();
@@ -1499,9 +1536,9 @@ namespace EPPlusExtensions
                 eachCount++;
 
                 int titleLine;
-                if (sheetTitleLine != null || sheetTitleLine.ContainsKey(eachCount))
+                if (sheetTitleLineNumber != null || sheetTitleLineNumber.ContainsKey(eachCount))
                 {
-                    titleLine = sheetTitleLine[eachCount];
+                    titleLine = sheetTitleLineNumber[eachCount];
                 }
                 else
                 {
@@ -1532,21 +1569,22 @@ namespace EPPlusExtensions
             }
         }
 
-        private static string FillExcelDefaultConfig(ExcelWorksheet ws, int titleLine)
+        private static string FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber)
         {
             var colNameList = new List<string>();
             var colNames_Counter = new Dictionary<string, int>();
             for (int col = 1; col <= EPPlusConfig.MaxCol07; col++)
             {
                 var destColVal = ExtractName(
-                    ws.Cells[titleLine, col].Merge
-                    ? GetMegerCellText(ws, titleLine, col)
-                    : GetCellText(ws, titleLine, col)).Trim().MergeLines();
+                    ws.Cells[titleLineNumber, col].Merge
+                    ? GetMegerCellText(ws, titleLineNumber, col)
+                    : GetCellText(ws, titleLineNumber, col)).Trim().MergeLines();
                 if (string.IsNullOrEmpty(destColVal))
                 {
                     break;
                 }
-
+                AutoRename(colNameList, colNames_Counter, destColVal, true);
+                /* 重构了
                 if (!colNames_Counter.ContainsKey(destColVal))
                 {
                     colNames_Counter.Add(destColVal, 0);
@@ -1576,6 +1614,7 @@ namespace EPPlusExtensions
                 }
 
                 colNames_Counter[destColVal] = ++colNames_Counter[destColVal];
+ */
             }
 
             //var config = new EpplusConfig();
@@ -1583,7 +1622,7 @@ namespace EPPlusExtensions
             {
                 //var cells = ws.Cells[titleLine + 1, i + 1];
                 //SetWorksheetCellsValue(config, cells, $@"$tb1{colNameList[i]}", colNameList[i]);
-                ws.Cells[titleLine + 1, i + 1].Value = $@"$tb1{colNameList[i]}";
+                ws.Cells[titleLineNumber + 1, i + 1].Value = $@"$tb1{colNameList[i]}";
             }
 
             StringBuilder sb = new StringBuilder();
@@ -1648,6 +1687,50 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
+        /// 自动重命名
+        /// </summary>
+        /// <param name="nameList">重名后后的name集合</param>
+        /// <param name="names_Counter">name重复的次数</param>
+        /// <param name="name">要传入的name值</param>
+        /// <param name="renameFirtNameWhenRepeat">当重名时,重命名第一个名字</param>
+        private static void AutoRename(List<string> nameList, Dictionary<string, int> names_Counter, string name, bool renameFirtNameWhenRepeat)
+        {
+
+            if (!names_Counter.ContainsKey(name))
+            {
+                names_Counter.Add(name, 0);
+            }
+
+            if (!nameList.Contains(name) && names_Counter[name] == 0)
+            {
+                nameList.Add(name);
+            }
+            else
+            {
+                //如果出现重复,把第一个名字添加后缀1
+                if (renameFirtNameWhenRepeat)
+                {
+                    if (names_Counter[name] == 1)
+                    {
+                        for (int i = 0; i < nameList.Count; i++)
+                        {
+                            if (nameList[i] == name)
+                            {
+                                nameList[i] = nameList[i] + "1";
+                                break;
+                            }
+                        }
+                    }
+                }
+                //必须要先用一个变量保存,使用 ++colNames_Counter[destColVal] 会把 colNames_Counter[destColVal] 值变掉
+                var currentCounterVal = names_Counter[name];
+                nameList.Add($@"{name}{++currentCounterVal}");
+            }
+
+            names_Counter[name] = ++names_Counter[name];
+        }
+
+        /// <summary>
         /// 获得excel填写的配置内容
         /// </summary>
         /// <param name="content"></param>
@@ -1677,6 +1760,7 @@ namespace EPPlusExtensions
 
             return sb.ToString();
         }
+
 
         #region 获得单元格
         /// <summary>

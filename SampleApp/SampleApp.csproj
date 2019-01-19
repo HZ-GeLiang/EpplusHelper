@@ -96,6 +96,7 @@
     <Compile Include="Sample02 _1.cs" />
     <Compile Include="Sample02.cs" />
     <Compile Include="Sample01.cs" />
+    <Compile Include="Sample02_3.cs" />
     <Compile Include="Sample04_2.cs" />
     <Compile Include="Sample04_1.cs" />
     <Compile Include="Sample03_1.cs" />
@@ -115,6 +116,9 @@
     </None>
     <None Include="模版\PeopleInfo.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\PeopleInfo02_3.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="模版\Product.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

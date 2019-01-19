@@ -19,27 +19,28 @@ namespace SampleApp
         {
 
             //string tempPath = $@"模版\各项导出模板.xlsx";
-            string tempPath = $@"C:\Users\child\Desktop\人事系统各项导出模板-修改.xlsx";
+            string tempPath = $@"C:\Users\child\Desktop\11111.xlsx";
             using (MemoryStream ms = new MemoryStream())
             using (FileStream fs = System.IO.File.OpenRead(tempPath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 var dict = EpplusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>()
                 {
-                    {1,2},
-                    {2,2},
-                    {3,2},
-                    {4,2},
-                    {5,2},
-                    {6,1},
+                    //{1,2},
+                    //{2,2},
+                    //{3,2},
+                    //{4,2},
+                    //{5,2},
+                    //{6,1},
+                    {1,1},
                 });
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 //ms.Save(@"模版\各项导出模板_Result.xlsx");
-                ms.Save($@"C:\Users\child\Desktop\11111.xlsx");
+                ms.Save($@"C:\Users\child\Desktop\aaa.xlsx");
                 foreach (var item in dict)
                 {
-                    File.WriteAllText($@"模版\各项导出模板_Result_snippet_{item.Key}.txt", item.Value); //将字符串全部写入文件
+                    //File.WriteAllText($@"模版\各项导出模板_Result_snippet_{item.Key}.txt", item.Value); //将字符串全部写入文件
                 }
             }
 
