@@ -1301,16 +1301,16 @@ namespace EpplusExtensions
                     {
                         dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>() { });
 
-                        string key_RequiredAttribute = typeof(UniqueAttribute).FullName;
-                        var requireAttrs = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
-                        if (requireAttrs.Length > 0)
+                        string key_UniqueAttribute = typeof(UniqueAttribute).FullName;
+                        var uniqueAtts = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
+                        if (uniqueAtts.Length > 0)
                         {
 
-                            dictPropAttrs[pInfo.Name].Add(key_RequiredAttribute, (UniqueAttribute)requireAttrs[0]);
+                            dictPropAttrs[pInfo.Name].Add(key_UniqueAttribute, (UniqueAttribute)uniqueAtts[0]);
                         }
 
-                        var hasRequireAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_RequiredAttribute);
-                        if (hasRequireAttr)
+                        var hasUniqueAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_UniqueAttribute);
+                        if (hasUniqueAttr)
                         {
                             dictUnique.Add(pInfo.Name, new Dictionary<string, bool>());
                         }
@@ -1368,11 +1368,11 @@ namespace EpplusExtensions
 
                     //处理内置的Attribute
                     {
-                        string key_RequiredAttribute = typeof(UniqueAttribute).FullName;
-                        var hasRequireAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_RequiredAttribute);
-                        if (hasRequireAttr)
+                        string key_UniqueAttribute = typeof(UniqueAttribute).FullName;
+                        var hasUniqueAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_UniqueAttribute);
+                        if (hasUniqueAttr)
                         {
-                            var uniqueAttr = (UniqueAttribute)dictPropAttrs[pInfo.Name][key_RequiredAttribute];
+                            var uniqueAttr = (UniqueAttribute)dictPropAttrs[pInfo.Name][key_UniqueAttribute];
                             var uniqueAttrAttr_ErrorMsg_IsNullOrEmpty = string.IsNullOrEmpty(uniqueAttr.ErrorMessage);
                             if (!valueIsNullOrEmpty)
                             {
