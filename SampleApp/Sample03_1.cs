@@ -17,7 +17,7 @@ namespace SampleApp
     {
         public void Run()
         {
-            string tempPath = @"模版\Product_1.xlsx";
+            string tempPath = @"模版\Sample03_1.xlsx";
             using (MemoryStream ms = new MemoryStream())
             using (FileStream fs = System.IO.File.OpenRead(tempPath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
@@ -35,8 +35,7 @@ namespace SampleApp
                     {
                         NeedBody = true,
                         NeedTitle = true,
-                        //Include = "使用人,购买时间"
-                        Include = "使用人"
+                        Include = "使用人,购买时间"
                     }
                 });
                 configSource.SheetBodyFillModel.Add(3, new SheetBodyFillDataMethod()
@@ -53,7 +52,7 @@ namespace SampleApp
                 EpplusHelper.DeleteWorksheet(excelPackage, "Sheet1");
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(@"模版\Product_Result_1.xlsx");
+                ms.Save(@"模版\Product_Result.xlsx");
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(tempPath));
         }

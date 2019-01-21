@@ -92,41 +92,45 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sample02 _2.cs" />
-    <Compile Include="Sample02 _1.cs" />
-    <Compile Include="Sample02.cs" />
-    <Compile Include="Sample01.cs" />
+    <Compile Include="Sample02_2.cs" />
+    <Compile Include="Sample02_1.cs" />
     <Compile Include="Sample02_3.cs" />
+    <Compile Include="Sample01_1.cs" />
+    <Compile Include="Sample02_4.cs" />
     <Compile Include="Sample04_2.cs" />
     <Compile Include="Sample04_1.cs" />
+    <Compile Include="Sample04_3.cs" />
+    <Compile Include="Sample03_2.cs" />
     <Compile Include="Sample03_1.cs" />
-    <Compile Include="Sample03.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="模版\classInfo.xlsx">
+    <None Include="模版\Sample01_1.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="模版\dept.xlsx">
+    <None Include="模版\Sample02_1.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="模版\dept_02_2.xlsx">
+    <None Include="模版\Sample02_2.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="模版\PeopleInfo.xlsx">
+    <None Include="模版\Sample02_3.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="模版\PeopleInfo02_3.xlsx">
+    <None Include="模版\Sample02_4.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="模版\Product.xlsx">
+    <None Include="模版\Sample03_1.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="模版\Product_1.xlsx">
+    <None Include="模版\Sample03_2.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="模版\各项导出模板.xlsx">
+    <None Include="模版\Sample04_2.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\Sample04_3.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -135,6 +139,9 @@
       <Project>{9cf1f898-e37f-441e-b86e-60476c4aa4b4}</Project>
       <Name>EpplusExtensions</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="catalogue.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

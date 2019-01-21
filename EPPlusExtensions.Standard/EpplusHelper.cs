@@ -1258,6 +1258,7 @@ namespace EPPlusExtensions
 
             var dictPropAttrs = new Dictionary<string, Dictionary<string, Attribute>>();//属性里包含的Attriute
             var dictUnique = new Dictionary<string, Dictionary<string, bool>>();//属性的 UniqueAttribute
+
             for (int row = rowIndex; row <= EPPlusConfig.MaxRow07; row++)
             {
                 if (string.IsNullOrEmpty(ws.Cells[row, 1].Text))//每一行的第一列为空
@@ -1539,20 +1540,20 @@ namespace EPPlusExtensions
                 eachCount++;
 
                 int titleLine;
-                if (sheetTitleLineNumber != null || sheetTitleLineNumber.ContainsKey(eachCount))
+                if (sheetTitleLineNumber != null && sheetTitleLineNumber.ContainsKey(eachCount))
                 {
                     titleLine = sheetTitleLineNumber[eachCount];
                 }
                 else
                 {
-                    titleLine = 2;
+                    titleLine = 1;
                 }
                 list.Add(FillExcelDefaultConfig(ws, titleLine));
             }
             return list;
         }
 
-        public static void FillExcelDefaultConfig(string filePath, string FileOutPath)
+        public static void FillExcelDefaultConfig(string filePath, string fileOutPath)
         {
 
             using (MemoryStream ms = new MemoryStream())
@@ -1562,15 +1563,15 @@ namespace EPPlusExtensions
                 var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save($@"{FileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
-                var filePathPrefix = $@"{FileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
+                ms.Save($@"{fileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
+                var filePathPrefix = $@"{fileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
                 foreach (var item in defaultConfigList)
                 {
                     //将字符串全部写入文件
                     File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
                     File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
                 }
-                System.Diagnostics.Process.Start(FileOutPath);
+                System.Diagnostics.Process.Start(fileOutPath);
             }
         }
 
@@ -1756,27 +1757,28 @@ namespace EPPlusExtensions
         /// <param name="content"></param>
         /// <param name="outResultPrefix"></param>
         /// <returns></returns>
-        public static string GetFillConfig(string content, string outResultPrefix = "$tb1")
+        public static string GetFillDefaultConfig(string content, string outResultPrefix = "$tb1")
         {
             if (string.IsNullOrEmpty(content)) return content;
             content = content.TrimEnd();
             content.RemoveLastChar('\n');//excel选择列复制出来到文本上有换行,最后一个字符的ascii 是10 \n
-            var excel_cell_split = '	';// 两个单元格之间间隔的符号
-            string[] splites = content.Split(new char[] { excel_cell_split }, StringSplitOptions.RemoveEmptyEntries);
+            content.RemoveLastChar('\r');//如果是自己敲入的回车,那么也去掉
+            var excel_cell_split = new char[] { '	', ' ', };// 两个单元格之间间隔的符号(\t),空格
+            string[] splites = content.Split(excel_cell_split, StringSplitOptions.RemoveEmptyEntries);
             StringBuilder sb = new StringBuilder();
             StringBuilder sbColumn = new StringBuilder();
             foreach (var item in splites)
             {
                 var newName = ExtractName(item);
-                sb.Append($@"{outResultPrefix}{newName}{excel_cell_split}");
+                sb.Append($@"{outResultPrefix}{newName}{excel_cell_split[0]}");
                 sbColumn.AppendLine($"dt.Columns.Add(\"{newName}\");");
             }
 
-            sb.RemoveLastChar(excel_cell_split.ToString().Length);
+            sb.RemoveLastChar(excel_cell_split[0]);
 
-            sb.AppendLine().AppendLine().AppendLine();
-            sb.AppendLine($@"DataTable dt = new DataTable();");
-            sb.Append(sbColumn.ToString());
+            //sb.AppendLine().AppendLine().AppendLine();
+            //sb.AppendLine($@"DataTable dt = new DataTable();");
+            //sb.Append(sbColumn.ToString());
 
             return sb.ToString();
         }

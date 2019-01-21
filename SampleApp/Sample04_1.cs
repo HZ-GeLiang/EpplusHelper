@@ -17,34 +17,9 @@ namespace SampleApp
     {
         public void Run()
         {
-
-            //string tempPath = $@"模版\各项导出模板.xlsx";
-            string tempPath = $@"C:\Users\child\Desktop\11111.xlsx";
-            using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = System.IO.File.OpenRead(tempPath))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
-            {
-                var dict = EpplusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>()
-                {
-                    //{1,2},
-                    //{2,2},
-                    //{3,2},
-                    //{4,2},
-                    //{5,2},
-                    //{6,1},
-                    {1,1},
-                });
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                //ms.Save(@"模版\各项导出模板_Result.xlsx");
-                ms.Save($@"C:\Users\child\Desktop\aaa.xlsx");
-                foreach (var item in dict)
-                {
-                    //File.WriteAllText($@"模版\各项导出模板_Result_snippet_{item.Key}.txt", item.Value); //将字符串全部写入文件
-                }
-            }
-
-            System.Diagnostics.Process.Start(Path.GetDirectoryName(tempPath));
+            string str = $@"序号	工号	姓名	性别	入司时间	转正时间	离职时间	离职类型	归属公司	部门	二级部门	三级部门	组别	岗位	岗位大类	行政职级	离职约谈记录";
+            var result = EpplusHelper.GetFillDefaultConfig(str);
+            Console.WriteLine(result);
         }
 
     }
