@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\UniqueAttribute.cs" />
+    <Compile Include="DefaultConfig.cs" />
     <Compile Include="GetExcelListArgs.cs" />
     <Compile Include="EpplusCellStyle.cs" />
     <Compile Include="EpplusConfig.cs" />

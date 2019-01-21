@@ -889,6 +889,7 @@ namespace EPPlusExtensions
 
         private static void GetList_SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
         {
+
             var pInfo_PropertyType = pInfo.PropertyType;
 
             #region string
@@ -1080,7 +1081,6 @@ namespace EPPlusExtensions
                     {
                         var msg = $@"'{model.GetType().FullName}'类型的'{pInfo.Name}'属性验证未通过:'{((ValidationAttribute)validAttr).ErrorMessage}'";
                         throw new ArgumentException(msg);
-
                     }
                 }
             }
@@ -1257,7 +1257,7 @@ namespace EPPlusExtensions
             bool canEveryCellReplace = everyCellReplace != null;
 
             var dictPropAttrs = new Dictionary<string, Dictionary<string, Attribute>>();//属性里包含的Attriute
-            var dictRequired = new Dictionary<string, Dictionary<string, bool>>();//属性的RequiredAttribute值
+            var dictUnique = new Dictionary<string, Dictionary<string, bool>>();//属性的 UniqueAttribute
             for (int row = rowIndex; row <= EPPlusConfig.MaxRow07; row++)
             {
                 if (string.IsNullOrEmpty(ws.Cells[row, 1].Text))//每一行的第一列为空
@@ -1287,30 +1287,31 @@ namespace EPPlusExtensions
                     if (!dictColName.ContainsKey(col)) break;
                     string colName = dictColName[col];
                     if (string.IsNullOrEmpty(colName)) break;
+
                     PropertyInfo pInfo = type.GetProperty(colName);
                     if (pInfo == null)
                     {
                         throw new ArgumentException($@"Type:'{type}'的property'{colName}'未找到");
                     }
+
                     #region 初始化Attr要处理相关的数据
 
                     if (row == rowIndex) //遍历第一行数据的时候初始化
                     {
                         dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>() { });
 
-                        string key_RequiredAttribute = typeof(RequiredAttribute).FullName;
-                        var requireAttrs = ReflectionHelper.GetAttributeForProperty<RequiredAttribute>(pInfo.DeclaringType, pInfo.Name);
+                        string key_RequiredAttribute = typeof(UniqueAttribute).FullName;
+                        var requireAttrs = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
                         if (requireAttrs.Length > 0)
                         {
-
-                            //dictPropAttrs[pInfo.Name].Add(key_RequiredAttribute, requireAttrs.Length > 0 ? (RequiredAttribute)requireAttrs[0] : null);
-                            dictPropAttrs[pInfo.Name].Add(key_RequiredAttribute, (RequiredAttribute)requireAttrs[0]);
+                             
+                            dictPropAttrs[pInfo.Name].Add(key_RequiredAttribute, (UniqueAttribute)requireAttrs[0]);
                         }
 
                         var hasRequireAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_RequiredAttribute);
                         if (hasRequireAttr)
                         {
-                            dictRequired.Add(pInfo.Name, new Dictionary<string, bool>());
+                            dictUnique.Add(pInfo.Name, new Dictionary<string, bool>());
                         }
                     }
 
@@ -1318,6 +1319,7 @@ namespace EPPlusExtensions
 
                     string value = ws.Cells[row, col].Merge ? GetMegerCellText(ws, row, col) : ws.Cells[row, col].Text;
                     bool valueIsNullOrEmpty = string.IsNullOrEmpty(value); // value == null || value.Length <= 0
+
                     if (!valueIsNullOrEmpty)
                     {
                         if (everyCellPrefix?.Length > 0)
@@ -1365,33 +1367,33 @@ namespace EPPlusExtensions
 
                     //处理内置的Attribute
                     {
-                        string key_RequiredAttribute = typeof(RequiredAttribute).FullName;
+                        string key_RequiredAttribute = typeof(UniqueAttribute).FullName;
                         var hasRequireAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_RequiredAttribute);
                         if (hasRequireAttr)
                         {
-                            var requireAttr = (RequiredAttribute)dictPropAttrs[pInfo.Name][key_RequiredAttribute];
-                            var requireAttr_ErrorMsg_IsNullOrEmpty = string.IsNullOrEmpty(requireAttr.ErrorMessage);
-                            if (!requireAttr.AllowEmptyStrings && valueIsNullOrEmpty)
+                            var uniqueAttr = (UniqueAttribute)dictPropAttrs[pInfo.Name][key_RequiredAttribute];
+                            var uniqueAttrAttr_ErrorMsg_IsNullOrEmpty = string.IsNullOrEmpty(uniqueAttr.ErrorMessage);
+                            if (!valueIsNullOrEmpty)
                             {
-                                string exception_msg = requireAttr_ErrorMsg_IsNullOrEmpty ? $@"属性'{pInfo.Name}'的值不允许为空" : requireAttr.ErrorMessage;
-                                throw new ArgumentNullException(pInfo.Name, exception_msg);
+                                if (!dictUnique[pInfo.Name].ContainsKey(value))
+                                {
+                                    dictUnique[pInfo.Name].Add(value, default(bool));
+                                }
+                                else
+                                {
+                                    string exception_msg = uniqueAttrAttr_ErrorMsg_IsNullOrEmpty ? $@"属性'{pInfo.Name}'的值:'{value}'出现了重复" : uniqueAttr.ErrorMessage;
+                                    throw new ArgumentException(exception_msg, pInfo.Name);
+                                }
                             }
-
-                            if (!dictRequired[pInfo.Name].ContainsKey(value))
-                            {
-                                dictRequired[pInfo.Name].Add(value, default(bool));
-                            }
-                            else
-                            {
-                                string exception_msg = requireAttr_ErrorMsg_IsNullOrEmpty ? $@"属性'{pInfo.Name}'的值:'{value}'出现了重复" : requireAttr.ErrorMessage;
-                                throw new ArgumentException(exception_msg, pInfo.Name);
-                            }
+                            
                         }
                     }
+
                     //验证特性
                     GetList_ValidAttribute(pInfo, model, value);
                     //赋值
                     GetList_SetModelValue(pInfo, model, value);
+
                 }
 
                 if (whereFilter == null || whereFilter.Invoke(model))
@@ -1399,6 +1401,7 @@ namespace EPPlusExtensions
                     list.Add(model);
                 }
             }
+
             return havingFilter == null ? list : list.Where(item => havingFilter.Invoke(item)).ToList();
         }
 
@@ -1490,14 +1493,14 @@ namespace EPPlusExtensions
         /// <param name="excelPackage"></param>
         /// <param name="sheetTitleLineNumber">工作簿标题行,key:工作簿名字,value:行号</param>
         /// <returns>工作簿Name,DatTable的创建代码</returns>
-        public static Dictionary<string, string> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<string, int> sheetTitleLineNumber)
+        public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<string, int> sheetTitleLineNumber)
         {
             if (sheetTitleLineNumber == null)
             {
                 sheetTitleLineNumber = new Dictionary<string, int>();
             }
             ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
-            var dict = new Dictionary<string, string>();
+            List<DefaultConfig> list = new List<DefaultConfig>();
             foreach (var ws in wss)
             {
                 int titleLine;
@@ -1510,26 +1513,26 @@ namespace EPPlusExtensions
                     titleLine = 2;
                 }
 
-                var crateDateTableSnippet = FillExcelDefaultConfig(ws, titleLine);
-                dict.Add(ws.Name, crateDateTableSnippet);
+                list.Add(FillExcelDefaultConfig(ws, titleLine));
             }
 
-            return dict;
+            return list;
         }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="sheetTitleLineNumber">工作簿标题行,key:第几个工作簿,从1开始,value:行号</param>
         /// <returns>工作簿Name,DatTable的创建代码</returns>
-        public static Dictionary<string, string> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<int, int> sheetTitleLineNumber)
+        public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<int, int> sheetTitleLineNumber)
         {
             if (sheetTitleLineNumber == null)
             {
                 sheetTitleLineNumber = new Dictionary<int, int>();
             }
             ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
-            var dict = new Dictionary<string, string>();
+            List<DefaultConfig> list = new List<DefaultConfig>();
             var eachCount = 0;
             foreach (var ws in wss)
             {
@@ -1544,10 +1547,9 @@ namespace EPPlusExtensions
                 {
                     titleLine = 2;
                 }
-                var crateDateTableSnippet = FillExcelDefaultConfig(ws, titleLine);
-                dict.Add(ws.Name, crateDateTableSnippet);
+                list.Add(FillExcelDefaultConfig(ws, titleLine));
             }
-            return dict;
+            return list;
         }
 
         public static void FillExcelDefaultConfig(string filePath, string FileOutPath)
@@ -1557,19 +1559,23 @@ namespace EPPlusExtensions
             using (FileStream fs = System.IO.File.OpenRead(filePath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var dict = EPPlusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
+                var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save($@"{FileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
-                foreach (var item in dict)
+                var filePathPrefix = $@"{FileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
+                foreach (var item in defaultConfigList)
                 {
-                    File.WriteAllText($@"{FileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result_snippet_{item.Key}.txt", item.Value); //将字符串全部写入文件
+                    //将字符串全部写入文件
+                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
+                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
                 }
                 System.Diagnostics.Process.Start(FileOutPath);
             }
         }
 
-        private static string FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber)
+
+        private static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber)
         {
             var colNameList = new List<string>();
             var colNames_Counter = new Dictionary<string, int>();
@@ -1583,6 +1589,7 @@ namespace EPPlusExtensions
                 {
                     break;
                 }
+
                 AutoRename(colNameList, colNames_Counter, destColVal, true);
                 /* 重构了
                 if (!colNames_Counter.ContainsKey(destColVal))
@@ -1614,7 +1621,7 @@ namespace EPPlusExtensions
                 }
 
                 colNames_Counter[destColVal] = ++colNames_Counter[destColVal];
- */
+                */
             }
 
             //var config = new EpplusConfig();
@@ -1624,9 +1631,11 @@ namespace EPPlusExtensions
                 //SetWorksheetCellsValue(config, cells, $@"$tb1{colNameList[i]}", colNameList[i]);
                 ws.Cells[titleLineNumber + 1, i + 1].Value = $@"$tb1{colNameList[i]}";
             }
+            StringBuilder sb_CrateClassSnippe = new StringBuilder();
+            sb_CrateClassSnippe.AppendLine($"public class {ws.Name} {{");
 
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($@"DataTable dt = new DataTable();");
+            StringBuilder sb_CrateDateTableSnippe = new StringBuilder();
+            sb_CrateDateTableSnippe.AppendLine($@"DataTable dt = new DataTable();");
             StringBuilder sbColumn = new StringBuilder();
             StringBuilder sbAddDr = new StringBuilder();
             StringBuilder sbColumnType = new StringBuilder();
@@ -1662,6 +1671,7 @@ namespace EPPlusExtensions
                     if (colName_Lower.IndexOf(item) != -1)
                     {
                         sbColumnType.AppendLine($"dt.Columns[\"{colName}\"].DataType = typeof(DateTime);");
+                        sb_CrateClassSnippe.AppendLine($" public DateTime {colName} {{ get; set; }}");
                         break;
                     }
                 }
@@ -1671,18 +1681,28 @@ namespace EPPlusExtensions
                     if (colName_Lower.IndexOf(item) != -1)
                     {
                         sbColumnType.AppendLine($"dt.Columns[\"{colName}\"].DataType = typeof(String);");
+                        sb_CrateClassSnippe.AppendLine($" public string {colName} {{ get; set; }}");
                         break;//处理过了就break,不然会重复处理 譬如 银行卡号, 此时符合 银行卡 和卡号
                     }
                 }
 
-            }
-            sb.Append(sbColumn.ToString());
-            sb.Append(sbColumnType.ToString());
-            sbAddDr.AppendLine($@"//dt.Rows.Add(dr);");
-            sb.Append(sbAddDr.ToString());
+                sb_CrateClassSnippe.AppendLine($" public string {colName} {{ get; set; }}");
 
-            var returnStr = sb.ToString();
-            return returnStr;
+            }
+            sb_CrateDateTableSnippe.Append(sbColumn.ToString());
+            sb_CrateDateTableSnippe.Append(sbColumnType.ToString());
+            sbAddDr.AppendLine($@"//dt.Rows.Add(dr);");
+            sb_CrateDateTableSnippe.Append(sbAddDr.ToString());
+
+            sb_CrateClassSnippe.AppendLine("}");
+
+            var returnStr = sb_CrateDateTableSnippe.ToString();
+            return new DefaultConfig()
+            {
+                WorkSheetName = ws.Name,
+                CrateDateTableSnippe = sb_CrateDateTableSnippe.ToString(),
+                CrateClassSnippe = sb_CrateClassSnippe.ToString(),
+            };
 
         }
 
