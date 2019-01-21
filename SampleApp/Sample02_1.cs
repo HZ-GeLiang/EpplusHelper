@@ -18,7 +18,7 @@ namespace SampleApp
     {
         public void Run()
         {
-            string tempPath = @"模版\dept.xlsx";
+            string tempPath = @"模版\Sample02_1.xlsx";
             using (MemoryStream ms = new MemoryStream())
             using (FileStream fs = System.IO.File.OpenRead(tempPath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))

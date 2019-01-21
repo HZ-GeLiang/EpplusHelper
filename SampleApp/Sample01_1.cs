@@ -13,11 +13,11 @@ namespace SampleApp
     /// <summary>
     /// 基本用法
     /// </summary>
-    class Sample01
+    class Sample01_1
     {
         public void Run()
         {
-            string tempPath = @"模版\classInfo.xlsx";
+            string tempPath = @"模版\Sample01_1.xlsx";
             using (MemoryStream ms = new MemoryStream())
             using (FileStream fs = System.IO.File.OpenRead(tempPath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
@@ -32,7 +32,7 @@ namespace SampleApp
                 EpplusHelper.DeleteWorksheet(excelPackage, 1);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(@"模版\classInfo_Result.xlsx");
+                ms.Save(@"模版\Sample01_1_Result.xlsx");
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(tempPath));
         }
