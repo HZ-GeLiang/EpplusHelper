@@ -30,3 +30,5 @@
 /EPPlusExtensions.Standard/obj
 /SampleApp.Core/obj
 /SampleApp.Core/bin/Debug/netcoreapp2.2
+/EPPlusExtensions.Standard/bin/Release
+/SampleApp.Core/bin/Release/netcoreapp2.2
