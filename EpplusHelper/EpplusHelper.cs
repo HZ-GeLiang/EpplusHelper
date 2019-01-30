@@ -200,6 +200,15 @@ namespace EpplusExtensions
         private static void FillData(EpplusConfig config, EpplusConfigSource configSource, ExcelWorksheet worksheet)
         {
             FillData_Head(config, configSource, worksheet);
+            long allDataTableRows = 0;
+            foreach (var dataTable in configSource.SheetBody.Values)
+            {
+                allDataTableRows += dataTable?.Rows.Count ?? 0;
+            }
+            if (allDataTableRows > EpplusConfig.MaxRow07)
+            {
+                throw new IndexOutOfRangeException("要导出的数据行数超过excel最大行限制");
+            }
             var sheetBodyAddRowCount = FillData_Body(config, configSource, worksheet);
             FillData_Foot(config, configSource, worksheet, sheetBodyAddRowCount);
         }
@@ -1553,7 +1562,7 @@ namespace EpplusExtensions
             return list;
         }
 
-        public static void FillExcelDefaultConfig(string filePath, string fileOutPath)
+        public static void FillExcelDefaultConfig(string filePath, string fileOutDirectoryName)
         {
 
             using (MemoryStream ms = new MemoryStream())
@@ -1563,15 +1572,15 @@ namespace EpplusExtensions
                 var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save($@"{fileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
-                var filePathPrefix = $@"{fileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
+                ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
+                var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
                 foreach (var item in defaultConfigList)
                 {
                     //将字符串全部写入文件
                     File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
                     File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
                 }
-                System.Diagnostics.Process.Start(fileOutPath);
+                System.Diagnostics.Process.Start(fileOutDirectoryName);
             }
         }
 
