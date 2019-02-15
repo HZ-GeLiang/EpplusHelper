@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EPPlusExtensions
+namespace SampleApp
 {
     internal static class StringBuilderExtensions
     {

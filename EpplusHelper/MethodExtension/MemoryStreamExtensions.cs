@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EpplusExtensions
 {
-    public static class MemoryStreamExtensions
+    internal static class MemoryStreamExtensions
     {
         /// <summary>
         /// 

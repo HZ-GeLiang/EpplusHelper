@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace EPPlusExtensions
 {
-    public static class RegexHelper
+    internal static class RegexHelper
     {
         public static List<string> GetStringByReg(string source, string reg)
         {

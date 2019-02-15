@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace EPPlusExtensions.Helper
 {
-    public class ReflectionHelper
+    internal class ReflectionHelper
     {
         #region GetAttributeForProperty
 
