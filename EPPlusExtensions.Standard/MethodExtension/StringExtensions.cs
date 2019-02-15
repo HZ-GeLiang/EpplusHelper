@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EPPlusExtensions
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         public static string RemovePrefix(this string value, string prefix)
         {

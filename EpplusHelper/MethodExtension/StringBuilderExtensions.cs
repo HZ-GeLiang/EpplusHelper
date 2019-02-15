@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EpplusExtensions
 {
-    public static class StringBuilderExtensions
+    internal static class StringBuilderExtensions
     {
         public static StringBuilder RemoveLastChar(this StringBuilder value)
         {
