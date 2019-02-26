@@ -200,6 +200,15 @@ namespace EPPlusExtensions
         private static void FillData(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
         {
             FillData_Head(config, configSource, worksheet);
+            long allDataTableRows = 0;
+            foreach (var dataTable in configSource.SheetBody.Values)
+            {
+                allDataTableRows += dataTable?.Rows.Count ?? 0;
+            }
+            if (allDataTableRows > EPPlusConfig.MaxRow07)
+            {
+                throw new IndexOutOfRangeException("要导出的数据行数超过excel最大行限制");
+            }
             var sheetBodyAddRowCount = FillData_Body(config, configSource, worksheet);
             FillData_Foot(config, configSource, worksheet, sheetBodyAddRowCount);
         }
@@ -857,7 +866,8 @@ namespace EPPlusExtensions
                 PropertyInfo pInfo = type.GetProperty(item.Value.ToString());
                 if (pInfo == null)
                 {
-                    sb.AppendLine($"WorkSheet:'{item.WorkSheet.Name}' 的'{item.ExcelCellPoint.R1C1}'值'{item.Value}'在'{type.FullName}'类型中没有定义该属性");
+                    //不能用AppendLine,会造成Json解析失败
+                    sb.Append($"WorkSheet:'{item.WorkSheet.Name}' 的'{item.ExcelCellPoint.R1C1}'值'{item.Value}'在'{type.FullName}'类型中没有定义该属性");
                 }
             }
             modelCheckMsg = sb.ToString();
@@ -1168,8 +1178,8 @@ namespace EPPlusExtensions
                 ws = ws,
                 rowIndex_Data = rowIndex,
                 EveryCellPrefix = "",
-                EveryCellReplace = null,
-                rowIndex_DataName = rowIndex - 1,
+                EveryCellReplaceList = null,
+                RowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
@@ -1194,11 +1204,11 @@ namespace EPPlusExtensions
                 ws = ws,
                 rowIndex_Data = rowIndex,
                 EveryCellPrefix = everyCellPrefix,
-                EveryCellReplace =
+                EveryCellReplaceList =
                     everyCellReplaceOldValue == null || everyCellReplaceNewValue == null
                     ? null
                     : new Dictionary<string, string> { { everyCellReplaceOldValue, everyCellReplaceNewValue } },
-                rowIndex_DataName = rowIndex - 1,
+                RowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
@@ -1215,8 +1225,8 @@ namespace EPPlusExtensions
                 ws = ws,
                 rowIndex_Data = rowIndex,
                 EveryCellPrefix = everyCellPrefix,
-                EveryCellReplace = everyCellReplace,
-                rowIndex_DataName = rowIndex - 1,
+                EveryCellReplaceList = everyCellReplace,
+                RowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
@@ -1231,10 +1241,10 @@ namespace EPPlusExtensions
             ExcelWorksheet ws = args.ws;
             int rowIndex = args.rowIndex_Data;
             string everyCellPrefix = args.EveryCellPrefix;
-            int dataNameRowIndex = args.rowIndex_DataName;
-            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplace == null
-                ? GetExcelListArgs<T>.EveryCellReplaceDefault
-                : args.EveryCellReplace;
+            int dataNameRowIndex = args.RowIndex_DataName;
+            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
+                ? GetExcelListArgs<T>.EveryCellReplaceListDefault
+                : args.EveryCellReplaceList;
             var havingFilter = args.HavingFilter;
             var whereFilter = args.WhereFilter;
             var readCellValueOption = args.ReadCellValueOption;
@@ -1252,7 +1262,11 @@ namespace EPPlusExtensions
             var dictColName = colNameList.ToDictionary(item => item.ExcelCellPoint.Col, item => item.Value.ToString());
 
             string modelCheckMsg;
-            if (!IsAllExcelColumnExistsModel<T>(colNameList, out modelCheckMsg)) throw new ExcelColumnNotExistsWithModelException(modelCheckMsg);
+            var _IsAllExcelColumnExistsModel = IsAllExcelColumnExistsModel<T>(colNameList, out modelCheckMsg);
+            if (!_IsAllExcelColumnExistsModel)
+            {
+                throw new ExcelColumnNotExistsWithModelException(modelCheckMsg);
+            }
 
             bool canEveryCellReplace = everyCellReplace != null;
 
@@ -1280,7 +1294,7 @@ namespace EPPlusExtensions
 
                 Type type = typeof(T);
                 var ctor = type.GetConstructor(new Type[] { });
-                if (ctor == null) throw new ArgumentException($"通过反射无法得到{type.FullName}的一个无构造参数的构造器:");
+                if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
                 T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转
 
                 for (int col = 1; col < EPPlusConfig.MaxCol07; col++)
@@ -1290,7 +1304,7 @@ namespace EPPlusExtensions
                     if (string.IsNullOrEmpty(colName)) break;
 
                     PropertyInfo pInfo = type.GetProperty(colName);
-                    if (pInfo == null)
+                    if (_IsAllExcelColumnExistsModel && pInfo == null)
                     {
                         throw new ArgumentException($@"Type:'{type}'的property'{colName}'未找到");
                     }
@@ -1305,7 +1319,6 @@ namespace EPPlusExtensions
                         var uniqueAttrs = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
                         if (uniqueAttrs.Length > 0)
                         {
-                             
                             dictPropAttrs[pInfo.Name].Add(key_UniqueAttribute, (UniqueAttribute)uniqueAttrs[0]);
                         }
 
@@ -1386,7 +1399,7 @@ namespace EPPlusExtensions
                                     throw new ArgumentException(exception_msg, pInfo.Name);
                                 }
                             }
-                            
+
                         }
                     }
 
@@ -1553,7 +1566,7 @@ namespace EPPlusExtensions
             return list;
         }
 
-        public static void FillExcelDefaultConfig(string filePath, string fileOutPath)
+        public static void FillExcelDefaultConfig(string filePath, string fileOutDirectoryName)
         {
 
             using (MemoryStream ms = new MemoryStream())
@@ -1563,15 +1576,15 @@ namespace EPPlusExtensions
                 var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save($@"{fileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
-                var filePathPrefix = $@"{fileOutPath}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
+                ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
+                var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
                 foreach (var item in defaultConfigList)
                 {
                     //将字符串全部写入文件
                     File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
                     File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
                 }
-                System.Diagnostics.Process.Start(fileOutPath);
+                System.Diagnostics.Process.Start(fileOutDirectoryName);
             }
         }
 
