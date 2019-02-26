@@ -866,7 +866,8 @@ namespace EpplusExtensions
                 PropertyInfo pInfo = type.GetProperty(item.Value.ToString());
                 if (pInfo == null)
                 {
-                    sb.AppendLine($"WorkSheet:'{item.WorkSheet.Name}' 的'{item.ExcelCellPoint.R1C1}'值'{item.Value}'在'{type.FullName}'类型中没有定义该属性");
+                    //不能用AppendLine,会造成Json解析失败
+                    sb.Append($"WorkSheet:'{item.WorkSheet.Name}' 的'{item.ExcelCellPoint.R1C1}'值'{item.Value}'在'{type.FullName}'类型中没有定义该属性");
                 }
             }
             modelCheckMsg = sb.ToString();
@@ -1177,8 +1178,8 @@ namespace EpplusExtensions
                 ws = ws,
                 rowIndex_Data = rowIndex,
                 EveryCellPrefix = "",
-                EveryCellReplace = null,
-                rowIndex_DataName = rowIndex - 1,
+                EveryCellReplaceList = null,
+                RowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
@@ -1203,11 +1204,11 @@ namespace EpplusExtensions
                 ws = ws,
                 rowIndex_Data = rowIndex,
                 EveryCellPrefix = everyCellPrefix,
-                EveryCellReplace =
+                EveryCellReplaceList =
                     everyCellReplaceOldValue == null || everyCellReplaceNewValue == null
                     ? null
                     : new Dictionary<string, string> { { everyCellReplaceOldValue, everyCellReplaceNewValue } },
-                rowIndex_DataName = rowIndex - 1,
+                RowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
@@ -1224,8 +1225,8 @@ namespace EpplusExtensions
                 ws = ws,
                 rowIndex_Data = rowIndex,
                 EveryCellPrefix = everyCellPrefix,
-                EveryCellReplace = everyCellReplace,
-                rowIndex_DataName = rowIndex - 1,
+                EveryCellReplaceList = everyCellReplace,
+                RowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
@@ -1240,10 +1241,10 @@ namespace EpplusExtensions
             ExcelWorksheet ws = args.ws;
             int rowIndex = args.rowIndex_Data;
             string everyCellPrefix = args.EveryCellPrefix;
-            int dataNameRowIndex = args.rowIndex_DataName;
-            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplace == null
-                ? GetExcelListArgs<T>.EveryCellReplaceDefault
-                : args.EveryCellReplace;
+            int dataNameRowIndex = args.RowIndex_DataName;
+            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
+                ? GetExcelListArgs<T>.EveryCellReplaceListDefault
+                : args.EveryCellReplaceList;
             var havingFilter = args.HavingFilter;
             var whereFilter = args.WhereFilter;
             var readCellValueOption = args.ReadCellValueOption;
@@ -1261,7 +1262,11 @@ namespace EpplusExtensions
             var dictColName = colNameList.ToDictionary(item => item.ExcelCellPoint.Col, item => item.Value.ToString());
 
             string modelCheckMsg;
-            if (!IsAllExcelColumnExistsModel<T>(colNameList, out modelCheckMsg)) throw new ExcelColumnNotExistsWithModelException(modelCheckMsg);
+            var _IsAllExcelColumnExistsModel = IsAllExcelColumnExistsModel<T>(colNameList, out modelCheckMsg);
+            if (!_IsAllExcelColumnExistsModel)
+            {
+                throw new ExcelColumnNotExistsWithModelException(modelCheckMsg);
+            }
 
             bool canEveryCellReplace = everyCellReplace != null;
 
@@ -1289,7 +1294,7 @@ namespace EpplusExtensions
 
                 Type type = typeof(T);
                 var ctor = type.GetConstructor(new Type[] { });
-                if (ctor == null) throw new ArgumentException($"通过反射无法得到{type.FullName}的一个无构造参数的构造器:");
+                if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
                 T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转
 
                 for (int col = 1; col < EpplusConfig.MaxCol07; col++)
@@ -1299,7 +1304,7 @@ namespace EpplusExtensions
                     if (string.IsNullOrEmpty(colName)) break;
 
                     PropertyInfo pInfo = type.GetProperty(colName);
-                    if (pInfo == null)
+                    if (_IsAllExcelColumnExistsModel && pInfo == null)
                     {
                         throw new ArgumentException($@"Type:'{type}'的property'{colName}'未找到");
                     }
@@ -1311,11 +1316,10 @@ namespace EpplusExtensions
                         dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>() { });
 
                         string key_UniqueAttribute = typeof(UniqueAttribute).FullName;
-                        var uniqueAtts = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
-                        if (uniqueAtts.Length > 0)
+                        var uniqueAttrs = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
+                        if (uniqueAttrs.Length > 0)
                         {
-
-                            dictPropAttrs[pInfo.Name].Add(key_UniqueAttribute, (UniqueAttribute)uniqueAtts[0]);
+                            dictPropAttrs[pInfo.Name].Add(key_UniqueAttribute, (UniqueAttribute)uniqueAttrs[0]);
                         }
 
                         var hasUniqueAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_UniqueAttribute);

@@ -25,12 +25,20 @@ namespace EpplusExtensions
         /// </summary>
         public string EveryCellPrefix { get; set; } = "";
 
-        public Dictionary<string, string> EveryCellReplace { get; set; } = null;
+        /// <summary>
+        /// 对每一个单元格进行替换(使用单元格替换)
+        /// </summary>
+        public bool UseEveryCellReplace { get; set; } = true;
+
+        /// <summary>
+        /// 单元格替换列表
+        /// </summary>
+        public Dictionary<string, string> EveryCellReplaceList { get; set; } = null;
 
         /// <summary>
         /// EveryCellReplace 的默认提供
         /// </summary>
-        public static Dictionary<string, string> EveryCellReplaceDefault = new Dictionary<string, string>
+        public static Dictionary<string, string> EveryCellReplaceListDefault = new Dictionary<string, string>
         {
             {"\t", ""},
             {"\r", ""},
@@ -41,10 +49,9 @@ namespace EpplusExtensions
         /// <summary>
         /// 数据起始行(不含列名),从1开始
         /// </summary>
-        public int rowIndex_DataName { get; set; }
+        public int RowIndex_DataName { get; set; }
 
-        public bool UseEveryCellReplace { get; set; } = true;
-
+      
         /// <summary>
         /// 在return数据之前执行过滤操作
         /// </summary>
@@ -69,7 +76,7 @@ namespace EpplusExtensions
         /// poco属性重命名修改第一个名字
         /// </summary>
         public bool POCO_Property_AutoRenameFirtName_WhenRepeat { get; set; } = true;
-
+          
     }
 
     public enum ReadCellValueOption
