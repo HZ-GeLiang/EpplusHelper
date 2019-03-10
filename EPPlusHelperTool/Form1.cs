@@ -1,4 +1,5 @@
 ﻿using EpplusExtensions;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -114,6 +115,108 @@ namespace EPPlusHelperTool
         {
             MessageBox.Show($"文件已经生成,在目录'{fileDirectoryName}'");
             System.Diagnostics.Process.Start(fileDirectoryName);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            var selectfilePath = SelectFile("excel (*.xlsx)|*.xlsx");
+            if (selectfilePath.Length > 0)
+            {
+                this.textBox1.Text = selectfilePath;
+            }
+        }
+
+        private void textBox2_DragDrop(object sender, DragEventArgs e)
+        {
+            string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
+            this.textBox2.Text = path;
+        }
+        private void textBox2_DragEnter(object sender, DragEventArgs e)
+        {
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Link;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            var ws1Path = this.textBox1.Text.Trim();
+            var ws2Path = this.textBox2.Text.Trim();
+            if (ws1Path == ws2Path)
+            {
+                MessageBox.Show("比较文件路径一致,无法比较");
+                return;
+            }
+            var ws1Index_string = this.textBox3.Text.Trim();
+            var ws2Index_string = this.textBox4.Text.Trim();
+            var ws1TitleLine = Convert.ToInt32(this.textBox5.Text.Trim());
+            var ws2TitleLine = Convert.ToInt32(this.textBox6.Text.Trim());
+
+            using (FileStream fs1 = System.IO.File.OpenRead(ws1Path))
+            using (FileStream fs2 = System.IO.File.OpenRead(ws2Path))
+            using (ExcelPackage excelPackage1 = new ExcelPackage(fs1))
+            using (ExcelPackage excelPackage2 = new ExcelPackage(fs2))
+            {
+                var ws1 = GetWorkSheet(excelPackage1, ws1Index_string);
+                var ws2 = GetWorkSheet(excelPackage2, ws2Index_string);
+                var ws1Props = EpplusHelper.FillExcelDefaultConfig(ws1, ws1TitleLine).ClassPropertyList;
+                var ws2Props = EpplusHelper.FillExcelDefaultConfig(ws2, ws2TitleLine).ClassPropertyList;
+
+                StringBuilder sb1 = new StringBuilder();
+                StringBuilder sb2 = new StringBuilder();
+
+                foreach (var item in ws1Props)
+                {
+                    if (!ws2Props.Contains(item))
+                    {
+                        sb1.Append($@"{item},");
+                    }
+                }
+                if (sb1.Length > 1)
+                {
+                    MessageBox.Show($@"未提供列:{sb1.RemoveLastChar()}");
+                    return;
+                }
+
+                foreach (var item in ws2Props)
+                {
+                    if (!ws1Props.Contains(item))
+                    {
+                        sb2.Append($@"{item},");
+                    }
+                }
+                if (sb2.Length > 1)
+                {
+                    MessageBox.Show($@"多提供列:{sb2.RemoveLastChar()}");
+                    return;
+                }
+
+                MessageBox.Show("通过校验模板配置项");
+            }
+        }
+
+        private static ExcelWorksheet GetWorkSheet(ExcelPackage excelPackage, string ws1Index_string)
+        {
+            if (excelPackage.Workbook.Worksheets.Count == 1)
+            {
+                return EpplusHelper.GetExcelWorksheet(excelPackage, 1);
+            }
+            if (Int32.TryParse(ws1Index_string, out int ws1Index_int))
+            {
+                return EpplusHelper.GetExcelWorksheet(excelPackage, ws1Index_int);
+            }
+            if (EpplusHelper.GetExcelWorksheetNames(excelPackage).Contains(ws1Index_string))
+            {
+                return EpplusHelper.GetExcelWorksheet(excelPackage, ws1Index_string);
+            }
+
+            throw new ArgumentException("无法打开Excel的Worksheet");
         }
     }
 }
