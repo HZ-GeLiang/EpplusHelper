@@ -1566,26 +1566,19 @@ namespace EPPlusExtensions
             return list;
         }
 
-        public static void FillExcelDefaultConfig(string filePath, string fileOutDirectoryName)
+        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName)
         {
-
+            List<DefaultConfig> defaultConfigList;
             using (MemoryStream ms = new MemoryStream())
             using (FileStream fs = System.IO.File.OpenRead(filePath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
+                defaultConfigList = FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
-                var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
-                foreach (var item in defaultConfigList)
-                {
-                    //将字符串全部写入文件
-                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
-                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
-                }
-                System.Diagnostics.Process.Start(fileOutDirectoryName);
             }
+            return defaultConfigList;
         }
 
 

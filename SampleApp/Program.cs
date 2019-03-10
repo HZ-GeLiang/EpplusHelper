@@ -14,7 +14,9 @@ namespace SampleApp
     {
         static void Main(string[] args)
         {
-            new Sample01_2().Run();
+            new Sample04_3().Run();
+            OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\"));
         }
+
     }
 }

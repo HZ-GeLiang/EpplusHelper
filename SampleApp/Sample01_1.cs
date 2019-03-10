@@ -29,6 +29,11 @@ namespace SampleApp
                 EpplusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
                 configSource.SheetBody[1] = GetDataTable_Body();
                 EpplusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
+                var ws = EpplusHelper.GetExcelWorksheet(excelPackage, "导出测试");
+                ws.Protection.IsProtected = true;
+                ws.Protection.AllowSelectLockedCells = false;
+                ws.Protection.AllowSelectUnlockedCells = true;
+                ws.Protection.SetPassword("123");
                 EpplusHelper.DeleteWorksheet(excelPackage, 1);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;

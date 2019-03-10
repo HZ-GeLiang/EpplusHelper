@@ -17,8 +17,18 @@ namespace SampleApp
     {
         public void Run()
         {
-            string tempPath = $@"模版\Sample04_2.xlsx";
-            EpplusHelper.FillExcelDefaultConfig(tempPath, Path.GetDirectoryName(Path.GetFullPath(tempPath)));
+            string filePath = $@"模版\Sample04_2.xlsx";
+            string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
+            var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName);
+            var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
+            foreach (var item in defaultConfigList)
+            {
+                //将字符串全部写入文件
+                File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
+                File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
+            }
+
+            OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\"));
         }
     }
 }
