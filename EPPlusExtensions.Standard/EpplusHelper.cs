@@ -1582,7 +1582,7 @@ namespace EPPlusExtensions
         }
 
 
-        private static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber)
+        public static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber)
         {
             var colNameList = new List<string>();
             var colNames_Counter = new Dictionary<string, int>();
