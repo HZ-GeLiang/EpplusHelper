@@ -1566,26 +1566,19 @@ namespace EpplusExtensions
             return list;
         }
 
-        public static void FillExcelDefaultConfig(string filePath, string fileOutDirectoryName)
+        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName)
         {
-
+            List<DefaultConfig> defaultConfigList;
             using (MemoryStream ms = new MemoryStream())
             using (FileStream fs = System.IO.File.OpenRead(filePath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
+                defaultConfigList = FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>());
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
-                var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
-                foreach (var item in defaultConfigList)
-                {
-                    //将字符串全部写入文件
-                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
-                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
-                }
-                System.Diagnostics.Process.Start(fileOutDirectoryName);
             }
+            return defaultConfigList;
         }
 
 
@@ -1593,6 +1586,7 @@ namespace EpplusExtensions
         {
             var colNameList = new List<string>();
             var colNames_Counter = new Dictionary<string, int>();
+            #region 获得colNameList
             for (int col = 1; col <= EpplusConfig.MaxCol07; col++)
             {
                 var destColVal = ExtractName(
@@ -1638,13 +1632,20 @@ namespace EpplusExtensions
                 */
             }
 
+            #endregion
+
             //var config = new EpplusConfig();
+            #region 给单元格赋值
             for (int i = 0; i < colNameList.Count; i++)
             {
                 //var cells = ws.Cells[titleLine + 1, i + 1];
                 //SetWorksheetCellsValue(config, cells, $@"$tb1{colNameList[i]}", colNameList[i]);
                 ws.Cells[titleLineNumber + 1, i + 1].Value = $@"$tb1{colNameList[i]}";
             }
+
+            #endregion
+
+            #region sb_CrateClassSnippe + sb_CrateDateTableSnippe
             StringBuilder sb_CrateClassSnippe = new StringBuilder();
             sb_CrateClassSnippe.AppendLine($"public class {ws.Name} {{");
 
@@ -1655,6 +1656,7 @@ namespace EpplusExtensions
             StringBuilder sbColumnType = new StringBuilder();
             sbAddDr.AppendLine($@"//var dr = dt.NewRow();");
 
+            #region 关键字
             var columnTypeList_DateTime = new List<string>()
             {
                 "时间", "日期", "date", "time"
@@ -1663,7 +1665,9 @@ namespace EpplusExtensions
             {
                 "id","身份证","银行卡","卡号","手机","mobile","tel",
             };
+            #endregion
 
+            #region 关键字tolower
             for (int i = 0; i < columnTypeList_DateTime.Count; i++)
             {
                 columnTypeList_DateTime[i] = columnTypeList_DateTime[i].ToLower();
@@ -1672,6 +1676,7 @@ namespace EpplusExtensions
             {
                 columnTypeList_String[i] = columnTypeList_String[i].ToLower();
             }
+            #endregion
 
             foreach (var colName in colNameList)
             {
@@ -1709,13 +1714,14 @@ namespace EpplusExtensions
             sb_CrateDateTableSnippe.Append(sbAddDr.ToString());
 
             sb_CrateClassSnippe.AppendLine("}");
+            #endregion
 
-            var returnStr = sb_CrateDateTableSnippe.ToString();
             return new DefaultConfig()
             {
                 WorkSheetName = ws.Name,
                 CrateDateTableSnippe = sb_CrateDateTableSnippe.ToString(),
                 CrateClassSnippe = sb_CrateClassSnippe.ToString(),
+                ClassPropertyList = colNameList
             };
 
         }

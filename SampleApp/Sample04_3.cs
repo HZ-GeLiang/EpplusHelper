@@ -23,12 +23,13 @@ namespace SampleApp
             using (FileStream fs = System.IO.File.OpenRead(tempPath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>()
+                var sheetTitleLineNumber = new Dictionary<int, int>()
                 {
-                  {1,2},
-                  {2,2},
-                  {3,1},
-                });
+                    {1, 2},
+                    {2, 2},
+                    {3, 1},
+                };
+                var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(excelPackage, sheetTitleLineNumber);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save(@"模版\Sample04_3_Result.xlsx");
