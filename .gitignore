@@ -32,3 +32,10 @@
 /SampleApp.Core/bin/Debug/netcoreapp2.2
 /EPPlusExtensions.Standard/bin/Release
 /SampleApp.Core/bin/Release/netcoreapp2.2
+/EPPlusHelperTool/bin/Debug
+/EPPlusHelperTool/obj/Debug
+/EPPlusHelperTool/obj/Release
+/packages/EPPlus.4.5.3
+/SampleApp/模版/Sample01_2.xlsx
+/packages/CaptchaGen.1.0.0/lib/net40
+/packages/CaptchaGen.1.0.0
