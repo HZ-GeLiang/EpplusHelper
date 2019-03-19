@@ -1275,21 +1275,22 @@ namespace EPPlusExtensions
 
             for (int row = rowIndex; row <= EPPlusConfig.MaxRow07; row++)
             {
-                if (string.IsNullOrEmpty(ws.Cells[row, 1].Text))//每一行的第一列为空
+                if (ws.Cells[row, 1].Merge)
+                {
+                    throw new System.ArgumentException($@"数据的每一行的首列不能有合并单元格,当前行是第{row}行");
+                }
+
+                if (string.IsNullOrEmpty(GetCellText(ws, row, 1)))//每一行的第一列为空
                 {
                     if (row == rowIndex)
                     {
                         throw new Exception("不要上传一份空的模版文件");
                     }
-                    else
+                    //如果第一列和第二列都没有值,那么认为当前行的空白行,即,读取模版结束
+                    if (string.IsNullOrEmpty(GetCellText(ws, row, 2)))
                     {
-                        break; //读取模版结束
+                        break; //出现空行,读取模版结束
                     }
-                }
-
-                if (ws.Cells[row, 1].Merge)
-                {
-                    throw new System.ArgumentException($@"数据的每一行的首列不能有合并单元格,当前行是第{row}行");
                 }
 
                 Type type = typeof(T);
