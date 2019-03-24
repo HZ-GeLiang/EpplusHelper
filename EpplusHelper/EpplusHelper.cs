@@ -899,9 +899,7 @@ namespace EpplusExtensions
 
         private static void GetList_SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
         {
-
             var pInfo_PropertyType = pInfo.PropertyType;
-
             #region string
             if (pInfo_PropertyType == typeof(string))
             {
@@ -928,16 +926,50 @@ namespace EpplusExtensions
                 return;
             }
             #endregion
-            #region decimal
-            var isNullable_decimal = pInfo_PropertyType == typeof(decimal?);
-            if (isNullable_decimal && (value == null || value.Length <= 0))
+            #region sbyte
+            var isNullable_sbyte = pInfo_PropertyType == typeof(sbyte?);
+            if (isNullable_sbyte && (value == null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
             }
-            if (isNullable_decimal || pInfo_PropertyType == typeof(decimal))
+            if (isNullable_sbyte || pInfo_PropertyType == typeof(sbyte))
             {
-                if (!Decimal.TryParse(value, out var result))
+                if (!sbyte.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region byte
+            var isNullable_byte = pInfo_PropertyType == typeof(byte?);
+            if (isNullable_byte && (value == null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_byte || pInfo_PropertyType == typeof(byte))
+            {
+                if (!byte.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region UInt16
+            var isNullable_UInt16 = pInfo_PropertyType == typeof(UInt16?);
+            if (isNullable_UInt16 && (value == null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_UInt16 || pInfo_PropertyType == typeof(UInt16))
+            {
+                if (!UInt16.TryParse(value, out var result))
                 {
                     throw new ArgumentException("无效的数字", nameof(pInfo.Name));
                 }
@@ -962,6 +994,24 @@ namespace EpplusExtensions
                 return;
             }
             #endregion
+            #region UInt32
+            var isNullable_UInt32 = pInfo_PropertyType == typeof(UInt32?);
+            if (isNullable_UInt32 && (value == null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_UInt32 || pInfo_PropertyType == typeof(UInt32))
+            {
+                if (!UInt16.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+
+            #endregion
             #region Int32
             var isNullable_Int32 = pInfo_PropertyType == typeof(Int32?);
             if (isNullable_Int32 && (value == null || value.Length <= 0))
@@ -971,7 +1021,7 @@ namespace EpplusExtensions
             }
             if (isNullable_Int32 || pInfo_PropertyType == typeof(Int32))
             {
-                if (!Int16.TryParse(value, out var result))
+                if (!Int32.TryParse(value, out var result))
                 {
                     throw new ArgumentException("无效的数字", nameof(pInfo.Name));
                 }
@@ -979,6 +1029,23 @@ namespace EpplusExtensions
                 return;
             }
 
+            #endregion
+            #region UInt64
+            var isNullable_UInt64 = pInfo_PropertyType == typeof(UInt64?);
+            if (isNullable_UInt64 && (value == null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_UInt64 || pInfo_PropertyType == typeof(UInt64))
+            {
+                if (!UInt64.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
             #endregion
             #region Int64
             var isNullable_Int64 = pInfo_PropertyType == typeof(Int64?);
@@ -989,7 +1056,58 @@ namespace EpplusExtensions
             }
             if (isNullable_Int64 || pInfo_PropertyType == typeof(Int64))
             {
-                if (!Int16.TryParse(value, out var result))
+                if (!Int64.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region float
+            var isNullable_float = pInfo_PropertyType == typeof(float?);
+            if (isNullable_float && (value == null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_float || pInfo_PropertyType == typeof(float))
+            {
+                if (!float.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region double
+            var isNullable_double = pInfo_PropertyType == typeof(double?);
+            if (isNullable_double && (value == null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_double || pInfo_PropertyType == typeof(double))
+            {
+                if (!double.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region decimal
+            var isNullable_decimal = pInfo_PropertyType == typeof(decimal?);
+            if (isNullable_decimal && (value == null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_decimal || pInfo_PropertyType == typeof(decimal))
+            {
+                if (!Decimal.TryParse(value, out var result))
                 {
                     throw new ArgumentException("无效的数字", nameof(pInfo.Name));
                 }
