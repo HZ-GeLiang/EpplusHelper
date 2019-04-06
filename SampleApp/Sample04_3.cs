@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace SampleApp
 {
     /// <summary>
-    /// 填充数据与数据源同步
+    /// 自动初始化填充配置
     /// </summary>
     class Sample04_3
     {

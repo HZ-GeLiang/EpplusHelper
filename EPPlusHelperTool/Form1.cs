@@ -219,5 +219,20 @@ namespace EPPlusHelperTool
 
             throw new ArgumentException("无法打开Excel的Worksheet");
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            string filePath = textBox1.Text.Trim().移除路径前后引号();
+            string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
+            var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName);
+            var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
+            foreach (var item in defaultConfigList)
+            {
+                //将字符串全部写入文件
+                File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
+                File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
+            }
+            WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
+        }
     }
 }
