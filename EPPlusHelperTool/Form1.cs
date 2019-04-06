@@ -90,7 +90,8 @@ namespace EPPlusHelperTool
 
             //var fileName = Path.GetFileNameWithoutExtension(filePath);
             //var suffix = Path.GetExtension(filePath);
-            var fileDir = Path.GetDirectoryName(filePath);
+            var fileDir = Path.GetDirectoryName(filePath).移除路径前后引号();
+
             //Path.GetDirectoryName(Path.GetFullPath(tempPath))
             //string filePathOut = Path.Combine(fileDir, $"{fileName}_result{suffix}");
             //EpplusHelper.FillExcelDefaultConfig(filePath, filePathOut);
@@ -146,8 +147,8 @@ namespace EPPlusHelperTool
 
         private void button4_Click(object sender, EventArgs e)
         {
-            var ws1Path = this.textBox1.Text.Trim();
-            var ws2Path = this.textBox2.Text.Trim();
+            var ws1Path = this.textBox1.Text.Trim().移除路径前后引号();
+            var ws2Path = this.textBox2.Text.Trim().移除路径前后引号();
             if (ws1Path == ws2Path)
             {
                 MessageBox.Show("比较文件路径一致,无法比较");
