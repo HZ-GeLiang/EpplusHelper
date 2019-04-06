@@ -86,11 +86,11 @@ namespace EPPlusHelperTool
 
         private void button2_Click(object sender, EventArgs e)
         {
-            string filePath = textBox1.Text.Trim();
+            string filePath = textBox1.Text.Trim().移除路径前后引号();
 
             //var fileName = Path.GetFileNameWithoutExtension(filePath);
             //var suffix = Path.GetExtension(filePath);
-            var fileDir = Path.GetDirectoryName(filePath).移除路径前后引号();
+            var fileDir = Path.GetDirectoryName(filePath);
 
             //Path.GetDirectoryName(Path.GetFullPath(tempPath))
             //string filePathOut = Path.Combine(fileDir, $"{fileName}_result{suffix}");
