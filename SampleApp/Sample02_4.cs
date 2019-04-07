@@ -35,6 +35,7 @@ namespace SampleApp
                     WhereFilter = null,
                     ReadCellValueOption = ReadCellValueOption.Trim,
                     POCO_Property_AutoRename_WhenRepeat = true,
+                    POCO_Property_AutoRenameFirtName_WhenRepeat = false,
                 });
 
 
