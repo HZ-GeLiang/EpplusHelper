@@ -8,7 +8,7 @@ namespace EPPlusExtensions
     public class ExcelCellInfo
     {
         public ExcelWorksheet WorkSheet { get; set; }
-        public ExcelCellPoint ExcelCellPoint { get; set; }
+        public ExcelAddress ExcelAddress { get; set; }
         public object Value { get; set; }
     }
 }
