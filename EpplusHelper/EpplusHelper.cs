@@ -795,8 +795,8 @@ namespace EpplusExtensions
         /// <param name="row">列名在Excel的第几行</param>
         /// <param name="colStart"></param>
         /// <param name="colEnd"></param>
-        /// <param name="POCO_Property_AutoReame_WhenRepeat"></param>
-        /// <param name=""></param>
+        /// <param name="POCO_Property_AutoReame_WhenRepeat">当属性重复时自动重命名</param>
+        /// <param name="renameFirtNameWhenRepeat">当属性重复时需要重命名第一个属性的名字</param>
         /// <returns></returns>
         private static List<ExcelCellInfo> GetExcelColumnOfModel(ExcelWorksheet ws, int row, int colStart, int? colEnd, bool POCO_Property_AutoReame_WhenRepeat = false, bool renameFirtNameWhenRepeat = true)
         {
@@ -809,9 +809,24 @@ namespace EpplusExtensions
             }
             if (colEnd == null) colEnd = EpplusConfig.MaxCol07;
             var list = new List<ExcelCellInfo>();
-            for (int col = colStart; col < colEnd; col++)
-            {
-                string colName = ws.Cells[row, col].Text;
+            int col = colStart;
+            int step;
+            while (col < colEnd)
+            { 
+                ExcelAddress ea;
+                string colName;
+                if (ws.Cells[row, col].Merge)
+                {
+                    ea = new ExcelAddress(ws.MergedCells[row, col]);
+                    step = ea.Columns;
+                }
+                else
+                {
+                    ea = new ExcelAddress(row, col, row, col);
+                    step = 1; 
+                }
+                colName = ws.Cells[ea.Start.Row, ea.Start.Column].Text;
+
                 if (string.IsNullOrEmpty(colName)) break;
                 colName = ExtractName(colName);
                 if (string.IsNullOrEmpty(colName)) break;
@@ -823,8 +838,11 @@ namespace EpplusExtensions
                 {
                     WorkSheet = ws,
                     Value = colName,
-                    ExcelCellPoint = new ExcelCellPoint(row, col)
+                    ExcelAddress = ea,
                 });
+
+                col += step;
+
             }
             if (POCO_Property_AutoReame_WhenRepeat)
             {
@@ -867,7 +885,7 @@ namespace EpplusExtensions
                 if (pInfo == null)
                 {
                     //不能用AppendLine,会造成Json解析失败
-                    sb.Append($"WorkSheet:'{item.WorkSheet.Name}' 的'{item.ExcelCellPoint.R1C1}'值'{item.Value}'在'{type.FullName}'类型中没有定义该属性");
+                    sb.Append($"WorkSheet:'{item.WorkSheet.Name}' 的'{new ExcelCellPoint(item.ExcelAddress).R1C1}'值'{item.Value}'在'{type.FullName}'类型中没有定义该属性");
                 }
             }
             modelCheckMsg = sb.ToString();
@@ -1174,7 +1192,7 @@ namespace EpplusExtensions
             {
                 //同一个特性的的属性值肯定是一样的,所以可以优化;
                 //ArrayList objArr = null;
-                Object[] objArr = null; //第二次优化
+                object[] objArr = null; //第二次优化
                 foreach (var validAttr in validAttrs)
                 {
                     MethodInfo methodIsValid = validAttr.GetType().GetMethod("IsValid");
@@ -1218,11 +1236,11 @@ namespace EpplusExtensions
                         objArr = new object[] { value };
                     }
 
-                    var IsValid = (bool)methodIsValid.Invoke(validAttr, objArr);
+                    var isValid = (bool)methodIsValid.Invoke(validAttr, objArr);
 
                     #endregion
 
-                    if (!IsValid)
+                    if (!isValid)
                     {
                         var msg = $@"'{model.GetType().FullName}'类型的'{pInfo.Name}'属性验证未通过:'{((ValidationAttribute)validAttr).ErrorMessage}'";
                         throw new ArgumentException(msg);
@@ -1382,7 +1400,6 @@ namespace EpplusExtensions
                 : args.EveryCellReplaceList;
             var havingFilter = args.HavingFilter;
             var whereFilter = args.WhereFilter;
-            var readCellValueOption = args.ReadCellValueOption;
             var autoRename = args.POCO_Property_AutoRename_WhenRepeat;
             var autoRenameFirtName = args.POCO_Property_AutoRenameFirtName_WhenRepeat;
 
@@ -1391,88 +1408,79 @@ namespace EpplusExtensions
                 throw new ArgumentException("请初始化数据");
             }
 
-            List<T> list = new List<T>();
-
             var colNameList = GetExcelColumnOfModel(ws, dataNameRowIndex, 1, EpplusConfig.MaxCol07, autoRename, autoRenameFirtName);
-            var dictColName = colNameList.ToDictionary(item => item.ExcelCellPoint.Col, item => item.Value.ToString());
 
-            string modelCheckMsg;
-            var _IsAllExcelColumnExistsModel = IsAllExcelColumnExistsModel<T>(colNameList, out modelCheckMsg);
+            var _IsAllExcelColumnExistsModel = IsAllExcelColumnExistsModel<T>(colNameList, out string modelCheckMsg);
             if (!_IsAllExcelColumnExistsModel)
             {
                 throw new ExcelColumnNotExistsWithModelException(modelCheckMsg);
             }
 
-            bool canEveryCellReplace = everyCellReplace != null;
+            var dictColName = colNameList.ToDictionary(item => new ExcelCellPoint(item.ExcelAddress).Col, item => item);// key是第n列
+
+            Type type = typeof(T);
+            var ctor = type.GetConstructor(new Type[] { });
+            if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
 
             var dictPropAttrs = new Dictionary<string, Dictionary<string, Attribute>>();//属性里包含的Attriute
+            //内置的Attribute
             var dictUnique = new Dictionary<string, Dictionary<string, bool>>();//属性的 UniqueAttribute
+            string key_UniqueAttribute = typeof(UniqueAttribute).FullName;
 
-            for (int row = rowIndex; row <= EpplusConfig.MaxRow07; row++)
+            foreach (var col in dictColName.Keys)
             {
+                string colName = dictColName[col].Value.ToString();
+                //if (string.IsNullOrEmpty(colName)) continue;//这种情况不存在
 
-                if (ws.Cells[row, 1].Merge)
+                PropertyInfo pInfo = type.GetProperty(colName);
+                if (pInfo == null)
                 {
-                    throw new System.ArgumentException($@"数据的每一行的首列不能有合并单元格,当前行是第{row}行");
+                    throw new ArgumentException($@"Type:'{type}'的property'{colName}'未找到");
+                }
+                #region 初始化Attr要处理相关的数据
+                var attrDict = new Dictionary<string, Attribute>() { };//key 是Attribute的FullName
+                dictPropAttrs.Add(pInfo.Name, attrDict);
+
+
+                var uniqueAttrs = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
+                if (uniqueAttrs.Length > 0)
+                {
+                    dictPropAttrs[pInfo.Name].Add(key_UniqueAttribute, (UniqueAttribute)uniqueAttrs[0]);
+                    dictUnique.Add(pInfo.Name, new Dictionary<string, bool>());
                 }
 
-                if (string.IsNullOrEmpty(GetCellText(ws, row, 1)))//每一行的第一列为空
-                {
-                    if (row == rowIndex)
-                    {
-                        throw new Exception("不要上传一份空的模版文件");
-                    }
-                    //如果第一列和第二列都没有值,那么认为当前行的空白行,即,读取模版结束
-                    if (string.IsNullOrEmpty(GetCellText(ws, row, 2)))
-                    {
-                        break; //出现空行,读取模版结束
-                    }
-                }
+                #endregion
+            }
 
-                Type type = typeof(T);
-                var ctor = type.GetConstructor(new Type[] { });
-                if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
+            List<T> list = new List<T>();
+            int row = rowIndex;
+            Exception _Exception = null;
+
+            while (true)
+            {
+                int step = 1;
+                bool isNoDataAllColumn = true;//判断整行数据是否都没有数据
                 T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转
 
-                for (int col = 1; col < EpplusConfig.MaxCol07; col++)
+                foreach (var col in dictColName.Keys)
                 {
-                    if (!dictColName.ContainsKey(col)) break;
-                    string colName = dictColName[col];
-                    if (string.IsNullOrEmpty(colName)) break;
+                    string colName = dictColName[col].Value.ToString();
+                    if (string.IsNullOrEmpty(colName)) continue;
 
                     PropertyInfo pInfo = type.GetProperty(colName);
-                    if (_IsAllExcelColumnExistsModel && pInfo == null)
+                    if (pInfo == null)
                     {
                         throw new ArgumentException($@"Type:'{type}'的property'{colName}'未找到");
                     }
 
-                    #region 初始化Attr要处理相关的数据
-
-                    if (row == rowIndex) //遍历第一行数据的时候初始化
-                    {
-                        dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>() { });
-
-                        string key_UniqueAttribute = typeof(UniqueAttribute).FullName;
-                        var uniqueAttrs = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
-                        if (uniqueAttrs.Length > 0)
-                        {
-                            dictPropAttrs[pInfo.Name].Add(key_UniqueAttribute, (UniqueAttribute)uniqueAttrs[0]);
-                        }
-
-                        var hasUniqueAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_UniqueAttribute);
-                        if (hasUniqueAttr)
-                        {
-                            dictUnique.Add(pInfo.Name, new Dictionary<string, bool>());
-                        }
-                    }
-
-                    #endregion
-
-                    string value = ws.Cells[row, col].Merge ? GetMegerCellText(ws, row, col) : ws.Cells[row, col].Text;
-                    bool valueIsNullOrEmpty = string.IsNullOrEmpty(value); // value == null || value.Length <= 0
+                    string value = EpplusHelper.GetMegerCellText(ws, row, col);
+                    bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
 
                     if (!valueIsNullOrEmpty)
                     {
+                        isNoDataAllColumn = false;
+
+                        #region 判断每个单元格的开头
                         if (everyCellPrefix?.Length > 0)
                         {
                             var indexof = value.IndexOf(everyCellPrefix);
@@ -1482,7 +1490,10 @@ namespace EpplusExtensions
                             }
                             value = value.RemovePrefix(everyCellPrefix);
                         }
-                        if (canEveryCellReplace)
+                        #endregion
+
+                        #region 对每个单元格进行值的替换
+                        if (everyCellReplace != null)
                         {
                             foreach (var item in everyCellReplace)
                             {
@@ -1498,6 +1509,10 @@ namespace EpplusExtensions
                                 }
                             }
                         }
+                        #endregion
+
+                        #region 对每个单元格进行去空格与合并行的处理
+
                         switch (args.ReadCellValueOption)
                         {
                             case ReadCellValueOption.None:
@@ -1514,13 +1529,11 @@ namespace EpplusExtensions
                             default:
                                 throw new System.Exception("未指定读取单元格值时的操作方式");
                         }
-                    }
+                        #endregion
 
-                    //处理内置的Attribute
-                    {
-                        string key_UniqueAttribute = typeof(UniqueAttribute).FullName;
-                        var hasUniqueAttr = dictPropAttrs[pInfo.Name].ContainsKey(key_UniqueAttribute);
-                        if (hasUniqueAttr)
+                        #region 处理内置的Attribute
+
+                        if (dictPropAttrs[pInfo.Name].ContainsKey(key_UniqueAttribute))
                         {
                             var uniqueAttr = (UniqueAttribute)dictPropAttrs[pInfo.Name][key_UniqueAttribute];
                             var uniqueAttrAttr_ErrorMsg_IsNullOrEmpty = string.IsNullOrEmpty(uniqueAttr.ErrorMessage);
@@ -1538,19 +1551,41 @@ namespace EpplusExtensions
                             }
 
                         }
+                        #endregion
                     }
-
-                    //验证特性
-                    GetList_ValidAttribute(pInfo, model, value);
-                    //赋值
-                    GetList_SetModelValue(pInfo, model, value);
-
+                    try
+                    {
+                        //验证特性
+                        GetList_ValidAttribute(pInfo, model, value);
+                        //赋值
+                        GetList_SetModelValue(pInfo, model, value);
+                    }
+                    catch (Exception e)
+                    {
+                        _Exception = e;
+                        break;
+                    }
                 }
 
+                if (isNoDataAllColumn)
+                {
+                    if (row == rowIndex)//数据起始行是空行
+                    {
+                        throw new Exception("不要上传一份空的模版文件");
+                    }
+                    break; //出现空行,读取模版结束
+                }
+                //else
+                if (_Exception != null)
+                {
+                    throw _Exception;
+                }
                 if (whereFilter == null || whereFilter.Invoke(model))
                 {
                     list.Add(model);
                 }
+
+                row += step;
             }
 
             return havingFilter == null ? list : list.Where(item => havingFilter.Invoke(item)).ToList();
@@ -1572,8 +1607,8 @@ namespace EpplusExtensions
         {
             string range = ws.MergedCells[row, col];
             if (range == null) return GetCellText(ws, row, col);
-            var ea = new ExcelAddress(range).Start;
-            return ws.Cells[ea.Row, ea.Column].Text;
+            var ea = new ExcelAddress(range);
+            return ws.Cells[ea.Start.Row, ea.Start.Column].Text;
         }
 
         /// <summary>
@@ -1976,7 +2011,7 @@ namespace EpplusExtensions
                         result.Add(new ExcelCellInfo
                         {
                             WorkSheet = ws,
-                            ExcelCellPoint = new ExcelCellPoint(i + 1, j + 1),
+                            ExcelAddress = new ExcelAddress(i + 1, j + 1, i + 1, j + 1),
                             Value = cellsValue[i, j]
                         });
                     }

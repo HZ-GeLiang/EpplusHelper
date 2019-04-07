@@ -37,7 +37,6 @@ namespace EpplusExtensions
             Row = Convert.ToInt32(RegexHelper.GetLastNumber(r1C1));//3
             Col = R1C1Formulas(RegexHelper.GetFirstStringByReg(r1C1, "[A-Za-z]+"));//K -> 11
             R1C1 = r1C1;
-
         }
 
         /// <summary>
@@ -51,6 +50,23 @@ namespace EpplusExtensions
             Col = col;
             R1C1 = R1C1FormulasReverse(col) + row;
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="row">从1开始的整数</param>
+        /// <param name="col">从1开始的整数</param>
+        public ExcelCellPoint(OfficeOpenXml.ExcelAddress excelAddress)
+        {
+            //ExcelCellPoint(excelAddress.Address); 
+            var r1C1 = excelAddress.Address;
+            r1C1 = r1C1.Split(':')[0].Trim(); //防止传入 "A1:B3" 这种的配置格式的
+            Row = Convert.ToInt32(RegexHelper.GetLastNumber(r1C1));//3
+            Col = R1C1Formulas(RegexHelper.GetFirstStringByReg(r1C1, "[A-Za-z]+"));//K -> 11
+            R1C1 = r1C1;
+        }
+
 
         /// <summary>
         /// 譬如: A->1 . 在excel的选项->属性->公式  下有个 R1C1引用样式
