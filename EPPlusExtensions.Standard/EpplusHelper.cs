@@ -909,6 +909,23 @@ namespace EPPlusExtensions
                 return;
             }
             #endregion
+            #region Boolean
+            var isNullable_Boolean = pInfo_PropertyType == typeof(Boolean?);
+            if (isNullable_Boolean && (value == null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_Boolean || pInfo_PropertyType == typeof(Boolean))
+            {
+                if (!Boolean.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的Boolean值", nameof(pInfo.Name));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
             #region DateTime
             var isNullable_DateTime = pInfo_PropertyType == typeof(DateTime?);
             if (isNullable_DateTime && (value == null || value.Length <= 0))
@@ -1147,7 +1164,7 @@ namespace EPPlusExtensions
             }
             #endregion
 
-            throw new System.Exception("未考虑到的情况!!!请完善程序");
+            throw new System.Exception("GetList_SetModelValue()时遇到未处理的类型!!!请完善程序");
         }
 
         private static void GetList_ValidAttribute<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
