@@ -97,6 +97,7 @@
     <Compile Include="MethodExtension\MemoryStreamExtensions.cs" />
     <Compile Include="MethodExtension\StringBuilderExtensions.cs" />
     <Compile Include="MethodExtension\StringExtensions.cs" />
+    <Compile Include="ObjectDumper.cs" />
     <Compile Include="OpenDirectoryHelp.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

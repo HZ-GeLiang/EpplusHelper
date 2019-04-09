@@ -18,6 +18,18 @@ namespace SampleApp
     {
         public void Run()
         {
+            ReadLine(2, ScanLine.MergeLine);
+            Console.WriteLine("==========================");
+            ReadLine(2, ScanLine.SingleLine);//excel的5,6行是合并的,用SingleLine读取,那么第6行的数据是第5行的
+            Console.WriteLine("=========================="); 
+            ReadLine(10, ScanLine.SingleLine);
+
+            int a = 3;
+        }
+
+        public static void ReadLine(int rowIndex, ScanLine scanLine)
+        {
+
             string tempPath = @"模版\Sample02_1.xlsx";
             using (MemoryStream ms = new MemoryStream())
             using (FileStream fs = System.IO.File.OpenRead(tempPath))
@@ -27,27 +39,17 @@ namespace SampleApp
                 List<ysbm> list;
                 try
                 {
-                    list = EpplusHelper.GetList<ysbm>(ws, 2);
+                    var args = EpplusHelper.GetExcelListArgsDefault<ysbm>(ws, rowIndex);
+                    args.ScanLine = scanLine;
+
+                    if (rowIndex != 2) args.RowIndex_DataName = 1; //这个if 仅针对与当前Demo写的
+
+                    list = EpplusHelper.GetList<ysbm>(args);
+                    ObjectDumper.Write(list);
                 }
                 catch (Exception e)
                 {
-                    if (e.Message.Contains("类型中没有定义该属性"))
-                    {
-                        StringBuilder excelFileds = new StringBuilder();
-                        foreach (var item in e.Message.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            int start = item.IndexOf("'值'");
-                            int end = item.IndexOf("'在'");
-                            string excelFiled = item.Substring(start + 3, end - start - 3);
-                            excelFileds.Append(excelFiled).Append(",");
-                        }
-                        excelFileds.RemoveLastChar(',');
-                        throw new Exception("提供了excel模版之外列:" + excelFileds);
-                    }
-                    else
-                    {
-                        throw e;
-                    }
+                    EpplusHelper.IsModelNotDefinitionProperty(e);
                 }
 
                 Console.WriteLine("读取完毕");
@@ -59,8 +61,6 @@ namespace SampleApp
     {
         public string 序号 { get; set; }
         public string 部门 { get; set; }
-        public string 预算部门 { get; set; }
-        public string 预算部门负责人 { get; set; }
         public string 部门负责人 { get; set; }
         public string 部门负责人确认签字 { get; set; }
     }

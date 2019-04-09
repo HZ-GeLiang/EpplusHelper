@@ -812,18 +812,18 @@ namespace EPPlusExtensions
             int col = colStart;
             int step;
             while (col < colEnd)
-            { 
+            {
                 ExcelAddress ea;
                 string colName;
                 if (ws.Cells[row, col].Merge)
                 {
                     ea = new ExcelAddress(ws.MergedCells[row, col]);
-                    step = ea.Columns; 
+                    step = ea.Columns;
                 }
                 else
                 {
                     ea = new ExcelAddress(row, col, row, col);
-                    step = 1; 
+                    step = 1;
                 }
                 colName = ws.Cells[ea.Start.Row, ea.Start.Column].Text;
 
@@ -1317,19 +1317,12 @@ namespace EPPlusExtensions
 
         #region GetList<T>
 
-        /// <summary>
-        /// 只能是最普通的excel.(每个单元格都是未合并的,第一行是列名,数据从第一列开始填充的那种.)
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="ws"></param>
-        /// <param name="rowIndex">数据起始行(不含列名),从1开始</param>
-        /// <returns></returns>
-        public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex) where T : class, new()
+        public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class, new()
         {
-            return GetList<T>(new GetExcelListArgs<T>()
+            return new GetExcelListArgs<T>()
             {
                 ws = ws,
-                rowIndex_Data = rowIndex,
+                RowIndex_Data = rowIndex,
                 EveryCellPrefix = "",
                 EveryCellReplaceList = null,
                 RowIndex_DataName = rowIndex - 1,
@@ -1339,7 +1332,21 @@ namespace EPPlusExtensions
                 ReadCellValueOption = ReadCellValueOption.Trim,
                 POCO_Property_AutoRename_WhenRepeat = false,
                 POCO_Property_AutoRenameFirtName_WhenRepeat = true,
-            });
+                ScanLine = ScanLine.MergeLine,
+            };
+        }
+
+        /// <summary>
+        /// 只能是最普通的excel.(每个单元格都是未合并的,第一行是列名,数据从第一列开始填充的那种.)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ws"></param>
+        /// <param name="rowIndex">数据起始行(不含列名),从1开始</param>
+        /// <returns></returns>
+        public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex) where T : class, new()
+        {
+            var args = GetExcelListArgsDefault<T>(ws, rowIndex);
+            return GetList<T>(args);
         }
 
         /// <summary>
@@ -1352,63 +1359,42 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellPrefix, string everyCellReplaceOldValue, string everyCellReplaceNewValue) where T : class, new()
         {
-            return GetList<T>(new GetExcelListArgs<T>()
+            var args = GetExcelListArgsDefault<T>(ws, rowIndex);
+            if (everyCellReplaceOldValue != null && everyCellReplaceNewValue != null)
             {
-                ws = ws,
-                rowIndex_Data = rowIndex,
-                EveryCellPrefix = everyCellPrefix,
-                EveryCellReplaceList =
-                    everyCellReplaceOldValue == null || everyCellReplaceNewValue == null
-                    ? null
-                    : new Dictionary<string, string> { { everyCellReplaceOldValue, everyCellReplaceNewValue } },
-                RowIndex_DataName = rowIndex - 1,
-                UseEveryCellReplace = true,
-                HavingFilter = null,
-                WhereFilter = null,
-                ReadCellValueOption = ReadCellValueOption.Trim,
-                POCO_Property_AutoRename_WhenRepeat = false,
-                POCO_Property_AutoRenameFirtName_WhenRepeat = true,
-            });
+                args.EveryCellReplaceList = new Dictionary<string, string> { { everyCellReplaceOldValue, everyCellReplaceNewValue } };
+            }
+            return GetList<T>(args);
         }
 
         public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellPrefix, Dictionary<string, string> everyCellReplace) where T : class, new()
         {
-            return GetList<T>(new GetExcelListArgs<T>()
-            {
-                ws = ws,
-                rowIndex_Data = rowIndex,
-                EveryCellPrefix = everyCellPrefix,
-                EveryCellReplaceList = everyCellReplace,
-                RowIndex_DataName = rowIndex - 1,
-                UseEveryCellReplace = true,
-                HavingFilter = null,
-                WhereFilter = null,
-                ReadCellValueOption = ReadCellValueOption.Trim,
-                POCO_Property_AutoRename_WhenRepeat = false,
-                POCO_Property_AutoRenameFirtName_WhenRepeat = true,
-            });
+            var args = GetExcelListArgsDefault<T>(ws, rowIndex);
+            args.EveryCellPrefix = everyCellPrefix;
+            args.EveryCellReplaceList = everyCellReplace;
+            return GetList<T>(args);
         }
 
         public static List<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
             ExcelWorksheet ws = args.ws;
-            int rowIndex = args.rowIndex_Data;
-            string everyCellPrefix = args.EveryCellPrefix;
-            int dataNameRowIndex = args.RowIndex_DataName;
-            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
-                ? GetExcelListArgs<T>.EveryCellReplaceListDefault
-                : args.EveryCellReplaceList;
-            var havingFilter = args.HavingFilter;
-            var whereFilter = args.WhereFilter;
-            var autoRename = args.POCO_Property_AutoRename_WhenRepeat;
-            var autoRenameFirtName = args.POCO_Property_AutoRenameFirtName_WhenRepeat;
-
-            if (rowIndex == default(int) || dataNameRowIndex == default(int))
+            int rowIndex = args.RowIndex_Data;
+            if (rowIndex <= 0)
             {
-                throw new ArgumentException("请初始化数据");
+                throw new ArgumentException($@"数据起始行值'{rowIndex}'错误,值应该大于0");
             }
 
-            var colNameList = GetExcelColumnOfModel(ws, dataNameRowIndex, 1, EPPlusConfig.MaxCol07, autoRename, autoRenameFirtName);
+            int rowIndex_DataName = args.RowIndex_DataName;
+            if (rowIndex_DataName <= 0)
+            {
+                throw new ArgumentException($@"数据起始行的标题行值'{rowIndex_DataName}'错误,值应该大于0");
+            }
+
+            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, 1, EpplusConfig.MaxCol07, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
+            if (colNameList.Count == 0)
+            {
+                throw new Exception("未读取到单元格标题");
+            }
 
             var _IsAllExcelColumnExistsModel = IsAllExcelColumnExistsModel<T>(colNameList, out string modelCheckMsg);
             if (!_IsAllExcelColumnExistsModel)
@@ -1417,6 +1403,10 @@ namespace EPPlusExtensions
             }
 
             var dictColName = colNameList.ToDictionary(item => new ExcelCellPoint(item.ExcelAddress).Col, item => item);// key是第n列
+
+            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
+                ? GetExcelListArgs<T>.EveryCellReplaceListDefault
+                : args.EveryCellReplaceList;
 
             Type type = typeof(T);
             var ctor = type.GetConstructor(new Type[] { });
@@ -1456,9 +1446,22 @@ namespace EPPlusExtensions
             int row = rowIndex;
             Exception _Exception = null;
 
+            int? step = null; ;
+            switch (args.ScanLine)
+            {
+                case ScanLine.SingleLine:
+                    step = 1;
+                    break;
+                case ScanLine.MergeLine:
+                    break;
+                default:
+                    throw new Exception("不支持的ScanLine");
+            }
+
+
             while (true)
             {
-                int step = 1;
+
                 bool isNoDataAllColumn = true;//判断整行数据是否都没有数据
                 T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转
 
@@ -1481,14 +1484,14 @@ namespace EPPlusExtensions
                         isNoDataAllColumn = false;
 
                         #region 判断每个单元格的开头
-                        if (everyCellPrefix?.Length > 0)
+                        if (args.EveryCellPrefix?.Length > 0)
                         {
-                            var indexof = value.IndexOf(everyCellPrefix);
+                            var indexof = value.IndexOf(args.EveryCellPrefix);
                             if (indexof == -1)
                             {
-                                throw new System.ArgumentException($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + everyCellPrefix + "'开头的");
+                                throw new System.ArgumentException($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + args.EveryCellPrefix + "'开头的");
                             }
-                            value = value.RemovePrefix(everyCellPrefix);
+                            value = value.RemovePrefix(args.EveryCellPrefix);
                         }
                         #endregion
 
@@ -1580,15 +1583,31 @@ namespace EPPlusExtensions
                 {
                     throw _Exception;
                 }
-                if (whereFilter == null || whereFilter.Invoke(model))
+                if (args.WhereFilter == null || args.WhereFilter.Invoke(model))
                 {
                     list.Add(model);
                 }
 
-                row += step;
+                if (step != null)
+                {
+                    row += (int)step;
+                }
+                else
+                {
+                    string range = ws.MergedCells[row, 1];
+                    if (range == null)
+                    {
+                        row += 1;
+                    }
+                    else
+                    {
+                        var ea = new ExcelAddress(range);
+                        row += ea.Rows;
+                    }
+                }
             }
 
-            return havingFilter == null ? list : list.Where(item => havingFilter.Invoke(item)).ToList();
+            return args.HavingFilter == null ? list : list.Where(item => args.HavingFilter.Invoke(item)).ToList();
         }
 
 
@@ -2110,6 +2129,32 @@ namespace EPPlusExtensions
         }
 
         #endregion
+
+        #region GetList_Model中未定义该属性
+
+        public static void IsModelNotDefinitionProperty(Exception e)
+        {
+            if (e.Message.Contains("类型中没有定义该属性"))
+            {
+                StringBuilder excelFileds = new StringBuilder();
+                foreach (var item in e.Message.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+                {
+                    int start = item.IndexOf("'值'");
+                    int end = item.IndexOf("'在'");
+                    string excelFiled = item.Substring(start + 3, end - start - 3);
+                    excelFileds.Append(excelFiled).Append(",");
+                }
+
+                excelFileds.RemoveLastChar(',');
+                throw new Exception("提供了excel模版之外列:" + excelFileds);
+            }
+            else
+            {
+                throw e;
+            }
+        }
+        #endregion
+
 
         #endregion
 

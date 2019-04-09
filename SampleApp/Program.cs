@@ -14,21 +14,21 @@ namespace SampleApp
     {
         static void Main(string[] args)
         {
-            //new Sample02_1().Run();
-            //OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\"));
-            new Sample01_1().Run();
-            new Sample01_2().Run();
-            new Sample02_1().Run();
-            //new Sample02_2().Run();
-            //new Sample02_3().Run();
-            new Sample02_4().Run();
-            //new Sample03_1().Run();
-            //new Sample03_2().Run();
-            new Sample04_1().Run();
-            new Sample04_2().Run();
-            new Sample04_3().Run();
-           
-        }
+           new Sample02_1().Run();
 
+           int a = 3;
+            //OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\"));
+            //new Sample01_1().Run();
+            //new Sample01_2().Run();
+            //new Sample02_1().Run();
+            ////new Sample02_2().Run();
+            ////new Sample02_3().Run();
+            //new Sample02_4().Run();
+            ////new Sample03_1().Run();
+            ////new Sample03_2().Run();
+            //new Sample04_1().Run();
+            //new Sample04_2().Run();
+            //new Sample04_3().Run(); 
+        }
     }
 }
