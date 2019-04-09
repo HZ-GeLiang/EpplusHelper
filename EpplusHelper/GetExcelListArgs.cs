@@ -16,9 +16,14 @@ namespace EpplusExtensions
         public ExcelWorksheet ws { get; set; }
 
         /// <summary>
-        /// 数据起始行(不含列名),从1开始
+        /// 数据起始行(不含列名)
         /// </summary>
-        public int rowIndex_Data { get; set; } // = 2;
+        public int RowIndex_Data { get; set; } // = 2;
+
+        /// <summary>
+        /// 数据起始行的标题行(不含列名)
+        /// </summary>
+        public int RowIndex_DataName { get; set; } // RowIndex_Data - 1
 
         /// <summary>
         /// 被遍历的单元格内容不为空时的起始字符必须是该字符,然后忽略该字符
@@ -45,13 +50,7 @@ namespace EpplusExtensions
             {"\n", ""},
             {"\r\n", ""},
         };
-
-        /// <summary>
-        /// 数据起始行(不含列名),从1开始
-        /// </summary>
-        public int RowIndex_DataName { get; set; }
-
-      
+         
         /// <summary>
         /// 在return数据之前执行过滤操作
         /// </summary>
@@ -76,7 +75,9 @@ namespace EpplusExtensions
         /// poco属性重命名修改第一个名字
         /// </summary>
         public bool POCO_Property_AutoRenameFirtName_WhenRepeat { get; set; } = true;
-          
+
+        public ScanLine ScanLine = ScanLine.MergeLine;
+
     }
 
     public enum ReadCellValueOption
@@ -85,6 +86,20 @@ namespace EpplusExtensions
         Trim = 2,
         MergeLine = 3,
         MergeLineAndTrim = 4,
+    }
 
+    public enum ScanLine
+    {
+        /*
+         * 适合案例:Sample02_1
+         */
+        /// <summary>
+        /// 合并行模式(默认,以眼睛看到的为准)
+        /// </summary>
+        MergeLine = 1,
+        /// <summary>
+        /// 逐行读取,
+        /// </summary>
+        SingleLine = 2,
     }
 }

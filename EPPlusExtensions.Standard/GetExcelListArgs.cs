@@ -15,10 +15,16 @@ namespace EPPlusExtensions
     {
         public ExcelWorksheet ws { get; set; }
 
+
         /// <summary>
-        /// 数据起始行(不含列名),从1开始
+        /// 数据起始行(不含列名)
         /// </summary>
-        public int rowIndex_Data { get; set; } // = 2;
+        public int RowIndex_Data { get; set; } // = 2;
+
+        /// <summary>
+        /// 数据起始行的标题行(不含列名)
+        /// </summary>
+        public int RowIndex_DataName { get; set; } // RowIndex_Data - 1
 
         /// <summary>
         /// 被遍历的单元格内容不为空时的起始字符必须是该字符,然后忽略该字符
@@ -45,11 +51,6 @@ namespace EPPlusExtensions
             {"\n", ""},
             {"\r\n", ""},
         };
-
-        /// <summary>
-        /// 数据起始行(不含列名),从1开始
-        /// </summary>
-        public int RowIndex_DataName { get; set; }
 
 
         /// <summary>

@@ -22,23 +22,11 @@ namespace SampleApp
             using (FileStream fs = System.IO.File.OpenRead(tempPath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                ExcelWorksheet ws = EpplusHelper.GetExcelWorksheet(excelPackage,1);
-                var list = EpplusHelper.GetList<Test02_3>(new GetExcelListArgs<Test02_3>()
-                {
-                    ws = ws,
-                    rowIndex_Data = 2,
-                    EveryCellPrefix = "",
-                    EveryCellReplaceList = null,
-                    RowIndex_DataName = 2 - 1,
-                    UseEveryCellReplace = true,
-                    HavingFilter = null,
-                    WhereFilter = null,
-                    ReadCellValueOption = ReadCellValueOption.Trim,
-                    POCO_Property_AutoRename_WhenRepeat = true,
-                    POCO_Property_AutoRenameFirtName_WhenRepeat = false,
-                });
-
-
+                ExcelWorksheet ws = EpplusHelper.GetExcelWorksheet(excelPackage, 1);
+                var args = EpplusHelper.GetExcelListArgsDefault<Test02_3>(ws, 2);
+                args.POCO_Property_AutoRename_WhenRepeat = true;
+                args.POCO_Property_AutoRenameFirtName_WhenRepeat = false;
+                var list = EpplusHelper.GetList<Test02_3>(args);
                 Console.WriteLine("读取完毕");
             }
         }
@@ -51,4 +39,4 @@ namespace SampleApp
         public string 名字2 { get; set; }
         public string 名字3 { get; set; }
     }
-} 
+}
