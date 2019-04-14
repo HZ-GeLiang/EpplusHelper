@@ -1816,10 +1816,9 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        ///  model的哪些属性是在excel中没有定义的 + Modle中没有定义 
+        ///  model的哪些属性是在excel中没有定义的 + modle中没有定义 
         /// </summary>
-        /// <param name="excelColumnIsNotModelProp"></param>
-        /// <param name="listMatchingModelException"></param>
+        /// <param name="excelColumnIsNotModelProp"></param> 
         /// <param name="type"></param>
         /// <param name="colNameToCellInfo"></param>
         /// <param name="ws"></param>
@@ -1849,7 +1848,7 @@ namespace EPPlusExtensions
 
 
         /// <summary>
-        /// excel的哪些列是在Model中定义了却没有(即,model中缺少的列) + Modle中没有定义 
+        /// excel的哪些列是在Model中定义了却没有(即,model中缺少的列) + modle中没有定义 
         /// </summary>
         /// <param name="modelPropNotExistsExcelColumn"></param> 
         /// <param name="type"></param>
