@@ -50,7 +50,7 @@ namespace EpplusExtensions
             {"\n", ""},
             {"\r\n", ""},
         };
-         
+
         /// <summary>
         /// 在return数据之前执行过滤操作
         /// </summary>
@@ -78,6 +78,7 @@ namespace EpplusExtensions
 
         public ScanLine ScanLine = ScanLine.MergeLine;
 
+        public bool MatchingModelEqualsCheck = true;
     }
 
     public enum ReadCellValueOption
@@ -101,5 +102,28 @@ namespace EpplusExtensions
         /// 逐行读取,
         /// </summary>
         SingleLine = 2,
+    }
+
+    internal enum MatchingModel
+    {
+        /// <summary>
+        /// must equal Model=>[model:a,b    excel:a,b]
+        /// </summary>
+        eq = 1,
+
+        /// <summary>
+        /// must greater than Model=>[model:a,b    excel:a,b,c]
+        /// </summary>
+        gt = 2,
+
+        /// <summary>
+        /// must less Than Model=>[model:a,b    excel:a]
+        /// </summary>
+        lt = 4,
+
+        /// <summary>
+        /// must not equal Model=>[model:a,b    excel:a,c] ||  [model:a,b    excel:c,d]
+        /// </summary>
+        neq = 8
     }
 }

@@ -60,7 +60,7 @@
     <Compile Include="EpplusHelper.cs" />
     <Compile Include="ExcelCellPoint.cs" />
     <Compile Include="ExcelCellRange.cs" />
-    <Compile Include="Exceptions\ExcelColumnNotExistsWithModelException.cs" />
+    <Compile Include="Exceptions\MatchingModelException.cs" />
     <Compile Include="Attributes\EnumUndefinedAttribute.cs" />
     <Compile Include="Helper\ReflectionHelper.cs" />
     <Compile Include="MethodExtension\MemoryStreamExtensions.cs" />
