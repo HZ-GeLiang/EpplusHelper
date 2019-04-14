@@ -15,10 +15,10 @@ namespace SampleApp
     {
         static void Main(string[] args)
         {
-             
-            new Sample02_5().Run();
 
-            int a = 3;
+
+            Console.ReadKey();
+
             //OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\"));
             //new Sample01_1().Run();
             //new Sample01_2().Run();
@@ -26,6 +26,7 @@ namespace SampleApp
             ////new Sample02_2().Run();
             ////new Sample02_3().Run();
             //new Sample02_4().Run();
+            new Sample02_5().Run();
             ////new Sample03_1().Run();
             ////new Sample03_2().Run();
             //new Sample04_1().Run();
