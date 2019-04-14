@@ -32,6 +32,6 @@ namespace EPPlusExtensions
                 ? value
                 : (value[value.Length - 1] == c ? value.Remove(value.Length - 1, 1) : value);
         }
-
+      
     }
 }

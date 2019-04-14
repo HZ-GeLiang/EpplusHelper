@@ -49,7 +49,7 @@ namespace SampleApp
                 }
                 catch (Exception e)
                 {
-                    EpplusHelper.IsModelNotDefinitionProperty(e);
+                    Console.WriteLine(e.Message);
                 }
 
                 Console.WriteLine("读取完毕");

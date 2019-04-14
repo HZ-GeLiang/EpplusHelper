@@ -869,31 +869,6 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// excel的所有列均在model对象的属性中
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="colNameList"></param>
-        /// <param name="modelCheckMsg"></param>
-        /// <returns></returns>
-        private static bool IsAllExcelColumnExistsModel<T>(List<ExcelCellInfo> colNameList, out string modelCheckMsg) where T : class, new()
-        {
-            StringBuilder sb = new StringBuilder();
-            Type type = typeof(T);
-            foreach (var item in colNameList)
-            {
-                PropertyInfo pInfo = type.GetProperty(item.Value.ToString());
-                if (pInfo == null)
-                {
-                    //不能用AppendLine,会造成Json解析失败
-                    sb.Append($"WorkSheet:'{item.WorkSheet.Name}' 的'{new ExcelCellPoint(item.ExcelAddress).R1C1}'值'{item.Value}'在'{type.FullName}'类型中没有定义该属性");
-                }
-            }
-            modelCheckMsg = sb.ToString();
-            return sb.Length <= 0;
-        }
-
-
-        /// <summary>
         /// 设置报表(能折叠行的excel)格式
         /// </summary>
         /// <param name="worksheet"></param>
@@ -1333,6 +1308,7 @@ namespace EPPlusExtensions
                 POCO_Property_AutoRename_WhenRepeat = false,
                 POCO_Property_AutoRenameFirtName_WhenRepeat = true,
                 ScanLine = ScanLine.MergeLine,
+                MatchingModelEqualsCheck = true,
             };
         }
 
@@ -1390,47 +1366,197 @@ namespace EPPlusExtensions
                 throw new ArgumentException($@"数据起始行的标题行值'{rowIndex_DataName}'错误,值应该大于0");
             }
 
-            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, 1, EpplusConfig.MaxCol07, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
+            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, 1, EPPlusConfig.MaxCol07, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
             if (colNameList.Count == 0)
             {
                 throw new Exception("未读取到单元格标题");
             }
 
-            var _IsAllExcelColumnExistsModel = IsAllExcelColumnExistsModel<T>(colNameList, out string modelCheckMsg);
-            if (!_IsAllExcelColumnExistsModel)
+            Type type = typeof(T);
+
+            #region 获得字典
+            var dictExcelColumnIsModelProp = new Dictionary<string, bool>(); //excel列是Model的属性
+            var dictModelPropExistsExcelColumn = new Dictionary<string, bool>();//Model属性在Excel列中存在
+            foreach (var props in type.GetProperties())
             {
-                throw new ExcelColumnNotExistsWithModelException(modelCheckMsg);
+                dictModelPropExistsExcelColumn.Add(props.Name, false);
+            }
+            foreach (var item in colNameList)
+            {
+                string propName = item.Value.ToString();
+                PropertyInfo pInfo = type.GetProperty(propName);
+                if (pInfo != null)
+                {
+                    dictExcelColumnIsModelProp.Add(propName, true);
+                    dictModelPropExistsExcelColumn[propName] = true;
+                }
+                else
+                {
+                    dictExcelColumnIsModelProp[propName] = false;
+                }
+            }
+            #endregion
+
+            #region 验证 MatchingModel.eq //args.MatchingModel
+
+            var _matchingModelSuccess = false;  //提供的 Matching 参数[这里写死了MatchingModel.eq] 和算出来MatchingModel 有没有交集(默认没有)
+            var _matchingModel = GetMatchingModel(dictExcelColumnIsModelProp, dictModelPropExistsExcelColumn, out List<string> modelPropNotExistsExcelColumn, out List<string> excelColumnIsNotModelProp);
+            var _matchingModelValues = Enum.GetValues(typeof(MatchingModel));
+            foreach (MatchingModel matchingModelValue in _matchingModelValues)
+            {
+                if ((MatchingModel.eq & matchingModelValue) == matchingModelValue &&
+                    (_matchingModel & matchingModelValue) == matchingModelValue) //提供的 Matching 参数[这里写死了MatchingModel.eq] 和算出来Matching 有重叠
+                {
+                    _matchingModelSuccess = true;
+                    break;
+                }
+            }
+            if (!_matchingModelSuccess)
+            {
+                #region 获得 listMatchingModelException
+
+                var dictMatchingModelException = new Dictionary<MatchingModel, MatchingModelException>() { };
+                var colNameToCellInfo = colNameList.ToDictionary(item => item.Value.ToString(), item => item);
+
+                foreach (MatchingModel matchingModelValue in _matchingModelValues)
+                {
+                    if (matchingModelValue == MatchingModel.eq)
+                    {
+                        #region excel的哪些列与Model不相等
+
+                        if ((_matchingModel & MatchingModel.eq) != MatchingModel.eq) continue;
+                        if (dictMatchingModelException.ContainsKey(matchingModelValue)) continue;//如果已经添加过了
+
+                        if (excelColumnIsNotModelProp.Count == 0 && modelPropNotExistsExcelColumn.Count == 0)
+                        {
+                            dictMatchingModelException.Add(MatchingModel.eq, new MatchingModelException()
+                            {
+                                MatchingModel = MatchingModel.eq,
+                                ListExcelCellInfoAndModelType = null
+                            });
+                        }
+                        else
+                        {
+                            var listExcelCellInfoAndModelType = new List<ExcelCellInfoAndModelType>();
+                            foreach (var colName in excelColumnIsNotModelProp)
+                            {
+                                listExcelCellInfoAndModelType.Add(new ExcelCellInfoAndModelType()
+                                {
+                                    ExcelCellInfo = colNameToCellInfo[colName],
+                                    ModelType = type
+                                });
+                            }
+
+                            dictMatchingModelException.Add(MatchingModel.eq, new MatchingModelException()
+                            {
+                                MatchingModel = MatchingModel.eq,
+                                ListExcelCellInfoAndModelType = listExcelCellInfoAndModelType
+                            });
+                        }
+
+                        #endregion
+                    }
+                    else if (matchingModelValue == MatchingModel.gt)
+                    {
+                        if ((_matchingModel & MatchingModel.gt) != MatchingModel.gt) continue;
+                        if (dictMatchingModelException.ContainsKey(MatchingModel.gt)) continue;
+                        dictMatchingModelException.Add(MatchingModel.gt, GetMatchingModelExceptionCase_gt(modelPropNotExistsExcelColumn, type, colNameToCellInfo, ws));
+                    }
+                    else if (matchingModelValue == MatchingModel.lt)
+                    {
+                        if ((_matchingModel & MatchingModel.lt) != MatchingModel.lt) continue;
+                        if (dictMatchingModelException.ContainsKey(MatchingModel.lt)) continue;
+                        dictMatchingModelException.Add(MatchingModel.lt, GetMatchingModelExceptionCase_lt(excelColumnIsNotModelProp, type, colNameToCellInfo, ws));
+                    }
+                    else if (matchingModelValue == MatchingModel.neq)
+                    {
+                        if ((_matchingModel & MatchingModel.neq) != MatchingModel.neq) continue;
+                        //neq 会调用 gt+ lt ,所以要排除,即 _matchingModel的值 不能是带neq的标志枚举的值
+                        if ((_matchingModel & MatchingModel.gt) == MatchingModel.gt) continue;
+                        if ((_matchingModel & MatchingModel.lt) == MatchingModel.lt) continue;
+
+                        #region excel的哪些列与Model不相等
+
+                        //excel的哪些列 不在Model中定义+ model中定义了,但是excel列中却没有 
+
+                        if (!dictMatchingModelException.ContainsKey(MatchingModel.gt))
+                        {
+                            dictMatchingModelException.Add(MatchingModel.gt, GetMatchingModelExceptionCase_gt(modelPropNotExistsExcelColumn, type, colNameToCellInfo, ws));
+                        }
+                        if (!dictMatchingModelException.ContainsKey(MatchingModel.lt))
+                        {
+                            dictMatchingModelException.Add(MatchingModel.lt, GetMatchingModelExceptionCase_lt(excelColumnIsNotModelProp, type, colNameToCellInfo, ws));
+                        }
+
+                        #endregion
+#if DEBUG
+                        if ((_matchingModel & MatchingModel.eq) == MatchingModel.eq)
+                        {
+                            throw new Exception("这里应该是不会进来的,debug下调试看看,进来是什么情况");
+                        }
+#endif
+
+                    }
+                    else
+                    {
+                        throw new Exception("不支持的MatchingMode值");
+                    }
+                }
+
+                #endregion
+
+                StringBuilder sb = new StringBuilder();
+
+                //foreach (var matchingModelException in listMatchingModelException)
+                foreach (var matchingModelException in dictMatchingModelException.Values)
+                {
+                    var errMsg = DealMatchingModelException(matchingModelException);
+                    sb.Append(errMsg);
+                }
+                if (sb.Length > 0)
+                {
+                    throw new MatchingModelException(sb.ToString());
+                }
+
+                throw new Exception("验证未通过,程序有bug");
+
             }
 
-            var dictColName = colNameList.ToDictionary(item => new ExcelCellPoint(item.ExcelAddress).Col, item => item);// key是第n列
+            #endregion
+
+            //var dictColName = colNameList.ToDictionary(item => new ExcelCellPoint(item.ExcelAddress).Col, item => item);// key是第n列
 
             var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
                 ? GetExcelListArgs<T>.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
 
-            Type type = typeof(T);
             var ctor = type.GetConstructor(new Type[] { });
             if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
 
             var dictPropAttrs = new Dictionary<string, Dictionary<string, Attribute>>();//属性里包含的Attriute
+
             //内置的Attribute
             var dictUnique = new Dictionary<string, Dictionary<string, bool>>();//属性的 UniqueAttribute
             string key_UniqueAttribute = typeof(UniqueAttribute).FullName;
 
-            foreach (var col in dictColName.Keys)
+            foreach (ExcelCellInfo excelCellInfo in colNameList)
             {
-                string colName = dictColName[col].Value.ToString();
-                //if (string.IsNullOrEmpty(colName)) continue;//这种情况不存在
-
-                PropertyInfo pInfo = type.GetProperty(colName);
-                if (pInfo == null)
+                string propName = excelCellInfo.Value.ToString();
+                if (!dictExcelColumnIsModelProp[propName])//不存在,跳过
                 {
-                    throw new ArgumentException($@"Type:'{type}'的property'{colName}'未找到");
+                    continue;
                 }
+                if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
+
+                PropertyInfo pInfo = type.GetProperty(propName);
+                if (pInfo == null)//防御式编程判断
+                {
+                    throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
+                }
+
                 #region 初始化Attr要处理相关的数据
                 var attrDict = new Dictionary<string, Attribute>() { };//key 是Attribute的FullName
                 dictPropAttrs.Add(pInfo.Name, attrDict);
-
 
                 var uniqueAttrs = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
                 if (uniqueAttrs.Length > 0)
@@ -1442,6 +1568,7 @@ namespace EPPlusExtensions
                 #endregion
             }
 
+            #region 获得 list
             List<T> list = new List<T>();
             int row = rowIndex;
             Exception _Exception = null;
@@ -1453,30 +1580,38 @@ namespace EPPlusExtensions
                     step = 1;
                     break;
                 case ScanLine.MergeLine:
+                    //while里面动态计算
                     break;
                 default:
                     throw new Exception("不支持的ScanLine");
             }
 
+            var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
 
             while (true)
             {
-
                 bool isNoDataAllColumn = true;//判断整行数据是否都没有数据
                 T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转
 
-                foreach (var col in dictColName.Keys)
+                foreach (ExcelCellInfo excelCellInfo in colNameList)
                 {
-                    string colName = dictColName[col].Value.ToString();
-                    if (string.IsNullOrEmpty(colName)) continue;
-
-                    PropertyInfo pInfo = type.GetProperty(colName);
-                    if (pInfo == null)
+                    string propName = excelCellInfo.Value.ToString();
+                    if (!dictExcelColumnIsModelProp[propName])//不存在,跳过
                     {
-                        throw new ArgumentException($@"Type:'{type}'的property'{colName}'未找到");
+                        continue;
+                    }
+                    if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
+
+                    PropertyInfo pInfo = type.GetProperty(propName);
+                    if (pInfo == null)//防御式编程判断
+                    {
+                        throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
                     }
 
-                    string value = EPPlusHelper.GetMegerCellText(ws, row, col);
+                    // var col = new ExcelCellPoint(excelCellInfo.ExcelAddress).Col;
+                    var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
+
+                    string value = GetMegerCellText(ws, row, col);
                     bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
 
                     if (!valueIsNullOrEmpty)
@@ -1607,9 +1742,197 @@ namespace EPPlusExtensions
                 }
             }
 
+            #endregion
+
             return args.HavingFilter == null ? list : list.Where(item => args.HavingFilter.Invoke(item)).ToList();
         }
 
+        private static string DealMatchingModelException(MatchingModelException matchingModelException)
+        {
+            //注:这里的仅针对 MatchingModel.eq
+            if ((matchingModelException.MatchingModel & MatchingModel.eq) == MatchingModel.eq)
+            {
+                if (matchingModelException.ListExcelCellInfoAndModelType == null ||
+                      matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
+                {
+
+                    return "模版没有多提供列!";
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.Append("模版提供了多余的列:");
+                foreach (var item in matchingModelException.ListExcelCellInfoAndModelType)
+                {
+                    sb.Append($@"{item.ExcelCellInfo.ExcelAddress}({item.ExcelCellInfo.Value}),");
+                }
+                sb.RemoveLastChar(',');
+                sb.Append("!");
+                return sb.ToString();
+
+            }
+            else if ((matchingModelException.MatchingModel & MatchingModel.gt) == MatchingModel.gt)
+            {
+
+                if (matchingModelException.ListExcelCellInfoAndModelType == null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
+                {
+                    return "模版没有少提供列!";
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.Append("模版多提供了model属性中不存在的列:");
+                foreach (var item in matchingModelException.ListExcelCellInfoAndModelType)
+                {
+                    sb.Append($@"{item.ExcelCellInfo.ExcelAddress}({item.ExcelCellInfo.Value}),");
+                }
+                sb.RemoveLastChar(',');
+                sb.Append("!");
+                return sb.ToString();
+            }
+            else if ((matchingModelException.MatchingModel & MatchingModel.lt) == MatchingModel.lt)
+            {
+                if (matchingModelException.ListExcelCellInfoAndModelType == null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
+                {
+                    return "模版没有多提供列!";
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.Append("模版少提供了model属性中定义的列:");
+                foreach (var item in matchingModelException.ListExcelCellInfoAndModelType)
+                {
+                    sb.Append($@"'{item.ExcelCellInfo.Value}',");
+                }
+                sb.RemoveLastChar(',');
+                sb.Append("!");
+                return sb.ToString();
+
+            }
+            else if ((matchingModelException.MatchingModel & MatchingModel.neq) == MatchingModel.neq)
+            {
+                StringBuilder sb = new StringBuilder();
+                return sb.ToString();
+            }
+            else
+            {
+                throw new Exception($@"参数{nameof(matchingModelException)},不支持的MatchingMode值");
+            }
+
+        }
+
+        /// <summary>
+        ///  model的哪些属性是在excel中没有定义的 + Modle中没有定义 
+        /// </summary>
+        /// <param name="excelColumnIsNotModelProp"></param>
+        /// <param name="listMatchingModelException"></param>
+        /// <param name="type"></param>
+        /// <param name="colNameToCellInfo"></param>
+        /// <param name="ws"></param>
+        /// <returns></returns>
+        private static MatchingModelException GetMatchingModelExceptionCase_lt(List<string> excelColumnIsNotModelProp,
+            Type type, Dictionary<string, ExcelCellInfo> colNameToCellInfo, ExcelWorksheet ws)
+        {
+            if (excelColumnIsNotModelProp.Count <= 0)
+            {
+                return new MatchingModelException { MatchingModel = MatchingModel.lt, ListExcelCellInfoAndModelType = null };
+            }
+
+            var listExcelCellInfoAndModelType = new List<ExcelCellInfoAndModelType>();
+            foreach (var propName in excelColumnIsNotModelProp)
+            {
+                listExcelCellInfoAndModelType.Add(new ExcelCellInfoAndModelType
+                {
+                    ModelType = type,
+                    ExcelCellInfo = colNameToCellInfo.ContainsKey(propName)
+                        ? colNameToCellInfo[propName]
+                        : new ExcelCellInfo() { Value = propName, ExcelAddress = null, WorkSheet = ws }
+                });
+            }
+
+            return new MatchingModelException() { MatchingModel = MatchingModel.lt, ListExcelCellInfoAndModelType = listExcelCellInfoAndModelType };
+        }
+
+
+        /// <summary>
+        /// excel的哪些列是在Model中定义了却没有(即,model中缺少的列) + Modle中没有定义 
+        /// </summary>
+        /// <param name="modelPropNotExistsExcelColumn"></param> 
+        /// <param name="type"></param>
+        /// <param name="colNameToCellInfo"></param>
+        /// <param name="ws"></param>
+        /// <returns></returns>
+        private static MatchingModelException GetMatchingModelExceptionCase_gt(List<string> modelPropNotExistsExcelColumn,
+            Type type, Dictionary<string, ExcelCellInfo> colNameToCellInfo, ExcelWorksheet ws)
+        {
+
+            if (modelPropNotExistsExcelColumn.Count <= 0)
+            {
+                return new MatchingModelException { MatchingModel = MatchingModel.eq, ListExcelCellInfoAndModelType = null };
+            }
+
+            var listExcelCellInfoAndModelType = new List<ExcelCellInfoAndModelType>();
+            foreach (var colName in modelPropNotExistsExcelColumn)
+            {
+                listExcelCellInfoAndModelType.Add(new ExcelCellInfoAndModelType
+                {
+                    ModelType = type,
+                    ExcelCellInfo = colNameToCellInfo.ContainsKey(colName)
+                        ? colNameToCellInfo[colName]
+                        : new ExcelCellInfo() { Value = colName, ExcelAddress = null, WorkSheet = ws }
+                });
+            }
+
+            return new MatchingModelException { MatchingModel = MatchingModel.gt, ListExcelCellInfoAndModelType = listExcelCellInfoAndModelType };
+
+        }
+
+        private static MatchingModel GetMatchingModel(Dictionary<string, bool> dictExcelColumnIsModelProp, Dictionary<string, bool> dictModelPropExistsExcelColumn, out List<string> modelPropNotExistsExcelColumn, out List<string> excelColumnIsNotModelProp)
+        {
+            if (dictExcelColumnIsModelProp == null) throw new ArgumentNullException(nameof(dictExcelColumnIsModelProp));
+            if (dictExcelColumnIsModelProp.Keys.Count == 0) throw new Exception(nameof(dictExcelColumnIsModelProp) + "的keys不能为0");
+            if (dictModelPropExistsExcelColumn == null) throw new ArgumentNullException(nameof(dictModelPropExistsExcelColumn));
+
+            modelPropNotExistsExcelColumn = new List<string>();//model属性不在excel列中
+            excelColumnIsNotModelProp = new List<string>();//excel列不是model属性
+
+            if (dictModelPropExistsExcelColumn.Keys.Count <= 0)
+            {
+                return MatchingModel.neq | MatchingModel.gt;
+            }
+
+            foreach (var modelPropName in dictExcelColumnIsModelProp.Keys)
+            {
+                if (!dictModelPropExistsExcelColumn.ContainsKey(modelPropName))
+                {
+                    modelPropNotExistsExcelColumn.Add(modelPropName);
+                }
+            }
+
+            foreach (var excelColumn in dictModelPropExistsExcelColumn.Keys)
+            {
+                if (!dictExcelColumnIsModelProp.ContainsKey(excelColumn))
+                {
+                    excelColumnIsNotModelProp.Add(excelColumn);
+                }
+            }
+
+            if (excelColumnIsNotModelProp.Count == 0 && modelPropNotExistsExcelColumn.Count == 0)
+            {
+                return MatchingModel.eq;
+            }
+
+            if (excelColumnIsNotModelProp.Count > 0 && modelPropNotExistsExcelColumn.Count > 0)
+            {
+                return MatchingModel.neq;
+            }
+
+            if (modelPropNotExistsExcelColumn.Count > 0)//model属性多,即, excel列的数量 比model属性数量少
+            {
+                return MatchingModel.neq | MatchingModel.gt;
+            }
+
+            if (excelColumnIsNotModelProp.Count > 0)
+            {
+                return MatchingModel.neq | MatchingModel.lt;
+            }
+
+            throw new Exception(nameof(GetMatchingModel) + "程序不对,需要修改");
+        }
 
         #endregion
 
@@ -2129,32 +2452,6 @@ namespace EPPlusExtensions
         }
 
         #endregion
-
-        #region GetList_Model中未定义该属性
-
-        public static void IsModelNotDefinitionProperty(Exception e)
-        {
-            if (e.Message.Contains("类型中没有定义该属性"))
-            {
-                StringBuilder excelFileds = new StringBuilder();
-                foreach (var item in e.Message.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
-                {
-                    int start = item.IndexOf("'值'");
-                    int end = item.IndexOf("'在'");
-                    string excelFiled = item.Substring(start + 3, end - start - 3);
-                    excelFileds.Append(excelFiled).Append(",");
-                }
-
-                excelFileds.RemoveLastChar(',');
-                throw new Exception("提供了excel模版之外列:" + excelFileds);
-            }
-            else
-            {
-                throw e;
-            }
-        }
-        #endregion
-
 
         #endregion
 

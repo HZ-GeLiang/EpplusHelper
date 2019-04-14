@@ -15,7 +15,6 @@ namespace EPPlusExtensions
     {
         public ExcelWorksheet ws { get; set; }
 
-
         /// <summary>
         /// 数据起始行(不含列名)
         /// </summary>
@@ -78,6 +77,9 @@ namespace EPPlusExtensions
         /// </summary>
         public bool POCO_Property_AutoRenameFirtName_WhenRepeat { get; set; } = true;
 
+        public ScanLine ScanLine = ScanLine.MergeLine;
+
+        public bool MatchingModelEqualsCheck = true;
     }
 
     public enum ReadCellValueOption
@@ -86,6 +88,43 @@ namespace EPPlusExtensions
         Trim = 2,
         MergeLine = 3,
         MergeLineAndTrim = 4,
+    }
 
+    public enum ScanLine
+    {
+        /*
+         * 适合案例:Sample02_1
+         */
+        /// <summary>
+        /// 合并行模式(默认,以眼睛看到的为准)
+        /// </summary>
+        MergeLine = 1,
+        /// <summary>
+        /// 逐行读取,
+        /// </summary>
+        SingleLine = 2,
+    }
+
+    internal enum MatchingModel
+    {
+        /// <summary>
+        /// must equal Model=>[model:a,b    excel:a,b]
+        /// </summary>
+        eq = 1,
+
+        /// <summary>
+        /// must greater than Model=>[model:a,b    excel:a,b,c]
+        /// </summary>
+        gt = 2,
+
+        /// <summary>
+        /// must less Than Model=>[model:a,b    excel:a]
+        /// </summary>
+        lt = 4,
+
+        /// <summary>
+        /// must not equal Model=>[model:a,b    excel:a,c] ||  [model:a,b    excel:c,d]
+        /// </summary>
+        neq = 8
     }
 }
