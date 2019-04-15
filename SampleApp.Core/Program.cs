@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 
 namespace SampleApp.Core
 {
@@ -6,6 +7,8 @@ namespace SampleApp.Core
     {
         static void Main(string[] args)
         {
+            DataTable dt = new DataTable();
+            dt.AsEnumerable();
             Console.WriteLine("Hello World!");
         }
     }

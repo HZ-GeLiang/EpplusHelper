@@ -15,9 +15,10 @@ namespace SampleApp
     {
         static void Main(string[] args)
         {
-
-
+            new Sample02_6().Run();
             Console.ReadKey();
+            DataTable dt = new DataTable();
+            dt.AsEnumerable();
 
             //OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\"));
             //new Sample01_1().Run();

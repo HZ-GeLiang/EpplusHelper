@@ -1291,7 +1291,7 @@ namespace EpplusExtensions
 
         #region GetList<T>
 
-        public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class, new()
+        public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class
         {
             return new GetExcelListArgs<T>()
             {
@@ -1572,7 +1572,7 @@ namespace EpplusExtensions
             int row = rowIndex;
             Exception _Exception = null;
 
-            int? step = null; ;
+            int? step = null;
             switch (args.ScanLine)
             {
                 case ScanLine.SingleLine:
@@ -1744,6 +1744,177 @@ namespace EpplusExtensions
             #endregion
 
             return args.HavingFilter == null ? list : list.Where(item => args.HavingFilter.Invoke(item)).ToList();
+        }
+
+        public static DataTable GetDataTable(GetExcelListArgs<DataRow> args)
+        {
+            ExcelWorksheet ws = args.ws;
+            int rowIndex = args.RowIndex_Data;
+            if (rowIndex <= 0)
+            {
+                throw new ArgumentException($@"数据起始行值'{rowIndex}'错误,值应该大于0");
+            }
+
+            int rowIndex_DataName = args.RowIndex_DataName;
+            if (rowIndex_DataName <= 0)
+            {
+                throw new ArgumentException($@"数据起始行的标题行值'{rowIndex_DataName}'错误,值应该大于0");
+            }
+
+            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, 1, EpplusConfig.MaxCol07, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
+            if (colNameList.Count == 0)
+            {
+                throw new Exception("未读取到单元格标题");
+            }
+
+
+            #region 获得字典
+
+            DataTable dt = new DataTable();
+
+            foreach (var item in colNameList)
+            {
+                dt.Columns.Add(item.Value.ToString());
+            }
+
+            #endregion
+
+            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
+                ? GetExcelListArgs<DataRow>.EveryCellReplaceListDefault
+                : args.EveryCellReplaceList;
+
+
+            #region 获得 list
+
+            int row = rowIndex;
+            int? step = null;
+            switch (args.ScanLine)
+            {
+                case ScanLine.SingleLine:
+                    step = 1;
+                    break;
+                case ScanLine.MergeLine:
+                    //while里面动态计算
+                    break;
+                default:
+                    throw new Exception("不支持的ScanLine");
+            }
+
+            var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
+
+            while (true)
+            {
+                bool isNoDataAllColumn = true;//判断整行数据是否都没有数据
+                var dr = dt.NewRow();
+
+                foreach (ExcelCellInfo excelCellInfo in colNameList)
+                {
+                    string propName = excelCellInfo.Value.ToString();
+
+                    if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
+
+                    var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
+
+                    string value = GetMegerCellText(ws, row, col);
+                    bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
+
+                    if (!valueIsNullOrEmpty)
+                    {
+                        isNoDataAllColumn = false;
+
+                        #region 判断每个单元格的开头
+                        if (args.EveryCellPrefix?.Length > 0)
+                        {
+                            var indexof = value.IndexOf(args.EveryCellPrefix);
+                            if (indexof == -1)
+                            {
+                                throw new System.ArgumentException($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + args.EveryCellPrefix + "'开头的");
+                            }
+                            value = value.RemovePrefix(args.EveryCellPrefix);
+                        }
+                        #endregion
+
+                        #region 对每个单元格进行值的替换
+                        if (everyCellReplace != null)
+                        {
+                            foreach (var item in everyCellReplace)
+                            {
+                                if (!value.Contains(item.Key))
+                                {
+                                    continue;
+                                }
+                                var everyCellReplaceOldValue = item.Key;
+                                var everyCellReplaceNewValue = item.Value ?? "";
+                                if (everyCellReplaceOldValue?.Length > 0)
+                                {
+                                    value = value.Replace(everyCellReplaceOldValue, everyCellReplaceNewValue);
+                                }
+                            }
+                        }
+                        #endregion
+
+                        #region 对每个单元格进行去空格与合并行的处理
+
+                        switch (args.ReadCellValueOption)
+                        {
+                            case ReadCellValueOption.None:
+                                break;
+                            case ReadCellValueOption.Trim:
+                                value = value.Trim();
+                                break;
+                            case ReadCellValueOption.MergeLine:
+                                value = value.MergeLines();
+                                break;
+                            case ReadCellValueOption.MergeLineAndTrim:
+                                value = value.Trim().MergeLines().Trim();
+                                break;
+                            default:
+                                throw new System.Exception("未指定读取单元格值时的操作方式");
+                        }
+                        #endregion
+
+                    }
+
+                    //赋值
+                    dr[propName] = value;
+                }
+
+                if (isNoDataAllColumn)
+                {
+                    if (row == rowIndex)//数据起始行是空行
+                    {
+                        throw new Exception("不要上传一份空的模版文件");
+                    }
+                    break; //出现空行,读取模版结束
+                }
+                //else
+                if (args.WhereFilter == null || args.WhereFilter.Invoke(dr))
+                {
+                    dt.Rows.Add(dr);
+                }
+
+                if (step != null)
+                {
+                    row += (int)step;
+                }
+                else
+                {
+                    string range = ws.MergedCells[row, 1];
+                    if (range == null)
+                    {
+                        row += 1;
+                    }
+                    else
+                    {
+                        var ea = new ExcelAddress(range);
+                        row += ea.Rows;
+                    }
+                }
+            }
+
+            #endregion
+
+            return args.HavingFilter == null ? dt : dt.AsEnumerable().Where(item => args.HavingFilter.Invoke(item)).CopyToDataTable();
         }
 
         private static string DealMatchingModelException(MatchingModelException matchingModelException)

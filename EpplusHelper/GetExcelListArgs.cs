@@ -11,7 +11,7 @@ namespace EpplusExtensions
     /// 
     /// </summary>
     /// <typeparam name="T">T是给Filter用的</typeparam>
-    public class GetExcelListArgs<T> where T : class, new()
+    public class GetExcelListArgs<T> where T : class 
     {
         public ExcelWorksheet ws { get; set; }
 
