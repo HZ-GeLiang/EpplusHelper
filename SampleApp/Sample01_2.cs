@@ -14,6 +14,7 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using System.Windows.Media.Imaging;
 using System.Runtime.InteropServices;
+using SampleApp.MethodExtension;
 
 namespace SampleApp
 {
