@@ -1,0 +1,21 @@
+﻿使用
+Sample01_1-基本使用
+Sample01_2-附加图片
+
+读取Excel的内容
+Sample02_1-基本使用
+Sample02_2-支持 System.ComponentModel.DataAnnotations
+Sample02_3-内置Attribute的示例
+Sample02_4-当excel列名字重复时,按顺序映射到对应model属性中
+Sample02_5-GetList()时可以获得模版数据检测提示.
+Sample02_6-新增GetDataTable()
+
+填充数据与数据源同步(未测试完全),不推荐用
+Sample03_1-普通单元格
+Sample03_2-复杂单元格
+
+自动初始化填充配置
+Sample04_1-给定字符串,返回配置项
+Sample04_2-简单使用
+Sample04_3-处理多个worksheet
+
