@@ -2908,52 +2908,51 @@ namespace EpplusExtensions
 
         #region 对单元格样式进行 Get Set
 
-        /// <summary>
-        ///  获取Cell样式
-        /// </summary>
-        /// <param name="cell"></param>
-        /// <returns></returns>
-        public static EpplusCellStyle GetCellStyle(ExcelRange cell)
-        {
-            EpplusCellStyle cellStyle = new EpplusCellStyle();
-            cellStyle.HorizontalAlignment = cell.Style.HorizontalAlignment;
-            cellStyle.VerticalAlignment = cell.Style.VerticalAlignment;
-            cellStyle.WrapText = cell.Style.WrapText;
-            cellStyle.FontBold = cell.Style.Font.Bold;
-            cellStyle.FontColor = string.IsNullOrEmpty(cell.Style.Font.Color.Rgb)
-                ? Color.Black
-                : System.Drawing.ColorTranslator.FromHtml("#" + cell.Style.Font.Color.Rgb);
-            cellStyle.FontName = cell.Style.Font.Name;
-            cellStyle.FontSize = cell.Style.Font.Size;
-            cellStyle.BackgroundColor = string.IsNullOrEmpty(cell.Style.Fill.BackgroundColor.Rgb)
-                ? Color.Black
-                : System.Drawing.ColorTranslator.FromHtml("#" + cell.Style.Fill.BackgroundColor.Rgb);
-            cellStyle.ShrinkToFit = cell.Style.ShrinkToFit;
+        ///// <summary>
+        /////  获取Cell样式
+        ///// </summary>
+        ///// <param name="cell"></param>
+        ///// <returns></returns>
+        //public static EpplusCellStyle GetCellStyle(ExcelRange cell)
+        //{
+        //    EpplusCellStyle cellStyle = new EpplusCellStyle();
+        //    cellStyle.HorizontalAlignment = cell.Style.HorizontalAlignment;
+        //    cellStyle.VerticalAlignment = cell.Style.VerticalAlignment;
+        //    cellStyle.WrapText = cell.Style.WrapText;
+        //    cellStyle.FontBold = cell.Style.Font.Bold;
+        //    cellStyle.FontColor = string.IsNullOrEmpty(cell.Style.Font.Color.Rgb)
+        //        ? Color.Black
+        //        : System.Drawing.ColorTranslator.FromHtml("#" + cell.Style.Font.Color.Rgb);
+        //    cellStyle.FontName = cell.Style.Font.Name;
+        //    cellStyle.FontSize = cell.Style.Font.Size;
+        //    cellStyle.BackgroundColor = string.IsNullOrEmpty(cell.Style.Fill.BackgroundColor.Rgb)
+        //        ? Color.Black
+        //        : System.Drawing.ColorTranslator.FromHtml("#" + cell.Style.Fill.BackgroundColor.Rgb);
+        //    cellStyle.ShrinkToFit = cell.Style.ShrinkToFit;
+        //    return cellStyle;
+        //}
 
-            return cellStyle;
-        }
-
-        /// <summary>
-        /// 设置Cell样式
-        /// </summary>
-        /// <param name="cell"></param>
-        /// <param name="style"></param>
-        public static void SetCellStyle(ExcelRange cell, EpplusCellStyle style)
-        {
-            cell.Style.HorizontalAlignment = style.HorizontalAlignment;
-            cell.Style.VerticalAlignment = style.VerticalAlignment;
-            cell.Style.WrapText = style.WrapText;
-            cell.Style.Font.Bold = style.FontBold;
-            cell.Style.Font.Color.SetColor(style.FontColor);
-            if (!string.IsNullOrEmpty(style.FontName))
-            {
-                cell.Style.Font.Name = style.FontName;
-            }
-            cell.Style.Font.Size = style.FontSize;
-            cell.Style.Fill.PatternType = style.PatternType;
-            cell.Style.Fill.BackgroundColor.SetColor(style.BackgroundColor);
-            cell.Style.ShrinkToFit = style.ShrinkToFit;
-        }
+        ///// <summary>
+        ///// 设置Cell样式
+        ///// </summary>
+        ///// <param name="cell"></param>
+        ///// <param name="style"></param>
+        //public static void SetCellStyle(ExcelRange cell, EpplusCellStyle style)
+        //{
+        //    cell.Style.HorizontalAlignment = style.HorizontalAlignment;
+        //    cell.Style.VerticalAlignment = style.VerticalAlignment;
+        //    cell.Style.WrapText = style.WrapText;
+        //    cell.Style.Font.Bold = style.FontBold;
+        //    cell.Style.Font.Color.SetColor(style.FontColor);
+        //    if (!string.IsNullOrEmpty(style.FontName))
+        //    {
+        //        cell.Style.Font.Name = style.FontName;
+        //    }
+        //    cell.Style.Font.Size = style.FontSize;
+        //    cell.Style.Fill.PatternType = style.PatternType;
+        //    cell.Style.Fill.BackgroundColor.SetColor(style.BackgroundColor);
+        //    cell.Style.ShrinkToFit = style.ShrinkToFit;
+        //}
 
         #endregion
 
