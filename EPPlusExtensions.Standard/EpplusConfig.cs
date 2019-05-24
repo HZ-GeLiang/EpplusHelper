@@ -63,7 +63,7 @@ namespace EPPlusExtensions
         /// </summary>
         public Dictionary<string, string> SheetHeadMapperSource { get; set; }
         /// <summary>
-        /// 自定义设置值
+        /// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
         /// </summary>
         public Action<string, object, ExcelRange> SheetHeadCellCustomSetValue;
 
@@ -74,8 +74,9 @@ namespace EPPlusExtensions
         /// sheet body 的内容配置.注.int必须是从1开始的且递增+1的自然数
         /// </summary>
         public Dictionary<int, Dictionary<string, string>> SheetBodyMapperExcel;
+
         /// <summary>
-        /// 自定义设置值
+        /// 自定义设置值  action 3个参数 分别代表 (colName,  cellValue, cell)
         /// </summary>
         public Dictionary<int, Action<string, object, ExcelRange>> SheetBodyCellCustomSetValue;
 
@@ -89,7 +90,7 @@ namespace EPPlusExtensions
         /// </summary>
         public Dictionary<int, Dictionary<string, string>> SheetBodySummaryMapperSource { get; set; }
         /// <summary>
-        /// 自定义设置值
+        /// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
         /// </summary>
         public Dictionary<int, Action<string, object, ExcelRange>> SheetBodySummaryCellCustomSetValue;
 
@@ -112,11 +113,11 @@ namespace EPPlusExtensions
         /// 譬如Name,张三</summary>
         public Dictionary<string, string> SheetFootMapperSource { get; set; }
         /// <summary>
-        /// 自定义设置值
+        /// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
         /// </summary>
         public Action<string, object, ExcelRange> SheetFootCellCustomSetValue;
         //使用方式
-        //config.SheetBodyCellCustomSetValue.Add(1, (colName, val, cell) =>
+        //config.SheetBodyCellCustomSetValue.Add(1, (colName, cellValue, cell) =>
         //{
         //    if (colName == "配置列名")
         //    {
@@ -173,16 +174,16 @@ namespace EPPlusExtensions
            var dateCode = new List<char> { '@', 'y', 'Y', 's', 'S', 'm', 'M', 'h', 'H', 'd', 'D', 'A', 'P', ':', '.', '0', '[', ']' };
            if (val is DateTime)
            {
-               bool changeformat = true;
+               var changeFormat = true;
                foreach (var c in formatStr) //这边不能用优化成linq,优化成linq有问题
                {
                    if (dateCode.Contains(c))
                    {
-                       changeformat = false;
+                       changeFormat = false;
                        break;
                    }
                }
-               if (changeformat) //若为true,表示没有人为的设置该cell的日期显示格式
+               if (changeFormat) //若为true,表示没有人为的设置该cell的日期显示格式
                {
                    cells.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
                }
