@@ -2,13 +2,8 @@
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace EPPlusHelperTool
@@ -19,16 +14,7 @@ namespace EPPlusHelperTool
         {
             InitializeComponent();
         }
-        /// <summary>
-        /// 弹出一个选择目录的对话框
-        /// </summary>
-        /// <returns></returns>
-        private string SelectPath()
-        {
-            FolderBrowserDialog path = new FolderBrowserDialog();
-            path.ShowDialog();
-            return path.SelectedPath;
-        }
+      
         /// <summary>
         /// 弹出一个选择文件的对话框
         /// </summary>
@@ -59,46 +45,18 @@ namespace EPPlusHelperTool
                 return openFileDialog1.SafeFileName;
             }
         }
-        private void button1_Click(object sender, EventArgs e)
-        {
-            var selectfilePath = SelectFile("excel (*.xlsx)|*.xlsx");
-            if (selectfilePath.Length > 0)
-            {
-                this.textBox1.Text = selectfilePath;
-            }
-        }
-        private void textBox1_DragDrop(object sender, DragEventArgs e)
+         
+        private void textBoxDragDrop(object sender, DragEventArgs e)
         {
             string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
-            this.textBox1.Text = path;
+            ((System.Windows.Forms.TextBox)sender).Text = path;
         }
-        private void textBox1_DragEnter(object sender, DragEventArgs e)
+         
+        private void textBoxDragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effect = DragDropEffects.Link;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Link : DragDropEffects.None;
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            string filePath = textBox1.Text.Trim().移除路径前后引号();
-
-            //var fileName = Path.GetFileNameWithoutExtension(filePath);
-            //var suffix = Path.GetExtension(filePath);
-            var fileDir = Path.GetDirectoryName(filePath);
-
-            //Path.GetDirectoryName(Path.GetFullPath(tempPath))
-            //string filePathOut = Path.Combine(fileDir, $"{fileName}_result{suffix}");
-            //EpplusHelper.FillExcelDefaultConfig(filePath, filePathOut);
-            EpplusHelper.FillExcelDefaultConfig(filePath, fileDir);
-            OpenDirectory(fileDir);
-
-        }
         /// <summary>
         /// 打开文件目录
         /// </summary>
@@ -117,47 +75,107 @@ namespace EPPlusHelperTool
             MessageBox.Show($"文件已经生成,在目录'{fileDirectoryName}'");
             System.Diagnostics.Process.Start(fileDirectoryName);
         }
-
-        private void button3_Click(object sender, EventArgs e)
+         
+        private static ExcelWorksheet GetWorkSheet(ExcelPackage excelPackage, string ws1Index_string)
         {
-            var selectfilePath = SelectFile("excel (*.xlsx)|*.xlsx");
-            if (selectfilePath.Length > 0)
+            if (excelPackage.Workbook.Worksheets.Count == 1)
             {
-                this.textBox1.Text = selectfilePath;
+                return EpplusHelper.GetExcelWorksheet(excelPackage, 1);
             }
+            if (Int32.TryParse(ws1Index_string, out int ws1Index_int))
+            {
+                return EpplusHelper.GetExcelWorksheet(excelPackage, ws1Index_int);
+            }
+            if (EpplusHelper.GetExcelWorksheetNames(excelPackage).Contains(ws1Index_string))
+            {
+                return EpplusHelper.GetExcelWorksheet(excelPackage, ws1Index_string);
+            }
+
+            throw new ArgumentException("无法打开Excel的Worksheet");
         }
 
-        private void textBox2_DragDrop(object sender, DragEventArgs e)
+        private void GenerateConfiguration_Click(object sender, EventArgs e)
         {
-            string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
-            this.textBox2.Text = path;
-        }
-        private void textBox2_DragEnter(object sender, DragEventArgs e)
-        {
+            string filePath = filePath1.Text.Trim().移除路径前后引号();
 
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            //var fileName = Path.GetFileNameWithoutExtension(filePath);
+            //var suffix = Path.GetExtension(filePath);
+            var fileDir = Path.GetDirectoryName(filePath);
+
+            //Path.GetDirectoryName(Path.GetFullPath(tempPath))
+            //string filePathOut = Path.Combine(fileDir, $"{fileName}_result{suffix}");
+            //EpplusHelper.FillExcelDefaultConfig(filePath, filePathOut);
+
+            var columnTypeList_DateTime = new List<string>()
             {
-                e.Effect = DragDropEffects.Link;
-            }
-            else
+                "时间", "日期", "date", "time","今天","昨天","明天","前天","day"
+            };
+            var columnTypeList_String = new List<string>()
             {
-                e.Effect = DragDropEffects.None;
+                "id","身份证","银行卡","卡号","手机","mobile","tel","序号","number","编号","No"
+            };
+            #region 关键字tolower
+            for (int i = 0; i < columnTypeList_DateTime.Count; i++)
+            {
+                columnTypeList_DateTime[i] = columnTypeList_DateTime[i].ToLower();
             }
+            for (int i = 0; i < columnTypeList_String.Count; i++)
+            {
+                columnTypeList_String[i] = columnTypeList_String[i].ToLower();
+            }
+            #endregion
+            EpplusHelper.FillExcelDefaultConfig(filePath, fileDir, cell =>
+            {
+                var cellValue = EpplusHelper.GetCellText(cell);
+                var cellValueLower = cellValue.ToLower();
+                foreach (var item in columnTypeList_DateTime)
+                {
+                    if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
+                    {
+                        cell.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
+                        break;
+                    }
+                }
+                foreach (var item in columnTypeList_DateTime)
+                {
+                    if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
+                    {
+                        cell.Style.Numberformat.Format = "@"; //Format as text
+                        break;
+                    }
+                }
+            });
+            OpenDirectory(fileDir);
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void GenerateConfigurationCode_Click(object sender, EventArgs e)
         {
-            var ws1Path = this.textBox1.Text.Trim().移除路径前后引号();
-            var ws2Path = this.textBox2.Text.Trim().移除路径前后引号();
+            string filePath = filePath1.Text.Trim().移除路径前后引号();
+            string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
+            var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName);
+            var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
+            foreach (var item in defaultConfigList)
+            {
+                //将字符串全部写入文件
+                File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
+                File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
+            }
+            WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
+        }
+
+        private void CheckTemplateConfiguration_Click(object sender, EventArgs e)
+        {
+            var ws1Path = this.filePath1.Text.Trim().移除路径前后引号();
+            var ws2Path = this.filePath2.Text.Trim().移除路径前后引号();
             if (ws1Path == ws2Path)
             {
                 MessageBox.Show("比较文件路径一致,无法比较");
                 return;
             }
-            var ws1Index_string = this.textBox3.Text.Trim();
-            var ws2Index_string = this.textBox4.Text.Trim();
-            var ws1TitleLine = Convert.ToInt32(this.textBox5.Text.Trim());
-            var ws2TitleLine = Convert.ToInt32(this.textBox6.Text.Trim());
+            var ws1Index_string = this.wsNameOrIndex1.Text.Trim();
+            var ws2Index_string = this.wsNameOrIndex2.Text.Trim();
+            var ws1TitleLine = Convert.ToInt32(this.TitleLine1.Text.Trim());
+            var ws2TitleLine = Convert.ToInt32(this.TitleLine2.Text.Trim());
 
             using (FileStream fs1 = System.IO.File.OpenRead(ws1Path))
             using (FileStream fs2 = System.IO.File.OpenRead(ws2Path))
@@ -201,38 +219,14 @@ namespace EPPlusHelperTool
                 MessageBox.Show("通过校验模板配置项");
             }
         }
-
-        private static ExcelWorksheet GetWorkSheet(ExcelPackage excelPackage, string ws1Index_string)
+         
+        private void btn_SelectExcelFile(object sender, EventArgs e)
         {
-            if (excelPackage.Workbook.Worksheets.Count == 1)
+            var selectFilePath = SelectFile("excel (*.xlsx)|*.xlsx");
+            if (selectFilePath.Length > 0)
             {
-                return EpplusHelper.GetExcelWorksheet(excelPackage, 1);
+                ((System.Windows.Forms.Button)sender).Text = selectFilePath;
             }
-            if (Int32.TryParse(ws1Index_string, out int ws1Index_int))
-            {
-                return EpplusHelper.GetExcelWorksheet(excelPackage, ws1Index_int);
-            }
-            if (EpplusHelper.GetExcelWorksheetNames(excelPackage).Contains(ws1Index_string))
-            {
-                return EpplusHelper.GetExcelWorksheet(excelPackage, ws1Index_string);
-            }
-
-            throw new ArgumentException("无法打开Excel的Worksheet");
-        }
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-            string filePath = textBox1.Text.Trim().移除路径前后引号();
-            string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
-            var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName);
-            var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
-            foreach (var item in defaultConfigList)
-            {
-                //将字符串全部写入文件
-                File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
-                File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
-            }
-            WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
         }
     }
 }

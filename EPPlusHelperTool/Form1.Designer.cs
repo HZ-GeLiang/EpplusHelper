@@ -28,38 +28,38 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.filePath1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.SelectFileBtn1 = new System.Windows.Forms.Button();
+            this.GenerateConfiguration = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
+            this.filePath2 = new System.Windows.Forms.TextBox();
+            this.SelectFileBtn2 = new System.Windows.Forms.Button();
+            this.CheckTemplateConfiguration = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.wsNameOrIndex1 = new System.Windows.Forms.TextBox();
+            this.wsNameOrIndex2 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.textBox5 = new System.Windows.Forms.TextBox();
-            this.textBox6 = new System.Windows.Forms.TextBox();
+            this.TitleLine1 = new System.Windows.Forms.TextBox();
+            this.TitleLine2 = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.button5 = new System.Windows.Forms.Button();
+            this.GenerateConfigurationCode = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // textBox1
+            // filePath1
             // 
-            this.textBox1.AllowDrop = true;
-            this.textBox1.Location = new System.Drawing.Point(22, 23);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(661, 49);
-            this.textBox1.TabIndex = 4;
-            this.textBox1.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBox1_DragDrop);
-            this.textBox1.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBox1_DragEnter);
+            this.filePath1.AllowDrop = true;
+            this.filePath1.Location = new System.Drawing.Point(22, 23);
+            this.filePath1.Multiline = true;
+            this.filePath1.Name = "filePath1";
+            this.filePath1.Size = new System.Drawing.Size(661, 49);
+            this.filePath1.TabIndex = 4;
+            this.filePath1.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxDragDrop);
+            this.filePath1.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxDragEnter);
             // 
             // label1
             // 
@@ -70,25 +70,25 @@
             this.label1.TabIndex = 5;
             this.label1.Text = "文件路径(文本框支持拖拽)";
             // 
-            // button1
+            // SelectFileBtn1
             // 
-            this.button1.Location = new System.Drawing.Point(712, 26);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(74, 37);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "选择...";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.SelectFileBtn1.Location = new System.Drawing.Point(712, 26);
+            this.SelectFileBtn1.Name = "SelectFileBtn1";
+            this.SelectFileBtn1.Size = new System.Drawing.Size(74, 37);
+            this.SelectFileBtn1.TabIndex = 6;
+            this.SelectFileBtn1.Text = "选择...";
+            this.SelectFileBtn1.UseVisualStyleBackColor = true;
+            this.SelectFileBtn1.Click += new System.EventHandler(this.btn_SelectExcelFile);
             // 
-            // button2
+            // GenerateConfiguration
             // 
-            this.button2.Location = new System.Drawing.Point(25, 106);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(113, 23);
-            this.button2.TabIndex = 7;
-            this.button2.Text = "给Excel填充配置";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.GenerateConfiguration.Location = new System.Drawing.Point(25, 106);
+            this.GenerateConfiguration.Name = "GenerateConfiguration";
+            this.GenerateConfiguration.Size = new System.Drawing.Size(113, 23);
+            this.GenerateConfiguration.TabIndex = 7;
+            this.GenerateConfiguration.Text = "给Excel填充配置";
+            this.GenerateConfiguration.UseVisualStyleBackColor = true;
+            this.GenerateConfiguration.Click += new System.EventHandler(this.GenerateConfiguration_Click);
             // 
             // label2
             // 
@@ -108,36 +108,36 @@
             this.label3.TabIndex = 9;
             this.label3.Text = "文件路径2(文本框支持拖拽)";
             // 
-            // textBox2
+            // filePath2
             // 
-            this.textBox2.AllowDrop = true;
-            this.textBox2.Location = new System.Drawing.Point(25, 200);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(661, 49);
-            this.textBox2.TabIndex = 10;
-            this.textBox2.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBox2_DragDrop);
-            this.textBox2.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBox2_DragEnter);
+            this.filePath2.AllowDrop = true;
+            this.filePath2.Location = new System.Drawing.Point(25, 200);
+            this.filePath2.Multiline = true;
+            this.filePath2.Name = "filePath2";
+            this.filePath2.Size = new System.Drawing.Size(661, 49);
+            this.filePath2.TabIndex = 10;
+            this.filePath2.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxDragDrop);
+            this.filePath2.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxDragEnter);
             // 
-            // button3
+            // SelectFileBtn2
             // 
-            this.button3.Location = new System.Drawing.Point(712, 200);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(74, 37);
-            this.button3.TabIndex = 11;
-            this.button3.Text = "选择...";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.SelectFileBtn2.Location = new System.Drawing.Point(712, 200);
+            this.SelectFileBtn2.Name = "SelectFileBtn2";
+            this.SelectFileBtn2.Size = new System.Drawing.Size(74, 37);
+            this.SelectFileBtn2.TabIndex = 11;
+            this.SelectFileBtn2.Text = "选择...";
+            this.SelectFileBtn2.UseVisualStyleBackColor = true;
+            this.SelectFileBtn2.Click += new System.EventHandler(this.btn_SelectExcelFile);
             // 
-            // button4
+            // CheckTemplateConfiguration
             // 
-            this.button4.Location = new System.Drawing.Point(241, 389);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(90, 23);
-            this.button4.TabIndex = 12;
-            this.button4.Text = "校验模板配置项";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.CheckTemplateConfiguration.Location = new System.Drawing.Point(241, 389);
+            this.CheckTemplateConfiguration.Name = "CheckTemplateConfiguration";
+            this.CheckTemplateConfiguration.Size = new System.Drawing.Size(90, 23);
+            this.CheckTemplateConfiguration.TabIndex = 12;
+            this.CheckTemplateConfiguration.Text = "校验模板配置项";
+            this.CheckTemplateConfiguration.UseVisualStyleBackColor = true;
+            this.CheckTemplateConfiguration.Click += new System.EventHandler(this.CheckTemplateConfiguration_Click);
             // 
             // label4
             // 
@@ -148,19 +148,19 @@
             this.label4.TabIndex = 13;
             this.label4.Text = "模板文件(文件路径)";
             // 
-            // textBox3
+            // wsNameOrIndex1
             // 
-            this.textBox3.Location = new System.Drawing.Point(146, 296);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(100, 21);
-            this.textBox3.TabIndex = 14;
+            this.wsNameOrIndex1.Location = new System.Drawing.Point(146, 296);
+            this.wsNameOrIndex1.Name = "wsNameOrIndex1";
+            this.wsNameOrIndex1.Size = new System.Drawing.Size(100, 21);
+            this.wsNameOrIndex1.TabIndex = 14;
             // 
-            // textBox4
+            // wsNameOrIndex2
             // 
-            this.textBox4.Location = new System.Drawing.Point(452, 296);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(100, 21);
-            this.textBox4.TabIndex = 15;
+            this.wsNameOrIndex2.Location = new System.Drawing.Point(452, 296);
+            this.wsNameOrIndex2.Name = "wsNameOrIndex2";
+            this.wsNameOrIndex2.Size = new System.Drawing.Size(100, 21);
+            this.wsNameOrIndex2.TabIndex = 15;
             // 
             // label5
             // 
@@ -180,21 +180,21 @@
             this.label6.TabIndex = 13;
             this.label6.Text = "worksheet名或序号";
             // 
-            // textBox5
+            // TitleLine1
             // 
-            this.textBox5.Location = new System.Drawing.Point(146, 343);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(100, 21);
-            this.textBox5.TabIndex = 16;
-            this.textBox5.Text = "1";
+            this.TitleLine1.Location = new System.Drawing.Point(146, 343);
+            this.TitleLine1.Name = "TitleLine1";
+            this.TitleLine1.Size = new System.Drawing.Size(100, 21);
+            this.TitleLine1.TabIndex = 16;
+            this.TitleLine1.Text = "1";
             // 
-            // textBox6
+            // TitleLine2
             // 
-            this.textBox6.Location = new System.Drawing.Point(452, 343);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(100, 21);
-            this.textBox6.TabIndex = 16;
-            this.textBox6.Text = "1";
+            this.TitleLine2.Location = new System.Drawing.Point(452, 343);
+            this.TitleLine2.Name = "TitleLine2";
+            this.TitleLine2.Size = new System.Drawing.Size(100, 21);
+            this.TitleLine2.TabIndex = 16;
+            this.TitleLine2.Text = "1";
             // 
             // label7
             // 
@@ -223,41 +223,41 @@
             this.label9.TabIndex = 17;
             this.label9.Text = "标题行";
             // 
-            // button5
+            // GenerateConfigurationCode
             // 
-            this.button5.Location = new System.Drawing.Point(171, 106);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(88, 23);
-            this.button5.TabIndex = 18;
-            this.button5.Text = "生成配置项";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.GenerateConfigurationCode.Location = new System.Drawing.Point(171, 106);
+            this.GenerateConfigurationCode.Name = "GenerateConfigurationCode";
+            this.GenerateConfigurationCode.Size = new System.Drawing.Size(88, 23);
+            this.GenerateConfigurationCode.TabIndex = 18;
+            this.GenerateConfigurationCode.Text = "生成配置项";
+            this.GenerateConfigurationCode.UseVisualStyleBackColor = true;
+            this.GenerateConfigurationCode.Click += new System.EventHandler(this.GenerateConfigurationCode_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.button5);
+            this.Controls.Add(this.GenerateConfigurationCode);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
-            this.Controls.Add(this.textBox6);
-            this.Controls.Add(this.textBox5);
-            this.Controls.Add(this.textBox4);
-            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.TitleLine2);
+            this.Controls.Add(this.TitleLine1);
+            this.Controls.Add(this.wsNameOrIndex2);
+            this.Controls.Add(this.wsNameOrIndex1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.CheckTemplateConfiguration);
+            this.Controls.Add(this.SelectFileBtn2);
+            this.Controls.Add(this.filePath2);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.GenerateConfiguration);
+            this.Controls.Add(this.SelectFileBtn1);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.filePath1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
@@ -267,26 +267,26 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox filePath1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button SelectFileBtn1;
+        private System.Windows.Forms.Button GenerateConfiguration;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.TextBox filePath2;
+        private System.Windows.Forms.Button SelectFileBtn2;
+        private System.Windows.Forms.Button CheckTemplateConfiguration;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.TextBox wsNameOrIndex1;
+        private System.Windows.Forms.TextBox wsNameOrIndex2;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.TextBox textBox6;
+        private System.Windows.Forms.TextBox TitleLine1;
+        private System.Windows.Forms.TextBox TitleLine2;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button GenerateConfigurationCode;
     }
 }
 
