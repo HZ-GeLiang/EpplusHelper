@@ -2308,11 +2308,11 @@ namespace EPPlusExtensions
             #region 关键字
             var columnTypeList_DateTime = new List<string>()
             {
-                "时间", "日期", "date", "time"
+                "时间", "日期", "date", "time","今天","昨天","明天","前天","day"
             };
             var columnTypeList_String = new List<string>()
             {
-                "id","身份证","银行卡","卡号","手机","mobile","tel",
+                "id","身份证","银行卡","卡号","手机","mobile","tel","序号","number","编号","No"
             };
             #endregion
 
