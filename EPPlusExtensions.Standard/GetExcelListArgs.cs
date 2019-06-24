@@ -82,13 +82,27 @@ namespace EPPlusExtensions
         public bool MatchingModelEqualsCheck = true;
     }
 
+    [Flags]
     public enum ReadCellValueOption
     {
+        /// <summary>
+        /// 无
+        /// </summary>
         None = 1,
+        /// <summary>
+        /// 去空格
+        /// </summary>
         Trim = 2,
-        MergeLine = 3,
-        MergeLineAndTrim = 4,
+        /// <summary>
+        /// 合并行
+        /// </summary>
+        MergeLine = 4,
+        /// <summary>
+        /// 转半角
+        /// </summary>
+        ToDBC = 8,
     }
+
 
     public enum ScanLine
     {
