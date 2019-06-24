@@ -1587,6 +1587,11 @@ namespace EPPlusExtensions
 
             var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
 
+
+            var excelCellInfoNeedTrim = (args.ReadCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
+            var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
+            var excelCellInfoNeedToDBC = (args.ReadCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
+
             while (true)
             {
                 bool isNoDataAllColumn = true;//判断整行数据是否都没有数据
@@ -1648,24 +1653,21 @@ namespace EPPlusExtensions
                         }
                         #endregion
 
-                        #region 对每个单元格进行去空格与合并行的处理
+                        #region 对每个单元格进行处理
 
-                        switch (args.ReadCellValueOption)
+                        if (excelCellInfoNeedTrim)
                         {
-                            case ReadCellValueOption.None:
-                                break;
-                            case ReadCellValueOption.Trim:
-                                value = value.Trim();
-                                break;
-                            case ReadCellValueOption.MergeLine:
-                                value = value.MergeLines();
-                                break;
-                            case ReadCellValueOption.MergeLineAndTrim:
-                                value = value.Trim().MergeLines().Trim();
-                                break;
-                            default:
-                                throw new System.Exception("未指定读取单元格值时的操作方式");
+                            value = value.Trim();
                         }
+                        if (excelCellInfoNeedMergeLine)
+                        {
+                            value = value.MergeLines();
+                        }
+                        if (excelCellInfoNeedToDBC)
+                        {
+                            value = value.ToDBC();
+                        }
+
                         #endregion
 
                         #region 处理内置的Attribute
@@ -1802,6 +1804,10 @@ namespace EPPlusExtensions
 
             var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
 
+            var excelCellInfoNeedTrim = (args.ReadCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
+            var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
+            var excelCellInfoNeedToDBC = (args.ReadCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
+
             while (true)
             {
                 bool isNoDataAllColumn = true;//判断整行数据是否都没有数据
@@ -1853,23 +1859,19 @@ namespace EPPlusExtensions
                         }
                         #endregion
 
-                        #region 对每个单元格进行去空格与合并行的处理
+                        #region 对每个单元格进行处理
 
-                        switch (args.ReadCellValueOption)
+                        if (excelCellInfoNeedTrim)
                         {
-                            case ReadCellValueOption.None:
-                                break;
-                            case ReadCellValueOption.Trim:
-                                value = value.Trim();
-                                break;
-                            case ReadCellValueOption.MergeLine:
-                                value = value.MergeLines();
-                                break;
-                            case ReadCellValueOption.MergeLineAndTrim:
-                                value = value.Trim().MergeLines().Trim();
-                                break;
-                            default:
-                                throw new System.Exception("未指定读取单元格值时的操作方式");
+                            value = value.Trim();
+                        }
+                        if (excelCellInfoNeedMergeLine)
+                        {
+                            value = value.MergeLines();
+                        }
+                        if (excelCellInfoNeedToDBC)
+                        {
+                            value = value.ToDBC();
                         }
                         #endregion
 
