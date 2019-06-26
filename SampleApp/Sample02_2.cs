@@ -19,9 +19,9 @@ namespace SampleApp
     {
         public void Run()
         {
-            string tempPath = @"模版\Sample02_2.xlsx";
+            string filePath = @"模版\Sample02_2.xlsx";
             using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = System.IO.File.OpenRead(tempPath))
+            using (FileStream fs = System.IO.File.OpenRead(filePath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 ExcelWorksheet ws = EpplusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
