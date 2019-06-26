@@ -27,7 +27,8 @@ namespace SampleApp
                 var configSource = EpplusHelper.GetEmptyConfigSource();
                 EpplusHelper.SetDefaultConfigFromExcel(excelPackage, config, 1);
                 var dtHead = GetDataTable_Head();
-                EpplusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
+                //EpplusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
+                EpplusHelper.SetConfigSourceHead(configSource, dtHead);
                 configSource.SheetBody[1] = GetDataTable_Body();
                 EpplusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
                 var ws = EpplusHelper.GetExcelWorksheet(excelPackage, "导出测试");

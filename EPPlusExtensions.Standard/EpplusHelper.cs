@@ -2842,6 +2842,16 @@ namespace EPPlusExtensions
         /// </summary>
         /// <param name="configSource"></param>
         /// <param name="dt">用来获得列名</param>
+        public static void SetConfigSourceHead(EPPlusConfigSource configSource, DataTable dt)
+        {
+            SetConfigSourceHead(configSource, dt, dt.Rows[0]);
+        }
+
+        /// <summary>
+        /// 设置Head配置的数据源
+        /// </summary>
+        /// <param name="configSource"></param>
+        /// <param name="dt">用来获得列名</param>
         /// <param name="dr">数据源是这个</param>
         public static void SetConfigSourceHead(EPPlusConfigSource configSource, DataTable dt, DataRow dr)
         {
@@ -2854,6 +2864,16 @@ namespace EPPlusExtensions
             configSource.SheetHead = dict;
         }
 
+
+        /// <summary>
+        /// 设置Foot配置的数据源
+        /// </summary>
+        /// <param name="configSource"></param>
+        /// <param name="dt">用来获得列名</param>
+        public static void SetConfigSourceFoot(EPPlusConfigSource configSource, DataTable dt)
+        {
+            SetConfigSourceFoot(configSource, dt, dt.Rows[0]);
+        }
 
         /// <summary>
         /// 设置Foot配置的数据源
