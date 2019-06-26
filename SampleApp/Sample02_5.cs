@@ -23,8 +23,7 @@ namespace SampleApp
 
             Console.ReadKey();
         }
-
-
+        
         private static void TestMatchingModel(List<string> wss)
         {
             string errMsg;
@@ -59,17 +58,15 @@ namespace SampleApp
                         throw e;
                     }
                 }
-
                 Console.WriteLine($@"****{ws}-测试通过****");
-            }
-
+            } 
         }
 
         public static void ReadLine(string wsName)
         {
-            string tempPath = @"模版\Sample02_5.xlsx";
+            string filePath = @"模版\Sample02_5.xlsx";
             using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = System.IO.File.OpenRead(tempPath))
+            using (FileStream fs = System.IO.File.OpenRead(filePath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 ExcelWorksheet ws = EpplusHelper.GetExcelWorksheet(excelPackage, wsName);
@@ -83,7 +80,6 @@ namespace SampleApp
                 {
                     throw e;
                 }
-
                 Console.WriteLine("读取完毕");
             }
         }

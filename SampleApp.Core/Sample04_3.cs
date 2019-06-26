@@ -14,9 +14,9 @@ namespace SampleApp.Core
         public void Run()
         {
 
-            string tempPath = $@"模版\Sample04_3.xlsx";
+            string filePath = $@"模版\Sample04_3.xlsx";
             using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = System.IO.File.OpenRead(tempPath))
+            using (FileStream fs = System.IO.File.OpenRead(filePath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 var sheetTitleLineNumber = new Dictionary<int, int>()
@@ -37,7 +37,7 @@ namespace SampleApp.Core
                     File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
                 }
             }
-            System.Diagnostics.Process.Start(Path.GetDirectoryName(tempPath));
+            System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }
 
     }

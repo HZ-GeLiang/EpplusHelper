@@ -62,9 +62,9 @@ namespace SampleApp.Core
 
         public static void ReadLine(string wsName)
         {
-            string tempPath = @"模版\Sample02_5.xlsx";
+            string filePath = @"模版\Sample02_5.xlsx";
             using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = System.IO.File.OpenRead(tempPath))
+            using (FileStream fs = System.IO.File.OpenRead(filePath))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
