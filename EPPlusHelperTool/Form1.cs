@@ -2,6 +2,7 @@
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -97,7 +98,15 @@ namespace EPPlusHelperTool
         private void GenerateConfiguration_Click(object sender, EventArgs e)
         {
             string filePath = filePath1.Text.Trim().移除路径前后引号();
-
+            if (string.IsNullOrEmpty(filePath))
+            {
+                MessageBox.Show("路径不能为空");
+                return;
+            }
+            if (this.dataGridViewExcel1.Rows.Count == 0)
+            {
+                WScount1_Click(null, null);
+            }
             //var fileName = Path.GetFileNameWithoutExtension(filePath);
             //var suffix = Path.GetExtension(filePath);
             var fileDir = Path.GetDirectoryName(filePath);
@@ -124,35 +133,58 @@ namespace EPPlusHelperTool
                 columnTypeList_String[i] = columnTypeList_String[i].ToLower();
             }
             #endregion
-            EpplusHelper.FillExcelDefaultConfig(filePath, fileDir, cell =>
+
+            Dictionary<int, int> sheetTitleLineNumber = new Dictionary<int, int>();
+            for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
             {
-                var cellValue = EpplusHelper.GetCellText(cell);
-                var cellValueLower = cellValue.ToLower();
-                foreach (var item in columnTypeList_DateTime)
-                {
-                    if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
-                    {
-                        cell.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
-                        break;
-                    }
-                }
-                foreach (var item in columnTypeList_DateTime)
-                {
-                    if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
-                    {
-                        cell.Style.Numberformat.Format = "@"; //Format as text
-                        break;
-                    }
-                }
-            });
+                sheetTitleLineNumber.Add(i, Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value));
+            }
+
+            EpplusHelper.FillExcelDefaultConfig(filePath, fileDir, sheetTitleLineNumber, cell =>
+             {
+                 var cellValue = EpplusHelper.GetCellText(cell);
+                 var cellValueLower = cellValue.ToLower();
+                 foreach (var item in columnTypeList_DateTime)
+                 {
+                     if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
+                     {
+                         cell.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
+                         break;
+                     }
+                 }
+                 foreach (var item in columnTypeList_DateTime)
+                 {
+                     if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
+                     {
+                         cell.Style.Numberformat.Format = "@"; //Format as text
+                         break;
+                     }
+                 }
+             });
             OpenDirectory(fileDir);
         }
 
         private void GenerateConfigurationCode_Click(object sender, EventArgs e)
         {
             string filePath = filePath1.Text.Trim().移除路径前后引号();
+            if (string.IsNullOrEmpty(filePath))
+            {
+                MessageBox.Show("路径不能为空");
+                return;
+            }
+            if (this.dataGridViewExcel1.Rows.Count == 0)
+            {
+                WScount1_Click(null, null);
+            }
+
+            Dictionary<int, int> sheetTitleLineNumber = new Dictionary<int, int>();
+            for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
+            {
+                sheetTitleLineNumber.Add(i, Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value));
+            }
+
             string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
-            var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName);
+            var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName, sheetTitleLineNumber);
             var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
             foreach (var item in defaultConfigList)
             {
@@ -167,13 +199,32 @@ namespace EPPlusHelperTool
         {
             var ws1Path = this.filePath1.Text.Trim().移除路径前后引号();
             var ws2Path = this.filePath2.Text.Trim().移除路径前后引号();
+            if (string.IsNullOrEmpty(ws1Path))
+            {
+                MessageBox.Show("路径1不能为空");
+                return;
+            }
+            if (string.IsNullOrEmpty(ws2Path))
+            {
+                MessageBox.Show("路径2不能为空");
+                return;
+            }
             if (ws1Path == ws2Path)
             {
                 MessageBox.Show("比较文件路径一致,无法比较");
                 return;
             }
+            if (this.dataGridViewExcel1.Rows.Count == 0)
+            {
+                WScount1_Click(null, null);
+            }
+            if (this.dataGridViewExcel1.Rows.Count == 0)
+            {
+                WScount2_Click(null, null);
+            }
             var ws1Index_string = this.wsNameOrIndex1.Text.Trim();
             var ws2Index_string = this.wsNameOrIndex2.Text.Trim();
+
             var ws1TitleLine = Convert.ToInt32(this.TitleLine1.Text.Trim());
             var ws2TitleLine = Convert.ToInt32(this.TitleLine2.Text.Trim());
 
@@ -231,23 +282,61 @@ namespace EPPlusHelperTool
             }
         }
 
-        private void WScount_Click(object sender, EventArgs e)
+        private void WScount1_Click(object sender, EventArgs e)
         {
             string filePath = filePath1.Text.Trim().移除路径前后引号();
+            if (string.IsNullOrEmpty(filePath))
+            {
+                MessageBox.Show("路径不能为空");
+                return;
+            }
             using (MemoryStream ms = new MemoryStream())
             ////using (FileStream fs = System.IO.File.OpenRead(filePath))
-            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read,FileShare.ReadWrite))
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 var count = excelPackage.Workbook.Worksheets.Count;
                 StringBuilder names = new StringBuilder();
+                var control = this.dataGridViewExcel1;
                 for (int i = 1; i <= count; i++)
                 {
-                    names.Append(excelPackage.Workbook.Worksheets[i].Name).Append(",");
+                    int index = control.Rows.Add();
+                    control.Rows[index].Cells[0].Value = i;
+                    control.Rows[index].Cells[1].Value = excelPackage.Workbook.Worksheets[i].Name;
+                    control.Rows[index].Cells[2].Value = 2;
+                    names.Append($"{excelPackage.Workbook.Worksheets[i].Name},");
                 }
-                names.RemoveLastChar(',');
-                var msg = $"一共有{count}个工作簿,分别是:{names}";
-                MessageBox.Show(msg);
+                //var msg = $"一共有{count}个工作簿,分别是:{names.RemoveLastChar(',')}";
+                //MessageBox.Show(msg);
+            }
+        }
+
+        private void WScount2_Click(object sender, EventArgs e)
+        {
+            string filePath = filePath2.Text.Trim().移除路径前后引号();
+            if (string.IsNullOrEmpty(filePath))
+            {
+                MessageBox.Show("路径不能为空");
+                return;
+            }
+            using (MemoryStream ms = new MemoryStream())
+            ////using (FileStream fs = System.IO.File.OpenRead(filePath))
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            {
+                var count = excelPackage.Workbook.Worksheets.Count;
+                StringBuilder names = new StringBuilder();
+                var control = this.dataGridViewExcel2;
+                for (int i = 1; i <= count; i++)
+                {
+                    int index = control.Rows.Add();
+                    control.Rows[index].Cells[0].Value = i;
+                    control.Rows[index].Cells[1].Value = excelPackage.Workbook.Worksheets[i].Name;
+                    control.Rows[index].Cells[2].Value = 2;
+                    names.Append($"{excelPackage.Workbook.Worksheets[i].Name},");
+                }
+                //var msg = $"一共有{count}个工作簿,分别是:{names.RemoveLastChar(',')}";
+                //MessageBox.Show(msg);
             }
         }
     }
