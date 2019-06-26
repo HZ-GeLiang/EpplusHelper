@@ -14,7 +14,7 @@ namespace EPPlusHelperTool
         {
             InitializeComponent();
         }
-      
+
         /// <summary>
         /// 弹出一个选择文件的对话框
         /// </summary>
@@ -45,13 +45,13 @@ namespace EPPlusHelperTool
                 return openFileDialog1.SafeFileName;
             }
         }
-         
+
         private void textBoxDragDrop(object sender, DragEventArgs e)
         {
             string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
             ((System.Windows.Forms.TextBox)sender).Text = path;
         }
-         
+
         private void textBoxDragEnter(object sender, DragEventArgs e)
         {
             e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Link : DragDropEffects.None;
@@ -75,7 +75,7 @@ namespace EPPlusHelperTool
             MessageBox.Show($"文件已经生成,在目录'{fileDirectoryName}'");
             System.Diagnostics.Process.Start(fileDirectoryName);
         }
-         
+
         private static ExcelWorksheet GetWorkSheet(ExcelPackage excelPackage, string ws1Index_string)
         {
             if (excelPackage.Workbook.Worksheets.Count == 1)
@@ -177,8 +177,10 @@ namespace EPPlusHelperTool
             var ws1TitleLine = Convert.ToInt32(this.TitleLine1.Text.Trim());
             var ws2TitleLine = Convert.ToInt32(this.TitleLine2.Text.Trim());
 
-            using (FileStream fs1 = System.IO.File.OpenRead(ws1Path))
-            using (FileStream fs2 = System.IO.File.OpenRead(ws2Path))
+            //using (FileStream fs1 = System.IO.File.OpenRead(ws1Path))
+            //using (FileStream fs2 = System.IO.File.OpenRead(ws2Path))
+            using (FileStream fs1 = new FileStream(ws1Path, FileMode.Open, FileAccess.Read, FileShare.None))
+            using (FileStream fs2 = new FileStream(ws2Path, FileMode.Open, FileAccess.Read, FileShare.None))
             using (ExcelPackage excelPackage1 = new ExcelPackage(fs1))
             using (ExcelPackage excelPackage2 = new ExcelPackage(fs2))
             {
@@ -219,13 +221,33 @@ namespace EPPlusHelperTool
                 MessageBox.Show("通过校验模板配置项");
             }
         }
-         
+
         private void btn_SelectExcelFile(object sender, EventArgs e)
         {
             var selectFilePath = SelectFile("excel (*.xlsx)|*.xlsx");
             if (selectFilePath.Length > 0)
             {
                 ((System.Windows.Forms.Button)sender).Text = selectFilePath;
+            }
+        }
+
+        private void WScount_Click(object sender, EventArgs e)
+        {
+            string filePath = filePath1.Text.Trim().移除路径前后引号();
+            using (MemoryStream ms = new MemoryStream())
+            ////using (FileStream fs = System.IO.File.OpenRead(filePath))
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read,FileShare.ReadWrite))
+            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            {
+                var count = excelPackage.Workbook.Worksheets.Count;
+                StringBuilder names = new StringBuilder();
+                for (int i = 1; i <= count; i++)
+                {
+                    names.Append(excelPackage.Workbook.Worksheets[i].Name).Append(",");
+                }
+                names.RemoveLastChar(',');
+                var msg = $"一共有{count}个工作簿,分别是:{names}";
+                MessageBox.Show(msg);
             }
         }
     }

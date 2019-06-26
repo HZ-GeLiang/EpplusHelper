@@ -48,6 +48,9 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.GenerateConfigurationCode = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.WScount = new System.Windows.Forms.Button();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // filePath1
@@ -56,7 +59,7 @@
             this.filePath1.Location = new System.Drawing.Point(22, 23);
             this.filePath1.Multiline = true;
             this.filePath1.Name = "filePath1";
-            this.filePath1.Size = new System.Drawing.Size(661, 49);
+            this.filePath1.Size = new System.Drawing.Size(664, 49);
             this.filePath1.TabIndex = 4;
             this.filePath1.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxDragDrop);
             this.filePath1.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxDragEnter);
@@ -82,7 +85,7 @@
             // 
             // GenerateConfiguration
             // 
-            this.GenerateConfiguration.Location = new System.Drawing.Point(25, 106);
+            this.GenerateConfiguration.Location = new System.Drawing.Point(32, 106);
             this.GenerateConfiguration.Name = "GenerateConfiguration";
             this.GenerateConfiguration.Size = new System.Drawing.Size(113, 23);
             this.GenerateConfiguration.TabIndex = 7;
@@ -93,7 +96,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(23, 79);
+            this.label2.Location = new System.Drawing.Point(30, 79);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(113, 12);
             this.label2.TabIndex = 8;
@@ -102,7 +105,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(21, 165);
+            this.label3.Location = new System.Drawing.Point(21, 181);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(155, 12);
             this.label3.TabIndex = 9;
@@ -131,7 +134,7 @@
             // 
             // CheckTemplateConfiguration
             // 
-            this.CheckTemplateConfiguration.Location = new System.Drawing.Point(241, 389);
+            this.CheckTemplateConfiguration.Location = new System.Drawing.Point(251, 389);
             this.CheckTemplateConfiguration.Name = "CheckTemplateConfiguration";
             this.CheckTemplateConfiguration.Size = new System.Drawing.Size(90, 23);
             this.CheckTemplateConfiguration.TabIndex = 12;
@@ -225,7 +228,7 @@
             // 
             // GenerateConfigurationCode
             // 
-            this.GenerateConfigurationCode.Location = new System.Drawing.Point(171, 106);
+            this.GenerateConfigurationCode.Location = new System.Drawing.Point(146, 19);
             this.GenerateConfigurationCode.Name = "GenerateConfigurationCode";
             this.GenerateConfigurationCode.Size = new System.Drawing.Size(88, 23);
             this.GenerateConfigurationCode.TabIndex = 18;
@@ -233,12 +236,31 @@
             this.GenerateConfigurationCode.UseVisualStyleBackColor = true;
             this.GenerateConfigurationCode.Click += new System.EventHandler(this.GenerateConfigurationCode_Click);
             // 
+            // panel1
+            // 
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.GenerateConfigurationCode);
+            this.panel1.Location = new System.Drawing.Point(23, 86);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(254, 55);
+            this.panel1.TabIndex = 19;
+            // 
+            // WScount
+            // 
+            this.WScount.Location = new System.Drawing.Point(326, 106);
+            this.WScount.Name = "WScount";
+            this.WScount.Size = new System.Drawing.Size(75, 23);
+            this.WScount.TabIndex = 20;
+            this.WScount.Text = "工作簿数量";
+            this.WScount.UseVisualStyleBackColor = true;
+            this.WScount.Click += new System.EventHandler(this.WScount_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.GenerateConfigurationCode);
+            this.Controls.Add(this.WScount);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.TitleLine2);
@@ -258,8 +280,10 @@
             this.Controls.Add(this.SelectFileBtn1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.filePath1);
+            this.Controls.Add(this.panel1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -287,6 +311,8 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button GenerateConfigurationCode;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button WScount;
     }
 }
 
