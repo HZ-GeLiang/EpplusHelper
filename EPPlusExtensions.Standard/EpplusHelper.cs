@@ -1587,7 +1587,6 @@ namespace EPPlusExtensions
 
             var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
 
-
             var excelCellInfoNeedTrim = (args.ReadCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
             var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
             var excelCellInfoNeedToDBC = (args.ReadCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
@@ -1873,6 +1872,7 @@ namespace EPPlusExtensions
                         {
                             value = value.ToDBC();
                         }
+
                         #endregion
 
                     }
@@ -2218,6 +2218,25 @@ namespace EPPlusExtensions
             return list;
         }
 
+
+
+        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, Dictionary<int, int> sheetTitleLineNumber = null, Action<ExcelRange> cellCustom = null)
+        {
+            List<DefaultConfig> defaultConfigList;
+            using (MemoryStream ms = new MemoryStream())
+            //using (FileStream fs = System.IO.File.OpenRead(filePath))
+            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            {
+                defaultConfigList = FillExcelDefaultConfig(excelPackage, sheetTitleLineNumber, cellCustom);
+                excelPackage.SaveAs(ms);
+                ms.Position = 0;
+                ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
+            }
+            return defaultConfigList;
+        }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -2227,36 +2246,18 @@ namespace EPPlusExtensions
         /// <returns>工作簿Name,DatTable的创建代码</returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<int, int> sheetTitleLineNumber, Action<ExcelRange> cellCustom = null)
         {
-            if (sheetTitleLineNumber == null)
-            {
-                sheetTitleLineNumber = new Dictionary<int, int>();
-            }
             ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
             List<DefaultConfig> list = new List<DefaultConfig>();
             var eachCount = 0;
             foreach (var ws in wss)
             {
                 eachCount++;
-                int titleLine = sheetTitleLineNumber.ContainsKey(eachCount) ? sheetTitleLineNumber[eachCount] : 1;
+                int titleLine = sheetTitleLineNumber == null
+                    ? 1
+                    : sheetTitleLineNumber.ContainsKey(eachCount) ? sheetTitleLineNumber[eachCount] : 1;
                 list.Add(FillExcelDefaultConfig(ws, titleLine, cellCustom));
             }
             return list;
-        }
-
-        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, Action<ExcelRange> cellCustom = null)
-        {
-            List<DefaultConfig> defaultConfigList;
-            using (MemoryStream ms = new MemoryStream())
-            //using (FileStream fs = System.IO.File.OpenRead(filePath))
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
-            {
-                defaultConfigList = FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>(), cellCustom);
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
-            }
-            return defaultConfigList;
         }
 
 

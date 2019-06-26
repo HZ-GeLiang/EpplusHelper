@@ -2217,6 +2217,25 @@ namespace EpplusExtensions
             return list;
         }
 
+
+
+        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, Dictionary<int, int> sheetTitleLineNumber = null, Action<ExcelRange> cellCustom = null)
+        {
+            List<DefaultConfig> defaultConfigList;
+            using (MemoryStream ms = new MemoryStream())
+            //using (FileStream fs = System.IO.File.OpenRead(filePath))
+            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            {
+                defaultConfigList = FillExcelDefaultConfig(excelPackage, sheetTitleLineNumber, cellCustom);
+                excelPackage.SaveAs(ms);
+                ms.Position = 0;
+                ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
+            }
+            return defaultConfigList;
+        }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -2226,36 +2245,18 @@ namespace EpplusExtensions
         /// <returns>工作簿Name,DatTable的创建代码</returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<int, int> sheetTitleLineNumber, Action<ExcelRange> cellCustom = null)
         {
-            if (sheetTitleLineNumber == null)
-            {
-                sheetTitleLineNumber = new Dictionary<int, int>();
-            }
             ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
             List<DefaultConfig> list = new List<DefaultConfig>();
             var eachCount = 0;
             foreach (var ws in wss)
             {
                 eachCount++;
-                int titleLine = sheetTitleLineNumber.ContainsKey(eachCount) ? sheetTitleLineNumber[eachCount] : 1;
+                int titleLine = sheetTitleLineNumber == null
+                    ? 1
+                    : sheetTitleLineNumber.ContainsKey(eachCount) ? sheetTitleLineNumber[eachCount] : 1;
                 list.Add(FillExcelDefaultConfig(ws, titleLine, cellCustom));
             }
             return list;
-        }
-
-        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, Action<ExcelRange> cellCustom = null)
-        {
-            List<DefaultConfig> defaultConfigList;
-            using (MemoryStream ms = new MemoryStream())
-            //using (FileStream fs = System.IO.File.OpenRead(filePath))
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
-            {
-                defaultConfigList = FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>(), cellCustom);
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
-            }
-            return defaultConfigList;
         }
 
 
@@ -2310,11 +2311,11 @@ namespace EpplusExtensions
             #region 关键字
             var columnTypeList_DateTime = new List<string>()
             {
-                "时间", "日期", "date", "time"
+                "时间", "日期", "date", "time","今天","昨天","明天","前天","day"
             };
             var columnTypeList_String = new List<string>()
             {
-                "id","身份证","银行卡","卡号","手机","mobile","tel",
+                "id","身份证","银行卡","卡号","手机","mobile","tel","序号","number","编号","No"
             };
             #endregion
 
