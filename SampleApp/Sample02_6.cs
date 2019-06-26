@@ -19,7 +19,8 @@ namespace SampleApp
         public void Run()
         {
             string filePath = @"模版\Sample02_1.xlsx";
-            using (FileStream fs = System.IO.File.OpenRead(filePath))
+            //using (FileStream fs = System.IO.File.OpenRead(filePath))
+            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 ExcelWorksheet ws = EpplusHelper.GetExcelWorksheet(excelPackage, "Sheet1");

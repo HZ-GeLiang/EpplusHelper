@@ -2246,7 +2246,8 @@ namespace EpplusExtensions
         {
             List<DefaultConfig> defaultConfigList;
             using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = System.IO.File.OpenRead(filePath))
+            //using (FileStream fs = System.IO.File.OpenRead(filePath))
+            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 defaultConfigList = FillExcelDefaultConfig(excelPackage, new Dictionary<int, int>(), cellCustom);

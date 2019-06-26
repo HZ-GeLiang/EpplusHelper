@@ -64,7 +64,8 @@ namespace SampleApp.Core
         {
             string filePath = @"模版\Sample02_5.xlsx";
             using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = System.IO.File.OpenRead(filePath))
+            //using (FileStream fs = System.IO.File.OpenRead(filePath))
+            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
