@@ -137,7 +137,8 @@ namespace EPPlusHelperTool
             Dictionary<int, int> sheetTitleLineNumber = new Dictionary<int, int>();
             for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
             {
-                sheetTitleLineNumber.Add(i, Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value));
+                var bodyLineStart = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[3].Value);
+                sheetTitleLineNumber.Add(i, bodyLineStart);
             }
 
             EpplusHelper.FillExcelDefaultConfig(filePath, fileDir, sheetTitleLineNumber, cell =>
@@ -180,7 +181,8 @@ namespace EPPlusHelperTool
             Dictionary<int, int> sheetTitleLineNumber = new Dictionary<int, int>();
             for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
             {
-                sheetTitleLineNumber.Add(i, Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value));
+                var titleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value);
+                sheetTitleLineNumber.Add(i,titleLine);
             }
 
             string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
@@ -295,22 +297,12 @@ namespace EPPlusHelperTool
             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var count = excelPackage.Workbook.Worksheets.Count;
-                StringBuilder names = new StringBuilder();
                 var control = this.dataGridViewExcel1;
-                for (int i = 1; i <= count; i++)
-                {
-                    int index = control.Rows.Add();
-                    control.Rows[index].Cells[0].Value = i;
-                    control.Rows[index].Cells[1].Value = excelPackage.Workbook.Worksheets[i].Name;
-                    control.Rows[index].Cells[2].Value = 2;
-                    names.Append($"{excelPackage.Workbook.Worksheets[i].Name},");
-                }
-                //var msg = $"一共有{count}个工作簿,分别是:{names.RemoveLastChar(',')}";
-                //MessageBox.Show(msg);
+                StringBuilder names = new StringBuilder();
+                SetDataSourceForDGV(excelPackage, control, names);
             }
         }
-
+        
         private void WScount2_Click(object sender, EventArgs e)
         {
             string filePath = filePath2.Text.Trim().移除路径前后引号();
@@ -324,20 +316,28 @@ namespace EPPlusHelperTool
             using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var count = excelPackage.Workbook.Worksheets.Count;
-                StringBuilder names = new StringBuilder();
                 var control = this.dataGridViewExcel2;
-                for (int i = 1; i <= count; i++)
-                {
-                    int index = control.Rows.Add();
-                    control.Rows[index].Cells[0].Value = i;
-                    control.Rows[index].Cells[1].Value = excelPackage.Workbook.Worksheets[i].Name;
-                    control.Rows[index].Cells[2].Value = 2;
-                    names.Append($"{excelPackage.Workbook.Worksheets[i].Name},");
-                }
-                //var msg = $"一共有{count}个工作簿,分别是:{names.RemoveLastChar(',')}";
-                //MessageBox.Show(msg);
+                StringBuilder names = new StringBuilder();
+                SetDataSourceForDGV(excelPackage, control, names);
             }
         }
+
+        private static void SetDataSourceForDGV(ExcelPackage excelPackage, DataGridView control, StringBuilder names)
+        {
+            var count = excelPackage.Workbook.Worksheets.Count;
+            for (int i = 1; i <= count; i++)
+            {
+                int index = control.Rows.Add();
+                control.Rows[index].Cells[0].Value = i;
+                control.Rows[index].Cells[1].Value = excelPackage.Workbook.Worksheets[i].Name;
+                control.Rows[index].Cells[2].Value = 1;
+                control.Rows[index].Cells[3].Value = 2;
+                names.Append($"{excelPackage.Workbook.Worksheets[i].Name},");
+            }
+
+            //var msg = $"一共有{count}个工作簿,分别是:{names.RemoveLastChar(',')}";
+            //MessageBox.Show(msg);
+        }
+
     }
 }
