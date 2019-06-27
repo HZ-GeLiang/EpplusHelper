@@ -2251,11 +2251,11 @@ namespace EPPlusExtensions
             var eachCount = 0;
             foreach (var ws in wss)
             {
-                eachCount++;
                 int titleLine = sheetTitleLineNumber == null
                     ? 1
                     : sheetTitleLineNumber.ContainsKey(eachCount) ? sheetTitleLineNumber[eachCount] : 1;
                 list.Add(FillExcelDefaultConfig(ws, titleLine, cellCustom));
+                eachCount++;
             }
             return list;
         }
