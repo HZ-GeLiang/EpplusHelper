@@ -6,6 +6,7 @@ using System.Data;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using EPPlusHelperTool.MethodExtension;
 
 namespace EPPlusHelperTool
 {
@@ -182,7 +183,7 @@ namespace EPPlusHelperTool
             for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
             {
                 var titleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value);
-                sheetTitleLineNumber.Add(i,titleLine);
+                sheetTitleLineNumber.Add(i, titleLine);
             }
 
             string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
@@ -300,9 +301,14 @@ namespace EPPlusHelperTool
                 var control = this.dataGridViewExcel1;
                 StringBuilder names = new StringBuilder();
                 SetDataSourceForDGV(excelPackage, control, names);
+
+                if (EpplusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0)
+                {
+                    MessageBox.Show("当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
+                }
             }
         }
-        
+
         private void WScount2_Click(object sender, EventArgs e)
         {
             string filePath = filePath2.Text.Trim().移除路径前后引号();
@@ -337,6 +343,32 @@ namespace EPPlusHelperTool
 
             //var msg = $"一共有{count}个工作簿,分别是:{names.RemoveLastChar(',')}";
             //MessageBox.Show(msg);
+        }
+
+        private void DelHiddenWs_Click(object sender, EventArgs e)
+        {
+            string filePath = filePath1.Text.Trim().移除路径前后引号();
+            if (string.IsNullOrEmpty(filePath))
+            {
+                MessageBox.Show("路径不能为空");
+                return;
+            }
+            using (MemoryStream ms = new MemoryStream())
+            ////using (FileStream fs = System.IO.File.OpenRead(filePath))
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            {
+                EpplusHelper.DeleteWorksheet(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden);
+                excelPackage.SaveAs(ms);
+                ms.Position = 0;
+
+                var fileDir = Path.GetDirectoryName(filePath);
+                var fileName = Path.GetFileNameWithoutExtension(filePath);
+                string filePathOut = Path.Combine(fileDir, $"{fileName}_OnlyVisibleWS.xlsx");
+                ms.Save(filePathOut);
+                OpenDirectory(fileDir);
+
+            }
         }
 
     }
