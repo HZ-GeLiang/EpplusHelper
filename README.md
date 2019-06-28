@@ -11,5 +11,5 @@ EpplusExtensions和EPPlusExtensions.Standard两个项目区别如下:
 5.EpplusExtensions的Epplus版本号是EPPlus V4.0.5. 而EPPlusExtensions.Standard则是引用了最新的版本号(EPPlus v4.5.2.1).
 6.Nuget上的版本仅支持dotnet Framework.即EpplusExtensions类库所编译产生的dll
 7.目前为止,所以的修改都会同步到EPPlusExtensions.Standard,只是EPPlusExtensions.Standard代码未测试.
-8.nuget上的不定期更新版本号,github上的代码是最新版,如果nuget上的dll没有示例中相对应的代码,请自己编译生成github上的代码所产生的.dll
+8.nuget上的不定期更新版本号,github上的代码是最新版,如果nuget上的dll没有示例中相对应的代码,请使用自己编译生成github代码所产生的.dll文件
 ```
