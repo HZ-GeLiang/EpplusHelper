@@ -19,6 +19,7 @@ namespace EpplusExtensions
 {
     public class EpplusHelper
     {
+        public static List<string> FillDataWorkSheetNames = new List<string>();
 
         //类型参考网址: http://filext.com/faq/office_mime_types.php
         public const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -67,7 +68,6 @@ namespace EpplusExtensions
         public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName)
         {
             return GetExcelWorksheet(excelPackage, workName, false);
-
         }
 
         public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName, bool autoMappingWs)
@@ -115,6 +115,7 @@ namespace EpplusExtensions
         #endregion
 
         #region DeleteWorksheet
+
         /// <summary>
         /// 删除母版页
         /// </summary>
@@ -133,6 +134,7 @@ namespace EpplusExtensions
                 excelPackage.Workbook.Worksheets.Delete(workSheetName);
             }
         }
+
         /// <summary>
         /// 删除母版页
         /// </summary>
@@ -151,6 +153,61 @@ namespace EpplusExtensions
                 excelPackage.Workbook.Worksheets.Delete(workSheetIndex);
             }
         }
+
+        public static void DeleteWorksheet(ExcelPackage excelPackage, params eWorkSheetHidden[] eWorkSheetHiddens)
+        {
+            EpplusHelper.DeleteWorksheet(excelPackage, new List<string>(), eWorkSheetHiddens);
+        }
+
+        public static void DeleteWorksheet(ExcelPackage excelPackage, string[] workSheetNameExcludes, params eWorkSheetHidden[] eWorkSheetHiddens)
+        {
+            EpplusHelper.DeleteWorksheet(excelPackage, (workSheetNameExcludes ?? new string[] { }).ToList(), eWorkSheetHiddens);
+        }
+
+        public static void DeleteWorksheet(ExcelPackage excelPackage, List<string> workSheetNameExcludeList, params eWorkSheetHidden[] eWorkSheetHiddens)
+        {
+            if (eWorkSheetHiddens == null) return;
+            if (workSheetNameExcludeList == null) workSheetNameExcludeList = new List<string>();
+            var delWsNames = GetWorkSheetNames(excelPackage, eWorkSheetHiddens);
+            foreach (var wsName in delWsNames)
+            {
+                if (workSheetNameExcludeList.Contains(wsName)) continue;
+                EpplusHelper.DeleteWorksheet(excelPackage, wsName);
+            }
+        }
+
+        public static List<string> GetWorkSheetNames(ExcelPackage excelPackage, params eWorkSheetHidden[] eWorkSheetHiddens)
+        {
+            var wsNames = new List<string>();
+            if (eWorkSheetHiddens == null) return wsNames;
+
+            var count = excelPackage.Workbook.Worksheets.Count;
+            for (int i = 1; i <= count; i++)
+            {
+                var ws = excelPackage.Workbook.Worksheets[i];
+                foreach (var eWorkSheetHidden in eWorkSheetHiddens)
+                {
+                    if (ws.Hidden == eWorkSheetHidden)
+                    {
+                        wsNames.Add(ws.Name);
+                        break;
+                    }
+                }
+            }
+            return wsNames;
+        }
+
+        public static void DeleteWorksheetAll(ExcelPackage excelPackage, params string[] workSheetNameExclude)
+        {
+            EpplusHelper.DeleteWorksheet(excelPackage, (workSheetNameExclude ?? new string[] { }).ToList());
+        }
+
+        public static void DeleteWorksheetAll(ExcelPackage excelPackage, List<string> workSheetNameExcludeList)
+        {
+            EpplusHelper.DeleteWorksheet(excelPackage, workSheetNameExcludeList ?? new List<string>(),
+                eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden, eWorkSheetHidden.Visible);
+        }
+
         #endregion
 
         #region FillData
@@ -168,6 +225,7 @@ namespace EpplusExtensions
             if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetName == null) throw new ArgumentNullException(nameof(destWorkSheetName));
             ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetName, workSheetNewName);
+            EpplusHelper.FillDataWorkSheetNames.Add(workSheetNewName);
             config.WorkSheetDefault?.Invoke(worksheet);
             FillData(config, configSource, worksheet);
         }
@@ -182,10 +240,10 @@ namespace EpplusExtensions
         /// <param name="destWorkSheetIndex">从1开始</param>
         public static void FillData(ExcelPackage excelPackage, EpplusConfig config, EpplusConfigSource configSource, string workSheetNewName, int destWorkSheetIndex)
         {
-
             if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(destWorkSheetIndex));
             ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetIndex, workSheetNewName);
+            EpplusHelper.FillDataWorkSheetNames.Add(workSheetNewName);
             config.WorkSheetDefault?.Invoke(worksheet);
             FillData(config, configSource, worksheet);
         }
