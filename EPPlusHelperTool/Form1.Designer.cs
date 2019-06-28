@@ -51,16 +51,17 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.WScount1 = new System.Windows.Forms.Button();
             this.dataGridViewExcel1 = new System.Windows.Forms.DataGridView();
-            this.WScount2 = new System.Windows.Forms.Button();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.BodyLine = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.WScount2 = new System.Windows.Forms.Button();
             this.dataGridViewExcel2 = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DelHiddenWs = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).BeginInit();
@@ -98,7 +99,7 @@
             // 
             // GenerateConfiguration
             // 
-            this.GenerateConfiguration.Location = new System.Drawing.Point(32, 128);
+            this.GenerateConfiguration.Location = new System.Drawing.Point(125, 19);
             this.GenerateConfiguration.Name = "GenerateConfiguration";
             this.GenerateConfiguration.Size = new System.Drawing.Size(113, 23);
             this.GenerateConfiguration.TabIndex = 7;
@@ -241,7 +242,7 @@
             // 
             // GenerateConfigurationCode
             // 
-            this.GenerateConfigurationCode.Location = new System.Drawing.Point(146, 19);
+            this.GenerateConfigurationCode.Location = new System.Drawing.Point(263, 19);
             this.GenerateConfigurationCode.Name = "GenerateConfigurationCode";
             this.GenerateConfigurationCode.Size = new System.Drawing.Size(88, 23);
             this.GenerateConfigurationCode.TabIndex = 18;
@@ -252,10 +253,12 @@
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.DelHiddenWs);
             this.panel1.Controls.Add(this.GenerateConfigurationCode);
+            this.panel1.Controls.Add(this.GenerateConfiguration);
             this.panel1.Location = new System.Drawing.Point(23, 108);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(254, 55);
+            this.panel1.Size = new System.Drawing.Size(369, 55);
             this.panel1.TabIndex = 19;
             // 
             // WScount1
@@ -281,27 +284,17 @@
             this.dataGridViewExcel1.Name = "dataGridViewExcel1";
             this.dataGridViewExcel1.RowHeadersVisible = false;
             this.dataGridViewExcel1.RowTemplate.Height = 23;
-            this.dataGridViewExcel1.Size = new System.Drawing.Size(354, 170);
+            this.dataGridViewExcel1.Size = new System.Drawing.Size(354, 183);
             this.dataGridViewExcel1.TabIndex = 22;
-            // 
-            // WScount2
-            // 
-            this.WScount2.Location = new System.Drawing.Point(478, 286);
-            this.WScount2.Name = "WScount2";
-            this.WScount2.Size = new System.Drawing.Size(75, 23);
-            this.WScount2.TabIndex = 24;
-            this.WScount2.Text = "工作簿分析";
-            this.WScount2.UseVisualStyleBackColor = true;
-            this.WScount2.Click += new System.EventHandler(this.WScount2_Click);
             // 
             // dataGridViewTextBoxColumn1
             // 
-            this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.dataGridViewTextBoxColumn1.Frozen = true;
             this.dataGridViewTextBoxColumn1.HeaderText = "序号";
             this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
             this.dataGridViewTextBoxColumn1.ReadOnly = true;
-            this.dataGridViewTextBoxColumn1.Width = 54;
+            this.dataGridViewTextBoxColumn1.Width = 36;
             // 
             // dataGridViewTextBoxColumn2
             // 
@@ -314,17 +307,27 @@
             // 
             // dataGridViewTextBoxColumn3
             // 
-            this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.dataGridViewTextBoxColumn3.HeaderText = "标题行";
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            this.dataGridViewTextBoxColumn3.Width = 66;
+            this.dataGridViewTextBoxColumn3.Width = 36;
             // 
             // BodyLine
             // 
-            this.BodyLine.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.BodyLine.HeaderText = "填充起始行";
+            this.BodyLine.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.BodyLine.HeaderText = "填充行";
             this.BodyLine.Name = "BodyLine";
-            this.BodyLine.Width = 90;
+            this.BodyLine.Width = 36;
+            // 
+            // WScount2
+            // 
+            this.WScount2.Location = new System.Drawing.Point(478, 286);
+            this.WScount2.Name = "WScount2";
+            this.WScount2.Size = new System.Drawing.Size(75, 23);
+            this.WScount2.TabIndex = 24;
+            this.WScount2.Text = "工作簿分析";
+            this.WScount2.UseVisualStyleBackColor = true;
+            this.WScount2.Click += new System.EventHandler(this.WScount2_Click);
             // 
             // dataGridViewExcel2
             // 
@@ -374,11 +377,23 @@
             this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
             this.dataGridViewTextBoxColumn7.Width = 90;
             // 
+            // DelHiddenWs
+            // 
+            this.DelHiddenWs.Location = new System.Drawing.Point(8, 19);
+            this.DelHiddenWs.Name = "DelHiddenWs";
+            this.DelHiddenWs.Size = new System.Drawing.Size(98, 23);
+            this.DelHiddenWs.TabIndex = 19;
+            this.DelHiddenWs.Text = "删除隐藏工作簿";
+            this.DelHiddenWs.UseVisualStyleBackColor = true;
+            this.DelHiddenWs.Click += new System.EventHandler(this.DelHiddenWs_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(964, 483);
+            this.Controls.Add(this.filePath2);
+            this.Controls.Add(this.filePath1);
             this.Controls.Add(this.dataGridViewExcel2);
             this.Controls.Add(this.WScount2);
             this.Controls.Add(this.dataGridViewExcel1);
@@ -395,13 +410,10 @@
             this.Controls.Add(this.label4);
             this.Controls.Add(this.CheckTemplateConfiguration);
             this.Controls.Add(this.SelectFileBtn2);
-            this.Controls.Add(this.filePath2);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.GenerateConfiguration);
             this.Controls.Add(this.SelectFileBtn1);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.filePath1);
             this.Controls.Add(this.panel1);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -439,15 +451,16 @@
         private System.Windows.Forms.Button WScount1;
         private System.Windows.Forms.DataGridView dataGridViewExcel1;
         private System.Windows.Forms.Button WScount2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private System.Windows.Forms.DataGridViewTextBoxColumn BodyLine;
         private System.Windows.Forms.DataGridView dataGridViewExcel2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BodyLine;
+        private System.Windows.Forms.Button DelHiddenWs;
     }
 }
 
