@@ -20,6 +20,7 @@ namespace EPPlusExtensions
 {
     public class EPPlusHelper
     {
+        public static List<string> FillDataWorkSheetNames = new List<string>();
 
         //类型参考网址: http://filext.com/faq/office_mime_types.php
         public const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -116,6 +117,7 @@ namespace EPPlusExtensions
         #endregion
 
         #region DeleteWorksheet
+
         /// <summary>
         /// 删除母版页
         /// </summary>
@@ -134,6 +136,7 @@ namespace EPPlusExtensions
                 excelPackage.Workbook.Worksheets.Delete(workSheetName);
             }
         }
+
         /// <summary>
         /// 删除母版页
         /// </summary>
@@ -152,6 +155,61 @@ namespace EPPlusExtensions
                 excelPackage.Workbook.Worksheets.Delete(workSheetIndex);
             }
         }
+
+        public static void DeleteWorksheet(ExcelPackage excelPackage, params eWorkSheetHidden[] eWorkSheetHiddens)
+        {
+            EPPlusHelper.DeleteWorksheet(excelPackage, new List<string>(), eWorkSheetHiddens);
+        }
+
+        public static void DeleteWorksheet(ExcelPackage excelPackage, string[] workSheetNameExcludes, params eWorkSheetHidden[] eWorkSheetHiddens)
+        {
+            EPPlusHelper.DeleteWorksheet(excelPackage, (workSheetNameExcludes ?? new string[] { }).ToList(), eWorkSheetHiddens);
+        }
+
+        public static void DeleteWorksheet(ExcelPackage excelPackage, List<string> workSheetNameExcludeList, params eWorkSheetHidden[] eWorkSheetHiddens)
+        {
+            if (eWorkSheetHiddens == null) return;
+            if (workSheetNameExcludeList == null) workSheetNameExcludeList = new List<string>();
+            var delWsNames = GetWorkSheetNames(excelPackage, eWorkSheetHiddens);
+            foreach (var wsName in delWsNames)
+            {
+                if (workSheetNameExcludeList.Contains(wsName)) continue;
+                EPPlusHelper.DeleteWorksheet(excelPackage, wsName);
+            }
+        }
+
+        public static List<string> GetWorkSheetNames(ExcelPackage excelPackage, params eWorkSheetHidden[] eWorkSheetHiddens)
+        {
+            var wsNames = new List<string>();
+            if (eWorkSheetHiddens == null) return wsNames;
+
+            var count = excelPackage.Workbook.Worksheets.Count;
+            for (int i = 1; i <= count; i++)
+            {
+                var ws = excelPackage.Workbook.Worksheets[i];
+                foreach (var eWorkSheetHidden in eWorkSheetHiddens)
+                {
+                    if (ws.Hidden == eWorkSheetHidden)
+                    {
+                        wsNames.Add(ws.Name);
+                        break;
+                    }
+                }
+            }
+            return wsNames;
+        }
+
+        public static void DeleteWorksheetAll(ExcelPackage excelPackage, params string[] workSheetNameExclude)
+        {
+            EPPlusHelper.DeleteWorksheet(excelPackage, (workSheetNameExclude ?? new string[] { }).ToList());
+        }
+
+        public static void DeleteWorksheetAll(ExcelPackage excelPackage, List<string> workSheetNameExcludeList)
+        {
+            EPPlusHelper.DeleteWorksheet(excelPackage, workSheetNameExcludeList ?? new List<string>(),
+                eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden, eWorkSheetHidden.Visible);
+        }
+
         #endregion
 
         #region FillData
@@ -169,6 +227,7 @@ namespace EPPlusExtensions
             if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetName == null) throw new ArgumentNullException(nameof(destWorkSheetName));
             ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetName, workSheetNewName);
+            EPPlusHelper.FillDataWorkSheetNames.Add(workSheetNewName);
             config.WorkSheetDefault?.Invoke(worksheet);
             FillData(config, configSource, worksheet);
         }
@@ -183,10 +242,10 @@ namespace EPPlusExtensions
         /// <param name="destWorkSheetIndex">从1开始</param>
         public static void FillData(ExcelPackage excelPackage, EPPlusConfig config, EPPlusConfigSource configSource, string workSheetNewName, int destWorkSheetIndex)
         {
-
             if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(destWorkSheetIndex));
             ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetIndex, workSheetNewName);
+            EPPlusHelper.FillDataWorkSheetNames.Add(workSheetNewName);
             config.WorkSheetDefault?.Invoke(worksheet);
             FillData(config, configSource, worksheet);
         }
@@ -367,7 +426,7 @@ namespace EPPlusExtensions
                                 lastSpaceLineRowNumber = destRow + maxIntervalRow + 1; //最后一行空行的位置
                                 worksheet.InsertRow(destRow, maxIntervalRow + 1,
                                     destRow + maxIntervalRow + 1); //新增N行,注意,此时新增行的高度是有问题的
-                                //2.复制样式(含修正)
+                                                                   //2.复制样式(含修正)
                                 for (int j = 0; j <= maxIntervalRow; j++) //修正height
                                 {
                                     worksheet.Row(destRow + j).Height = worksheet.Row(destRow + j + maxIntervalRow + 1).Height;
@@ -530,8 +589,8 @@ namespace EPPlusExtensions
                                 }
 
                                 lastSpaceLineRowNumber = destRow + 1; //最后一行空行的位置
-                                //必须先新增,在赋值(若先赋值后新增,会造成赋值后的行被新增行覆盖).
-                                //1.新增一行,在destRow 前 插入 1行
+                                                                      //必须先新增,在赋值(若先赋值后新增,会造成赋值后的行被新增行覆盖).
+                                                                      //1.新增一行,在destRow 前 插入 1行
                                 worksheet.InsertRow(destRow, 1, destRow + 1);
                                 //copyStylesFromRow参数不会把合并的单元格也弄过来(即,这个参数的功能不是格式刷)
                                 //worksheet.InsertRow(destRow, 1);//注,这行代码与上一行代码的作用是一样的,因为我下面用了Copy.
@@ -2109,6 +2168,7 @@ namespace EPPlusExtensions
 
         #region 一些帮助方法
 
+
         /// <summary>
         /// 获得合并单元格的值 
         /// </summary>
@@ -2218,8 +2278,6 @@ namespace EPPlusExtensions
             return list;
         }
 
-
-
         public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, Dictionary<int, int> sheetTitleLineNumber = null, Action<ExcelRange> cellCustom = null)
         {
             List<DefaultConfig> defaultConfigList;
@@ -2259,7 +2317,6 @@ namespace EPPlusExtensions
             }
             return list;
         }
-
 
         /// <summary>
         /// 
