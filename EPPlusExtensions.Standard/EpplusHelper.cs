@@ -69,7 +69,6 @@ namespace EPPlusExtensions
         public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName)
         {
             return GetExcelWorksheet(excelPackage, workName, false);
-
         }
 
         public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName, bool autoMappingWs)
@@ -426,7 +425,7 @@ namespace EPPlusExtensions
                                 lastSpaceLineRowNumber = destRow + maxIntervalRow + 1; //最后一行空行的位置
                                 worksheet.InsertRow(destRow, maxIntervalRow + 1,
                                     destRow + maxIntervalRow + 1); //新增N行,注意,此时新增行的高度是有问题的
-                                                                   //2.复制样式(含修正)
+                                //2.复制样式(含修正)
                                 for (int j = 0; j <= maxIntervalRow; j++) //修正height
                                 {
                                     worksheet.Row(destRow + j).Height = worksheet.Row(destRow + j + maxIntervalRow + 1).Height;
@@ -589,8 +588,8 @@ namespace EPPlusExtensions
                                 }
 
                                 lastSpaceLineRowNumber = destRow + 1; //最后一行空行的位置
-                                                                      //必须先新增,在赋值(若先赋值后新增,会造成赋值后的行被新增行覆盖).
-                                                                      //1.新增一行,在destRow 前 插入 1行
+                                //必须先新增,在赋值(若先赋值后新增,会造成赋值后的行被新增行覆盖).
+                                //1.新增一行,在destRow 前 插入 1行
                                 worksheet.InsertRow(destRow, 1, destRow + 1);
                                 //copyStylesFromRow参数不会把合并的单元格也弄过来(即,这个参数的功能不是格式刷)
                                 //worksheet.InsertRow(destRow, 1);//注,这行代码与上一行代码的作用是一样的,因为我下面用了Copy.
@@ -2168,7 +2167,6 @@ namespace EPPlusExtensions
 
         #region 一些帮助方法
 
-
         /// <summary>
         /// 获得合并单元格的值 
         /// </summary>
@@ -2327,29 +2325,58 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber, Action<ExcelRange> cellCustom = null)
         {
-            var colNameList = new List<string>();
+            var colNameList = new List<string>();//列名
+            var colName_ColValueList = new List<int>();//每个列名的Col位置
             var nameRepeatCounter = new Dictionary<string, int>();
             #region 获得colNameList
-            for (int col = 1; col <= EPPlusConfig.MaxCol07; col++)
+
+            int col = 1;
+            while (col <= EPPlusConfig.MaxCol07)
             {
                 var destColVal = ExtractName(
                     ws.Cells[titleLineNumber, col].Merge
-                    ? GetMegerCellText(ws, titleLineNumber, col)
-                    : GetCellText(ws, titleLineNumber, col)).Trim().MergeLines();
+                        ? GetMegerCellText(ws, titleLineNumber, col)
+                        : GetCellText(ws, titleLineNumber, col)
+                ).Trim().MergeLines();
                 if (string.IsNullOrEmpty(destColVal))
                 {
                     break;
                 }
 
                 AutoRename(colNameList, nameRepeatCounter, destColVal, true);
+
+                colName_ColValueList.Add(col);
+                if (ws.Cells[titleLineNumber, col].Merge)
+                {
+                    var address = ws.MergedCells[titleLineNumber, col];
+                    var range = new ExcelCellRange(address);
+                    col += range.IntervalCol + 1;
+                }
+                else
+                {
+                    col++;
+                }
             }
 
             #endregion
 
             #region 给单元格赋值
+
+            int fillBodyLine;
+            if (ws.Cells[titleLineNumber, 1].Merge)
+            {
+                var address = ws.MergedCells[titleLineNumber, 1];
+                var range = new ExcelCellRange(address);
+                fillBodyLine = range.Start.Row + range.IntervalRow + 1;
+            }
+            else
+            {
+                fillBodyLine = titleLineNumber + 1;
+            }
+
             for (int i = 0; i < colNameList.Count; i++)
             {
-                ws.Cells[titleLineNumber + 1, i + 1].Value = $@"$tb1{colNameList[i]}";
+                ws.Cells[fillBodyLine, colName_ColValueList[i]].Value = $@"$tb1{colNameList[i]}";
                 cellCustom?.Invoke(ws.Cells[titleLineNumber + 1, i + 1]);
             }
 
