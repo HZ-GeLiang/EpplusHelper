@@ -138,8 +138,8 @@ namespace EPPlusHelperTool
             Dictionary<int, int> sheetTitleLineNumber = new Dictionary<int, int>();
             for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
             {
-                var bodyLineStart = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[3].Value);
-                sheetTitleLineNumber.Add(i, bodyLineStart);
+                var titleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value);
+                sheetTitleLineNumber.Add(i, titleLine);
             }
 
             EpplusHelper.FillExcelDefaultConfig(filePath, fileDir, sheetTitleLineNumber, cell =>
