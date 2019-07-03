@@ -32,7 +32,6 @@ namespace EPPlusHelperTool
             if (filter != null)
             {
                 openFileDialog1.Filter = filter;
-
             }
             openFileDialog1.FilterIndex = 2;
             openFileDialog1.RestoreDirectory = true;
@@ -52,6 +51,14 @@ namespace EPPlusHelperTool
         {
             string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
             ((System.Windows.Forms.TextBox)sender).Text = path;
+            if (((System.Windows.Forms.Control)sender).Name == "filePath1")
+            {
+                WScount1_Click(null, null);
+            }
+            if (((System.Windows.Forms.Control)sender).Name == "filePath2")
+            {
+                WScount2_Click(null, null);
+            }
         }
 
         private void textBoxDragEnter(object sender, DragEventArgs e)
@@ -141,6 +148,8 @@ namespace EPPlusHelperTool
                 var titleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value);
                 sheetTitleLineNumber.Add(i, titleLine);
             }
+
+
 
             EpplusHelper.FillExcelDefaultConfig(filePath, fileDir, sheetTitleLineNumber, cell =>
              {
@@ -330,6 +339,7 @@ namespace EPPlusHelperTool
 
         private static void SetDataSourceForDGV(ExcelPackage excelPackage, DataGridView control, StringBuilder names)
         {
+            control.Rows.Clear();
             var count = excelPackage.Workbook.Worksheets.Count;
             for (int i = 1; i <= count; i++)
             {
@@ -337,7 +347,6 @@ namespace EPPlusHelperTool
                 control.Rows[index].Cells[0].Value = i;
                 control.Rows[index].Cells[1].Value = excelPackage.Workbook.Worksheets[i].Name;
                 control.Rows[index].Cells[2].Value = 1;
-                control.Rows[index].Cells[3].Value = 2;
                 names.Append($"{excelPackage.Workbook.Worksheets[i].Name},");
             }
 
@@ -370,6 +379,5 @@ namespace EPPlusHelperTool
 
             }
         }
-
     }
 }

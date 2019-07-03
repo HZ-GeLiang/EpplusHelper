@@ -49,19 +49,17 @@
             this.label9 = new System.Windows.Forms.Label();
             this.GenerateConfigurationCode = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.DelHiddenWs = new System.Windows.Forms.Button();
             this.WScount1 = new System.Windows.Forms.Button();
             this.dataGridViewExcel1 = new System.Windows.Forms.DataGridView();
+            this.WScount2 = new System.Windows.Forms.Button();
+            this.dataGridViewExcel2 = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.BodyLine = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.WScount2 = new System.Windows.Forms.Button();
-            this.dataGridViewExcel2 = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DelHiddenWs = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).BeginInit();
@@ -261,6 +259,16 @@
             this.panel1.Size = new System.Drawing.Size(369, 55);
             this.panel1.TabIndex = 19;
             // 
+            // DelHiddenWs
+            // 
+            this.DelHiddenWs.Location = new System.Drawing.Point(8, 19);
+            this.DelHiddenWs.Name = "DelHiddenWs";
+            this.DelHiddenWs.Size = new System.Drawing.Size(98, 23);
+            this.DelHiddenWs.TabIndex = 19;
+            this.DelHiddenWs.Text = "删除隐藏工作簿";
+            this.DelHiddenWs.UseVisualStyleBackColor = true;
+            this.DelHiddenWs.Click += new System.EventHandler(this.DelHiddenWs_Click);
+            // 
             // WScount1
             // 
             this.WScount1.Location = new System.Drawing.Point(480, 68);
@@ -278,46 +286,13 @@
             this.dataGridViewExcel1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn1,
             this.dataGridViewTextBoxColumn2,
-            this.dataGridViewTextBoxColumn3,
-            this.BodyLine});
+            this.dataGridViewTextBoxColumn3});
             this.dataGridViewExcel1.Location = new System.Drawing.Point(584, 23);
             this.dataGridViewExcel1.Name = "dataGridViewExcel1";
             this.dataGridViewExcel1.RowHeadersVisible = false;
             this.dataGridViewExcel1.RowTemplate.Height = 23;
             this.dataGridViewExcel1.Size = new System.Drawing.Size(354, 183);
             this.dataGridViewExcel1.TabIndex = 22;
-            // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.dataGridViewTextBoxColumn1.Frozen = true;
-            this.dataGridViewTextBoxColumn1.HeaderText = "序号";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            this.dataGridViewTextBoxColumn1.ReadOnly = true;
-            this.dataGridViewTextBoxColumn1.Width = 36;
-            // 
-            // dataGridViewTextBoxColumn2
-            // 
-            this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.dataGridViewTextBoxColumn2.Frozen = true;
-            this.dataGridViewTextBoxColumn2.HeaderText = "名字";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            this.dataGridViewTextBoxColumn2.ReadOnly = true;
-            this.dataGridViewTextBoxColumn2.Width = 54;
-            // 
-            // dataGridViewTextBoxColumn3
-            // 
-            this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.dataGridViewTextBoxColumn3.HeaderText = "标题行";
-            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            this.dataGridViewTextBoxColumn3.Width = 36;
-            // 
-            // BodyLine
-            // 
-            this.BodyLine.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.BodyLine.HeaderText = "填充行";
-            this.BodyLine.Name = "BodyLine";
-            this.BodyLine.Width = 36;
             // 
             // WScount2
             // 
@@ -336,14 +311,38 @@
             this.dataGridViewExcel2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn4,
             this.dataGridViewTextBoxColumn5,
-            this.dataGridViewTextBoxColumn6,
-            this.dataGridViewTextBoxColumn7});
+            this.dataGridViewTextBoxColumn6});
             this.dataGridViewExcel2.Location = new System.Drawing.Point(584, 244);
             this.dataGridViewExcel2.Name = "dataGridViewExcel2";
             this.dataGridViewExcel2.RowHeadersVisible = false;
             this.dataGridViewExcel2.RowTemplate.Height = 23;
             this.dataGridViewExcel2.Size = new System.Drawing.Size(354, 170);
             this.dataGridViewExcel2.TabIndex = 25;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.dataGridViewTextBoxColumn1.Frozen = true;
+            this.dataGridViewTextBoxColumn1.HeaderText = "序号";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.ReadOnly = true;
+            this.dataGridViewTextBoxColumn1.Width = 36;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.dataGridViewTextBoxColumn2.Frozen = true;
+            this.dataGridViewTextBoxColumn2.HeaderText = "名字";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            this.dataGridViewTextBoxColumn2.ReadOnly = true;
+            this.dataGridViewTextBoxColumn2.Width = 51;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.dataGridViewTextBoxColumn3.HeaderText = "标题行";
+            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            this.dataGridViewTextBoxColumn3.Width = 36;
             // 
             // dataGridViewTextBoxColumn4
             // 
@@ -369,23 +368,6 @@
             this.dataGridViewTextBoxColumn6.HeaderText = "标题行";
             this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
             this.dataGridViewTextBoxColumn6.Width = 66;
-            // 
-            // dataGridViewTextBoxColumn7
-            // 
-            this.dataGridViewTextBoxColumn7.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.dataGridViewTextBoxColumn7.HeaderText = "填充起始行";
-            this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
-            this.dataGridViewTextBoxColumn7.Width = 90;
-            // 
-            // DelHiddenWs
-            // 
-            this.DelHiddenWs.Location = new System.Drawing.Point(8, 19);
-            this.DelHiddenWs.Name = "DelHiddenWs";
-            this.DelHiddenWs.Size = new System.Drawing.Size(98, 23);
-            this.DelHiddenWs.TabIndex = 19;
-            this.DelHiddenWs.Text = "删除隐藏工作簿";
-            this.DelHiddenWs.UseVisualStyleBackColor = true;
-            this.DelHiddenWs.Click += new System.EventHandler(this.DelHiddenWs_Click);
             // 
             // Form1
             // 
@@ -452,15 +434,13 @@
         private System.Windows.Forms.DataGridView dataGridViewExcel1;
         private System.Windows.Forms.Button WScount2;
         private System.Windows.Forms.DataGridView dataGridViewExcel2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
+        private System.Windows.Forms.Button DelHiddenWs;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private System.Windows.Forms.DataGridViewTextBoxColumn BodyLine;
-        private System.Windows.Forms.Button DelHiddenWs;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
     }
 }
 
