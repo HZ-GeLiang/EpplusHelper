@@ -2327,29 +2327,61 @@ namespace EpplusExtensions
         /// <returns></returns>
         public static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber, Action<ExcelRange> cellCustom = null)
         {
-            var colNameList = new List<string>();
+            var colNameList = new List<string>();//列名
+            var colName_ColValueList = new List<int>();//每个列名的Col位置
             var nameRepeatCounter = new Dictionary<string, int>();
             #region 获得colNameList
-            for (int col = 1; col <= EpplusConfig.MaxCol07; col++)
+
+
+            int col = 1;
+            while (col <= EpplusConfig.MaxCol07)
             {
                 var destColVal = ExtractName(
                     ws.Cells[titleLineNumber, col].Merge
-                    ? GetMegerCellText(ws, titleLineNumber, col)
-                    : GetCellText(ws, titleLineNumber, col)).Trim().MergeLines();
+                        ? GetMegerCellText(ws, titleLineNumber, col)
+                        : GetCellText(ws, titleLineNumber, col)
+                ).Trim().MergeLines();
                 if (string.IsNullOrEmpty(destColVal))
                 {
                     break;
                 }
 
                 AutoRename(colNameList, nameRepeatCounter, destColVal, true);
+
+                colName_ColValueList.Add(col);
+                if (ws.Cells[titleLineNumber, col].Merge)
+                {
+                    var address = ws.MergedCells[titleLineNumber, col];
+                    var range = new ExcelCellRange(address);
+                    col += range.IntervalCol + 1;
+                }
+                else
+                {
+                    col++;
+                }
+
+
             }
 
             #endregion
 
             #region 给单元格赋值
+
+            int fillBodyLine;
+            if (ws.Cells[titleLineNumber, 1].Merge)
+            {
+                var address = ws.MergedCells[titleLineNumber, 1];
+                var range = new ExcelCellRange(address);
+                fillBodyLine = range.Start.Row + range.IntervalRow + 1;
+            }
+            else
+            {
+                fillBodyLine = titleLineNumber + 1;
+            }
+
             for (int i = 0; i < colNameList.Count; i++)
             {
-                ws.Cells[titleLineNumber + 1, i + 1].Value = $@"$tb1{colNameList[i]}";
+                ws.Cells[fillBodyLine, colName_ColValueList[i]].Value = $@"$tb1{colNameList[i]}";
                 cellCustom?.Invoke(ws.Cells[titleLineNumber + 1, i + 1]);
             }
 
