@@ -119,13 +119,15 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="模版\Sample01_2.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="模版\Sample01_1_2.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="模版\Sample01_1.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="模版\Sample01_2.xlsx" />
     <None Include="模版\Sample02_1.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
