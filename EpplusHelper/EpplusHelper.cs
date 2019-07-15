@@ -2427,7 +2427,12 @@ namespace EpplusExtensions
                 var propName_lower = propName.ToLower();
                 bool sb_CrateClassSnippe_AppendLine_InForeach = false;
 
-                if (colName.ExcelColName != colName.Name && !colName.IsRename)
+                if (colName.IsRename)
+                {
+                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColIndex({colName.ExcelColNameIndex})]");
+                }
+
+                if (colName.ExcelColName != colName.Name)
                 {
                     sb_CrateClassSnippe.AppendLine($" [DisplayExcelColName(\"{colName.ExcelColName}\")]");
                 }
