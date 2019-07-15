@@ -2427,14 +2427,19 @@ namespace EpplusExtensions
                 var propName_lower = propName.ToLower();
                 bool sb_CrateClassSnippe_AppendLine_InForeach = false;
 
+
                 if (colName.IsRename)
                 {
                     sb_CrateClassSnippe.AppendLine($" [ExcelCoIumnIndex({colName.ExcelColNameIndex})]");
+                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
                 }
 
                 if (colName.ExcelColName != colName.Name)
                 {
-                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
+                    if (!colName.IsRename)//上面添加过了,这里不在添加
+                    {
+                        sb_CrateClassSnippe.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
+                    }
                 }
                 foreach (var item in columnTypeList_DateTime)
                 {

@@ -2431,11 +2431,15 @@ namespace EPPlusExtensions
                 if (colName.IsRename)
                 {
                     sb_CrateClassSnippe.AppendLine($" [ExcelColumnIndex({colName.ExcelColNameIndex})]");
+                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
                 }
-
+                
                 if (colName.ExcelColName != colName.Name )
                 {
-                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
+                    if (!colName.IsRename)//上面添加过了,这里不在添加
+                    {
+                        sb_CrateClassSnippe.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
+                    }
                 }
                 foreach (var item in columnTypeList_DateTime)
                 {
