@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace EPPlusExtensions.Attributes
 {
-    public class DisplayExcelColName : System.Attribute
+    public class DisplayExcelColumnName : System.Attribute
     {
         public string Name { get; set; }
 
-        public DisplayExcelColName(string name)
+        public DisplayExcelColumnName(string name)
         {
             this.Name = name;
         }

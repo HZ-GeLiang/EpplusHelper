@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EPPlusExtensions.Attributes
 {
-    public class DisplayExcelColIndex : System.Attribute
+    public class ExcelColumnIndex : System.Attribute
     {
         public int Index { get; set; }
 
@@ -14,7 +14,7 @@ namespace EPPlusExtensions.Attributes
         /// 从1开始的
         /// </summary>
         /// <param name="index"></param>
-        public DisplayExcelColIndex(int index)
+        public ExcelColumnIndex(int index)
         {
             this.Index = index;
         }
