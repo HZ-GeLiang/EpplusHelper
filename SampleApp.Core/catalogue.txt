@@ -9,6 +9,7 @@ Sample02_3-内置Attribute的示例
 Sample02_4-当excel列名字重复时,按顺序映射到对应model属性中
 Sample02_5-GetList()时可以获得模版数据检测提示.
 Sample02_6-新增GetDataTable()
+Sample02_7-GetList()支持标题列名字重复
 
 填充数据与数据源同步(未测试完全),不推荐用
 Sample03_1-普通单元格

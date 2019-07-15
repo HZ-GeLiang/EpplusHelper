@@ -10,6 +10,7 @@ namespace EpplusExtensions
         public ExcelWorksheet WorkSheet { get; set; }
         public ExcelAddress ExcelAddress { get; set; }
         public object Value { get; set; }
+        
     }
 
     public class ExcelCellInfoValue

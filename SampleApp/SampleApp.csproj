@@ -103,6 +103,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sample01_1_2.cs" />
     <Compile Include="Sample01_2.cs" />
+    <Compile Include="Sample02_7.cs" />
     <Compile Include="Sample02_6.cs" />
     <Compile Include="Sample02_5.cs" />
     <Compile Include="Sample02_2.cs" />
@@ -126,6 +127,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="模版\Sample01_1.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\Sample02_7.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="模版\Sample02_1.xlsx">

@@ -49,7 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\ExcelCoIumnIndex.cs" />
+    <Compile Include="Attributes\ExcelColumnIndex.cs" />
     <Compile Include="Attributes\DisplayExcelColumnName.cs" />
     <Compile Include="Attributes\UniqueAttribute.cs" />
     <Compile Include="DefaultConfig.cs" />
