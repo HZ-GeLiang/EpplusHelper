@@ -326,7 +326,7 @@
             this.dataGridViewTextBoxColumn4.HeaderText = "序号";
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            this.dataGridViewTextBoxColumn4.Width = 54;
+            this.dataGridViewTextBoxColumn4.Width = 52;
             // 
             // dataGridViewTextBoxColumn5
             // 
@@ -335,14 +335,14 @@
             this.dataGridViewTextBoxColumn5.HeaderText = "名字";
             this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
             this.dataGridViewTextBoxColumn5.ReadOnly = true;
-            this.dataGridViewTextBoxColumn5.Width = 54;
+            this.dataGridViewTextBoxColumn5.Width = 52;
             // 
             // dataGridViewTextBoxColumn6
             // 
             this.dataGridViewTextBoxColumn6.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.dataGridViewTextBoxColumn6.HeaderText = "标题行";
             this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
-            this.dataGridViewTextBoxColumn6.Width = 66;
+            this.dataGridViewTextBoxColumn6.Width = 64;
             // 
             // dataGridViewTextBoxColumn1
             // 
@@ -351,7 +351,7 @@
             this.dataGridViewTextBoxColumn1.HeaderText = "序号";
             this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
             this.dataGridViewTextBoxColumn1.ReadOnly = true;
-            this.dataGridViewTextBoxColumn1.Width = 36;
+            this.dataGridViewTextBoxColumn1.Width = 52;
             // 
             // dataGridViewTextBoxColumn2
             // 
@@ -360,14 +360,14 @@
             this.dataGridViewTextBoxColumn2.HeaderText = "名字";
             this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
             this.dataGridViewTextBoxColumn2.ReadOnly = true;
-            this.dataGridViewTextBoxColumn2.Width = 54;
+            this.dataGridViewTextBoxColumn2.Width = 52;
             // 
             // dataGridViewTextBoxColumn3
             // 
             this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.dataGridViewTextBoxColumn3.HeaderText = "标题行";
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            this.dataGridViewTextBoxColumn3.Width = 66;
+            this.dataGridViewTextBoxColumn3.Width = 64;
             // 
             // Form1
             // 
