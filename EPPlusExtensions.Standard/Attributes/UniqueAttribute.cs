@@ -13,7 +13,7 @@ namespace EPPlusExtensions.Attributes
 
         public UniqueAttribute(string errorMessage)
         {
-            this.ErrorMessage = ErrorMessage;
+            this.ErrorMessage = errorMessage;
         }
 
     }
