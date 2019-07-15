@@ -2325,27 +2325,31 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber, Action<ExcelRange> cellCustom = null)
         {
-            var colNameList = new List<string>();//列名
-            var colName_ColValueList = new List<int>();//每个列名的Col位置
+            var colNameList = new List<ExcelCellInfoValue>();
             var nameRepeatCounter = new Dictionary<string, int>();
             #region 获得colNameList
 
             int col = 1;
             while (col <= EPPlusConfig.MaxCol07)
             {
-                var destColVal = ExtractName(
-                    ws.Cells[titleLineNumber, col].Merge
-                        ? GetMegerCellText(ws, titleLineNumber, col)
-                        : GetCellText(ws, titleLineNumber, col)
-                ).Trim().MergeLines();
+                var excelColName = ws.Cells[titleLineNumber, col].Merge ? GetMegerCellText(ws, titleLineNumber, col) : GetCellText(ws, titleLineNumber, col);
+
+                var destColVal = ExtractName(excelColName).Trim().MergeLines();
                 if (string.IsNullOrEmpty(destColVal))
                 {
                     break;
                 }
 
-                AutoRename(colNameList, nameRepeatCounter, destColVal, true);
+                var thisColNameInfo = new ExcelCellInfoValue()
+                {
+                    Name = destColVal,
+                    ExcelColNameIndex = col,
+                    //ExcelColName = excelColName,
+                    ExcelColName = excelColName.Trim().MergeLines(),
+                };
 
-                colName_ColValueList.Add(col);
+                AutoRename(colNameList, nameRepeatCounter, thisColNameInfo, true);
+
                 if (ws.Cells[titleLineNumber, col].Merge)
                 {
                     var address = ws.MergedCells[titleLineNumber, col];
@@ -2376,7 +2380,7 @@ namespace EPPlusExtensions
 
             for (int i = 0; i < colNameList.Count; i++)
             {
-                ws.Cells[fillBodyLine, colName_ColValueList[i]].Value = $@"$tb1{colNameList[i]}";
+                ws.Cells[fillBodyLine, colNameList[i].ExcelColNameIndex].Value = $@"$tb1{(colNameList[i].IsRename ? colNameList[i].NameNew : colNameList[i].Name)}";
                 cellCustom?.Invoke(ws.Cells[titleLineNumber + 1, i + 1]);
             }
 
@@ -2417,18 +2421,23 @@ namespace EPPlusExtensions
 
             foreach (var colName in colNameList)
             {
-                sbColumn.AppendLine($"dt.Columns.Add(\"{colName}\");");
-                sbAddDr.AppendLine($"//dr[\"{colName}\"] = ");
+                var propName = colName.IsRename ? colName.NameNew : colName.Name;
+                sbColumn.AppendLine($"dt.Columns.Add(\"{propName}\");");
+                sbAddDr.AppendLine($"//dr[\"{propName}\"] = ");
 
-                var colName_Lower = colName.ToLower();
+                var propName_lower = propName.ToLower();
                 bool sb_CrateClassSnippe_AppendLine_InForeach = false;
 
+                if (colName.ExcelColName != colName.Name)
+                {
+                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColName(\"{colName.ExcelColName}\")]");
+                }
                 foreach (var item in columnTypeList_DateTime)
                 {
-                    if (colName_Lower.IndexOf(item) != -1)
+                    if (propName_lower.IndexOf(item) != -1)
                     {
-                        sbColumnType.AppendLine($"dt.Columns[\"{colName}\"].DataType = typeof(DateTime);");
-                        sb_CrateClassSnippe.AppendLine($" public DateTime {colName} {{ get; set; }}");
+                        sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(DateTime);");
+                        sb_CrateClassSnippe.AppendLine($" public DateTime {propName} {{ get; set; }}");
                         sb_CrateClassSnippe_AppendLine_InForeach = true;
                         break;
                     }
@@ -2436,10 +2445,10 @@ namespace EPPlusExtensions
 
                 foreach (var item in columnTypeList_String)
                 {
-                    if (colName_Lower.IndexOf(item) != -1)
+                    if (propName_lower.IndexOf(item) != -1)
                     {
-                        sbColumnType.AppendLine($"dt.Columns[\"{colName}\"].DataType = typeof(String);");
-                        sb_CrateClassSnippe.AppendLine($" public string {colName} {{ get; set; }}");
+                        sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(String);");
+                        sb_CrateClassSnippe.AppendLine($" public string {propName} {{ get; set; }}");
                         sb_CrateClassSnippe_AppendLine_InForeach = true;
                         break;//处理过了就break,不然会重复处理 譬如 银行卡号, 此时符合 银行卡 和卡号
                     }
@@ -2447,14 +2456,14 @@ namespace EPPlusExtensions
 
                 if (!sb_CrateClassSnippe_AppendLine_InForeach)
                 {
-                    sb_CrateClassSnippe.AppendLine($" public string {colName} {{ get; set; }}");
+                    sb_CrateClassSnippe.AppendLine($" public string {propName} {{ get; set; }}");
                 }
 
             }
-            sb_CrateDateTableSnippe.Append(sbColumn.ToString());
-            sb_CrateDateTableSnippe.Append(sbColumnType.ToString());
+            sb_CrateDateTableSnippe.Append(sbColumn);
+            sb_CrateDateTableSnippe.Append(sbColumnType);
             sbAddDr.AppendLine($@"//dt.Rows.Add(dr);");
-            sb_CrateDateTableSnippe.Append(sbAddDr.ToString());
+            sb_CrateDateTableSnippe.Append(sbAddDr);
 
             sb_CrateClassSnippe.AppendLine("}");
             #endregion
@@ -2491,17 +2500,14 @@ namespace EPPlusExtensions
             else
             {
                 //如果出现重复,把第一个名字添加后缀1
-                if (renameFirstNameWhenRepeat)
+                if (renameFirstNameWhenRepeat && nameRepeatCounter[name] == 1)
                 {
-                    if (nameRepeatCounter[name] == 1)
+                    for (int i = 0; i < nameList.Count; i++)
                     {
-                        for (int i = 0; i < nameList.Count; i++)
+                        if (nameList[i] == name)
                         {
-                            if (nameList[i] == name)
-                            {
-                                nameList[i] = nameList[i] + "1";
-                                break;
-                            }
+                            nameList[i] = nameList[i] + "1";
+                            break;
                         }
                     }
                 }
@@ -2511,6 +2517,47 @@ namespace EPPlusExtensions
             }
 
             nameRepeatCounter[name] = ++nameRepeatCounter[name];
+        }
+
+
+        /// <summary>
+        /// 自动重命名
+        /// </summary>
+        /// <param name="nameList">重名后的name集合</param>
+        /// <param name="nameRepeatCounter">name重复的次数</param>
+        /// <param name="name">要传入的name值</param>
+        /// <param name="renameFirstNameWhenRepeat">当重名时,重命名第一个名字</param>
+        private static void AutoRename(List<ExcelCellInfoValue> nameList, Dictionary<string, int> nameRepeatCounter, ExcelCellInfoValue name, bool renameFirstNameWhenRepeat)
+        {
+            if (!nameRepeatCounter.ContainsKey(name.Name))
+            {
+                nameRepeatCounter.Add(name.Name, 0);
+            }
+
+            if (nameList.Find(a => a.Name == name.Name) == null && nameRepeatCounter[name.Name] == 0)
+            {
+                nameList.Add(name);
+            }
+            else
+            {
+                //如果出现重复,把第一个名字添加后缀1
+                if (renameFirstNameWhenRepeat && nameRepeatCounter[name.Name] == 1)
+                {
+                    for (int i = 0; i < nameList.Count; i++)
+                    {
+                        if (nameList[i] == name)
+                        {
+                            nameList[i].IsRename = true;
+                            nameList[i].NameNew = nameList[i].Name + "1";
+                            break;
+                        }
+                    }
+                }
+                //必须要先用一个变量保存,使用 ++colNames_Counter[destColVal] 会把 colNames_Counter[destColVal] 值变掉
+                var currentCounterVal = nameRepeatCounter[name.Name];
+                name.NameNew = $@"{name.Name}{++currentCounterVal}";
+            }
+            nameRepeatCounter[name.Name] = ++nameRepeatCounter[name.Name];
         }
 
         /// <summary>

@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\DisplayExcelColName.cs" />
     <Compile Include="Attributes\UniqueAttribute.cs" />
     <Compile Include="DefaultConfig.cs" />
     <Compile Include="GetExcelListArgs.cs" />

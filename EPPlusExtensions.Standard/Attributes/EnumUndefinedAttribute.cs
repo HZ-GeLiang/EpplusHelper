@@ -10,9 +10,9 @@ namespace EPPlusExtensions.Attributes
     {
         public string ErrorMessage { get; set; }
         public string[] Args { get; set; }
-        public EnumUndefinedAttribute(string errorMessageformat, params string[] args)
+        public EnumUndefinedAttribute(string errorMessageFormat, params string[] args)
         {
-            this.ErrorMessage = errorMessageformat;
+            this.ErrorMessage = errorMessageFormat;
             this.Args = args;
         }
     }
