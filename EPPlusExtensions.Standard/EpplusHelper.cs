@@ -2440,10 +2440,7 @@ namespace EPPlusExtensions
                         sb_CrateClassSnippe.AppendLine($" public string {colName} {{ get; set; }}");
                         break;//处理过了就break,不然会重复处理 譬如 银行卡号, 此时符合 银行卡 和卡号
                     }
-                }
-
-                sb_CrateClassSnippe.AppendLine($" public string {colName} {{ get; set; }}");
-
+                } 
             }
             sb_CrateDateTableSnippe.Append(sbColumn.ToString());
             sb_CrateDateTableSnippe.Append(sbColumnType.ToString());
