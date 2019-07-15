@@ -2430,12 +2430,12 @@ namespace EPPlusExtensions
 
                 if (colName.IsRename)
                 {
-                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColIndex({colName.ExcelColNameIndex})]");
+                    sb_CrateClassSnippe.AppendLine($" [ExcelColumnIndex({colName.ExcelColNameIndex})]");
                 }
 
                 if (colName.ExcelColName != colName.Name )
                 {
-                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColName(\"{colName.ExcelColName}\")]");
+                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
                 }
                 foreach (var item in columnTypeList_DateTime)
                 {
@@ -2550,7 +2550,7 @@ namespace EPPlusExtensions
                 {
                     for (int i = 0; i < nameList.Count; i++)
                     {
-                        if (nameList[i] == name)
+                        if (nameList[i].Name == name.Name)
                         {
                             nameList[i].IsRename = true;
                             nameList[i].NameNew = nameList[i].Name + "1";
@@ -2560,7 +2560,9 @@ namespace EPPlusExtensions
                 }
                 //必须要先用一个变量保存,使用 ++colNames_Counter[destColVal] 会把 colNames_Counter[destColVal] 值变掉
                 var currentCounterVal = nameRepeatCounter[name.Name];
+                name.IsRename = true;
                 name.NameNew = $@"{name.Name}{++currentCounterVal}";
+                nameList.Add(name);
             }
             nameRepeatCounter[name.Name] = ++nameRepeatCounter[name.Name];
         }
