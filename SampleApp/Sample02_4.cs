@@ -31,13 +31,12 @@ namespace SampleApp
                 Console.WriteLine("读取完毕");
             }
         }
-    }
+        internal class Test02_3
+        {
 
-    internal class Test02_3
-    {
-
-        public string 名字 { get; set; }
-        public string 名字2 { get; set; }
-        public string 名字3 { get; set; }
+            public string 名字 { get; set; }
+            public string 名字2 { get; set; }
+            public string 名字3 { get; set; }
+        }
     }
 }

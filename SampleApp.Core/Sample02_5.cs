@@ -83,12 +83,10 @@ namespace SampleApp.Core
                 Console.WriteLine("读取完毕");
             }
         }
+        class Model1
+        {
+            public string a { get; set; }
+            public string b { get; set; }
+        }
     }
-
-    class Model1
-    {
-        public string a { get; set; }
-        public string b { get; set; }
-    }
-
 }

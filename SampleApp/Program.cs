@@ -15,7 +15,7 @@ namespace SampleApp
     {
         static void Main(string[] args)
         {
-            new Sample01_1_2().Run();
+            new Sample02_1_2().Run();
 
             //OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\"));
             //new Sample01_1().Run();

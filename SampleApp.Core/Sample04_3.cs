@@ -40,6 +40,5 @@ namespace SampleApp.Core
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }
-
     }
 }
