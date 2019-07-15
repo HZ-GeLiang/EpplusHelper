@@ -2426,6 +2426,7 @@ namespace EpplusExtensions
                 sbAddDr.AppendLine($"//dr[\"{colName}\"] = ");
 
                 var colName_Lower = colName.ToLower();
+                bool sb_CrateClassSnippe_AppendLine_InForeach = false;
 
                 foreach (var item in columnTypeList_DateTime)
                 {
@@ -2433,6 +2434,7 @@ namespace EpplusExtensions
                     {
                         sbColumnType.AppendLine($"dt.Columns[\"{colName}\"].DataType = typeof(DateTime);");
                         sb_CrateClassSnippe.AppendLine($" public DateTime {colName} {{ get; set; }}");
+                        sb_CrateClassSnippe_AppendLine_InForeach = true;
                         break;
                     }
                 }
@@ -2443,10 +2445,15 @@ namespace EpplusExtensions
                     {
                         sbColumnType.AppendLine($"dt.Columns[\"{colName}\"].DataType = typeof(String);");
                         sb_CrateClassSnippe.AppendLine($" public string {colName} {{ get; set; }}");
+                        sb_CrateClassSnippe_AppendLine_InForeach = true;
                         break;//处理过了就break,不然会重复处理 譬如 银行卡号, 此时符合 银行卡 和卡号
                     }
                 }
-                 
+                if (!sb_CrateClassSnippe_AppendLine_InForeach)
+                {
+                    sb_CrateClassSnippe.AppendLine($" public string {colName} {{ get; set; }}");
+                }
+
             }
             sb_CrateDateTableSnippe.Append(sbColumn.ToString());
             sb_CrateDateTableSnippe.Append(sbColumnType.ToString());
