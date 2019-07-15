@@ -7,9 +7,7 @@ namespace SampleApp.Core
     {
         static void Main(string[] args)
         {
-            DataTable dt = new DataTable();
-            dt.AsEnumerable();
-            Console.WriteLine("Hello World!");
+            new Sample02_5().Run();
         }
     }
 }

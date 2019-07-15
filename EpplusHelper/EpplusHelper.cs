@@ -1432,27 +1432,30 @@ namespace EpplusExtensions
             Type type = typeof(T);
 
             #region 获得字典
-            var dictExcelColumnIsModelProp = new Dictionary<string, bool>(); //excel列是Model的属性
-            var dictModelPropExistsExcelColumn = new Dictionary<string, bool>();//Model属性在Excel列中存在
-
+            //var dictExcelColumnIsModelProp = new Dictionary<string, bool>(); //excel列是Model的属性, key: excel列内容
+            var dictModelPropNameExistsExcelColumn = new Dictionary<string, bool>();//Model属性在Excel列中存在, key: ModelPropName
             var dictModelPropNameToExcelColumnName = new Dictionary<string, string>();//Model属性名字对应的excel的标题列名字
-            var dictExcelColumnIndexToModelPropName = new Dictionary<int, string>();//Model属性在excel的第几列
+            var dictExcelColumnIndexToModelPropName_Temp = new Dictionary<int, string>();//Excel的列标题和Model属性名字的映射
+            var dictExcelColumnIndexToModelPropName_All = new Dictionary<int, string>();//Excel列对应的Model属性名字(所有excel列)
 
             foreach (var props in type.GetProperties())
             {
+                dictModelPropNameExistsExcelColumn.Add(props.Name, false);
+                dictModelPropNameToExcelColumnName.Add(props.Name, null);
+
                 var propAttr_DisplayExcelColumnName = ReflectionHelper.GetAttributeForProperty<DisplayExcelColumnNameAttribute>(type, props.Name);
                 if (propAttr_DisplayExcelColumnName.Length > 0)
                 {
-                    dictModelPropNameToExcelColumnName.Add(props.Name, ((DisplayExcelColumnNameAttribute)propAttr_DisplayExcelColumnName[0]).Name);
+                    dictModelPropNameToExcelColumnName[props.Name] = ((DisplayExcelColumnNameAttribute)propAttr_DisplayExcelColumnName[0]).Name;
                 }
                 var propAttr_ExcelColumnIndex = ReflectionHelper.GetAttributeForProperty<ExcelColumnIndexAttribute>(type, props.Name);
                 if (propAttr_ExcelColumnIndex.Length > 0)
                 {
-                    dictExcelColumnIndexToModelPropName.Add(((ExcelColumnIndexAttribute)propAttr_ExcelColumnIndex[0]).Index, props.Name);
+                    dictExcelColumnIndexToModelPropName_Temp.Add(((ExcelColumnIndexAttribute)propAttr_ExcelColumnIndex[0]).Index, props.Name);
                 }
-                dictModelPropExistsExcelColumn.Add(props.Name, false);
+
             }
-            var dictExcelColumnIndexToModelPropName_All = new Dictionary<int, string>();//Excel列对应的Model属性(所有excel列)
+
             foreach (var item in colNameList)
             {
                 //var excelColumnIndex = new ExcelCellRange(item.ExcelAddress.ToString()).Start.Col;
@@ -1462,10 +1465,10 @@ namespace EpplusExtensions
                 PropertyInfo pInfo = type.GetProperty(propName);
                 if (pInfo == null)
                 {
-                    if (dictExcelColumnIndexToModelPropName.ContainsKey(excelColumnIndex))
+                    if (dictExcelColumnIndexToModelPropName_Temp.ContainsKey(excelColumnIndex))
                     {
                         PropertyInfo pInfoTemp = null;
-                        var propNameTemp = dictExcelColumnIndexToModelPropName[excelColumnIndex];
+                        var propNameTemp = dictExcelColumnIndexToModelPropName_Temp[excelColumnIndex];
                         //不做属性的 DisplayExcelColumnName = 当前属性的验证 (因为还没想到这个属性是一定要验证的情况)
                         //if (dictModelPropNameToExcelColumnName.ContainsKey(propNameTemp) && dictModelPropNameToExcelColumnName[propNameTemp] == propName)
                         //{
@@ -1483,13 +1486,13 @@ namespace EpplusExtensions
 
                 if (pInfo != null)
                 {
-                    dictExcelColumnIsModelProp.Add(propName, true);
-                    dictModelPropExistsExcelColumn[propName] = true;
+                    //dictExcelColumnIsModelProp.Add(propName, true);
+                    dictModelPropNameExistsExcelColumn[propName] = true;
                     dictExcelColumnIndexToModelPropName_All[excelColumnIndex] = propName;
                 }
                 else
                 {
-                    dictExcelColumnIsModelProp[propName] = false;
+                    //dictExcelColumnIsModelProp.Add(propName, false);//PropName 值是 excel列内容
                 }
             }
             #endregion
@@ -1497,7 +1500,10 @@ namespace EpplusExtensions
             #region 验证 MatchingModel.eq //args.MatchingModel
 
             var _matchingModelSuccess = false;  //提供的 Matching 参数[这里写死了MatchingModel.eq] 和算出来MatchingModel 有没有交集(默认没有)
-            var _matchingModel = GetMatchingModel(dictExcelColumnIsModelProp, dictModelPropExistsExcelColumn, out List<string> modelPropNotExistsExcelColumn, out List<string> excelColumnIsNotModelProp);
+
+            var dictExcelColumnIndexToExcelColName = colNameList.ToDictionary(item => new ExcelCellPoint(item.ExcelAddress).Col, item => item.Value.ToString());
+            var _matchingModel = GetMatchingModel(dictExcelColumnIndexToExcelColName, dictExcelColumnIndexToModelPropName_All,
+                dictModelPropNameExistsExcelColumn, out List<string> modelPropNotExistsExcelColumn, out List<string> excelColumnIsNotModelProp);
             var _matchingModelValues = Enum.GetValues(typeof(MatchingModel));
             foreach (MatchingModel matchingModelValue in _matchingModelValues)
             {
@@ -1589,7 +1595,7 @@ namespace EpplusExtensions
 #if DEBUG
                         if ((_matchingModel & MatchingModel.eq) == MatchingModel.eq)
                         {
-                            throw new Exception("这里应该是不会进来的,debug下调试看看,进来是什么情况");
+                            throw new Exception("断言:这里应该是不会进来的,debug下调试看看,进来是什么情况");
                         }
 #endif
 
@@ -1640,11 +1646,13 @@ namespace EpplusExtensions
             {
                 //string propName = excelCellInfo.Value.ToString();
                 //string propName = dictExcelColumnIndexToModelPropName_All[new ExcelCellRange(excelCellInfo.ExcelAddress.ToString()).Start.Col];
-                string propName = dictExcelColumnIndexToModelPropName_All[dictExcelAddressCol[excelCellInfo.ExcelAddress]];
-                if (!dictExcelColumnIsModelProp[propName])//不存在,跳过
+                //string propName = dictExcelColumnIndexToModelPropName_All[dictExcelAddressCol[excelCellInfo.ExcelAddress]];
+                int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
+                if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
                 {
                     continue;
                 }
+                string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
                 if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
 
                 PropertyInfo pInfo = type.GetProperty(propName);
@@ -1700,11 +1708,14 @@ namespace EpplusExtensions
                 {
                     //string propName = excelCellInfo.Value.ToString();
                     //string propName = dictExcelColumnIndexToModelPropName_All[new ExcelCellRange(excelCellInfo.ExcelAddress.ToString()).Start.Col];
-                    string propName = dictExcelColumnIndexToModelPropName_All[dictExcelAddressCol[excelCellInfo.ExcelAddress]];
-                    if (!dictExcelColumnIsModelProp[propName])//不存在,跳过
+                    //string propName = dictExcelColumnIndexToModelPropName_All[dictExcelAddressCol[excelCellInfo.ExcelAddress]];
+                    //string propName = dictExcelColumnIndexToModelPropName_All[dictExcelAddressCol[excelCellInfo.ExcelAddress]];
+                    int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
+                    if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
                     {
                         continue;
                     }
+                    string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
                     if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
 
                     PropertyInfo pInfo = type.GetProperty(propName);
@@ -1903,7 +1914,7 @@ namespace EpplusExtensions
                     throw new Exception("不支持的ScanLine");
             }
 
-            
+
             var excelCellInfoNeedTrim = (args.ReadCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
             var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
             var excelCellInfoNeedToDBC = (args.ReadCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
@@ -2153,33 +2164,47 @@ namespace EpplusExtensions
 
         }
 
-        private static MatchingModel GetMatchingModel(Dictionary<string, bool> dictExcelColumnIsModelProp, Dictionary<string, bool> dictModelPropExistsExcelColumn, out List<string> modelPropNotExistsExcelColumn, out List<string> excelColumnIsNotModelProp)
+        private static MatchingModel GetMatchingModel(
+            Dictionary<int, string> dictExcelColumnIndexToExcelColName,
+            Dictionary<int, string> dictExcelColumnIndexToModelPropName_All,
+            Dictionary<string, bool> dictModelPropNameExistsExcelColumn,
+            out List<string> modelPropNotExistsExcelColumn, out List<string> excelColumnIsNotModelProp)
         {
-            if (dictExcelColumnIsModelProp == null) throw new ArgumentNullException(nameof(dictExcelColumnIsModelProp));
-            if (dictExcelColumnIsModelProp.Keys.Count == 0) throw new Exception(nameof(dictExcelColumnIsModelProp) + "的keys不能为0");
-            if (dictModelPropExistsExcelColumn == null) throw new ArgumentNullException(nameof(dictModelPropExistsExcelColumn));
+            if (dictExcelColumnIndexToModelPropName_All == null) throw new ArgumentNullException(nameof(dictExcelColumnIndexToModelPropName_All));
+            if (dictModelPropNameExistsExcelColumn == null) throw new ArgumentNullException(nameof(dictModelPropNameExistsExcelColumn));
 
             modelPropNotExistsExcelColumn = new List<string>();//model属性不在excel列中
             excelColumnIsNotModelProp = new List<string>();//excel列不是model属性
 
-            if (dictModelPropExistsExcelColumn.Keys.Count <= 0)
+            if (dictExcelColumnIndexToModelPropName_All.Keys.Count <= 0 && dictModelPropNameExistsExcelColumn.Keys.Count <= 0)
+            {
+                return MatchingModel.eq;
+            }
+
+            if (dictExcelColumnIndexToModelPropName_All.Keys.Count > 0 && dictModelPropNameExistsExcelColumn.Keys.Count <= 0)
             {
                 return MatchingModel.neq | MatchingModel.gt;
             }
 
-            foreach (var modelPropName in dictExcelColumnIsModelProp.Keys)
+            if (dictExcelColumnIndexToModelPropName_All.Keys.Count <= 0 && dictModelPropNameExistsExcelColumn.Keys.Count > 0)
             {
-                if (!dictModelPropExistsExcelColumn.ContainsKey(modelPropName))
+                return MatchingModel.neq | MatchingModel.lt;
+            }
+
+
+            foreach (var excelColumnIndex in dictExcelColumnIndexToModelPropName_All.Keys)
+            {
+                if (dictExcelColumnIndexToModelPropName_All[excelColumnIndex] == null)
                 {
-                    modelPropNotExistsExcelColumn.Add(modelPropName);
+                    modelPropNotExistsExcelColumn.Add(dictExcelColumnIndexToExcelColName[excelColumnIndex]);
                 }
             }
 
-            foreach (var excelColumn in dictModelPropExistsExcelColumn.Keys)
+            foreach (var modelPropName in dictModelPropNameExistsExcelColumn.Keys)
             {
-                if (!dictExcelColumnIsModelProp.ContainsKey(excelColumn))
+                if (!dictModelPropNameExistsExcelColumn[modelPropName])
                 {
-                    excelColumnIsNotModelProp.Add(excelColumn);
+                    excelColumnIsNotModelProp.Add(modelPropName);
                 }
             }
 
