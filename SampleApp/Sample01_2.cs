@@ -85,9 +85,6 @@ namespace SampleApp
         const float STANDARD_DPI = 96;
         public const int EMU_PER_PIXEL = 9525;
 
-     
-
-
         static DataTable GetDataTable_Head()
         {
             DataTable dt = new DataTable();

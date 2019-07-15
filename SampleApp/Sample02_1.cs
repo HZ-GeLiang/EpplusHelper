@@ -56,13 +56,12 @@ namespace SampleApp
                 Console.WriteLine("读取完毕");
             }
         }
-    }
-
-    internal class ysbm
-    {
-        public string 序号 { get; set; }
-        public string 部门 { get; set; }
-        public string 部门负责人 { get; set; }
-        public string 部门负责人确认签字 { get; set; }
+        internal class ysbm
+        {
+            public string 序号 { get; set; }
+            public string 部门 { get; set; }
+            public string 部门负责人 { get; set; }
+            public string 部门负责人确认签字 { get; set; }
+        }
     }
 }
