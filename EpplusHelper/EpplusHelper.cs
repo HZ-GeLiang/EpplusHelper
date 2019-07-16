@@ -1513,7 +1513,33 @@ namespace EpplusExtensions
                 #region 获得 listMatchingModelException
 
                 var dictMatchingModelException = new Dictionary<MatchingModel, MatchingModelException>() { };
-                var colNameToCellInfo = colNameList.ToDictionary(item => item.Value.ToString(), item => item);
+                //var colNameToCellInfo = colNameList.ToDictionary(item => item.Value.ToString(), item => item);//当excel列有重复,Model没用Attribute,导致Modle 与Excel不匹配, 此时会报错, Demo 在Sample02_7 , 把Model 的Attribute可以复现
+
+                var colNameToCellInfo = new Dictionary<string, ExcelCellInfo>();
+
+                foreach (var colName in colNameList)
+                {
+                    var colIndex = dictExcelAddressCol[colName.ExcelAddress];
+                    var modelpropName = dictExcelColumnIndexToModelPropName_All[colIndex];
+                    if (modelpropName != null)
+                    {
+                        colNameToCellInfo.Add(modelpropName, colName);
+                    }
+                    else
+                    {
+                        var excelColVaue = colName.Value.ToString();
+                        if (!colNameToCellInfo.ContainsKey(excelColVaue))
+                        {
+                            colNameToCellInfo.Add(excelColVaue, colName);
+                        }
+                        else
+                        {
+                            //暂时不考虑多次提供了不存在的列的情况, 即: 不存在的列只能多一共一次,否则报错
+                            throw new Exception($@"当前Excel多次提供了,根据值:{excelColVaue},在Model中找不对应属性,当前列是:{new ExcelCellRange(colName.ExcelAddress.ToString()).Start.R1C1}");
+                        }
+                    }
+
+                }
 
                 foreach (MatchingModel matchingModelValue in _matchingModelValues)
                 {
