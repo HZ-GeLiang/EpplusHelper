@@ -1515,7 +1515,7 @@ namespace EpplusExtensions
                 var dictMatchingModelException = new Dictionary<MatchingModel, MatchingModelException>() { };
                 //var colNameToCellInfo = colNameList.ToDictionary(item => item.Value.ToString(), item => item);//当excel列有重复,Model没用Attribute,导致Modle 与Excel不匹配, 此时会报错, Demo 在Sample02_7 , 把Model 的Attribute可以复现
 
-                var colNameToCellInfo = new Dictionary<string, ExcelCellInfo>();
+                var colNameToCellInfo = new Dictionary<string, List<ExcelCellInfo>>();
 
                 foreach (var colName in colNameList)
                 {
@@ -1523,19 +1523,29 @@ namespace EpplusExtensions
                     var modelpropName = dictExcelColumnIndexToModelPropName_All[colIndex];
                     if (modelpropName != null)
                     {
-                        colNameToCellInfo.Add(modelpropName, colName);
+                        if (!colNameToCellInfo.ContainsKey(modelpropName))
+                        {
+                            colNameToCellInfo.Add(modelpropName, new List<ExcelCellInfo> { });
+                        }
+                        colNameToCellInfo[modelpropName].Add(colName);
                     }
                     else
                     {
                         var excelColVaue = colName.Value.ToString();
                         if (!colNameToCellInfo.ContainsKey(excelColVaue))
                         {
-                            colNameToCellInfo.Add(excelColVaue, colName);
+                            colNameToCellInfo.Add(excelColVaue, new List<ExcelCellInfo> { });
+                            colNameToCellInfo[excelColVaue].Add(colName);
                         }
                         else
                         {
-                            //暂时不考虑多次提供了不存在的列的情况, 即: 不存在的列只能多一共一次,否则报错
-                            throw new Exception($@"当前Excel多次提供了,根据值:{excelColVaue},在Model中找不对应属性,当前列是:{new ExcelCellRange(colName.ExcelAddress.ToString()).Start.R1C1}");
+                            ////暂时不考虑多次提供了不存在的列的情况, 即: 不存在的列只能多一共一次,否则报错
+                            //throw new Exception($@"当前Excel多次提供了,根据值:{excelColVaue},在Model中找不对应属性,当前列是:{new ExcelCellRange(colName.ExcelAddress.ToString()).Start.R1C1}");
+                            if (!colNameToCellInfo.ContainsKey(excelColVaue))
+                            {
+                                colNameToCellInfo.Add(excelColVaue, new List<ExcelCellInfo> { });
+                            }
+                            colNameToCellInfo[excelColVaue].Add(colName);
                         }
                     }
 
@@ -1565,7 +1575,7 @@ namespace EpplusExtensions
                             {
                                 listExcelCellInfoAndModelType.Add(new ExcelCellInfoAndModelType()
                                 {
-                                    ExcelCellInfo = colNameToCellInfo[colName],
+                                    ExcelCellInfoList = colNameToCellInfo[colName],
                                     ModelType = type
                                 });
                             }
@@ -2045,17 +2055,18 @@ namespace EpplusExtensions
             //注:这里的仅针对 MatchingModel.eq
             if ((matchingModelException.MatchingModel & MatchingModel.eq) == MatchingModel.eq)
             {
-                if (matchingModelException.ListExcelCellInfoAndModelType == null ||
-                      matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
+                if (matchingModelException.ListExcelCellInfoAndModelType == null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
                 {
-
                     return "模版没有多提供列!";
                 }
                 StringBuilder sb = new StringBuilder();
                 sb.Append("模版提供了多余的列:");
                 foreach (var item in matchingModelException.ListExcelCellInfoAndModelType)
                 {
-                    sb.Append($@"{item.ExcelCellInfo.ExcelAddress}({item.ExcelCellInfo.Value}),");
+                    foreach (var excelCellInfo in item.ExcelCellInfoList)
+                    {
+                        sb.Append($@"{excelCellInfo.ExcelAddress}({excelCellInfo.Value}),");
+                    }
                 }
                 sb.RemoveLastChar(',');
                 sb.Append("!");
@@ -2073,7 +2084,10 @@ namespace EpplusExtensions
                 sb.Append("模版多提供了model属性中不存在的列:");
                 foreach (var item in matchingModelException.ListExcelCellInfoAndModelType)
                 {
-                    sb.Append($@"{item.ExcelCellInfo.ExcelAddress}({item.ExcelCellInfo.Value}),");
+                    foreach (var excelCellInfo in item.ExcelCellInfoList)
+                    {
+                        sb.Append($@"{excelCellInfo.ExcelAddress}({excelCellInfo.Value}),");
+                    }
                 }
                 sb.RemoveLastChar(',');
                 sb.Append("!");
@@ -2089,7 +2103,10 @@ namespace EpplusExtensions
                 sb.Append("模版少提供了model属性中定义的列:");
                 foreach (var item in matchingModelException.ListExcelCellInfoAndModelType)
                 {
-                    sb.Append($@"'{item.ExcelCellInfo.Value}',");
+                    foreach (var excelCellInfo in item.ExcelCellInfoList)
+                    {
+                        sb.Append($@"'{excelCellInfo.Value}',");
+                    }
                 }
                 sb.RemoveLastChar(',');
                 sb.Append("!");
@@ -2117,7 +2134,7 @@ namespace EpplusExtensions
         /// <param name="ws"></param>
         /// <returns></returns>
         private static MatchingModelException GetMatchingModelExceptionCase_lt(List<string> excelColumnIsNotModelProp,
-            Type type, Dictionary<string, ExcelCellInfo> colNameToCellInfo, ExcelWorksheet ws)
+            Type type, Dictionary<string, List<ExcelCellInfo>> colNameToCellInfo, ExcelWorksheet ws)
         {
             if (excelColumnIsNotModelProp.Count <= 0)
             {
@@ -2130,9 +2147,9 @@ namespace EpplusExtensions
                 listExcelCellInfoAndModelType.Add(new ExcelCellInfoAndModelType
                 {
                     ModelType = type,
-                    ExcelCellInfo = colNameToCellInfo.ContainsKey(propName)
+                    ExcelCellInfoList = colNameToCellInfo.ContainsKey(propName)
                         ? colNameToCellInfo[propName]
-                        : new ExcelCellInfo() { Value = propName, ExcelAddress = null, WorkSheet = ws }
+                        : new List<ExcelCellInfo> { new ExcelCellInfo { Value = propName, ExcelAddress = null, WorkSheet = ws } }
                 });
             }
 
@@ -2149,7 +2166,7 @@ namespace EpplusExtensions
         /// <param name="ws"></param>
         /// <returns></returns>
         private static MatchingModelException GetMatchingModelExceptionCase_gt(List<string> modelPropNotExistsExcelColumn,
-            Type type, Dictionary<string, ExcelCellInfo> colNameToCellInfo, ExcelWorksheet ws)
+            Type type, Dictionary<string, List<ExcelCellInfo>> colNameToCellInfo, ExcelWorksheet ws)
         {
 
             if (modelPropNotExistsExcelColumn.Count <= 0)
@@ -2163,9 +2180,9 @@ namespace EpplusExtensions
                 listExcelCellInfoAndModelType.Add(new ExcelCellInfoAndModelType
                 {
                     ModelType = type,
-                    ExcelCellInfo = colNameToCellInfo.ContainsKey(colName)
+                    ExcelCellInfoList = colNameToCellInfo.ContainsKey(colName)
                         ? colNameToCellInfo[colName]
-                        : new ExcelCellInfo() { Value = colName, ExcelAddress = null, WorkSheet = ws }
+                        : new List<ExcelCellInfo> { new ExcelCellInfo { Value = colName, ExcelAddress = null, WorkSheet = ws } }
                 });
             }
 
@@ -2215,6 +2232,16 @@ namespace EpplusExtensions
                 {
                     excelColumnIsNotModelProp.Add(modelPropName);
                 }
+            }
+
+            //这里要出重,因为该方法外层的 colNameToCellInfo 对象的类型从 Dictionary<string, ExcelCellInfo>() 改为了 Dictionary<string, List<ExcelCellInfo>>
+            if (modelPropNotExistsExcelColumn.Count > 0)
+            {
+                modelPropNotExistsExcelColumn = modelPropNotExistsExcelColumn.Distinct().ToList();
+            }
+            if (excelColumnIsNotModelProp.Count > 0)
+            {
+                excelColumnIsNotModelProp = excelColumnIsNotModelProp.Distinct().ToList();
             }
 
             if (excelColumnIsNotModelProp.Count == 0 && modelPropNotExistsExcelColumn.Count == 0)
