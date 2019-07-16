@@ -969,7 +969,7 @@ namespace EpplusExtensions
             {
                 if (!Boolean.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的Boolean值", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的Boolean值", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 Boolean。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -986,7 +986,7 @@ namespace EpplusExtensions
             {
                 if (!DateTime.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的日期", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 DateTime。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1003,7 +1003,7 @@ namespace EpplusExtensions
             {
                 if (!sbyte.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 sbyte。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1020,7 +1020,7 @@ namespace EpplusExtensions
             {
                 if (!byte.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 byte。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1037,7 +1037,7 @@ namespace EpplusExtensions
             {
                 if (!UInt16.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 UInt16。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1054,7 +1054,7 @@ namespace EpplusExtensions
             {
                 if (!Int16.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 Int16。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1071,7 +1071,7 @@ namespace EpplusExtensions
             {
                 if (!UInt16.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 UInt32。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1089,7 +1089,7 @@ namespace EpplusExtensions
             {
                 if (!Int32.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 Int32。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1107,7 +1107,7 @@ namespace EpplusExtensions
             {
                 if (!UInt64.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 UInt64。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1124,7 +1124,7 @@ namespace EpplusExtensions
             {
                 if (!Int64.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 Int64。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1141,7 +1141,7 @@ namespace EpplusExtensions
             {
                 if (!float.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 float。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1158,7 +1158,7 @@ namespace EpplusExtensions
             {
                 if (!double.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 double。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1175,7 +1175,7 @@ namespace EpplusExtensions
             {
                 if (!Decimal.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", nameof(pInfo.Name));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 decimal。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1203,7 +1203,7 @@ namespace EpplusExtensions
             {
                 if ((value == null || value.Length <= 0))
                 {
-                    throw new ArgumentException($@"无效的{pInfo_PropertyType.FullName}枚举值", nameof(pInfo.Name));
+                    throw new ArgumentException($@"无效的{pInfo_PropertyType.FullName}枚举值", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 {pInfo_PropertyType}(Enum类型)"));
                 }
                 value = ExtractName(value);
                 TryThrowExceptionForEnum(pInfo, model, value, pInfo_PropertyType, pInfo_PropertyType);
