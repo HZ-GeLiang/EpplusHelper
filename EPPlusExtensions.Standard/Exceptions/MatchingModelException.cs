@@ -15,7 +15,7 @@ namespace EPPlusExtensions.Exceptions
 
     public class ExcelCellInfoAndModelType
     {
-        public ExcelCellInfo ExcelCellInfo { get; set; }
+        public List<ExcelCellInfo> ExcelCellInfoList { get; set; }
         public Type ModelType { get; set; }
     }
 }
