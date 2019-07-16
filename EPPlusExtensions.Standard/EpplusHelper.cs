@@ -1432,7 +1432,6 @@ namespace EPPlusExtensions
             Type type = typeof(T);
 
             #region 获得字典
-            //var dictExcelColumnIsModelProp = new Dictionary<string, bool>(); //excel列是Model的属性, key: excel列内容
             var dictModelPropNameExistsExcelColumn = new Dictionary<string, bool>();//Model属性在Excel列中存在, key: ModelPropName
             var dictModelPropNameToExcelColumnName = new Dictionary<string, string>();//Model属性名字对应的excel的标题列名字
             var dictExcelColumnIndexToModelPropName_Temp = new Dictionary<int, string>();//Excel的列标题和Model属性名字的映射
@@ -1486,13 +1485,8 @@ namespace EPPlusExtensions
 
                 if (pInfo != null)
                 {
-                    //dictExcelColumnIsModelProp.Add(propName, true);
                     dictModelPropNameExistsExcelColumn[propName] = true;
                     dictExcelColumnIndexToModelPropName_All[excelColumnIndex] = propName;
-                }
-                else
-                {
-                    //dictExcelColumnIsModelProp.Add(propName, false);//PropName 值是 excel列内容
                 }
             }
             #endregion
@@ -1644,9 +1638,6 @@ namespace EPPlusExtensions
 
             foreach (ExcelCellInfo excelCellInfo in colNameList)
             {
-                //string propName = excelCellInfo.Value.ToString();
-                //string propName = dictExcelColumnIndexToModelPropName_All[new ExcelCellRange(excelCellInfo.ExcelAddress.ToString()).Start.Col];
-                //string propName = dictExcelColumnIndexToModelPropName_All[dictExcelAddressCol[excelCellInfo.ExcelAddress]];
                 int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
                 if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
                 {
@@ -1693,8 +1684,6 @@ namespace EPPlusExtensions
                     throw new Exception("不支持的ScanLine");
             }
 
-
-
             var excelCellInfoNeedTrim = (args.ReadCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
             var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
             var excelCellInfoNeedToDBC = (args.ReadCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
@@ -1706,10 +1695,6 @@ namespace EPPlusExtensions
 
                 foreach (ExcelCellInfo excelCellInfo in colNameList)
                 {
-                    //string propName = excelCellInfo.Value.ToString();
-                    //string propName = dictExcelColumnIndexToModelPropName_All[new ExcelCellRange(excelCellInfo.ExcelAddress.ToString()).Start.Col];
-                    //string propName = dictExcelColumnIndexToModelPropName_All[dictExcelAddressCol[excelCellInfo.ExcelAddress]];
-                    //string propName = dictExcelColumnIndexToModelPropName_All[dictExcelAddressCol[excelCellInfo.ExcelAddress]];
                     int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
                     if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
                     {
@@ -1724,7 +1709,6 @@ namespace EPPlusExtensions
                         throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
                     }
 
-                    // var col = new ExcelCellPoint(excelCellInfo.ExcelAddress).Col;
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
                     string value = GetMegerCellText(ws, row, col);
@@ -1913,7 +1897,6 @@ namespace EPPlusExtensions
                 default:
                     throw new Exception("不支持的ScanLine");
             }
-
 
             var excelCellInfoNeedTrim = (args.ReadCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
             var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
