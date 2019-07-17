@@ -1,13 +1,13 @@
-﻿using EpplusExtensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions;
 using OfficeOpenXml;
-using EpplusExtensions.Attributes;
+using EPPlusExtensions.Attributes;
 
 namespace SampleApp
 {
@@ -24,11 +24,11 @@ namespace SampleApp
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                ExcelWorksheet ws = EpplusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
+                ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
                 try
                 {
-                    var args = EpplusHelper.GetExcelListArgsDefault<userLeaveInfoStat>(ws, 3);
-                    var list = EpplusHelper.GetList<userLeaveInfoStat>(args);
+                    var args = EPPlusHelper.GetExcelListArgsDefault<userLeaveInfoStat>(ws, 3);
+                    var list = EPPlusHelper.GetList<userLeaveInfoStat>(args);
                     ObjectDumper.Write(list);
                 }
                 catch (Exception e)

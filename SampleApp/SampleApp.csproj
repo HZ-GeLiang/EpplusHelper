@@ -164,9 +164,9 @@
     <Content Include="catalogue.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EpplusHelper\EpplusExtensions.csproj">
-      <Project>{9cf1f898-e37f-441e-b86e-60476c4aa4b4}</Project>
-      <Name>EpplusExtensions</Name>
+    <ProjectReference Include="..\EPPlusExtensions.Standard\EPPlusExtensions.Standard.csproj">
+      <Project>{61c85a35-f5b4-4eda-933f-794ae04527e3}</Project>
+      <Name>EPPlusExtensions.Standard</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

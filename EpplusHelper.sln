@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleApp.Core", "SampleApp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusHelperTool", "EPPlusHelperTool\EPPlusHelperTool.csproj", "{1EA804CB-E21E-438B-9FC6-9370A41DDE72}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "不在维护", "不在维护", "{CD999C0D-A2A3-4B3A-A361-CB0C9A2E1A7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9CF1F898-E37F-441E-B86E-60476C4AA4B4} = {CD999C0D-A2A3-4B3A-A361-CB0C9A2E1A7A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D1884036-2D3A-419A-81FC-B9E20943ABB8}

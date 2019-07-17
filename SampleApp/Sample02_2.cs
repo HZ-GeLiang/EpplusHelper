@@ -1,5 +1,4 @@
-﻿using EpplusExtensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -7,8 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OfficeOpenXml;
-using EpplusExtensions.Attributes;
 using System.ComponentModel.DataAnnotations;
+using EPPlusExtensions;
 
 namespace SampleApp
 {
@@ -25,8 +24,8 @@ namespace SampleApp
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                ExcelWorksheet ws = EpplusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
-                var list=  EpplusHelper.GetList<ysbm>(ws, 2);
+                ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
+                var list=  EPPlusHelper.GetList<ysbm>(ws, 2);
                 Console.WriteLine("读取完毕");
             }
         }

@@ -1,5 +1,4 @@
-﻿using EpplusExtensions;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions;
 using SampleApp.MethodExtension;
 
 namespace SampleApp
@@ -24,9 +24,9 @@ namespace SampleApp
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var config = EpplusHelper.GetEmptyConfig();
-                var configSource = EpplusHelper.GetEmptyConfigSource();
-                EpplusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet1");
+                var config = EPPlusHelper.GetEmptyConfig();
+                var configSource = EPPlusHelper.GetEmptyConfigSource();
+                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet1");
                 configSource.SheetBody[1] = GetProduct1();
                 configSource.SheetBody[2] = GetProduct2();
                 configSource.SheetBody[3] = GetProduct3();
@@ -51,8 +51,8 @@ namespace SampleApp
                         Exclude = "Id"
                     }
                 });
-                EpplusHelper.FillData(excelPackage, config, configSource, "Result", "Sheet1");
-                EpplusHelper.DeleteWorksheet(excelPackage, "Sheet1");
+                EPPlusHelper.FillData(excelPackage, config, configSource, "Result", "Sheet1");
+                EPPlusHelper.DeleteWorksheet(excelPackage, "Sheet1");
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save(@"模版\Sample03_2_result.xlsx");

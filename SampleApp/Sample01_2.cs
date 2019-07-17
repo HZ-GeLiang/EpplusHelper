@@ -1,5 +1,4 @@
-﻿using EpplusExtensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -14,6 +13,7 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using System.Windows.Media.Imaging;
 using System.Runtime.InteropServices;
+using EPPlusExtensions;
 using SampleApp.MethodExtension;
 
 namespace SampleApp
@@ -32,16 +32,16 @@ namespace SampleApp
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var config = EpplusHelper.GetEmptyConfig();
-                var configSource = EpplusHelper.GetEmptyConfigSource();
-                EpplusHelper.SetDefaultConfigFromExcel(excelPackage, config, 1);
+                var config = EPPlusHelper.GetEmptyConfig();
+                var configSource = EPPlusHelper.GetEmptyConfigSource();
+                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, 1);
                 var dtHead = GetDataTable_Head();
-                EpplusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
+                EPPlusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
                 configSource.SheetBody[1] = GetDataTable_Body();
-                EpplusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
-                EpplusHelper.DeleteWorksheet(excelPackage, 1);
+                EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
+                EPPlusHelper.DeleteWorksheet(excelPackage, 1);
 
-                var ws = EpplusHelper.GetExcelWorksheet(excelPackage, "导出测试");
+                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "导出测试");
 
                 MemoryStream img_ms = CaptchaGen.ImageFactory.GenerateImage("你好中国", 80, 100, 13, 5);//这个是图片的px
                 byte[] stream = img_ms.ToArray();
