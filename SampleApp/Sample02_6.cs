@@ -1,13 +1,12 @@
-﻿using EpplusExtensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions;
 using OfficeOpenXml;
-using EpplusExtensions.Attributes;
 
 namespace SampleApp
 {
@@ -23,11 +22,11 @@ namespace SampleApp
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                ExcelWorksheet ws = EpplusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
-                var args = EpplusHelper.GetExcelListArgsDefault<DataRow>(ws, 2);
+                ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
+                var args = EPPlusHelper.GetExcelListArgsDefault<DataRow>(ws, 2);
                 args.WhereFilter = a => Convert.ToInt32(a["序号"]) <= 3;
                 args.HavingFilter = a => a["部门负责人"].ToString() == "赵六";
-                var dt = EpplusHelper.GetDataTable(args);
+                var dt = EPPlusHelper.GetDataTable(args);
                 Console.WriteLine("读取完毕");
             }
 

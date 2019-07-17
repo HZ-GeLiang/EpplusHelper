@@ -1,5 +1,4 @@
-﻿using EpplusExtensions;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions;
 using SampleApp.MethodExtension;
 
 namespace SampleApp
@@ -31,7 +31,7 @@ namespace SampleApp
                     {2, 2},
                     {3, 1},
                 };
-                var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(excelPackage, sheetTitleLineNumber);
+                var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, sheetTitleLineNumber);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save(@"模版\Sample04_3_Result.xlsx");

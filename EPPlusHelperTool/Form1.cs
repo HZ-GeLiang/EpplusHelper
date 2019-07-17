@@ -1,11 +1,11 @@
-﻿using EpplusExtensions;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using EPPlusExtensions;
 using EPPlusHelperTool.MethodExtension;
 
 namespace EPPlusHelperTool
@@ -89,15 +89,15 @@ namespace EPPlusHelperTool
         {
             if (excelPackage.Workbook.Worksheets.Count == 1)
             {
-                return EpplusHelper.GetExcelWorksheet(excelPackage, 1);
+                return EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
             }
             if (Int32.TryParse(ws1Index_string, out int ws1Index_int))
             {
-                return EpplusHelper.GetExcelWorksheet(excelPackage, ws1Index_int);
+                return EPPlusHelper.GetExcelWorksheet(excelPackage, ws1Index_int);
             }
-            if (EpplusHelper.GetExcelWorksheetNames(excelPackage).Contains(ws1Index_string))
+            if (EPPlusHelper.GetExcelWorksheetNames(excelPackage).Contains(ws1Index_string))
             {
-                return EpplusHelper.GetExcelWorksheet(excelPackage, ws1Index_string);
+                return EPPlusHelper.GetExcelWorksheet(excelPackage, ws1Index_string);
             }
 
             throw new ArgumentException("无法打开Excel的Worksheet");
@@ -123,7 +123,7 @@ namespace EPPlusHelperTool
 
                 //Path.GetDirectoryName(Path.GetFullPath(tempPath))
                 //string filePathOut = Path.Combine(fileDir, $"{fileName}_result{suffix}");
-                //EpplusHelper.FillExcelDefaultConfig(filePath, filePathOut);
+                //EPPlusHelper.FillExcelDefaultConfig(filePath, filePathOut);
 
                 var columnTypeList_DateTime = new List<string>()
             {
@@ -151,9 +151,9 @@ namespace EPPlusHelperTool
                     sheetTitleLineNumber.Add(i, titleLine);
                 }
 
-                EpplusHelper.FillExcelDefaultConfig(filePath, fileDir, sheetTitleLineNumber, cell =>
+                EPPlusHelper.FillExcelDefaultConfig(filePath, fileDir, sheetTitleLineNumber, cell =>
                  {
-                     var cellValue = EpplusHelper.GetCellText(cell);
+                     var cellValue = EPPlusHelper.GetCellText(cell);
                      var cellValueLower = cellValue.ToLower();
                      foreach (var item in columnTypeList_DateTime)
                      {
@@ -199,7 +199,7 @@ namespace EPPlusHelperTool
                 }
 
                 string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
-                var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName, sheetTitleLineNumber);
+                var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName, sheetTitleLineNumber);
                 var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
                 foreach (var item in defaultConfigList)
                 {
@@ -255,8 +255,8 @@ namespace EPPlusHelperTool
                 {
                     var ws1 = GetWorkSheet(excelPackage1, ws1Index_string);
                     var ws2 = GetWorkSheet(excelPackage2, ws2Index_string);
-                    var ws1Props = EpplusHelper.FillExcelDefaultConfig(ws1, ws1TitleLine).ClassPropertyList;
-                    var ws2Props = EpplusHelper.FillExcelDefaultConfig(ws2, ws2TitleLine).ClassPropertyList;
+                    var ws1Props = EPPlusHelper.FillExcelDefaultConfig(ws1, ws1TitleLine).ClassPropertyList;
+                    var ws2Props = EPPlusHelper.FillExcelDefaultConfig(ws2, ws2TitleLine).ClassPropertyList;
 
                     StringBuilder sb1 = new StringBuilder();
                     StringBuilder sb2 = new StringBuilder();
@@ -321,7 +321,7 @@ namespace EPPlusHelperTool
                     StringBuilder names = new StringBuilder();
                     SetDataSourceForDGV(excelPackage, control, names);
 
-                    if (EpplusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0)
+                    if (EPPlusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0)
                     {
                         MessageBox.Show("当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
                     }
@@ -383,7 +383,7 @@ namespace EPPlusHelperTool
                 using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (ExcelPackage excelPackage = new ExcelPackage(fs))
                 {
-                    EpplusHelper.DeleteWorksheet(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden);
+                    EPPlusHelper.DeleteWorksheet(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden);
                     excelPackage.SaveAs(ms);
                     ms.Position = 0;
 

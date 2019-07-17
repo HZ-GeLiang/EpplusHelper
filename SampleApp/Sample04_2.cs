@@ -1,5 +1,4 @@
-﻿using EpplusExtensions;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions;
 
 namespace SampleApp
 {
@@ -19,7 +19,7 @@ namespace SampleApp
         {
             string filePath = $@"模版\Sample04_2.xlsx";
             string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
-            var defaultConfigList = EpplusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName);
+            var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName);
             var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
             foreach (var item in defaultConfigList)
             {

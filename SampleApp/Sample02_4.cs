@@ -1,5 +1,4 @@
-﻿using EpplusExtensions;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions;
 
 namespace SampleApp
 {
@@ -23,11 +23,11 @@ namespace SampleApp
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                ExcelWorksheet ws = EpplusHelper.GetExcelWorksheet(excelPackage, 1);
-                var args = EpplusHelper.GetExcelListArgsDefault<Test02_3>(ws, 2);
+                ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
+                var args = EPPlusHelper.GetExcelListArgsDefault<Test02_3>(ws, 2);
                 args.POCO_Property_AutoRename_WhenRepeat = true;
                 args.POCO_Property_AutoRenameFirtName_WhenRepeat = false;
-                var list = EpplusHelper.GetList<Test02_3>(args);
+                var list = EPPlusHelper.GetList<Test02_3>(args);
                 Console.WriteLine("读取完毕");
             }
         }
