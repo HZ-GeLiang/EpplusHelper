@@ -19,6 +19,9 @@ namespace EPPlusExtensions
 {
     public class EPPlusHelper
     {
+        /// <summary>
+        /// 填充Excel时创建的工作簿名字
+        /// </summary>
         public static List<string> FillDataWorkSheetNames = new List<string>();
 
         //类型参考网址: http://filext.com/faq/office_mime_types.php
@@ -197,11 +200,21 @@ namespace EPPlusExtensions
             return wsNames;
         }
 
+        /// <summary>
+        /// 删除所有的工作簿
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="workSheetNameExclude">排除的工作簿名字列表</param>
         public static void DeleteWorksheetAll(ExcelPackage excelPackage, params string[] workSheetNameExclude)
         {
             EPPlusHelper.DeleteWorksheet(excelPackage, (workSheetNameExclude ?? new string[] { }).ToList());
         }
 
+        /// <summary>
+        /// 删除所有的工作簿
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="workSheetNameExcludeList">排除的工作簿名字列表</param>
         public static void DeleteWorksheetAll(ExcelPackage excelPackage, List<string> workSheetNameExcludeList)
         {
             EPPlusHelper.DeleteWorksheet(excelPackage, workSheetNameExcludeList ?? new List<string>(),
@@ -986,7 +999,37 @@ namespace EPPlusExtensions
             {
                 if (!DateTime.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 DateTime。"));
+                    if (!int.TryParse(value, out var resultInt))
+                    {
+                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 DateTime。"));
+                    }
+                    //excel5位数字 可以变成数字 ,
+                    //譬如 : 43647  是 2019年7月1日
+                    // 1900-1-0       0 (Error)
+                    // 1900-1-1       1
+                    //1900年2月28日    59 (OK)
+                    //1900年2月29日  60(Error,无效值)
+                    //1900年3月1日   61(距离1900-1-1应该是60天)
+                    //9999年12月31日 2958465
+                    //无效的日期 2958466
+
+                    //所有resultInt 必须大于0 且不等于60
+                    if (resultInt <= 0 || resultInt == 60 || resultInt > 2958465)
+                    {
+                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 DateTime。"));
+                    }
+                    if (resultInt > 0 && resultInt < 60)
+                    {
+                        result = new DateTime(1900, 1, 1).AddDays(resultInt - 1);
+                    }
+                    else if (resultInt > 60 && resultInt < 2958466)
+                    {
+                        result = new DateTime(1900, 1, 1).AddDays(resultInt - 2);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 DateTime。"));
+                    }
                 }
                 pInfo.SetValue(model, result);
                 return;
