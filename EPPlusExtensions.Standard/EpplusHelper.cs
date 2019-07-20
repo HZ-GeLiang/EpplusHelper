@@ -982,7 +982,7 @@ namespace EPPlusExtensions
             {
                 if (!Boolean.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的Boolean值", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 Boolean。"));
+                    throw new ArgumentException("无效的Boolean值", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Boolean。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -999,37 +999,31 @@ namespace EPPlusExtensions
             {
                 if (!DateTime.TryParse(value, out var result))
                 {
-                    if (!int.TryParse(value, out var resultInt))
+                    if (!double.TryParse(value, out var resultDouble))
                     {
-                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 DateTime。"));
+                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 DateTime。"));
                     }
-                    //excel5位数字 可以变成数字 ,
-                    //譬如 : 43647  是 2019年7月1日
-                    // 1900-1-0       0 (Error)
-                    // 1900-1-1       1
-                    //1900年2月28日    59 (OK)
-                    //1900年2月29日  60(Error,无效值)
-                    //1900年3月1日   61(距离1900-1-1应该是60天)
-                    //9999年12月31日 2958465
-                    //无效的日期 2958466
-
-                    //所有resultInt 必须大于0 且不等于60
-                    if (resultInt <= 0 || resultInt == 60 || resultInt > 2958465)
+                    //excel日期用数字保存的
+                    //数字转日期: //参考文章 : https://docs.microsoft.com/zh-cn/dotnet/api/system.datetime.fromoadate   该方法测试发现 DateTime.FromOADate(d)  d值必须>= -657434.999999999941792(后面还能添加数字,未测试) && d<=2958465.999999994(后面还能添加数字,没测试)
+                    //但是在excel 日期最多精确到毫秒3位, 即 yyyy-MM-dd HH:mm:ss.000,对应的日期值的范围是 [1,2958465.99999999],且不能包含[60,61)
+                    //Excel数值对应的日期
+                    //0                 对应 1900-01-00 00:00:00.000   (日期不对)
+                    //1                 对应 1900-01-01 00:00:00.000
+                    //60                对应 1900-02-29 00:00:00.000   (日期不对)
+                    //2958465.99999999  对应 9999-12-31 23:59:59.999  但是  DateTime.Parse("9999-12-31 23:59:59.999").ToOADate()  2958465.9999999884
+                    if (resultDouble >= 1 && resultDouble < 60)
                     {
-                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 DateTime。"));
+                        result = DateTime.FromOADate(resultDouble + 1);
                     }
-                    if (resultInt > 0 && resultInt < 60)
+                    else if (resultDouble >= 61 && resultDouble <= 2958465.99999999)
                     {
-                        result = new DateTime(1900, 1, 1).AddDays(resultInt - 1);
-                    }
-                    else if (resultInt > 60 && resultInt < 2958466)
-                    {
-                        result = new DateTime(1900, 1, 1).AddDays(resultInt - 2);
+                        result = DateTime.FromOADate(resultDouble);
                     }
                     else
                     {
-                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 DateTime。"));
+                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 DateTime。{value}必须是在[1,60) 或 [61,2958465.99999999]之间的值"));
                     }
+
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1046,7 +1040,7 @@ namespace EPPlusExtensions
             {
                 if (!sbyte.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 sbyte。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 sbyte。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1063,7 +1057,7 @@ namespace EPPlusExtensions
             {
                 if (!byte.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 byte。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 byte。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1080,7 +1074,7 @@ namespace EPPlusExtensions
             {
                 if (!UInt16.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 UInt16。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 UInt16。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1097,7 +1091,7 @@ namespace EPPlusExtensions
             {
                 if (!Int16.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 Int16。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Int16。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1114,7 +1108,7 @@ namespace EPPlusExtensions
             {
                 if (!UInt16.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 UInt32。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 UInt32。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1132,7 +1126,7 @@ namespace EPPlusExtensions
             {
                 if (!Int32.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 Int32。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Int32。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1150,7 +1144,7 @@ namespace EPPlusExtensions
             {
                 if (!UInt64.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 UInt64。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 UInt64。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1167,7 +1161,7 @@ namespace EPPlusExtensions
             {
                 if (!Int64.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 Int64。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Int64。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1184,7 +1178,7 @@ namespace EPPlusExtensions
             {
                 if (!float.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 float。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 float。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1201,7 +1195,7 @@ namespace EPPlusExtensions
             {
                 if (!double.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 double。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 double。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1218,7 +1212,7 @@ namespace EPPlusExtensions
             {
                 if (!Decimal.TryParse(value, out var result))
                 {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 decimal。"));
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 decimal。"));
                 }
                 pInfo.SetValue(model, result);
                 return;
@@ -1246,7 +1240,7 @@ namespace EPPlusExtensions
             {
                 if ((value == null || value.Length <= 0))
                 {
-                    throw new ArgumentException($@"无效的{pInfo_PropertyType.FullName}枚举值", pInfo.Name, new FormatException($"该字符串:{value}未被识别为有效的 {pInfo_PropertyType}(Enum类型)"));
+                    throw new ArgumentException($@"无效的{pInfo_PropertyType.FullName}枚举值", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 {pInfo_PropertyType}(Enum类型)"));
                 }
                 value = ExtractName(value);
                 TryThrowExceptionForEnum(pInfo, model, value, pInfo_PropertyType, pInfo_PropertyType);
