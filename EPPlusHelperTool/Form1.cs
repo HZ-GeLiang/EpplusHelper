@@ -297,7 +297,14 @@ namespace EPPlusHelperTool
             var selectFilePath = SelectFile("excel (*.xlsx)|*.xlsx");
             if (selectFilePath.Length > 0)
             {
-                ((System.Windows.Forms.Button)sender).Text = selectFilePath;
+                if (((System.Windows.Forms.Control)sender).Name == "SelectFileBtn1")
+                {
+                    this.filePath1.Text = selectFilePath;
+                }
+                if (((System.Windows.Forms.Control)sender).Name == "SelectFileBtn2")
+                {
+                    this.filePath2.Text = selectFilePath;
+                }
             }
         }
 
