@@ -275,7 +275,9 @@ namespace EPPlusExtensions
             {
                 allDataTableRows += dataTable?.Rows.Count ?? 0;
             }
-            if (allDataTableRows > EPPlusConfig.MaxRow07)
+            //这个限制没什么用.是假的,不能真的解决这个导出数据库和excel最大行限制的比较
+            //这个限制仅仅针对,标题行是单行, 且填充数据是单行,没有FillData_Head 和 FillData_Foot 才有效
+            if (allDataTableRows > EPPlusConfig.MaxRow07 - 1)//-1是去掉第一行的标题行
             {
                 throw new IndexOutOfRangeException("要导出的数据行数超过excel最大行限制");
             }
@@ -1004,6 +1006,14 @@ namespace EPPlusExtensions
                         throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 DateTime。"));
                     }
                     //excel日期用数字保存的
+
+                    //在百度看到
+                    //excel与VBA开始点有差别:
+                    //excel开始点: 1900-1-1 序号为1
+                    //vba开始点:1899-12-31 序号为1 
+                    //原因是excel把1900-2月错误地当29天处理,所以VBA后来自己修改了这个错误,以能与excel相适应.从1900年3月1日开始,VBA与Excel的序号才开始一致.
+
+
                     //数字转日期: //参考文章 : https://docs.microsoft.com/zh-cn/dotnet/api/system.datetime.fromoadate   该方法测试发现 DateTime.FromOADate(d)  d值必须>= -657434.999999999941792(后面还能添加数字,未测试) && d<=2958465.999999994(后面还能添加数字,没测试)
                     //但是在excel 日期最多精确到毫秒3位, 即 yyyy-MM-dd HH:mm:ss.000,对应的日期值的范围是 [1,2958465.99999999],且不能包含[60,61)
                     //Excel数值对应的日期
@@ -1784,7 +1794,22 @@ namespace EPPlusExtensions
 
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
-                    string value = GetMegerCellText(ws, row, col);
+#if DEBUG
+                    string value = string.Empty;
+                    if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
+                    {
+                        //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
+                        value = GetMegerCellText(ws, row, col);
+                    }
+                    else
+                    {
+                        value = GetMegerCellText(ws, row, col);
+                    }
+#else
+                      string value =  GetMegerCellText(ws, row, col);
+#endif
+
+
                     bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
 
                     if (!valueIsNullOrEmpty)
@@ -1870,7 +1895,14 @@ namespace EPPlusExtensions
                     }
                     catch (Exception e)
                     {
-                        _Exception = e;
+                        if (e is ArgumentException)
+                        {
+                            _Exception = new ArgumentException($"无效的单元格:{new ExcelCellAddress(row, col).Address}", e);
+                        }
+                        else
+                        {
+                            _Exception = e;
+                        }
                         break;
                     }
                 }
