@@ -319,6 +319,11 @@ namespace EPPlusHelperTool
                     MessageBox.Show("路径不能为空");
                     return;
                 }
+                if (string.Compare(".xlsx", System.IO.Path.GetExtension(filePath), true) != 0)
+                {
+                    MessageBox.Show("只支持.xlsx文件");
+                    return;
+                }
                 using (MemoryStream ms = new MemoryStream())
                 ////using (FileStream fs = System.IO.File.OpenRead(filePath))
                 using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -344,6 +349,11 @@ namespace EPPlusHelperTool
                 if (string.IsNullOrEmpty(filePath))
                 {
                     MessageBox.Show("路径不能为空");
+                    return;
+                }
+                if (string.Compare(".xlsx", System.IO.Path.GetExtension(filePath), true) != 0)
+                {
+                    MessageBox.Show("只支持.xlsx文件");
                     return;
                 }
                 using (MemoryStream ms = new MemoryStream())
@@ -383,6 +393,11 @@ namespace EPPlusHelperTool
                 if (string.IsNullOrEmpty(filePath))
                 {
                     MessageBox.Show("路径不能为空");
+                    return;
+                }
+                if (string.Compare(".xlsx", System.IO.Path.GetExtension(filePath), true) != 0)
+                {
+                    MessageBox.Show("只支持.xlsx文件");
                     return;
                 }
                 using (MemoryStream ms = new MemoryStream())
