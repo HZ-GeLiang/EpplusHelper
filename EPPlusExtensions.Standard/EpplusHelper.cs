@@ -1412,6 +1412,8 @@ namespace EPPlusExtensions
                 POCO_Property_AutoRenameFirtName_WhenRepeat = true,
                 ScanLine = ScanLine.MergeLine,
                 MatchingModelEqualsCheck = true,
+                GetList_NeedAllException = false,
+                GetList_ErrorMessage_OnlyShowColomn = false,
             };
         }
 
@@ -1424,8 +1426,8 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex) where T : class, new()
         {
-            var args = GetExcelListArgsDefault<T>(ws, rowIndex);
-            return GetList<T>(args);
+            var args = EPPlusHelper.GetExcelListArgsDefault<T>(ws, rowIndex);
+            return EPPlusHelper.GetList<T>(args);
         }
 
         /// <summary>
@@ -1771,6 +1773,7 @@ namespace EPPlusExtensions
             var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
             var excelCellInfoNeedToDBC = (args.ReadCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
 
+            var allException = args.GetList_NeedAllException ? new List<Exception>() : null;
             while (true)
             {
                 bool isNoDataAllColumn = true;//判断整行数据是否都没有数据
@@ -1915,16 +1918,8 @@ namespace EPPlusExtensions
                     }
                     break; //出现空行,读取模版结束
                 }
-                //else
-                if (_Exception != null)
-                {
-                    throw _Exception;
-                }
-                if (args.WhereFilter == null || args.WhereFilter.Invoke(model))
-                {
-                    list.Add(model);
-                }
 
+                //先添加Step
                 if (step != null)
                 {
                     row += (int)step;
@@ -1942,6 +1937,101 @@ namespace EPPlusExtensions
                         row += ea.Rows;
                     }
                 }
+                //在判断异常
+
+                if (_Exception != null)
+                {
+                    if (args.GetList_NeedAllException)
+                    {
+                        allException.Add(_Exception);
+                        _Exception = null;
+                        continue;
+                    }
+                    else
+                    {
+                        throw _Exception;
+                    }
+                }
+
+                if (args.WhereFilter == null || args.WhereFilter.Invoke(model))
+                {
+                    list.Add(model);
+                }
+
+            }
+
+            var keyWithExceptionMessageStart = "无效的单元格:";
+            if (allException != null && allException.Count > 0)
+            {
+                bool allExceptionIsArgumentException = true;
+                var errGroupMsg = new Dictionary<string, List<string>>();
+
+                foreach (var ex in allException)
+                {
+                    if (!(ex is ArgumentException))
+                    {
+                        allExceptionIsArgumentException = false;
+                        break;
+                    }
+                    if (!((ArgumentException)ex).Message.StartsWith(keyWithExceptionMessageStart))
+                    {
+                        allExceptionIsArgumentException = false;
+                        break;
+                    }
+
+                    var excelCellAddress = ((ArgumentException)ex).Message.RemovePrefix(keyWithExceptionMessageStart);
+                    var exceptionMessage = ((ArgumentException)ex).InnerException.Message;
+                    if (!errGroupMsg.ContainsKey(exceptionMessage))
+                    {
+                        errGroupMsg.Add(exceptionMessage, new List<string>());
+                    }
+
+                    errGroupMsg[exceptionMessage].Add(excelCellAddress);
+                }
+
+                if (!allExceptionIsArgumentException)
+                {
+                    throw new AggregateException(allException);
+                }
+
+                StringBuilder sb = new StringBuilder();
+                StringBuilder sb2 = new StringBuilder();
+
+                foreach (KeyValuePair<string, List<string>> msg in errGroupMsg)
+                {
+                    sb.Append(msg.Key);
+                    sb2.Clear();
+                    if (args.GetList_ErrorMessage_OnlyShowColomn)
+                    {
+                        var cols = new List<string>();
+                        foreach (string excelCellAddress in msg.Value)
+                        {
+                            cols.Add(ExcelCellPoint.R1C1FormulasReverse(new ExcelCellAddress(excelCellAddress).Column));
+                        }
+
+                        foreach (var col in cols.Distinct())
+                        {
+                            sb2.Append(col).Append("列,");
+                        }
+
+                    }
+                    else
+                    {
+                        foreach (var excelCellAddress in msg.Value)
+                        {
+                            sb2.Append(excelCellAddress).Append(",");
+                        }
+                    }
+
+                    sb2.RemoveLastChar(',');
+                    if (sb2.Length > 0)
+                    {
+                        sb.Append($"({sb2}),");
+                    }
+                }
+
+                sb.RemoveLastChar(',');
+                throw new ArgumentException(sb.ToString());
             }
 
             #endregion
