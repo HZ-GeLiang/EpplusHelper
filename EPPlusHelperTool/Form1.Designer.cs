@@ -37,10 +37,8 @@
             this.filePath2 = new System.Windows.Forms.TextBox();
             this.SelectFileBtn2 = new System.Windows.Forms.Button();
             this.CheckTemplateConfiguration = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
             this.wsNameOrIndex1 = new System.Windows.Forms.TextBox();
             this.wsNameOrIndex2 = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.TitleLine1 = new System.Windows.Forms.TextBox();
             this.TitleLine2 = new System.Windows.Forms.TextBox();
@@ -51,18 +49,18 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.DelHiddenWs = new System.Windows.Forms.Button();
             this.WScount1 = new System.Windows.Forms.Button();
-            this.dataGridViewExcel1 = new System.Windows.Forms.DataGridView();
             this.WScount2 = new System.Windows.Forms.Button();
             this.dataGridViewExcel2 = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewExcel1 = new System.Windows.Forms.DataGridView();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).BeginInit();
             this.SuspendLayout();
             // 
             // filePath1
@@ -71,7 +69,7 @@
             this.filePath1.Location = new System.Drawing.Point(22, 23);
             this.filePath1.Multiline = true;
             this.filePath1.Name = "filePath1";
-            this.filePath1.Size = new System.Drawing.Size(436, 66);
+            this.filePath1.Size = new System.Drawing.Size(366, 66);
             this.filePath1.TabIndex = 4;
             this.filePath1.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxDragDrop);
             this.filePath1.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxDragEnter);
@@ -87,7 +85,7 @@
             // 
             // SelectFileBtn1
             // 
-            this.SelectFileBtn1.Location = new System.Drawing.Point(479, 23);
+            this.SelectFileBtn1.Location = new System.Drawing.Point(394, 23);
             this.SelectFileBtn1.Name = "SelectFileBtn1";
             this.SelectFileBtn1.Size = new System.Drawing.Size(74, 37);
             this.SelectFileBtn1.TabIndex = 6;
@@ -108,7 +106,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(30, 101);
+            this.label2.Location = new System.Drawing.Point(21, 295);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(113, 12);
             this.label2.TabIndex = 8;
@@ -117,26 +115,26 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(21, 228);
+            this.label3.Location = new System.Drawing.Point(525, 7);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(155, 12);
+            this.label3.Size = new System.Drawing.Size(149, 12);
             this.label3.TabIndex = 9;
-            this.label3.Text = "文件路径2(文本框支持拖拽)";
+            this.label3.Text = "文件路径(文本框支持拖拽)";
             // 
             // filePath2
             // 
             this.filePath2.AllowDrop = true;
-            this.filePath2.Location = new System.Drawing.Point(25, 247);
+            this.filePath2.Location = new System.Drawing.Point(527, 23);
             this.filePath2.Multiline = true;
             this.filePath2.Name = "filePath2";
-            this.filePath2.Size = new System.Drawing.Size(433, 56);
+            this.filePath2.Size = new System.Drawing.Size(371, 66);
             this.filePath2.TabIndex = 10;
             this.filePath2.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxDragDrop);
             this.filePath2.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxDragEnter);
             // 
             // SelectFileBtn2
             // 
-            this.SelectFileBtn2.Location = new System.Drawing.Point(479, 244);
+            this.SelectFileBtn2.Location = new System.Drawing.Point(904, 23);
             this.SelectFileBtn2.Name = "SelectFileBtn2";
             this.SelectFileBtn2.Size = new System.Drawing.Size(74, 37);
             this.SelectFileBtn2.TabIndex = 11;
@@ -146,7 +144,7 @@
             // 
             // CheckTemplateConfiguration
             // 
-            this.CheckTemplateConfiguration.Location = new System.Drawing.Point(232, 420);
+            this.CheckTemplateConfiguration.Location = new System.Drawing.Point(536, 322);
             this.CheckTemplateConfiguration.Name = "CheckTemplateConfiguration";
             this.CheckTemplateConfiguration.Size = new System.Drawing.Size(90, 23);
             this.CheckTemplateConfiguration.TabIndex = 12;
@@ -154,50 +152,32 @@
             this.CheckTemplateConfiguration.UseVisualStyleBackColor = true;
             this.CheckTemplateConfiguration.Click += new System.EventHandler(this.CheckTemplateConfiguration_Click);
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(25, 321);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(113, 12);
-            this.label4.TabIndex = 13;
-            this.label4.Text = "模板文件(文件路径)";
-            // 
             // wsNameOrIndex1
             // 
-            this.wsNameOrIndex1.Location = new System.Drawing.Point(146, 343);
+            this.wsNameOrIndex1.Location = new System.Drawing.Point(394, 129);
             this.wsNameOrIndex1.Name = "wsNameOrIndex1";
             this.wsNameOrIndex1.Size = new System.Drawing.Size(100, 21);
             this.wsNameOrIndex1.TabIndex = 14;
             // 
             // wsNameOrIndex2
             // 
-            this.wsNameOrIndex2.Location = new System.Drawing.Point(398, 343);
+            this.wsNameOrIndex2.Location = new System.Drawing.Point(904, 129);
             this.wsNameOrIndex2.Name = "wsNameOrIndex2";
             this.wsNameOrIndex2.Size = new System.Drawing.Size(100, 21);
             this.wsNameOrIndex2.TabIndex = 15;
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(285, 321);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(119, 12);
-            this.label5.TabIndex = 13;
-            this.label5.Text = "对比模版(文件路径2)";
-            // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(23, 346);
+            this.label6.Location = new System.Drawing.Point(392, 114);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(107, 12);
+            this.label6.Size = new System.Drawing.Size(65, 12);
             this.label6.TabIndex = 13;
-            this.label6.Text = "worksheet名或序号";
+            this.label6.Text = "序号或名字";
             // 
             // TitleLine1
             // 
-            this.TitleLine1.Location = new System.Drawing.Point(146, 375);
+            this.TitleLine1.Location = new System.Drawing.Point(394, 168);
             this.TitleLine1.Name = "TitleLine1";
             this.TitleLine1.Size = new System.Drawing.Size(100, 21);
             this.TitleLine1.TabIndex = 16;
@@ -205,7 +185,7 @@
             // 
             // TitleLine2
             // 
-            this.TitleLine2.Location = new System.Drawing.Point(398, 375);
+            this.TitleLine2.Location = new System.Drawing.Point(904, 168);
             this.TitleLine2.Name = "TitleLine2";
             this.TitleLine2.Size = new System.Drawing.Size(100, 21);
             this.TitleLine2.TabIndex = 16;
@@ -214,16 +194,16 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(285, 346);
+            this.label7.Location = new System.Drawing.Point(902, 114);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(107, 12);
+            this.label7.Size = new System.Drawing.Size(65, 12);
             this.label7.TabIndex = 13;
-            this.label7.Text = "worksheet名或序号";
+            this.label7.Text = "序号或名字";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(25, 378);
+            this.label8.Location = new System.Drawing.Point(392, 153);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(41, 12);
             this.label8.TabIndex = 17;
@@ -232,7 +212,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(285, 378);
+            this.label9.Location = new System.Drawing.Point(902, 153);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(41, 12);
             this.label9.TabIndex = 17;
@@ -254,9 +234,9 @@
             this.panel1.Controls.Add(this.DelHiddenWs);
             this.panel1.Controls.Add(this.GenerateConfigurationCode);
             this.panel1.Controls.Add(this.GenerateConfiguration);
-            this.panel1.Location = new System.Drawing.Point(23, 108);
+            this.panel1.Location = new System.Drawing.Point(14, 302);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(435, 55);
+            this.panel1.Size = new System.Drawing.Size(374, 55);
             this.panel1.TabIndex = 19;
             // 
             // DelHiddenWs
@@ -271,7 +251,7 @@
             // 
             // WScount1
             // 
-            this.WScount1.Location = new System.Drawing.Point(480, 68);
+            this.WScount1.Location = new System.Drawing.Point(394, 66);
             this.WScount1.Name = "WScount1";
             this.WScount1.Size = new System.Drawing.Size(75, 23);
             this.WScount1.TabIndex = 20;
@@ -279,24 +259,9 @@
             this.WScount1.UseVisualStyleBackColor = true;
             this.WScount1.Click += new System.EventHandler(this.WScount1_Click);
             // 
-            // dataGridViewExcel1
-            // 
-            this.dataGridViewExcel1.AllowUserToAddRows = false;
-            this.dataGridViewExcel1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewExcel1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dataGridViewTextBoxColumn1,
-            this.dataGridViewTextBoxColumn2,
-            this.dataGridViewTextBoxColumn3});
-            this.dataGridViewExcel1.Location = new System.Drawing.Point(584, 23);
-            this.dataGridViewExcel1.Name = "dataGridViewExcel1";
-            this.dataGridViewExcel1.RowHeadersVisible = false;
-            this.dataGridViewExcel1.RowTemplate.Height = 23;
-            this.dataGridViewExcel1.Size = new System.Drawing.Size(354, 183);
-            this.dataGridViewExcel1.TabIndex = 22;
-            // 
             // WScount2
             // 
-            this.WScount2.Location = new System.Drawing.Point(478, 286);
+            this.WScount2.Location = new System.Drawing.Point(904, 66);
             this.WScount2.Name = "WScount2";
             this.WScount2.Size = new System.Drawing.Size(75, 23);
             this.WScount2.TabIndex = 24;
@@ -312,12 +277,13 @@
             this.dataGridViewTextBoxColumn4,
             this.dataGridViewTextBoxColumn5,
             this.dataGridViewTextBoxColumn6});
-            this.dataGridViewExcel2.Location = new System.Drawing.Point(584, 244);
+            this.dataGridViewExcel2.Location = new System.Drawing.Point(527, 95);
             this.dataGridViewExcel2.Name = "dataGridViewExcel2";
             this.dataGridViewExcel2.RowHeadersVisible = false;
             this.dataGridViewExcel2.RowTemplate.Height = 23;
             this.dataGridViewExcel2.Size = new System.Drawing.Size(354, 170);
             this.dataGridViewExcel2.TabIndex = 25;
+            this.dataGridViewExcel2.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewExcel2_CellClick);
             // 
             // dataGridViewTextBoxColumn4
             // 
@@ -326,7 +292,7 @@
             this.dataGridViewTextBoxColumn4.HeaderText = "序号";
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            this.dataGridViewTextBoxColumn4.Width = 52;
+            this.dataGridViewTextBoxColumn4.Width = 54;
             // 
             // dataGridViewTextBoxColumn5
             // 
@@ -335,14 +301,30 @@
             this.dataGridViewTextBoxColumn5.HeaderText = "名字";
             this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
             this.dataGridViewTextBoxColumn5.ReadOnly = true;
-            this.dataGridViewTextBoxColumn5.Width = 52;
+            this.dataGridViewTextBoxColumn5.Width = 54;
             // 
             // dataGridViewTextBoxColumn6
             // 
             this.dataGridViewTextBoxColumn6.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.dataGridViewTextBoxColumn6.HeaderText = "标题行";
             this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
-            this.dataGridViewTextBoxColumn6.Width = 64;
+            this.dataGridViewTextBoxColumn6.Width = 66;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.dataGridViewTextBoxColumn3.HeaderText = "标题行";
+            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            this.dataGridViewTextBoxColumn3.Width = 64;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.dataGridViewTextBoxColumn2.Frozen = true;
+            this.dataGridViewTextBoxColumn2.HeaderText = "名字";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            this.dataGridViewTextBoxColumn2.ReadOnly = true;
+            this.dataGridViewTextBoxColumn2.Width = 54;
             // 
             // dataGridViewTextBoxColumn1
             // 
@@ -353,27 +335,27 @@
             this.dataGridViewTextBoxColumn1.ReadOnly = true;
             this.dataGridViewTextBoxColumn1.Width = 52;
             // 
-            // dataGridViewTextBoxColumn2
+            // dataGridViewExcel1
             // 
-            this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.dataGridViewTextBoxColumn2.Frozen = true;
-            this.dataGridViewTextBoxColumn2.HeaderText = "名字";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            this.dataGridViewTextBoxColumn2.ReadOnly = true;
-            this.dataGridViewTextBoxColumn2.Width = 52;
-            // 
-            // dataGridViewTextBoxColumn3
-            // 
-            this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.dataGridViewTextBoxColumn3.HeaderText = "标题行";
-            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            this.dataGridViewTextBoxColumn3.Width = 64;
+            this.dataGridViewExcel1.AllowUserToAddRows = false;
+            this.dataGridViewExcel1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewExcel1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dataGridViewTextBoxColumn1,
+            this.dataGridViewTextBoxColumn2,
+            this.dataGridViewTextBoxColumn3});
+            this.dataGridViewExcel1.Location = new System.Drawing.Point(22, 95);
+            this.dataGridViewExcel1.Name = "dataGridViewExcel1";
+            this.dataGridViewExcel1.RowHeadersVisible = false;
+            this.dataGridViewExcel1.RowTemplate.Height = 23;
+            this.dataGridViewExcel1.Size = new System.Drawing.Size(354, 183);
+            this.dataGridViewExcel1.TabIndex = 22;
+            this.dataGridViewExcel1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewExcel1_CellClick);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(964, 483);
+            this.ClientSize = new System.Drawing.Size(1059, 410);
             this.Controls.Add(this.filePath2);
             this.Controls.Add(this.filePath1);
             this.Controls.Add(this.dataGridViewExcel2);
@@ -386,10 +368,8 @@
             this.Controls.Add(this.TitleLine1);
             this.Controls.Add(this.wsNameOrIndex2);
             this.Controls.Add(this.wsNameOrIndex1);
-            this.Controls.Add(this.label5);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.CheckTemplateConfiguration);
             this.Controls.Add(this.SelectFileBtn2);
             this.Controls.Add(this.label3);
@@ -400,8 +380,8 @@
             this.Name = "Form1";
             this.Text = "Form1";
             this.panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -418,10 +398,8 @@
         private System.Windows.Forms.TextBox filePath2;
         private System.Windows.Forms.Button SelectFileBtn2;
         private System.Windows.Forms.Button CheckTemplateConfiguration;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox wsNameOrIndex1;
         private System.Windows.Forms.TextBox wsNameOrIndex2;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox TitleLine1;
         private System.Windows.Forms.TextBox TitleLine2;
@@ -431,16 +409,16 @@
         private System.Windows.Forms.Button GenerateConfigurationCode;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button WScount1;
-        private System.Windows.Forms.DataGridView dataGridViewExcel1;
         private System.Windows.Forms.Button WScount2;
         private System.Windows.Forms.DataGridView dataGridViewExcel2;
         private System.Windows.Forms.Button DelHiddenWs;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridView dataGridViewExcel1;
     }
 }
 

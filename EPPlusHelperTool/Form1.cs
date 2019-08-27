@@ -430,9 +430,38 @@ namespace EPPlusHelperTool
             }
         }
 
-        private void DataGridViewExcel1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridViewExcel1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            DataGridView dgv = (DataGridView)sender;
+            if (dgv.Rows.Count <= 0) return;
 
+            var row = dgv.Rows[e.RowIndex];
+            var txt = row.Cells[e.ColumnIndex].Value.ToString();
+            if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
+            {
+                this.wsNameOrIndex1.Text = txt;
+            }
+            else if (e.ColumnIndex == 2)
+            {
+                this.TitleLine1.Text = txt;
+            }
+        }
+
+        private void dataGridViewExcel2_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            DataGridView dgv = (DataGridView)sender;
+            if (dgv.Rows.Count <= 0) return;
+
+            var row = dgv.Rows[e.RowIndex];
+            var txt = row.Cells[e.ColumnIndex].Value.ToString();
+            if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
+            {
+                this.wsNameOrIndex2.Text = txt;
+            }
+            else if (e.ColumnIndex == 2)
+            {
+                this.TitleLine2.Text = txt;
+            }
         }
     }
 }
