@@ -64,6 +64,16 @@ namespace SampleApp
             dt.Columns.Add("Math");
             dt.Columns.Add("English");
 
+            //for (int i = 0; i < 1000000; i++)
+            //{
+            //    DataRow dr = dt.NewRow();
+            //    dr["Name"] = "张三";
+            //    dr["Chinese"] = 60;
+            //    dr["Math"] = 60.5;
+            //    dr["English"] = 61;
+            //    dt.Rows.Add(dr);
+            //}
+
             DataRow dr = dt.NewRow();
             dr["Name"] = "张三";
             dr["Chinese"] = 60;

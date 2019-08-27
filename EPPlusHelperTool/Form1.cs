@@ -204,7 +204,7 @@ namespace EPPlusHelperTool
                 foreach (var item in defaultConfigList)
                 {
                     //将字符串全部写入文件
-                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDateTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDateTableSnippe);
+                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDataTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDataTableSnippe);
                     File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
                 }
                 WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
@@ -248,8 +248,8 @@ namespace EPPlusHelperTool
 
                 //using (FileStream fs1 = System.IO.File.OpenRead(ws1Path))
                 //using (FileStream fs2 = System.IO.File.OpenRead(ws2Path))
-                using (FileStream fs1 = new FileStream(ws1Path, FileMode.Open, FileAccess.Read, FileShare.None))
-                using (FileStream fs2 = new FileStream(ws2Path, FileMode.Open, FileAccess.Read, FileShare.None))
+                using (FileStream fs1 = new FileStream(ws1Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (FileStream fs2 = new FileStream(ws2Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (ExcelPackage excelPackage1 = new ExcelPackage(fs1))
                 using (ExcelPackage excelPackage2 = new ExcelPackage(fs2))
                 {
@@ -258,38 +258,58 @@ namespace EPPlusHelperTool
                     var ws1Props = EPPlusHelper.FillExcelDefaultConfig(ws1, ws1TitleLine).ClassPropertyList;
                     var ws2Props = EPPlusHelper.FillExcelDefaultConfig(ws2, ws2TitleLine).ClassPropertyList;
 
-                    StringBuilder sb1 = new StringBuilder();
-                    StringBuilder sb2 = new StringBuilder();
-
-                    foreach (var item in ws1Props)
                     {
-                        if (!ws2Props.Contains(item))
+                        StringBuilder sb = new StringBuilder();
+                        AppendCols(ws1Props, ws2Props, sb);
+                        if (sb.Length > 1)
                         {
-                            sb1.Append($@"{item},");
+                            MessageBox.Show($@"A与B比较:B未提供列:{sb.RemoveLastChar()}");
+                            return;
                         }
                     }
-                    if (sb1.Length > 1)
-                    {
-                        MessageBox.Show($@"未提供列:{sb1.RemoveLastChar()}");
-                        return;
-                    }
 
-                    foreach (var item in ws2Props)
                     {
-                        if (!ws1Props.Contains(item))
+                        StringBuilder sb = new StringBuilder();
+                        AppendCols(ws2Props, ws1Props, sb);
+
+                        if (sb.Length > 1)
                         {
-                            sb2.Append($@"{item},");
+                            MessageBox.Show($@"A与B比较:B多提供列:{sb.RemoveLastChar()}");
+                            return;
                         }
-                    }
-                    if (sb2.Length > 1)
-                    {
-                        MessageBox.Show($@"多提供列:{sb2.RemoveLastChar()}");
-                        return;
                     }
 
                     MessageBox.Show("通过校验模板配置项");
                 }
             });
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="src">源</param>
+        /// <param name="compareObj">比较对象</param>
+        /// <param name="sb1">输出的内容</param>
+        private static void AppendCols(List<ExcelCellInfoValue> src, List<ExcelCellInfoValue> compareObj, StringBuilder sb1)
+        {
+            foreach (var item in src)
+            {
+                if (!item.IsRename)
+                {
+                    if (compareObj.Find(a => a.Name == item.Name) == null)
+                    {
+                        sb1.Append($@"{item.Name},");
+                    }
+                }
+                else
+                {
+                    if (compareObj.Find(a => a.Name == item.Name && a.ExcelColNameIndex == item.ExcelColNameIndex) == null)
+                    {
+                        sb1.Append($@"{item.Name},");
+                    }
+                }
+            }
+
         }
 
         private void btn_SelectExcelFile(object sender, EventArgs e)
@@ -430,38 +450,25 @@ namespace EPPlusHelperTool
             }
         }
 
-        private void dataGridViewExcel1_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridViewExcel_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             DataGridView dgv = (DataGridView)sender;
             if (dgv.Rows.Count <= 0) return;
 
             var row = dgv.Rows[e.RowIndex];
             var txt = row.Cells[e.ColumnIndex].Value.ToString();
+
             if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
             {
-                this.wsNameOrIndex1.Text = txt;
+                if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel1") this.wsNameOrIndex1.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel2") this.wsNameOrIndex2.Text = txt;
             }
             else if (e.ColumnIndex == 2)
             {
-                this.TitleLine1.Text = txt;
+                if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel1") this.TitleLine1.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel2") this.TitleLine2.Text = txt;
             }
         }
 
-        private void dataGridViewExcel2_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            DataGridView dgv = (DataGridView)sender;
-            if (dgv.Rows.Count <= 0) return;
-
-            var row = dgv.Rows[e.RowIndex];
-            var txt = row.Cells[e.ColumnIndex].Value.ToString();
-            if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
-            {
-                this.wsNameOrIndex2.Text = txt;
-            }
-            else if (e.ColumnIndex == 2)
-            {
-                this.TitleLine2.Text = txt;
-            }
-        }
     }
 }

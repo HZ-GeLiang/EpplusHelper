@@ -2654,7 +2654,7 @@ namespace EPPlusExtensions
             return new DefaultConfig()
             {
                 WorkSheetName = ws.Name,
-                CrateDateTableSnippe = sb_CrateDateTableSnippe.ToString(),
+                CrateDataTableSnippe = sb_CrateDateTableSnippe.ToString(),
                 CrateClassSnippe = sb_CrateClassSnippe.ToString(),
                 ClassPropertyList = colNameList
             };

@@ -31,8 +31,6 @@
             this.filePath1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.SelectFileBtn1 = new System.Windows.Forms.Button();
-            this.GenerateConfiguration = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.filePath2 = new System.Windows.Forms.TextBox();
             this.SelectFileBtn2 = new System.Windows.Forms.Button();
@@ -45,9 +43,6 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.GenerateConfigurationCode = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.DelHiddenWs = new System.Windows.Forms.Button();
             this.WScount1 = new System.Windows.Forms.Button();
             this.WScount2 = new System.Windows.Forms.Button();
             this.dataGridViewExcel2 = new System.Windows.Forms.DataGridView();
@@ -58,9 +53,14 @@
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewExcel1 = new System.Windows.Forms.DataGridView();
-            this.panel1.SuspendLayout();
+            this.GenerateConfiguration = new System.Windows.Forms.Button();
+            this.GenerateConfigurationCode = new System.Windows.Forms.Button();
+            this.DelHiddenWs = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // filePath1
@@ -92,25 +92,6 @@
             this.SelectFileBtn1.Text = "选择...";
             this.SelectFileBtn1.UseVisualStyleBackColor = true;
             this.SelectFileBtn1.Click += new System.EventHandler(this.btn_SelectExcelFile);
-            // 
-            // GenerateConfiguration
-            // 
-            this.GenerateConfiguration.Location = new System.Drawing.Point(125, 19);
-            this.GenerateConfiguration.Name = "GenerateConfiguration";
-            this.GenerateConfiguration.Size = new System.Drawing.Size(113, 23);
-            this.GenerateConfiguration.TabIndex = 7;
-            this.GenerateConfiguration.Text = "给Excel填充配置";
-            this.GenerateConfiguration.UseVisualStyleBackColor = true;
-            this.GenerateConfiguration.Click += new System.EventHandler(this.GenerateConfiguration_Click);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(21, 295);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(113, 12);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "自动初始化填充配置";
             // 
             // label3
             // 
@@ -218,37 +199,6 @@
             this.label9.TabIndex = 17;
             this.label9.Text = "标题行";
             // 
-            // GenerateConfigurationCode
-            // 
-            this.GenerateConfigurationCode.Location = new System.Drawing.Point(243, 19);
-            this.GenerateConfigurationCode.Name = "GenerateConfigurationCode";
-            this.GenerateConfigurationCode.Size = new System.Drawing.Size(110, 23);
-            this.GenerateConfigurationCode.TabIndex = 18;
-            this.GenerateConfigurationCode.Text = "生成所有配置项";
-            this.GenerateConfigurationCode.UseVisualStyleBackColor = true;
-            this.GenerateConfigurationCode.Click += new System.EventHandler(this.GenerateConfigurationCode_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.DelHiddenWs);
-            this.panel1.Controls.Add(this.GenerateConfigurationCode);
-            this.panel1.Controls.Add(this.GenerateConfiguration);
-            this.panel1.Location = new System.Drawing.Point(14, 302);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(374, 55);
-            this.panel1.TabIndex = 19;
-            // 
-            // DelHiddenWs
-            // 
-            this.DelHiddenWs.Location = new System.Drawing.Point(8, 19);
-            this.DelHiddenWs.Name = "DelHiddenWs";
-            this.DelHiddenWs.Size = new System.Drawing.Size(98, 23);
-            this.DelHiddenWs.TabIndex = 19;
-            this.DelHiddenWs.Text = "删除隐藏工作簿";
-            this.DelHiddenWs.UseVisualStyleBackColor = true;
-            this.DelHiddenWs.Click += new System.EventHandler(this.DelHiddenWs_Click);
-            // 
             // WScount1
             // 
             this.WScount1.Location = new System.Drawing.Point(394, 66);
@@ -281,9 +231,9 @@
             this.dataGridViewExcel2.Name = "dataGridViewExcel2";
             this.dataGridViewExcel2.RowHeadersVisible = false;
             this.dataGridViewExcel2.RowTemplate.Height = 23;
-            this.dataGridViewExcel2.Size = new System.Drawing.Size(354, 170);
+            this.dataGridViewExcel2.Size = new System.Drawing.Size(354, 183);
             this.dataGridViewExcel2.TabIndex = 25;
-            this.dataGridViewExcel2.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewExcel2_CellClick);
+            this.dataGridViewExcel2.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewExcel_CellClick);
             // 
             // dataGridViewTextBoxColumn4
             // 
@@ -349,7 +299,57 @@
             this.dataGridViewExcel1.RowTemplate.Height = 23;
             this.dataGridViewExcel1.Size = new System.Drawing.Size(354, 183);
             this.dataGridViewExcel1.TabIndex = 22;
-            this.dataGridViewExcel1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewExcel1_CellClick);
+            this.dataGridViewExcel1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewExcel_CellClick);
+            // 
+            // GenerateConfiguration
+            // 
+            this.GenerateConfiguration.Location = new System.Drawing.Point(125, 19);
+            this.GenerateConfiguration.Name = "GenerateConfiguration";
+            this.GenerateConfiguration.Size = new System.Drawing.Size(113, 23);
+            this.GenerateConfiguration.TabIndex = 7;
+            this.GenerateConfiguration.Text = "给Excel填充配置";
+            this.GenerateConfiguration.UseVisualStyleBackColor = true;
+            this.GenerateConfiguration.Click += new System.EventHandler(this.GenerateConfiguration_Click);
+            // 
+            // GenerateConfigurationCode
+            // 
+            this.GenerateConfigurationCode.Location = new System.Drawing.Point(243, 19);
+            this.GenerateConfigurationCode.Name = "GenerateConfigurationCode";
+            this.GenerateConfigurationCode.Size = new System.Drawing.Size(110, 23);
+            this.GenerateConfigurationCode.TabIndex = 18;
+            this.GenerateConfigurationCode.Text = "生成所有配置项";
+            this.GenerateConfigurationCode.UseVisualStyleBackColor = true;
+            this.GenerateConfigurationCode.Click += new System.EventHandler(this.GenerateConfigurationCode_Click);
+            // 
+            // DelHiddenWs
+            // 
+            this.DelHiddenWs.Location = new System.Drawing.Point(8, 19);
+            this.DelHiddenWs.Name = "DelHiddenWs";
+            this.DelHiddenWs.Size = new System.Drawing.Size(98, 23);
+            this.DelHiddenWs.TabIndex = 19;
+            this.DelHiddenWs.Text = "删除隐藏工作簿";
+            this.DelHiddenWs.UseVisualStyleBackColor = true;
+            this.DelHiddenWs.Click += new System.EventHandler(this.DelHiddenWs_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.DelHiddenWs);
+            this.panel1.Controls.Add(this.GenerateConfigurationCode);
+            this.panel1.Controls.Add(this.GenerateConfiguration);
+            this.panel1.Location = new System.Drawing.Point(14, 302);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(374, 55);
+            this.panel1.TabIndex = 19;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(21, 295);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(113, 12);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "自动初始化填充配置";
             // 
             // Form1
             // 
@@ -379,9 +379,9 @@
             this.Controls.Add(this.panel1);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).EndInit();
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -392,8 +392,6 @@
         private System.Windows.Forms.TextBox filePath1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button SelectFileBtn1;
-        private System.Windows.Forms.Button GenerateConfiguration;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox filePath2;
         private System.Windows.Forms.Button SelectFileBtn2;
@@ -406,12 +404,9 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Button GenerateConfigurationCode;
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button WScount1;
         private System.Windows.Forms.Button WScount2;
         private System.Windows.Forms.DataGridView dataGridViewExcel2;
-        private System.Windows.Forms.Button DelHiddenWs;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
@@ -419,6 +414,11 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridView dataGridViewExcel1;
+        private System.Windows.Forms.Button GenerateConfiguration;
+        private System.Windows.Forms.Button GenerateConfigurationCode;
+        private System.Windows.Forms.Button DelHiddenWs;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label label2;
     }
 }
 
