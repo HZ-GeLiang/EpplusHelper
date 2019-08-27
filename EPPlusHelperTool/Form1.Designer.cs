@@ -58,6 +58,10 @@
             this.DelHiddenWs = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).BeginInit();
             this.panel1.SuspendLayout();
@@ -66,7 +70,7 @@
             // filePath1
             // 
             this.filePath1.AllowDrop = true;
-            this.filePath1.Location = new System.Drawing.Point(22, 23);
+            this.filePath1.Location = new System.Drawing.Point(12, 23);
             this.filePath1.Multiline = true;
             this.filePath1.Name = "filePath1";
             this.filePath1.Size = new System.Drawing.Size(366, 66);
@@ -77,7 +81,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(21, 7);
+            this.label1.Location = new System.Drawing.Point(11, 7);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(149, 12);
             this.label1.TabIndex = 5;
@@ -85,7 +89,7 @@
             // 
             // SelectFileBtn1
             // 
-            this.SelectFileBtn1.Location = new System.Drawing.Point(394, 23);
+            this.SelectFileBtn1.Location = new System.Drawing.Point(384, 23);
             this.SelectFileBtn1.Name = "SelectFileBtn1";
             this.SelectFileBtn1.Size = new System.Drawing.Size(74, 37);
             this.SelectFileBtn1.TabIndex = 6;
@@ -96,7 +100,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(525, 7);
+            this.label3.Location = new System.Drawing.Point(515, 7);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(149, 12);
             this.label3.TabIndex = 9;
@@ -105,7 +109,7 @@
             // filePath2
             // 
             this.filePath2.AllowDrop = true;
-            this.filePath2.Location = new System.Drawing.Point(527, 23);
+            this.filePath2.Location = new System.Drawing.Point(517, 23);
             this.filePath2.Multiline = true;
             this.filePath2.Name = "filePath2";
             this.filePath2.Size = new System.Drawing.Size(371, 66);
@@ -115,7 +119,7 @@
             // 
             // SelectFileBtn2
             // 
-            this.SelectFileBtn2.Location = new System.Drawing.Point(904, 23);
+            this.SelectFileBtn2.Location = new System.Drawing.Point(894, 23);
             this.SelectFileBtn2.Name = "SelectFileBtn2";
             this.SelectFileBtn2.Size = new System.Drawing.Size(74, 37);
             this.SelectFileBtn2.TabIndex = 11;
@@ -125,7 +129,7 @@
             // 
             // CheckTemplateConfiguration
             // 
-            this.CheckTemplateConfiguration.Location = new System.Drawing.Point(536, 322);
+            this.CheckTemplateConfiguration.Location = new System.Drawing.Point(526, 322);
             this.CheckTemplateConfiguration.Name = "CheckTemplateConfiguration";
             this.CheckTemplateConfiguration.Size = new System.Drawing.Size(90, 23);
             this.CheckTemplateConfiguration.TabIndex = 12;
@@ -135,14 +139,14 @@
             // 
             // wsNameOrIndex1
             // 
-            this.wsNameOrIndex1.Location = new System.Drawing.Point(394, 129);
+            this.wsNameOrIndex1.Location = new System.Drawing.Point(384, 129);
             this.wsNameOrIndex1.Name = "wsNameOrIndex1";
             this.wsNameOrIndex1.Size = new System.Drawing.Size(100, 21);
             this.wsNameOrIndex1.TabIndex = 14;
             // 
             // wsNameOrIndex2
             // 
-            this.wsNameOrIndex2.Location = new System.Drawing.Point(904, 129);
+            this.wsNameOrIndex2.Location = new System.Drawing.Point(894, 129);
             this.wsNameOrIndex2.Name = "wsNameOrIndex2";
             this.wsNameOrIndex2.Size = new System.Drawing.Size(100, 21);
             this.wsNameOrIndex2.TabIndex = 15;
@@ -150,7 +154,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(392, 114);
+            this.label6.Location = new System.Drawing.Point(382, 114);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(65, 12);
             this.label6.TabIndex = 13;
@@ -158,7 +162,7 @@
             // 
             // TitleLine1
             // 
-            this.TitleLine1.Location = new System.Drawing.Point(394, 168);
+            this.TitleLine1.Location = new System.Drawing.Point(384, 168);
             this.TitleLine1.Name = "TitleLine1";
             this.TitleLine1.Size = new System.Drawing.Size(100, 21);
             this.TitleLine1.TabIndex = 16;
@@ -166,7 +170,7 @@
             // 
             // TitleLine2
             // 
-            this.TitleLine2.Location = new System.Drawing.Point(904, 168);
+            this.TitleLine2.Location = new System.Drawing.Point(894, 168);
             this.TitleLine2.Name = "TitleLine2";
             this.TitleLine2.Size = new System.Drawing.Size(100, 21);
             this.TitleLine2.TabIndex = 16;
@@ -175,7 +179,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(902, 114);
+            this.label7.Location = new System.Drawing.Point(892, 114);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(65, 12);
             this.label7.TabIndex = 13;
@@ -184,7 +188,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(392, 153);
+            this.label8.Location = new System.Drawing.Point(382, 153);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(41, 12);
             this.label8.TabIndex = 17;
@@ -193,7 +197,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(902, 153);
+            this.label9.Location = new System.Drawing.Point(892, 153);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(41, 12);
             this.label9.TabIndex = 17;
@@ -201,7 +205,7 @@
             // 
             // WScount1
             // 
-            this.WScount1.Location = new System.Drawing.Point(394, 66);
+            this.WScount1.Location = new System.Drawing.Point(384, 66);
             this.WScount1.Name = "WScount1";
             this.WScount1.Size = new System.Drawing.Size(75, 23);
             this.WScount1.TabIndex = 20;
@@ -211,7 +215,7 @@
             // 
             // WScount2
             // 
-            this.WScount2.Location = new System.Drawing.Point(904, 66);
+            this.WScount2.Location = new System.Drawing.Point(894, 66);
             this.WScount2.Name = "WScount2";
             this.WScount2.Size = new System.Drawing.Size(75, 23);
             this.WScount2.TabIndex = 24;
@@ -227,7 +231,7 @@
             this.dataGridViewTextBoxColumn4,
             this.dataGridViewTextBoxColumn5,
             this.dataGridViewTextBoxColumn6});
-            this.dataGridViewExcel2.Location = new System.Drawing.Point(527, 95);
+            this.dataGridViewExcel2.Location = new System.Drawing.Point(517, 95);
             this.dataGridViewExcel2.Name = "dataGridViewExcel2";
             this.dataGridViewExcel2.RowHeadersVisible = false;
             this.dataGridViewExcel2.RowTemplate.Height = 23;
@@ -293,7 +297,7 @@
             this.dataGridViewTextBoxColumn1,
             this.dataGridViewTextBoxColumn2,
             this.dataGridViewTextBoxColumn3});
-            this.dataGridViewExcel1.Location = new System.Drawing.Point(22, 95);
+            this.dataGridViewExcel1.Location = new System.Drawing.Point(12, 95);
             this.dataGridViewExcel1.Name = "dataGridViewExcel1";
             this.dataGridViewExcel1.RowHeadersVisible = false;
             this.dataGridViewExcel1.RowTemplate.Height = 23;
@@ -303,7 +307,7 @@
             // 
             // GenerateConfiguration
             // 
-            this.GenerateConfiguration.Location = new System.Drawing.Point(125, 19);
+            this.GenerateConfiguration.Location = new System.Drawing.Point(117, 18);
             this.GenerateConfiguration.Name = "GenerateConfiguration";
             this.GenerateConfiguration.Size = new System.Drawing.Size(113, 23);
             this.GenerateConfiguration.TabIndex = 7;
@@ -313,7 +317,7 @@
             // 
             // GenerateConfigurationCode
             // 
-            this.GenerateConfigurationCode.Location = new System.Drawing.Point(243, 19);
+            this.GenerateConfigurationCode.Location = new System.Drawing.Point(241, 18);
             this.GenerateConfigurationCode.Name = "GenerateConfigurationCode";
             this.GenerateConfigurationCode.Size = new System.Drawing.Size(110, 23);
             this.GenerateConfigurationCode.TabIndex = 18;
@@ -323,7 +327,7 @@
             // 
             // DelHiddenWs
             // 
-            this.DelHiddenWs.Location = new System.Drawing.Point(8, 19);
+            this.DelHiddenWs.Location = new System.Drawing.Point(8, 18);
             this.DelHiddenWs.Name = "DelHiddenWs";
             this.DelHiddenWs.Size = new System.Drawing.Size(98, 23);
             this.DelHiddenWs.TabIndex = 19;
@@ -337,25 +341,61 @@
             this.panel1.Controls.Add(this.DelHiddenWs);
             this.panel1.Controls.Add(this.GenerateConfigurationCode);
             this.panel1.Controls.Add(this.GenerateConfiguration);
-            this.panel1.Location = new System.Drawing.Point(14, 302);
+            this.panel1.Location = new System.Drawing.Point(6, 302);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(374, 55);
+            this.panel1.Size = new System.Drawing.Size(360, 55);
             this.panel1.TabIndex = 19;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(21, 295);
+            this.label2.Location = new System.Drawing.Point(11, 295);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(113, 12);
             this.label2.TabIndex = 8;
             this.label2.Text = "自动初始化填充配置";
             // 
+            // panel2
+            // 
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Location = new System.Drawing.Point(372, 103);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(119, 113);
+            this.panel2.TabIndex = 26;
+            // 
+            // panel3
+            // 
+            this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Location = new System.Drawing.Point(877, 103);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(126, 113);
+            this.panel3.TabIndex = 27;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(385, 97);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(17, 12);
+            this.label4.TabIndex = 28;
+            this.label4.Text = "A ";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(895, 97);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(17, 12);
+            this.label5.TabIndex = 29;
+            this.label5.Text = "B ";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1059, 410);
+            this.ClientSize = new System.Drawing.Size(1036, 410);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.filePath2);
             this.Controls.Add(this.filePath1);
             this.Controls.Add(this.dataGridViewExcel2);
@@ -377,6 +417,8 @@
             this.Controls.Add(this.SelectFileBtn1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.panel3);
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).EndInit();
@@ -419,6 +461,10 @@
         private System.Windows.Forms.Button DelHiddenWs;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Label label5;
     }
 }
 
