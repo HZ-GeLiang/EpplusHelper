@@ -52,11 +52,11 @@ namespace EPPlusExtensions
             R1C1 = R1C1FormulasReverse(col) + row;
         }
 
+
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="row">从1开始的整数</param>
-        /// <param name="col">从1开始的整数</param>
+        /// <param name="excelAddress"></param>
         public ExcelCellPoint(OfficeOpenXml.ExcelAddress excelAddress)
         {
             //ExcelCellPoint(excelAddress.Address); 

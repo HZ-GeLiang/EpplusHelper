@@ -1,4 +1,5 @@
 ﻿using System;
+using OfficeOpenXml;
 
 namespace EPPlusExtensions
 {
@@ -7,10 +8,16 @@ namespace EPPlusExtensions
     /// </summary>
     public struct ExcelCellRange
     {
-        public ExcelCellRange(string range)
+        private static void Init(string r1c1,
+            out string Range,
+            out ExcelCellPoint Start,
+            out ExcelCellPoint End,
+            out int IntervalRow,
+            out int IntervalCol,
+            out bool IsMerge)
         {
-            Range = range;
-            var cellPoints = range.Split(':');
+            Range = r1c1;
+            var cellPoints = r1c1.Split(':');
 
             switch (cellPoints.Length)
             {
@@ -31,7 +38,44 @@ namespace EPPlusExtensions
                 default:
                     throw new Exception("程序的配置有问题");
             }
+        }
 
+        public ExcelCellRange(string range)
+        {
+            Init(range,
+                out string Range,
+                out ExcelCellPoint Start,
+                out ExcelCellPoint End,
+                out int IntervalRow,
+                out int IntervalCol,
+                out bool IsMerge);
+
+            this.Range = Range;
+            this.Start = Start;
+            this.End = End;
+            this.IntervalRow = IntervalRow;
+            this.IntervalCol = IntervalCol;
+            this.IsMerge = IsMerge;
+        }
+
+        public ExcelCellRange(string r1c1, ExcelWorksheet ws)
+        {
+            var ecp = new ExcelCellPoint(r1c1);
+            var ea = new ExcelAddress(ws.MergedCells[ecp.Row, ecp.Col]);
+
+            Init(ea.Address,
+                out string Range,
+                out ExcelCellPoint Start,
+                out ExcelCellPoint End,
+                out int IntervalRow,
+                out int IntervalCol,
+                out bool IsMerge);
+            this.Range = Range;
+            this.Start = Start;
+            this.End = End;
+            this.IntervalRow = IntervalRow;
+            this.IntervalCol = IntervalCol;
+            this.IsMerge = IsMerge;
         }
 
         /// <summary>
