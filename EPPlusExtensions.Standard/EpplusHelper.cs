@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -17,7 +18,7 @@ using OfficeOpenXml;
 
 namespace EPPlusExtensions
 {
-    public class EPPlusHelper
+    public partial class EPPlusHelper
     {
         /// <summary>
         /// 填充Excel时创建的工作簿名字
@@ -1715,7 +1716,7 @@ namespace EPPlusExtensions
             var ctor = type.GetConstructor(new Type[] { });
             if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
 
-            var dictPropAttrs = new Dictionary<string, Dictionary<string, Attribute>>();//属性里包含的Attriute
+            var dictPropAttrs = new Dictionary<string, Dictionary<string, Attribute>>();//属性里包含的Attribute
 
             //内置的Attribute
             var dictUnique = new Dictionary<string, Dictionary<string, bool>>();//属性的 UniqueAttribute
@@ -1754,7 +1755,7 @@ namespace EPPlusExtensions
             #region 获得 list
             List<T> list = new List<T>();
             int row = rowIndex;
-            Exception _Exception = null;
+            Exception exception = null;
 
             int? step = null;
             switch (args.ScanLine)
@@ -1798,20 +1799,19 @@ namespace EPPlusExtensions
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
 #if DEBUG
-                    string value = string.Empty;
+                    string value;
                     if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
                     {
                         //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
-                        value = GetMegerCellText(ws, row, col);
+                        value = GetMergeCellText(ws, row, col);
                     }
                     else
                     {
-                        value = GetMegerCellText(ws, row, col);
+                        value = GetMergeCellText(ws, row, col);
                     }
 #else
-                      string value =  GetMegerCellText(ws, row, col);
+                    string value =  GetMegerCellText(ws, row, col);
 #endif
-
 
                     bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
 
@@ -1898,14 +1898,7 @@ namespace EPPlusExtensions
                     }
                     catch (Exception e)
                     {
-                        if (e is ArgumentException)
-                        {
-                            _Exception = new ArgumentException($"无效的单元格:{new ExcelCellAddress(row, col).Address}", e);
-                        }
-                        else
-                        {
-                            _Exception = e;
-                        }
+                        exception = e is ArgumentException ? new ArgumentException($"无效的单元格:{new ExcelCellAddress(row, col).Address}", e) : e;
                         break;
                     }
                 }
@@ -1939,17 +1932,17 @@ namespace EPPlusExtensions
                 }
                 //在判断异常
 
-                if (_Exception != null)
+                if (exception != null)
                 {
                     if (args.GetList_NeedAllException)
                     {
-                        allException.Add(_Exception);
-                        _Exception = null;
+                        allException.Add(exception);
+                        exception = null;
                         continue;
                     }
                     else
                     {
-                        throw _Exception;
+                        throw exception;
                     }
                 }
 
@@ -2110,7 +2103,7 @@ namespace EPPlusExtensions
 
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
-                    string value = GetMegerCellText(ws, row, col);
+                    string value = GetMergeCellText(ws, row, col);
                     bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
 
                     if (!valueIsNullOrEmpty)
@@ -2285,7 +2278,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        ///  model的哪些属性是在excel中没有定义的 + modle中没有定义 
+        ///  model的哪些属性是在excel中没有定义的 + model中没有定义 
         /// </summary>
         /// <param name="excelColumnIsNotModelProp"></param> 
         /// <param name="type"></param>
@@ -2315,9 +2308,8 @@ namespace EPPlusExtensions
             return new MatchingModelException() { MatchingModel = MatchingModel.lt, ListExcelCellInfoAndModelType = listExcelCellInfoAndModelType };
         }
 
-
         /// <summary>
-        /// excel的哪些列是在Model中定义了却没有(即,model中缺少的列) + modle中没有定义 
+        /// excel的哪些列是在Model中定义了却没有(即,model中缺少的列) + model中没有定义 
         /// </summary>
         /// <param name="modelPropNotExistsExcelColumn"></param> 
         /// <param name="type"></param>
@@ -2437,7 +2429,7 @@ namespace EPPlusExtensions
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <returns></returns>
-        public static string GetMegerCellText(ExcelWorksheet ws, int row, int col)
+        public static string GetMergeCellText(ExcelWorksheet ws, int row, int col)
         {
             string range = ws.MergedCells[row, col];
             if (range == null) return GetCellText(ws, row, col);
@@ -2481,6 +2473,7 @@ namespace EPPlusExtensions
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="dict">k:r1c1, v:具体值</param>
+
         public static bool CheckWorkSheetCellValue(ExcelWorksheet ws, Dictionary<string, string> dict)
         {
             //var dict = new Dictionary<string, string>() { { "A1", "序号" } };
@@ -2505,7 +2498,6 @@ namespace EPPlusExtensions
         {
             ws.View.FreezePanes(row, column);
         }
-
 
         /// <summary>
         /// 
@@ -2539,6 +2531,14 @@ namespace EPPlusExtensions
             return list;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="fileOutDirectoryName"></param>
+        /// <param name="sheetTitleLineNumber"></param>
+        /// <param name="cellCustom"></param>
+        /// <returns></returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, Dictionary<int, int> sheetTitleLineNumber = null, Action<ExcelRange> cellCustom = null)
         {
             List<DefaultConfig> defaultConfigList;
@@ -2595,7 +2595,7 @@ namespace EPPlusExtensions
             int col = 1;
             while (col <= EPPlusConfig.MaxCol07)
             {
-                var excelColName = ws.Cells[titleLineNumber, col].Merge ? GetMegerCellText(ws, titleLineNumber, col) : GetCellText(ws, titleLineNumber, col);
+                var excelColName = ws.Cells[titleLineNumber, col].Merge ? GetMergeCellText(ws, titleLineNumber, col) : GetCellText(ws, titleLineNumber, col);
 
                 var destColVal = ExtractName(excelColName).Trim().MergeLines();
                 if (string.IsNullOrEmpty(destColVal))
@@ -2649,12 +2649,12 @@ namespace EPPlusExtensions
 
             #endregion
 
-            #region sb_CrateClassSnippe + sb_CrateDateTableSnippe
-            StringBuilder sb_CrateClassSnippe = new StringBuilder();
-            sb_CrateClassSnippe.AppendLine($"public class {ws.Name} {{");
+            #region sb_CreateClassSnippet + sb_CreateDateTableSnippet
+            StringBuilder sb_CreateClassSnippet = new StringBuilder();
+            sb_CreateClassSnippet.AppendLine($"public class {ws.Name} {{");
 
-            StringBuilder sb_CrateDateTableSnippe = new StringBuilder();
-            sb_CrateDateTableSnippe.AppendLine($@"DataTable dt = new DataTable();");
+            StringBuilder sb_CreateDateTableSnippet = new StringBuilder();
+            sb_CreateDateTableSnippet.AppendLine($@"DataTable dt = new DataTable();");
             StringBuilder sbColumn = new StringBuilder();
             StringBuilder sbAddDr = new StringBuilder();
             StringBuilder sbColumnType = new StringBuilder();
@@ -2694,23 +2694,23 @@ namespace EPPlusExtensions
 
                 if (colName.IsRename)
                 {
-                    sb_CrateClassSnippe.AppendLine($" [ExcelColumnIndex({colName.ExcelColNameIndex})]");
-                    sb_CrateClassSnippe.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
+                    sb_CreateClassSnippet.AppendLine($" [ExcelColumnIndex({colName.ExcelColNameIndex})]");
+                    sb_CreateClassSnippet.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
                 }
 
                 if (colName.ExcelColName != colName.Name)
                 {
                     if (!colName.IsRename)//上面添加过了,这里不在添加
                     {
-                        sb_CrateClassSnippe.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
+                        sb_CreateClassSnippet.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
                     }
                 }
                 foreach (var item in columnTypeList_DateTime)
                 {
-                    if (propName_lower.IndexOf(item) != -1)
+                    if (propName_lower.IndexOf(item, StringComparison.Ordinal) != -1)
                     {
                         sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(DateTime);");
-                        sb_CrateClassSnippe.AppendLine($" public DateTime {propName} {{ get; set; }}");
+                        sb_CreateClassSnippet.AppendLine($" public DateTime {propName} {{ get; set; }}");
                         sb_CrateClassSnippe_AppendLine_InForeach = true;
                         break;
                     }
@@ -2718,10 +2718,10 @@ namespace EPPlusExtensions
 
                 foreach (var item in columnTypeList_String)
                 {
-                    if (propName_lower.IndexOf(item) != -1)
+                    if (propName_lower.IndexOf(item, StringComparison.Ordinal) != -1)
                     {
                         sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(String);");
-                        sb_CrateClassSnippe.AppendLine($" public string {propName} {{ get; set; }}");
+                        sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
                         sb_CrateClassSnippe_AppendLine_InForeach = true;
                         break;//处理过了就break,不然会重复处理 譬如 银行卡号, 此时符合 银行卡 和卡号
                     }
@@ -2729,23 +2729,23 @@ namespace EPPlusExtensions
 
                 if (!sb_CrateClassSnippe_AppendLine_InForeach)
                 {
-                    sb_CrateClassSnippe.AppendLine($" public string {propName} {{ get; set; }}");
+                    sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
                 }
 
             }
-            sb_CrateDateTableSnippe.Append(sbColumn);
-            sb_CrateDateTableSnippe.Append(sbColumnType);
-            sbAddDr.AppendLine($@"//dt.Rows.Add(dr);");
-            sb_CrateDateTableSnippe.Append(sbAddDr);
+            sb_CreateDateTableSnippet.Append(sbColumn);
+            sb_CreateDateTableSnippet.Append(sbColumnType);
+            sbAddDr.AppendLine("//dt.Rows.Add(dr);");
+            sb_CreateDateTableSnippet.Append(sbAddDr);
 
-            sb_CrateClassSnippe.AppendLine("}");
+            sb_CreateClassSnippet.AppendLine("}");
             #endregion
 
             return new DefaultConfig()
             {
                 WorkSheetName = ws.Name,
-                CrateDataTableSnippe = sb_CrateDateTableSnippe.ToString(),
-                CrateClassSnippe = sb_CrateClassSnippe.ToString(),
+                CrateDataTableSnippe = sb_CreateDateTableSnippet.ToString(),
+                CrateClassSnippe = sb_CreateClassSnippet.ToString(),
                 ClassPropertyList = colNameList
             };
 
@@ -2816,14 +2816,12 @@ namespace EPPlusExtensions
                 //如果出现重复,把第一个名字添加后缀1
                 if (renameFirstNameWhenRepeat && nameRepeatCounter[name.Name] == 1)
                 {
-                    for (int i = 0; i < nameList.Count; i++)
+                    foreach (var t in nameList)
                     {
-                        if (nameList[i].Name == name.Name)
-                        {
-                            nameList[i].IsRename = true;
-                            nameList[i].NameNew = nameList[i].Name + "1";
-                            break;
-                        }
+                        if (t.Name != name.Name) continue;
+                        t.IsRename = true;
+                        t.NameNew = t.Name + "1";
+                        break;
                     }
                 }
                 //必须要先用一个变量保存,使用 ++colNames_Counter[destColVal] 会把 colNames_Counter[destColVal] 值变掉
@@ -2848,10 +2846,10 @@ namespace EPPlusExtensions
             content.RemoveLastChar('\n');//excel选择列复制出来到文本上有换行,最后一个字符的ascii 是10 \n
             content.RemoveLastChar('\r');//如果是自己敲入的回车,那么也去掉
             var excel_cell_split = new char[] { '	', ' ', };// 两个单元格之间间隔的符号(\t),空格
-            string[] splites = content.Split(excel_cell_split, StringSplitOptions.RemoveEmptyEntries);
+            string[] splits = content.Split(excel_cell_split, StringSplitOptions.RemoveEmptyEntries);
             StringBuilder sb = new StringBuilder();
             StringBuilder sbColumn = new StringBuilder();
-            foreach (var item in splites)
+            foreach (var item in splits)
             {
                 var newName = ExtractName(item);
                 sb.Append($@"{outResultPrefix}{newName}{excel_cell_split[0]}");
@@ -2887,6 +2885,7 @@ namespace EPPlusExtensions
         /// <summary>
         /// 根据值获的excel中对应的单元格
         /// </summary>
+        /// <param name="ws"></param>
         /// <param name="cellsValue">一般通过ws.Cells.Value as object[,] 获得 </param>
         /// <param name="match">示例: a => a != null && a.GetType() == typeof(string) && ((string) a == "备注")</param>
         /// <returns></returns>
@@ -2923,7 +2922,7 @@ namespace EPPlusExtensions
         /// <param name="excelPackage"></param>
         /// <param name="savePath"></param>
         /// <param name="containNoMatchCell">包含不匹配的单元格(即把所有的单元格变成文本格式),true:是.false:仅针对显示成科学计数法的cell变成文本</param>
-        /// <returns>是否有进行科学技术法的cell转换.true:是,fale:否</returns>
+        /// <returns>是否有进行科学技术法的cell转换.true:是,false:否</returns>
         public static bool ScientificNotationFormatToString(ExcelPackage excelPackage, string savePath, bool containNoMatchCell = false)
         {
             long modifyCellCount = 0;//统计修改的次数
@@ -2936,6 +2935,7 @@ namespace EPPlusExtensions
                     var sheet = GetExcelWorksheet(excelPackage, workSheetIndex);
                     object[,] arr = sheet.Cells.Value as object[,];
 
+                    Debug.Assert(arr != null, nameof(arr) + " != null");
                     for (int i = 0; i < arr.GetLength(0); i++)
                     {
                         for (int j = 0; j < arr.GetLength(1); j++)
@@ -2956,6 +2956,7 @@ namespace EPPlusExtensions
                     var sheet = GetExcelWorksheet(excelPackage, workSheetIndex);
                     object[,] arr = sheet.Cells.Value as object[,];
 
+                    Debug.Assert(arr != null, nameof(arr) + " != null");
                     for (int i = 0; i < arr.GetLength(0); i++)
                     {
                         for (int j = 0; j < arr.GetLength(1); j++)
@@ -2992,7 +2993,7 @@ namespace EPPlusExtensions
         /// <param name="fileFullPath">文件路径</param>
         /// <param name="fileSaveAsPath">文件另存为路径</param>
         /// <param name="containNoMatchCell">包含不匹配的单元格(即把所有的单元格变成文本格式),true:是.false:仅针对显示成科学计数法的cell变成文本</param>
-        /// <returns>是否有进行科学技术法的cell转换.true:是,fale:否</returns>
+        /// <returns>是否有进行科学技术法的cell转换.true:是,false:否</returns>
         public static bool ScientificNotationFormatToString(string fileFullPath, string fileSaveAsPath, bool containNoMatchCell = false)
         {
             using (var fs = File.OpenRead(fileFullPath))
@@ -3021,16 +3022,29 @@ namespace EPPlusExtensions
             SetDefaultConfigFromExcel(excelPackage, config, sheet);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="config"></param>
+        /// <param name="workSheetName"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public static void SetDefaultConfigFromExcel(ExcelPackage excelPackage, EPPlusConfig config, string workSheetName)
         {
             if (workSheetName == null) throw new ArgumentNullException(nameof(workSheetName));
             var sheet = GetExcelWorksheet(excelPackage, workSheetName);
             SetDefaultConfigFromExcel(excelPackage, config, sheet);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="config"></param>
+        /// <param name="sheet"></param>
         public static void SetDefaultConfigFromExcel(ExcelPackage excelPackage, EPPlusConfig config, ExcelWorksheet sheet)
         {
             //让 sheet.Cells.Value 强制从A1单元格开始
-            //遇到问题描述:创建一个exccel,在C7,C8,C9,10单元格写入一些字符串, sheet.Cells.Value 是object[4,3]的数组, 但我要的是object[10,3]的数组
+            //遇到问题描述:创建一个excel,在C7,C8,C9,10单元格写入一些字符串, sheet.Cells.Value 是object[4,3]的数组, 但我要的是object[10,3]的数组
             var cellA1 = sheet.Cells[1, 1];
             if (!cellA1.Merge && cellA1.Value == null)
             {
@@ -3052,6 +3066,7 @@ namespace EPPlusExtensions
         {
             object[,] arr = sheet.Cells.Value as object[,];
             var dict = new Dictionary<string, string>();
+            Debug.Assert(arr != null, nameof(arr) + " != null");
             for (int i = 0; i < arr.GetLength(0); i++)
             {
                 for (int j = 0; j < arr.GetLength(1); j++)
@@ -3096,6 +3111,7 @@ namespace EPPlusExtensions
             var dictSummeryList = new List<Dictionary<string, string>>();
             var sheetMergedCellsList = sheet.MergedCells.ToList();
 
+            Debug.Assert(arr != null, nameof(arr) + " != null");
             for (int i = 0; i < arr.GetLength(0); i++)
             {
                 for (int j = 0; j < arr.GetLength(1); j++)
@@ -3131,7 +3147,7 @@ namespace EPPlusExtensions
                     else if (cellStr.StartsWith($"$tb{nthStr}$")) //模版提供了多少行,若没有配置,在调用FillData()时默认提供1行
                     {
                         string valStr = Regex.Replace(cellStr, $@"^[$]tb{nth}[$]", ""); //$需要转义
-                        var val = string.Compare(valStr, "max", true) == 0 //$tb1$max这种配置的
+                        var val = String.Compare(valStr, "max", StringComparison.OrdinalIgnoreCase) == 0 //$tb1$max这种配置的
                             ? EPPlusConfig.MaxRow07 - i
                             : Convert.ToInt32(valStr);
                         if (config.SheetBodyMapperExceltemplateLine.ContainsKey(val))
@@ -3278,7 +3294,6 @@ namespace EPPlusExtensions
             configSource.SheetHead = dict;
         }
 
-
         /// <summary>
         /// 设置Foot配置的数据源
         /// </summary>
@@ -3304,177 +3319,6 @@ namespace EPPlusExtensions
                 dict.Add(colName, dr[i] == DBNull.Value || dr[i] == null ? "" : dr[i].ToString());
             }
             configSource.SheetFoot = dict;
-        }
-
-        #endregion
-
-        #region 对单元格样式进行 Get Set
-
-        ///// <summary>
-        /////  获取Cell样式
-        ///// </summary>
-        ///// <param name="cell"></param>
-        ///// <returns></returns>
-        //public static EPPlusCellStyle GetCellStyle(ExcelRange cell)
-        //{
-        //    EPPlusCellStyle cellStyle = new EPPlusCellStyle();
-        //    cellStyle.HorizontalAlignment = cell.Style.HorizontalAlignment;
-        //    cellStyle.VerticalAlignment = cell.Style.VerticalAlignment;
-        //    cellStyle.WrapText = cell.Style.WrapText;
-        //    cellStyle.FontBold = cell.Style.Font.Bold;
-        //    cellStyle.FontColor = string.IsNullOrEmpty(cell.Style.Font.Color.Rgb)
-        //        ? Color.Black
-        //        : System.Drawing.ColorTranslator.FromHtml("#" + cell.Style.Font.Color.Rgb);
-        //    cellStyle.FontName = cell.Style.Font.Name;
-        //    cellStyle.FontSize = cell.Style.Font.Size;
-        //    cellStyle.BackgroundColor = string.IsNullOrEmpty(cell.Style.Fill.BackgroundColor.Rgb)
-        //        ? Color.Black
-        //        : System.Drawing.ColorTranslator.FromHtml("#" + cell.Style.Fill.BackgroundColor.Rgb);
-        //    cellStyle.ShrinkToFit = cell.Style.ShrinkToFit;
-        //    return cellStyle;
-        //}
-
-        ///// <summary>
-        ///// 设置Cell样式
-        ///// </summary>
-        ///// <param name="cell"></param>
-        ///// <param name="style"></param>
-        //public static void SetCellStyle(ExcelRange cell, EPPlusCellStyle style)
-        //{
-        //    cell.Style.HorizontalAlignment = style.HorizontalAlignment;
-        //    cell.Style.VerticalAlignment = style.VerticalAlignment;
-        //    cell.Style.WrapText = style.WrapText;
-        //    cell.Style.Font.Bold = style.FontBold;
-        //    cell.Style.Font.Color.SetColor(style.FontColor);
-        //    if (!string.IsNullOrEmpty(style.FontName))
-        //    {
-        //        cell.Style.Font.Name = style.FontName;
-        //    }
-        //    cell.Style.Font.Size = style.FontSize;
-        //    cell.Style.Fill.PatternType = style.PatternType;
-        //    cell.Style.Fill.BackgroundColor.SetColor(style.BackgroundColor);
-        //    cell.Style.ShrinkToFit = style.ShrinkToFit;
-        //}
-
-        #endregion
-
-        #region 一些默认的sql语句
-
-        /// <summary>
-        /// 获得树形表结构的最深的层级数的Sql语句
-        /// </summary>
-        /// <param name="tblName"></param>
-        /// <param name="idFiledName"></param>
-        /// <param name="parentIdName"></param>
-        /// <param name="rootItemWhere">root(根)数据的where条件,即根据表名获得root(根)数据的条件是什么</param>
-        public static string GetTreeTableMaxLevelSql(string tblName, string rootItemWhere, string idFiledName = "Id", string parentIdName = "ParentId")
-        {
-            string sql = $@"with cte as( 
-            SELECT {idFiledName} ,  1 as level FROM {tblName} WHERE {rootItemWhere}
-            union all 
-            SELECT {tblName}.{idFiledName}, cte.level+1 as level from cte, {tblName}  where cte.{idFiledName} = {tblName}.{parentIdName} 
-            )
-            SELECT ISNULL(MAX(cte.level),0) FROM  cte";
-            return sql;
-        }
-
-        /// <summary>
-        /// 原本的树形表结构是没有Level字段的,通过该方法可以生成level字段
-        /// </summary>
-        /// <param name="tblName"></param>
-        /// <param name="rootItemWhere"></param>
-        /// <param name="nameFieldName"></param>
-        /// <param name="idFiledName"></param>
-        /// <param name="parentIdName"></param>
-        /// <param name="otherFiledName"></param>
-        /// <returns></returns>
-        public static string GetTreeTableIncludeLevelFieldSql(string tblName, string rootItemWhere, string nameFieldName = "Name", string idFiledName = "Id", string parentIdName = "ParentId", params string[] otherFiledName)
-        {
-            string comma = " ,";
-            string dot = ".";
-            StringBuilder sb1 = new StringBuilder(); //定位成员的字段
-            sb1.Append(idFiledName).Append(comma)
-                .Append(nameFieldName).Append(comma)
-                .Append(parentIdName);
-            StringBuilder sb2 = new StringBuilder(); //递归成员的字段
-            sb2.Append(tblName).Append(dot).Append(idFiledName).Append(comma)
-                .Append(tblName).Append(dot).Append(nameFieldName).Append(comma)
-                .Append(tblName).Append(dot).Append(parentIdName);
-
-            if (otherFiledName != null && otherFiledName.Length > 0)
-            {
-                foreach (var item in otherFiledName)
-                {
-                    sb1.Append(item).Append(comma);
-                    sb2.Append(tblName).Append(dot).Append(item).Append(comma);
-                }
-                sb1.RemoveLastChar(comma.Length);
-                sb2.RemoveLastChar(comma.Length);
-            }
-
-            string sql = $@"with cte as( 
-            SELECT {sb1} , 1 as Level FROM {tblName} WHERE {rootItemWhere}
-            union all 
-            SELECT {sb2} , cte.Level+1 as Level from cte, {tblName}  
-                where cte.{idFiledName} = {tblName}.{parentIdName} 
-            )
-            SELECT {sb1} , Level FROM  cte
-            ORDER BY cte.Level";
-            return sql;
-        }
-
-        /// <summary>
-        ///  根据 id, Name , parentId 3个字段生成额外字段Depth 和 用于报表排序的Sort字段
-        /// </summary>
-        /// <param name="tblName"></param>
-        /// <param name="rootItemWhere"></param>
-        /// <param name="nameFieldName"></param>
-        /// <param name="idFiledName"></param>
-        /// <param name="parentIdName"></param>
-        /// <param name="eachSortFieldLength">每个Depth的长度,默认2. </param>
-        /// <param name="reportSortFileTotallength">报表排序字段的总长度,默认为12如果真的要设置,level * Max(Len(主键))</param>
-        /// <param name="rearChat">报表排序字段 / 每个Depth字段 小于 指定长度时填充的字符是什么</param>
-        /// <param name="otherFiledName"></param>
-        /// <returns></returns>
-        public static string GetTreeTableReportSql(string tblName, string rootItemWhere, string nameFieldName = "Name", string idFiledName = "Id", string parentIdName = "ParentId", int eachSortFieldLength = 2, int reportSortFileTotallength = 12, char rearChat = ' ', params string[] otherFiledName)
-        {
-            //该方法基本与GetTreeTableIncludeLevelFieldSql()一样
-            string comma = " ,";
-            string dot = ".";
-            StringBuilder sb1 = new StringBuilder(); //定位成员的字段
-            sb1.Append(idFiledName).Append(comma)
-                .Append(nameFieldName).Append(comma)
-                .Append(parentIdName);
-            StringBuilder sb2 = new StringBuilder(); //递归成员的字段
-            sb2.Append(tblName).Append(dot).Append(idFiledName).Append(comma)
-                .Append(tblName).Append(dot).Append(nameFieldName).Append(comma)
-                .Append(tblName).Append(dot).Append(parentIdName);
-
-            string char1 = Enumerable.Repeat(rearChat.ToString(), eachSortFieldLength).Aggregate((current, next) => next + current);
-            string char2 = Enumerable.Repeat(rearChat.ToString(), reportSortFileTotallength).Aggregate((current, next) => next + current);
-
-            if (otherFiledName != null && otherFiledName.Length > 0)
-            {
-                foreach (var item in otherFiledName)
-                {
-                    sb1.Append(item).Append(comma);
-                    sb2.Append(tblName).Append(dot).Append(item).Append(comma);
-                }
-                sb1.RemoveLastChar(comma.Length);
-                sb2.RemoveLastChar(comma.Length);
-            }
-
-            string sql = $@"with cte as( 
-            SELECT {sb1} , 1 as Level , CAST( LEFT(LTRIM({idFiledName})+'{char1}',{eachSortFieldLength}) AS VARCHAR(10)) AS 'Depth'
-            FROM {tblName} WHERE {rootItemWhere}
-            union all 
-            SELECT {sb2} , cte.Level+1 as Level , CAST(LTRIM(cte.Depth) + LEFT(LTRIM({tblName}.{idFiledName}) +'{char1}',{eachSortFieldLength})AS VARCHAR(10)) AS 'Depth' FROM cte, {tblName} 
-                where cte.{idFiledName} = {tblName}.{parentIdName} 
-            )
-            SELECT {sb1} , Level,LEFT(LTRIM(cte.Depth)+'{char2}',{reportSortFileTotallength})  AS 'sort'  FROM cte
-            ORDER BY sort ,cte.Level";
-            return sql;
-
         }
 
         #endregion
