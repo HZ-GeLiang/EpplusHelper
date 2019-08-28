@@ -14,7 +14,7 @@ namespace SampleApp
     /// <summary>
     /// 读取Excel的内容
     /// </summary>
-    class Sample02_7
+    class Sample02_8
     {
         public void Run()
         {
@@ -27,8 +27,10 @@ namespace SampleApp
                 ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
                 try
                 {
-                    var args = EPPlusHelper.GetExcelListArgsDefault<userLeaveInfoStat>(ws, 3);
-                    var list = EPPlusHelper.GetList<userLeaveInfoStat>(args);
+                    var args = EPPlusHelper.GetExcelListArgsDefault<Sample02_7.userLeaveInfoStat>(ws, 3);
+                    args.GetList_NeedAllException = true;
+                    args.GetList_ErrorMessage_OnlyShowColomn = true;
+                    var list = EPPlusHelper.GetList<Sample02_7.userLeaveInfoStat>(args);
                     ObjectDumper.Write(list);
                 }
                 catch (Exception e)
@@ -40,19 +42,6 @@ namespace SampleApp
             }
 
             Console.ReadKey();
-        }
-
-
-        public class userLeaveInfoStat
-        {
-            public string 序号 { get; set; }
-            public string 姓名 { get; set; }
-            [ExcelColumnIndex(3)]
-            [DisplayExcelColumnName("请假次数")]
-            public string 请假次数1 { get; set; }
-            [ExcelColumnIndex(4)]
-            [DisplayExcelColumnName("请假次数")]
-            public string 请假次数2 { get; set; }
         }
 
     }

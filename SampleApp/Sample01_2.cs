@@ -52,7 +52,7 @@ namespace SampleApp
 
                 var aaa = ws.Row(4).Height;
 
-                int a = 3;
+                Console.ReadKey();
 
                 //0.08 = 1px  >1px = 0.08*N -0.01
                 ws.Column(3).Width =0.125*10 ;//excel的单位

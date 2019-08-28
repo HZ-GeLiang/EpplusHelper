@@ -86,7 +86,7 @@ namespace EPPlusExtensions
         /// </summary>
         public bool GetList_NeedAllException = false;
         /// <summary>
-        /// 当GetList_NeedAllException 为 true 时, 错误消息值显示列信息
+        /// 当GetList_NeedAllException 为 true 时, 错误消息只显示列信息
         /// </summary>
         public bool GetList_ErrorMessage_OnlyShowColomn = false;
 
