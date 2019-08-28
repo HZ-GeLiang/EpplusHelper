@@ -31,16 +31,25 @@ namespace SampleApp
                 //EPPlusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
                 EPPlusHelper.SetConfigSourceHead(configSource, dtHead);
                 configSource.SheetBody[1] = GetDataTable_Body();
+                var stopwatch = new System.Diagnostics.Stopwatch();
+                Console.WriteLine("runTime 开始" );
+                stopwatch.Start();
                 EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
+                stopwatch.Stop();
+                Console.WriteLine("runTime 时差:" + stopwatch.Elapsed);
+                Console.WriteLine("runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "导出测试");
-                ws.Protection.IsProtected = true;
-                ws.Protection.AllowSelectLockedCells = false;
-                ws.Protection.AllowSelectUnlockedCells = true;
-                ws.Protection.SetPassword("123");
+                //ws.Protection.IsProtected = true;
+                //ws.Protection.AllowSelectLockedCells = false;
+                //ws.Protection.AllowSelectUnlockedCells = true;
+                //ws.Protection.SetPassword("123");
                 EPPlusHelper.DeleteWorksheet(excelPackage, 1);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save(@"模版\Sample01_1_Result.xlsx");
+
+                Console.ReadKey();
+
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }
@@ -64,29 +73,29 @@ namespace SampleApp
             dt.Columns.Add("Math");
             dt.Columns.Add("English");
 
-            //for (int i = 0; i < 1000000; i++)
-            //{
-            //    DataRow dr = dt.NewRow();
-            //    dr["Name"] = "张三";
-            //    dr["Chinese"] = 60;
-            //    dr["Math"] = 60.5;
-            //    dr["English"] = 61;
-            //    dt.Rows.Add(dr);
-            //}
+            for (int i = 0; i < 100; i++)
+            {
+                DataRow dr = dt.NewRow();
+                dr["Name"] = $"张三{i+1}";
+                dr["Chinese"] = 60;
+                dr["Math"] = 60.5;
+                dr["English"] = 61;
+                dt.Rows.Add(dr);
+            }
 
-            DataRow dr = dt.NewRow();
-            dr["Name"] = "张三";
-            dr["Chinese"] = 60;
-            dr["Math"] = 60.5;
-            dr["English"] = 61;
-            dt.Rows.Add(dr);
+            //DataRow dr = dt.NewRow();
+            //dr["Name"] = "张三";
+            //dr["Chinese"] = 60;
+            //dr["Math"] = 60.5;
+            //dr["English"] = 61;
+            //dt.Rows.Add(dr);
 
-            dr = dt.NewRow();
-            dr["Name"] = "李四";
-            dr["Chinese"] = 70;
-            dr["Math"] = 80.5;
-            dr["English"] = 91;
-            dt.Rows.Add(dr);
+            //dr = dt.NewRow();
+            //dr["Name"] = "李四";
+            //dr["Chinese"] = 70;
+            //dr["Math"] = 80.5;
+            //dr["English"] = 91;
+            //dt.Rows.Add(dr);
 
             return dt;
 

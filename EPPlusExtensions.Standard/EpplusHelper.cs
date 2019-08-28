@@ -241,7 +241,7 @@ namespace EPPlusExtensions
             ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetName, workSheetNewName);
             EPPlusHelper.FillDataWorkSheetNames.Add(workSheetNewName);
             config.WorkSheetDefault?.Invoke(worksheet);
-            FillData(config, configSource, worksheet);
+            EPPlusHelper.FillData(config, configSource, worksheet);
         }
 
         /// <summary>
@@ -256,10 +256,10 @@ namespace EPPlusExtensions
         {
             if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(destWorkSheetIndex));
-            ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetIndex, workSheetNewName);
+            ExcelWorksheet worksheet = EPPlusHelper.GetExcelWorksheet(excelPackage, destWorkSheetIndex, workSheetNewName);
             EPPlusHelper.FillDataWorkSheetNames.Add(workSheetNewName);
             config.WorkSheetDefault?.Invoke(worksheet);
-            FillData(config, configSource, worksheet);
+            EPPlusHelper.FillData(config, configSource, worksheet);
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace EPPlusExtensions
                 throw new IndexOutOfRangeException("要导出的数据行数超过excel最大行限制");
             }
             var sheetBodyAddRowCount = FillData_Body(config, configSource, worksheet);
-            FillData_Foot(config, configSource, worksheet, sheetBodyAddRowCount);
+            EPPlusHelper.FillData_Foot(config, configSource, worksheet, sheetBodyAddRowCount);
         }
 
 
@@ -438,8 +438,7 @@ namespace EPPlusExtensions
                                 }
 
                                 lastSpaceLineRowNumber = destRow + maxIntervalRow + 1; //最后一行空行的位置
-                                worksheet.InsertRow(destRow, maxIntervalRow + 1,
-                                    destRow + maxIntervalRow + 1); //新增N行,注意,此时新增行的高度是有问题的
+                                worksheet.InsertRow(destRow, maxIntervalRow + 1, destRow + maxIntervalRow + 1); //新增N行,注意,此时新增行的高度是有问题的
                                 //2.复制样式(含修正)
                                 for (int j = 0; j <= maxIntervalRow; j++) //修正height
                                 {
@@ -575,21 +574,51 @@ namespace EPPlusExtensions
 
                     #endregion
 
+                    var fillData_FirstCellInfo = startCellPointLine.First();
+                    var fillData_LastCellInfo = startCellPointLine.Last();
+
+                    //int fillData_LastCellInfo_StartCol = 
+                    //int fillData_LastCellInfo_EndCol =  
+
+                    int fillData_LastCellInfo_EndCol;
+                    if (worksheet.Cells[fillData_LastCellInfo.R1C1].Merge)
+                    {
+                        fillData_LastCellInfo_EndCol = new ExcelCellRange(fillData_LastCellInfo.R1C1, worksheet).End.Col;
+                    }
+                    else
+                    {
+                        fillData_LastCellInfo_EndCol = fillData_LastCellInfo.Col;
+
+                    }
+
+                    int destRowFirst = 0;
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
                         DataRow row = datatable.Rows[i];
                         int destRow;
                         if (nth.Key == 1)
                         {
+                            //destRow = sheetBodyAddRowCount > 0
+                            //? startCellPointLine[0].Row + i - sheetBodyDeleteRowCount
+                            //: startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
                             destRow = sheetBodyAddRowCount > 0
-                                ? startCellPointLine[0].Row + i - sheetBodyDeleteRowCount
-                                : startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+                            ? fillData_FirstCellInfo.Row + i - sheetBodyDeleteRowCount
+                            : fillData_FirstCellInfo.Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
                         }
                         else
                         {
+                            //destRow = currentLoopAddLines > 0
+                            //    ? startCellPointLine[0].Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
+                            //    : startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+
                             destRow = currentLoopAddLines > 0
-                                ? startCellPointLine[0].Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
-                                : startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+                                ? fillData_FirstCellInfo.Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
+                                : fillData_FirstCellInfo.Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+                        }
+
+                        if (i == 0)
+                        {
+                            destRowFirst = destRow;// destRow第一次初始化的值
                         }
 
                         if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
@@ -603,20 +632,40 @@ namespace EPPlusExtensions
                                 }
 
                                 lastSpaceLineRowNumber = destRow + 1; //最后一行空行的位置
-                                //必须先新增,在赋值(若先赋值后新增,会造成赋值后的行被新增行覆盖).
-                                //1.新增一行,在destRow 前 插入 1行
-                                worksheet.InsertRow(destRow, 1, destRow + 1);
+                                //必须先新增,然后再赋值(若先赋值后新增,会造成赋值后的行被新增行覆盖).
+                                //1.新增一行,在destRow 前 插入 1行, 样式取 destRow 的
+                                worksheet.InsertRow(destRow, 1, destRow + 1); //在destRow行前面插入rows行,复制的样式行是 当前行+插入的行数 后 取copyStylesFromRow行
                                 //copyStylesFromRow参数不会把合并的单元格也弄过来(即,这个参数的功能不是格式刷)
                                 //worksheet.InsertRow(destRow, 1);//注,这行代码与上一行代码的作用是一样的,因为我下面用了Copy.
 
                                 //2.复制样式(含修正)
                                 //然后把原本的destRow的样式格式化到新增行中.注意:copy 会把copy行的文本也复制出来.
                                 //这里可以说是一个潜在的隐患bug把.因为和我的本意不一样.主要是我不知道要怎么写,只找到一个copy方法,而且copy方法也能帮我解决掉 同一行的 单元格合并问题
-                                string copyRowSource = (destRow + 1) + ":" + (destRow + 1); //7:7表示第7行,Copy中的Dest行
+
+                                #region 进行格式刷
+
+                                #region 整行格式刷样式,运行效率低
+
+                                string copyRowSource = (destRow + 1) + ":" + (destRow + 1); //7:7表示第7行
                                 string copyRowDest = (destRow) + ":" + (destRow);
+
+                                //下面这行代码会大量的拖慢程序的运行速度.
                                 worksheet.Cells[copyRowSource].Copy(worksheet.Cells[copyRowDest]);
+
+                                #endregion
+
+                                #region 只格式刷 表格所在部分 
+
+                                //worksheet.Cells[destRow + 1, fillData_FirstCellInfo.Col, destRow + 1, fillData_LastCellInfo_EndCol].Copy(
+                                //    worksheet.Cells[destRow, fillData_FirstCellInfo.Col, destRow, fillData_LastCellInfo_EndCol]
+                                //);//测试,运行效率好像没有提高
+
+                                #endregion 
+
+                                #endregion
+
                                 //不要用[row,col]索引器,[row,col]表示某单元格.注意:copy会把source行的除了height(觉得是一个bug)以外的全部复制一行出来
-                                worksheet.Row(destRow).Height = worksheet.Row(destRow + 1).Height; //修正height
+                                //worksheet.Row(destRow).Height = worksheet.Row(destRow + 1).Height; //修正height
 
                                 sheetBodyAddRowCount++;
                                 currentLoopAddLines++;
@@ -628,11 +677,26 @@ namespace EPPlusExtensions
                         for (int j = 0; j < startCellPointLine.Count; j++)
                         {
                             #region 赋值
+
                             //worksheet.Cells[destRow, destCol].Value = row[j];
                             string colMapperName = nth.Value[startCellPointLine[j].R1C1];
                             object val = row[colMapperName];
                             int destCol = startCellPointLine[j].Col;
                             ExcelRange cells = worksheet.Cells[destRow, destCol];
+
+                            #region 修改单元格样式
+                            //测试发现,只要用Copy修改单元格样式,导出填充数据库就是会慢.
+                            //if (worksheet.Cells[destRow + 1, destCol].Merge)
+                            //{
+                            //    var eca = new ExcelCellRange(worksheet.Cells[destRow + 1, destCol].Address, worksheet);
+                            //    worksheet.Cells[eca.Range].Copy(worksheet.Cells[destRow, destCol, destRow, destCol + eca.IntervalCol]);
+                            //}
+                            //else
+                            //{
+                            //    worksheet.Cells[cells.Address].Copy(worksheet.Cells[destRow, destCol, destRow, destCol]);
+                            //}
+                            #endregion
+
                             if (config.SheetBodyCellCustomSetValue.ContainsKey(nth.Key) && config.SheetBodyCellCustomSetValue[nth.Key] != null)
                             {
                                 config.SheetBodyCellCustomSetValue[nth.Key]?.Invoke(colMapperName, val, cells);
@@ -641,9 +705,11 @@ namespace EPPlusExtensions
                             {
                                 SetWorksheetCellsValue(config, cells, val, colMapperName);
                             }
+
                             #endregion
 
                             #region 同步数据源
+
                             if (j == startCellPointLine.Count - 1) //如果一行循环到了最后一列
                             {
                                 if (!configSource.SheetBodyFillModel.ContainsKey(nth.Key))
@@ -700,6 +766,7 @@ namespace EPPlusExtensions
                                     }
                                 }
                             }
+
                             #endregion
                         }
 

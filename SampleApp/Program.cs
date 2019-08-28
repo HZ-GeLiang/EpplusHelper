@@ -11,6 +11,7 @@ using EPPlusExtensions;
 using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using SampleApp.MethodExtension;
 
 
 namespace SampleApp
@@ -23,25 +24,19 @@ namespace SampleApp
 
         static void Main(string[] args1)
         {
-
-            string FilePath = @"C:\Users\child\Desktop\面试评价记录(1)\面试评价表-陈媛.xlsx";
-            string WsName = "Sheet1";
-            int RowIndex = 2;
-            using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = new System.IO.FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
-            {
-                ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, WsName);
-                var args = EPPlusHelper.GetExcelListArgsDefault<EM14面试评价表>(ws, RowIndex);
-                args.GetList_NeedAllException = true;
-                args.GetList_ErrorMessage_OnlyShowColomn = true;
-                List<EM14面试评价表> list = EPPlusHelper.GetList<EM14面试评价表>(args);
-                 //List<M14面试评价表> list = EPPlusHelper.GetList<EM14面试评价表>(ws, RowIndex);
-
-                ObjectDumper.Write(list);
-                Console.WriteLine("读取完毕");
-            }
-            //new Sample01_1().Run();
+            //string filePath = @"C:\Users\child\Desktop\a.xlsx";
+            //using (MemoryStream ms = new MemoryStream())
+            //using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            //using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            //{
+            //    ExcelWorksheet worksheet = EPPlusHelper.GetExcelWorksheet(excelPackage, 1, "导出测试");
+            //    worksheet.InsertRow(3, 2);
+            //    excelPackage.SaveAs(ms);
+            //    ms.Position = 0;
+            //    ms.Save(@"C:\Users\child\Desktop\a1.xlsx");
+            //}
+             
+            new Sample01_1().Run();
         }
         public enum RecruitCandidate_ResumeFrom
         {
