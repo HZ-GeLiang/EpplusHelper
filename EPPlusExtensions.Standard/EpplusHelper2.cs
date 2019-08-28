@@ -192,6 +192,36 @@ ORDER BY sort ,cte.Level";
 
         }
 
-        #endregion
+        #endregion 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public static string GetListErrorMsg(Action action)
+        {
+            try
+            {
+                action.Invoke();
+                return null;
+            }
+            catch (Exception e)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("程序报错:");
+                if (e.Message != null && e.Message.Length > 0)
+                {
+                    sb.AppendLine($@"Message:{e.Message}");
+                }
+                if (e.InnerException != null && e.InnerException.Message != null && e.InnerException.Message.Length > 0)
+                {
+                    sb.AppendLine($@"InnerExceptionMessage:{e.InnerException.Message}");
+                }
+
+                return sb.ToString();
+            }
+        }
     }
 }
