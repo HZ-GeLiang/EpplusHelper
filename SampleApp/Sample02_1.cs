@@ -20,10 +20,10 @@ namespace SampleApp
             ReadLine(2, ScanLine.MergeLine);
             Console.WriteLine("==========================");
             ReadLine(2, ScanLine.SingleLine);//excel的5,6行是合并的,用SingleLine读取,那么第6行的数据是第5行的
-            Console.WriteLine("=========================="); 
+            Console.WriteLine("==========================");
             ReadLine(10, ScanLine.SingleLine);
 
-            int a = 3;
+            Console.ReadKey();
         }
 
         public static void ReadLine(int rowIndex, ScanLine scanLine)
