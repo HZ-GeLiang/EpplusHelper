@@ -577,50 +577,22 @@ namespace EPPlusExtensions
                     var fillData_FirstCellInfo = startCellPointLine.First();
                     var fillData_LastCellInfo = startCellPointLine.Last();
 
-                    //int fillData_LastCellInfo_StartCol = 
-                    //int fillData_LastCellInfo_EndCol =  
+                    int fillData_FirstCellInfo_StartCol = fillData_FirstCellInfo.Col;
+                    string fillData_FirstCellInfo_StartCol_AZ = ExcelCellPoint.R1C1FormulasReverse(fillData_FirstCellInfo_StartCol);
+                    int fillData_LastCellInfo_StartCol = fillData_LastCellInfo.Col;
+                    string fillData_LastCellInfo_StartCol_AZ = ExcelCellPoint.R1C1FormulasReverse(fillData_LastCellInfo_StartCol);
+                    int fillData_LastCellInfo_EndCol = worksheet.Cells[fillData_LastCellInfo.R1C1].Merge ? new ExcelCellRange(fillData_LastCellInfo.R1C1, worksheet).End.Col : fillData_LastCellInfo.Col;
+                    string fillData_LastCellInfo_EndCol_AZ = ExcelCellPoint.R1C1FormulasReverse(fillData_LastCellInfo_EndCol);
 
-                    int fillData_LastCellInfo_EndCol;
-                    if (worksheet.Cells[fillData_LastCellInfo.R1C1].Merge)
-                    {
-                        fillData_LastCellInfo_EndCol = new ExcelCellRange(fillData_LastCellInfo.R1C1, worksheet).End.Col;
-                    }
-                    else
-                    {
-                        fillData_LastCellInfo_EndCol = fillData_LastCellInfo.Col;
+                    //int destRowFirst = CalcDestRow(nth, sheetBodyAddRowCount, fillData_FirstCellInfo, 0, sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
 
-                    }
+                    var sheetBodyAddRowCountTemp = sheetBodyAddRowCount;
+                    var currentLoopAddLinesTemp = currentLoopAddLines;
 
-                    int destRowFirst = 0;
+                    //第一遍循环插入数据
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
-                        DataRow row = datatable.Rows[i];
-                        int destRow;
-                        if (nth.Key == 1)
-                        {
-                            //destRow = sheetBodyAddRowCount > 0
-                            //? startCellPointLine[0].Row + i - sheetBodyDeleteRowCount
-                            //: startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
-                            destRow = sheetBodyAddRowCount > 0
-                            ? fillData_FirstCellInfo.Row + i - sheetBodyDeleteRowCount
-                            : fillData_FirstCellInfo.Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
-                        }
-                        else
-                        {
-                            //destRow = currentLoopAddLines > 0
-                            //    ? startCellPointLine[0].Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
-                            //    : startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
-
-                            destRow = currentLoopAddLines > 0
-                                ? fillData_FirstCellInfo.Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
-                                : fillData_FirstCellInfo.Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
-                        }
-
-                        if (i == 0)
-                        {
-                            destRowFirst = destRow;// destRow第一次初始化的值
-                        }
-
+                        int destRow = CalcDestRow(nth, sheetBodyAddRowCount, fillData_FirstCellInfo, i, sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
                         if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
                         {
                             if (i > tempLine - 2) //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2  
@@ -644,17 +616,17 @@ namespace EPPlusExtensions
 
                                 #region 进行格式刷
 
-                                #region 整行格式刷样式,运行效率低
+                                #region 整行格式刷样式,运行效率低 1 
 
-                                string copyRowSource = (destRow + 1) + ":" + (destRow + 1); //7:7表示第7行
-                                string copyRowDest = (destRow) + ":" + (destRow);
+                                //string copyRowSource = (destRow + 1) + ":" + (destRow + 1); //7:7表示第7行
+                                //string copyRowDest = (destRow) + ":" + (destRow);
 
-                                //下面这行代码会大量的拖慢程序的运行速度.
-                                worksheet.Cells[copyRowSource].Copy(worksheet.Cells[copyRowDest]);
+                                ////下面这行代码会大量的拖慢程序的运行速度.
+                                //worksheet.Cells[copyRowSource].Copy(worksheet.Cells[copyRowDest]);
 
                                 #endregion
 
-                                #region 只格式刷 表格所在部分 
+                                #region 只格式刷 表格所在部分 2
 
                                 //worksheet.Cells[destRow + 1, fillData_FirstCellInfo.Col, destRow + 1, fillData_LastCellInfo_EndCol].Copy(
                                 //    worksheet.Cells[destRow, fillData_FirstCellInfo.Col, destRow, fillData_LastCellInfo_EndCol]
@@ -672,6 +644,60 @@ namespace EPPlusExtensions
                             }
                         }
 
+                    }
+                    sheetBodyAddRowCount = sheetBodyAddRowCountTemp;
+                    currentLoopAddLines = currentLoopAddLinesTemp;
+
+                    //第二遍循环处理样式
+
+                    for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
+                    {
+                        int destRow = CalcDestRow(nth, sheetBodyAddRowCount, fillData_FirstCellInfo, i,
+                            sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
+                        if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
+                        {
+                            if (i > tempLine - 2) //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2  
+                            {
+                                sheetBodyAddRowCount++;
+                                currentLoopAddLines++;
+                            }
+                        }
+
+                        var cellsA = $"{fillData_FirstCellInfo_StartCol_AZ}{lastSpaceLineRowNumber}:{fillData_LastCellInfo_EndCol_AZ}{lastSpaceLineRowNumber}";
+                        var cellsB = $"{fillData_FirstCellInfo_StartCol_AZ}{destRow}:{fillData_LastCellInfo_EndCol_AZ}{destRow}";
+                    
+                        try
+                        {
+                            worksheet.Cells[cellsA].Copy(worksheet.Cells[cellsA]);
+                        }
+                        catch (Exception e)
+                        {
+                            //Sample01_1 数据测试量从10w到 100w时会报错
+                            //Can't delete/overwrite merged cells. A range is partly merged with the another merged range
+                            worksheet.Cells[cellsB].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.None);
+                            worksheet.SelectedRange.Clear();
+                            worksheet.Cells[cellsA].Copy(worksheet.Cells[cellsA]);
+                        }
+                       
+                    }
+                    sheetBodyAddRowCount = sheetBodyAddRowCountTemp;
+                    currentLoopAddLines = currentLoopAddLinesTemp;
+
+                    //第三遍填充数据
+                    for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
+                    {
+                        int destRow = CalcDestRow(nth, sheetBodyAddRowCount, fillData_FirstCellInfo, i, sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
+                        if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
+                        {
+                            if (i > tempLine - 2) //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2  
+                            {
+                                sheetBodyAddRowCount++;
+                                currentLoopAddLines++;
+                            }
+                        }
+
+                        DataRow row = datatable.Rows[i];
+
                         //3.赋值.
                         //注:遍历时变量 j 的终止条件不能是 datatable.Rows.Count. 因为datatable可能会包含多余的字段信息,与 配置信息列的个数不一致.
                         for (int j = 0; j < startCellPointLine.Count; j++)
@@ -683,19 +709,6 @@ namespace EPPlusExtensions
                             object val = row[colMapperName];
                             int destCol = startCellPointLine[j].Col;
                             ExcelRange cells = worksheet.Cells[destRow, destCol];
-
-                            #region 修改单元格样式
-                            //测试发现,只要用Copy修改单元格样式,导出填充数据库就是会慢.
-                            //if (worksheet.Cells[destRow + 1, destCol].Merge)
-                            //{
-                            //    var eca = new ExcelCellRange(worksheet.Cells[destRow + 1, destCol].Address, worksheet);
-                            //    worksheet.Cells[eca.Range].Copy(worksheet.Cells[destRow, destCol, destRow, destCol + eca.IntervalCol]);
-                            //}
-                            //else
-                            //{
-                            //    worksheet.Cells[cells.Address].Copy(worksheet.Cells[destRow, destCol, destRow, destCol]);
-                            //}
-                            #endregion
 
                             if (config.SheetBodyCellCustomSetValue.ContainsKey(nth.Key) && config.SheetBodyCellCustomSetValue[nth.Key] != null)
                             {
@@ -777,7 +790,7 @@ namespace EPPlusExtensions
                     }
                 }
 
-                //已经修复bug:当只有一个配置时,这个deleteLastSpaceLine 为false,然后在excel筛选的时候能出来一行空白 
+                //已经修复bug:当只有一个配置时,且 deleteLastSpaceLine 为false,然后在excel筛选的时候能出来一行空白 原因是,配置行没被删除
                 if (deleteLastSpaceLine)
                 {
                     worksheet.DeleteRow(lastSpaceLineRowNumber, lastSpaceLineInterval, true);
@@ -788,6 +801,33 @@ namespace EPPlusExtensions
             }
 
             return sheetBodyAddRowCount;
+        }
+
+        private static int CalcDestRow(KeyValuePair<int, Dictionary<string, string>> nth, int sheetBodyAddRowCount, ExcelCellPoint fillData_FirstCellInfo, int i,
+            int sheetBodyDeleteRowCount, int currentLoopAddLines, List<ExcelCellPoint> startCellPointLine)
+        {
+            int destRow;
+            if (nth.Key == 1)
+            {
+                //destRow = sheetBodyAddRowCount > 0
+                //? startCellPointLine[0].Row + i - sheetBodyDeleteRowCount
+                //: startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+                destRow = sheetBodyAddRowCount > 0
+                    ? fillData_FirstCellInfo.Row + i - sheetBodyDeleteRowCount
+                    : fillData_FirstCellInfo.Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+            }
+            else
+            {
+                //destRow = currentLoopAddLines > 0
+                //    ? startCellPointLine[0].Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
+                //    : startCellPointLine[0].Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+
+                destRow = currentLoopAddLines > 0
+                    ? fillData_FirstCellInfo.Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
+                    : fillData_FirstCellInfo.Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
+            }
+
+            return destRow;
         }
 
         /// <summary>
