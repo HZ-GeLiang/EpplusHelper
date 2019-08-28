@@ -18,27 +18,30 @@ namespace SampleApp
     {
         public void Run()
         {
-            string filePath = @"模版\Sample02_7.xlsx";
-            using (MemoryStream ms = new MemoryStream())
-            //using (FileStream fs = System.IO.File.OpenRead(filePath))
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            var errorMsg = EPPlusHelper.GetListErrorMsg(() =>
             {
-                ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
-                try
+                string filePath = @"模版\Sample02_7.xlsx";
+                using (MemoryStream ms = new MemoryStream())
+                //using (FileStream fs = System.IO.File.OpenRead(filePath))
+                using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (ExcelPackage excelPackage = new ExcelPackage(fs))
                 {
+                    ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
                     var args = EPPlusHelper.GetExcelListArgsDefault<Sample02_7.userLeaveInfoStat>(ws, 3);
                     args.GetList_NeedAllException = true;
                     args.GetList_ErrorMessage_OnlyShowColomn = true;
                     var list = EPPlusHelper.GetList<Sample02_7.userLeaveInfoStat>(args);
-                    ObjectDumper.Write(list);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
+                    //ObjectDumper.Write(list);
 
-                Console.WriteLine("读取完毕");
+                    Console.WriteLine("读取完毕");
+                }
+            });
+
+            if (errorMsg?.Length > 0)
+            {
+                Console.WriteLine(errorMsg);
+                Console.ReadKey();
+                return;
             }
 
             Console.ReadKey();
