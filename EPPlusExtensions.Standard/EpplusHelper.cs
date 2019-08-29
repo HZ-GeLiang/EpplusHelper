@@ -588,11 +588,16 @@ namespace EPPlusExtensions
 
                     var sheetBodyAddRowCountTemp = sheetBodyAddRowCount;
                     var currentLoopAddLinesTemp = currentLoopAddLines;
+                     
+
 
                     //第一遍循环插入数据
+                    var dictDestRow = new Dictionary<int, int>();
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
                         int destRow = CalcDestRow(nth, sheetBodyAddRowCount, fillData_FirstCellInfo, i, sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
+
+                        dictDestRow.Add(i, destRow);
                         if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
                         {
                             if (i > tempLine - 2) //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2  
@@ -645,27 +650,16 @@ namespace EPPlusExtensions
                         }
 
                     }
-                    sheetBodyAddRowCount = sheetBodyAddRowCountTemp;
-                    currentLoopAddLines = currentLoopAddLinesTemp;
 
                     //第二遍循环处理样式
 
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
-                        int destRow = CalcDestRow(nth, sheetBodyAddRowCount, fillData_FirstCellInfo, i,
-                            sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
-                        if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
-                        {
-                            if (i > tempLine - 2) //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2  
-                            {
-                                sheetBodyAddRowCount++;
-                                currentLoopAddLines++;
-                            }
-                        }
+                        int destRow = dictDestRow[i];
 
                         var cellsA = $"{fillData_FirstCellInfo_StartCol_AZ}{lastSpaceLineRowNumber}:{fillData_LastCellInfo_EndCol_AZ}{lastSpaceLineRowNumber}";
                         var cellsB = $"{fillData_FirstCellInfo_StartCol_AZ}{destRow}:{fillData_LastCellInfo_EndCol_AZ}{destRow}";
-                    
+
                         try
                         {
                             worksheet.Cells[cellsA].Copy(worksheet.Cells[cellsA]);
@@ -678,24 +672,13 @@ namespace EPPlusExtensions
                             worksheet.SelectedRange.Clear();
                             worksheet.Cells[cellsA].Copy(worksheet.Cells[cellsA]);
                         }
-                       
+
                     }
-                    sheetBodyAddRowCount = sheetBodyAddRowCountTemp;
-                    currentLoopAddLines = currentLoopAddLinesTemp;
 
                     //第三遍填充数据
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
-                        int destRow = CalcDestRow(nth, sheetBodyAddRowCount, fillData_FirstCellInfo, i, sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
-                        if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
-                        {
-                            if (i > tempLine - 2) //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2  
-                            {
-                                sheetBodyAddRowCount++;
-                                currentLoopAddLines++;
-                            }
-                        }
-
+                        int destRow = dictDestRow[i];
                         DataRow row = datatable.Rows[i];
 
                         //3.赋值.
