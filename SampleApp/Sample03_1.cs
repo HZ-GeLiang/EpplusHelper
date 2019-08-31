@@ -27,29 +27,55 @@ namespace SampleApp
                 var config = EPPlusHelper.GetEmptyConfig();
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
                 EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet1");
-                configSource.SheetBody[1] = GetProduct1();
-                configSource.SheetBody[2] = GetProduct2();
-                configSource.SheetBody[3] = GetProduct3();
-                configSource.SheetBodyFillModel.Add(1, new SheetBodyFillDataMethod()
+                configSource.Body.InfoList = new List<EPPlusConfigSourceBodyInfo>()
                 {
-                    FillDataMethodOption = SheetBodyFillDataMethodOption.SynchronizationDataSource,
-                    SynchronizationDataSource = new SynchronizationDataSourceConfig()
+                    new EPPlusConfigSourceBodyInfo
                     {
-                        NeedBody = true,
-                        NeedTitle = true,
-                        Include = "使用人,购买时间"
-                    }
-                });
-                configSource.SheetBodyFillModel.Add(3, new SheetBodyFillDataMethod()
-                {
-                    FillDataMethodOption = SheetBodyFillDataMethodOption.SynchronizationDataSource,
-                    SynchronizationDataSource = new SynchronizationDataSourceConfig()
+                        Nth = 1,
+                        Option = new EPPlusConfigSourceBodyOption()
+                        {
+                            DataSource =GetProduct1(),
+                            FillMethod=new SheetBodyFillDataMethod()
+                            {
+                                FillDataMethodOption = SheetBodyFillDataMethodOption.SynchronizationDataSource,
+                                SynchronizationDataSource = new SynchronizationDataSourceConfig()
+                                {
+                                    NeedBody = true,
+                                    NeedTitle = true,
+                                    Include = "使用人,购买时间"
+                                }
+                            }
+                        }
+                    },
+                    new EPPlusConfigSourceBodyInfo
                     {
-                        NeedBody = true,
-                        NeedTitle = true,
-                        Exclude = "Id"
+                        Nth = 2,
+                        Option = new EPPlusConfigSourceBodyOption()
+                        {
+                            DataSource =GetProduct2()
+                        }
+                    },
+                    new EPPlusConfigSourceBodyInfo
+                    {
+                        Nth = 3,
+                        Option = new EPPlusConfigSourceBodyOption()
+                        {
+                            DataSource =GetProduct3(),
+                            FillMethod= new SheetBodyFillDataMethod()
+                            {
+                                FillDataMethodOption = SheetBodyFillDataMethodOption.SynchronizationDataSource,
+                                SynchronizationDataSource = new SynchronizationDataSourceConfig()
+                                {
+                                    NeedBody = true,
+                                    NeedTitle = true,
+                                    Exclude = "Id"
+                                }
+                            }
+                        },
                     }
-                });
+                };
+
+       
                 EPPlusHelper.FillData(excelPackage, config, configSource, "Result", "Sheet1");
                 EPPlusHelper.DeleteWorksheet(excelPackage, "Sheet1");
                 excelPackage.SaveAs(ms);

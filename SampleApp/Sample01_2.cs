@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OfficeOpenXml;
-using System.Drawing; 
+using System.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
@@ -36,7 +36,17 @@ namespace SampleApp
                 EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, 1);
                 var dtHead = GetDataTable_Head();
                 EPPlusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
-                configSource.SheetBody[1] = GetDataTable_Body();
+                configSource.Body.InfoList = new List<EPPlusConfigSourceBodyInfo>()
+                {
+                    new EPPlusConfigSourceBodyInfo
+                    {
+                        Nth = 1,
+                        Option = new EPPlusConfigSourceBodyOption()
+                        {
+                            DataSource = GetDataTable_Body()
+                        }
+                    }
+                };
                 EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
                 EPPlusHelper.DeleteWorksheet(excelPackage, 1);
 
@@ -52,21 +62,21 @@ namespace SampleApp
 
                 var aaa = ws.Row(4).Height;
 
-                Console.ReadKey();
+                //Console.ReadKey();
 
                 //0.08 = 1px  >1px = 0.08*N -0.01
-                ws.Column(3).Width =0.125*10 ;//excel的单位
-                ws.Column(4).Width =0.125*1 ;//excel的单位
-                //ws.Column(2).Width =62.1 ;//excel的单位
-                //ws.Column(3).Width =62.2 ;//excel的单位.3
-                //ws.Column(4).Width =62.3 ;//excel的单位61.63
-                //ws.Column(5).Width =62.4 ;//excel的单位61.75
-                //ws.Column(6).Width =62.5 ;//excel的单位
-                //17 的16.5(137px)  17.75 的17.13(142px)
-                //0.126*100 =       12=101px
-                //0.126*500 =       62.38=504px
-                //61.75 = 499
-               
+                ws.Column(3).Width = 0.125 * 10;//excel的单位
+                ws.Column(4).Width = 0.125 * 1;//excel的单位
+                                               //ws.Column(2).Width =62.1 ;//excel的单位
+                                               //ws.Column(3).Width =62.2 ;//excel的单位.3
+                                               //ws.Column(4).Width =62.3 ;//excel的单位61.63
+                                               //ws.Column(5).Width =62.4 ;//excel的单位61.75
+                                               //ws.Column(6).Width =62.5 ;//excel的单位
+                                               //17 的16.5(137px)  17.75 的17.13(142px)
+                                               //0.126*100 =       12=101px
+                                               //0.126*500 =       62.38=504px
+                                               //61.75 = 499
+
 
                 //excel的单位, 如果要从px 转换,那么就 * 0.75 . 注: 
                 // 建议使用 像素 * 0.75,  内部怎么转换的不清楚. 试了下, 写8.23 得 8.25 (11px ), 譬如 50 得 49.5 (66px) 

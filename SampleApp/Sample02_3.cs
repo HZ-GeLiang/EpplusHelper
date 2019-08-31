@@ -32,7 +32,7 @@ namespace SampleApp
         internal class PeopleInfo
         {
             public string 序号 { get; set; }
-            [Unique()]
+            //[Unique()]
             public string 名字 { get; set; }
             [EnumUndefined("{0}的性别'{1}'填写不正确", "名字", "性别")]
             public Gender? 性别 { get; set; }
