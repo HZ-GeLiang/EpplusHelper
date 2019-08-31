@@ -270,7 +270,7 @@ namespace EPPlusExtensions
         /// <param name="worksheet"></param>
         private static void FillData(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
         {
-            FillData_Head(config, configSource, worksheet);
+            EPPlusHelper.FillData_Head(config, configSource, worksheet);
             long allDataTableRows = 0;
             foreach (var dataTable in configSource.SheetBody.Values)
             {
@@ -282,7 +282,7 @@ namespace EPPlusExtensions
             {
                 throw new IndexOutOfRangeException("要导出的数据行数超过excel最大行限制");
             }
-            var sheetBodyAddRowCount = FillData_Body(config, configSource, worksheet);
+            var sheetBodyAddRowCount = EPPlusHelper.FillData_Body(config, configSource, worksheet);
             EPPlusHelper.FillData_Foot(config, configSource, worksheet, sheetBodyAddRowCount);
         }
 
@@ -396,8 +396,8 @@ namespace EPPlusExtensions
                 var deleteLastSpaceLine = false; //是否删除最后一空白行(可能有多行组成的)
                 int lastSpaceLineInterval = 0; //表示最后一空白行由多少行组成,默认为0
                 int lastSpaceLineRowNumber = 0; //表示最后一行的行号是多少
-                int tempLine = config.SheetBodyMapperExceltemplateLine.ContainsKey(nth.Key)
-                    ? config.SheetBodyMapperExceltemplateLine[nth.Key]
+                int tempLine = config.SheetBodyMapperExcelTemplateLine.ContainsKey(nth.Key)
+                    ? config.SheetBodyMapperExcelTemplateLine[nth.Key]
                     : 1; //获得第N个配置中excel模版提供了多少行,默认1行
                 var hasMergeCell = nth.Value.Keys.ToList().Find(a => a.Contains(":")) != null;
                 Dictionary<string, FillDataColums> fillDataColumsStat = null;//Datatable 的列的使用情况
@@ -574,28 +574,22 @@ namespace EPPlusExtensions
 
                     #endregion
 
-                    var fillData_FirstCellInfo = startCellPointLine.First();
-                    var fillData_LastCellInfo = startCellPointLine.Last();
+                    var cellFirst = startCellPointLine.First();
+                    var cellLast = startCellPointLine.Last();
 
-                    int fillData_FirstCellInfo_StartCol = fillData_FirstCellInfo.Col;
-                    string fillData_FirstCellInfo_StartCol_AZ = ExcelCellPoint.R1C1FormulasReverse(fillData_FirstCellInfo_StartCol);
-                    int fillData_LastCellInfo_StartCol = fillData_LastCellInfo.Col;
-                    string fillData_LastCellInfo_StartCol_AZ = ExcelCellPoint.R1C1FormulasReverse(fillData_LastCellInfo_StartCol);
-                    int fillData_LastCellInfo_EndCol = worksheet.Cells[fillData_LastCellInfo.R1C1].Merge ? new ExcelCellRange(fillData_LastCellInfo.R1C1, worksheet).End.Col : fillData_LastCellInfo.Col;
-                    string fillData_LastCellInfo_EndCol_AZ = ExcelCellPoint.R1C1FormulasReverse(fillData_LastCellInfo_EndCol);
+                    //这4个变量必须在 InsertRow之前运算
+                    int cellFirstColStart = cellFirst.Col;
+                    string cellFirstColStartZm = ExcelCellPoint.R1C1FormulasReverse(cellFirstColStart);
+                    int cellLastColEnd = worksheet.Cells[cellLast.R1C1].Merge ? new ExcelCellRange(cellLast.R1C1, worksheet).End.Col : cellLast.Col;
+                    string cellLastColEndZm = ExcelCellPoint.R1C1FormulasReverse(cellLastColEnd);
 
-                    //int destRowFirst = CalcDestRow(nth, sheetBodyAddRowCount, fillData_FirstCellInfo, 0, sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
-
-                    var sheetBodyAddRowCountTemp = sheetBodyAddRowCount;
-                    var currentLoopAddLinesTemp = currentLoopAddLines;
-                     
-
-
-                    //第一遍循环插入数据
+                    //第一遍循环:计算要插入多少行
+                    var InsertRowCount = 0;
+                    var InsertRowFrom = 0;
                     var dictDestRow = new Dictionary<int, int>();
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
-                        int destRow = CalcDestRow(nth, sheetBodyAddRowCount, fillData_FirstCellInfo, i, sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
+                        int destRow = CalcDestRow(nth, sheetBodyAddRowCount, cellFirst, i, sheetBodyDeleteRowCount, currentLoopAddLines, startCellPointLine);
 
                         dictDestRow.Add(i, destRow);
                         if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
@@ -609,40 +603,12 @@ namespace EPPlusExtensions
                                 }
 
                                 lastSpaceLineRowNumber = destRow + 1; //最后一行空行的位置
-                                //必须先新增,然后再赋值(若先赋值后新增,会造成赋值后的行被新增行覆盖).
-                                //1.新增一行,在destRow 前 插入 1行, 样式取 destRow 的
-                                worksheet.InsertRow(destRow, 1, destRow + 1); //在destRow行前面插入rows行,复制的样式行是 当前行+插入的行数 后 取copyStylesFromRow行
-                                //copyStylesFromRow参数不会把合并的单元格也弄过来(即,这个参数的功能不是格式刷)
-                                //worksheet.InsertRow(destRow, 1);//注,这行代码与上一行代码的作用是一样的,因为我下面用了Copy.
+                                if (InsertRowFrom == 0)
+                                {
+                                    InsertRowFrom = destRow;
+                                }
 
-                                //2.复制样式(含修正)
-                                //然后把原本的destRow的样式格式化到新增行中.注意:copy 会把copy行的文本也复制出来.
-                                //这里可以说是一个潜在的隐患bug把.因为和我的本意不一样.主要是我不知道要怎么写,只找到一个copy方法,而且copy方法也能帮我解决掉 同一行的 单元格合并问题
-
-                                #region 进行格式刷
-
-                                #region 整行格式刷样式,运行效率低 1 
-
-                                //string copyRowSource = (destRow + 1) + ":" + (destRow + 1); //7:7表示第7行
-                                //string copyRowDest = (destRow) + ":" + (destRow);
-
-                                ////下面这行代码会大量的拖慢程序的运行速度.
-                                //worksheet.Cells[copyRowSource].Copy(worksheet.Cells[copyRowDest]);
-
-                                #endregion
-
-                                #region 只格式刷 表格所在部分 2
-
-                                //worksheet.Cells[destRow + 1, fillData_FirstCellInfo.Col, destRow + 1, fillData_LastCellInfo_EndCol].Copy(
-                                //    worksheet.Cells[destRow, fillData_FirstCellInfo.Col, destRow, fillData_LastCellInfo_EndCol]
-                                //);//测试,运行效率好像没有提高
-
-                                #endregion 
-
-                                #endregion
-
-                                //不要用[row,col]索引器,[row,col]表示某单元格.注意:copy会把source行的除了height(觉得是一个bug)以外的全部复制一行出来
-                                //worksheet.Row(destRow).Height = worksheet.Row(destRow + 1).Height; //修正height
+                                InsertRowCount++;
 
                                 sheetBodyAddRowCount++;
                                 currentLoopAddLines++;
@@ -651,31 +617,95 @@ namespace EPPlusExtensions
 
                     }
 
-                    //第二遍循环处理样式
-
-                    for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
+                    if (InsertRowCount > 0 && InsertRowFrom > 0)
                     {
-                        int destRow = dictDestRow[i];
+                        //在  InsertRowFrom 行前面插入 InsertRowCount 行.
+                        //注:
+                        //1. copyStylesFromRow参数 的行计算是在 InsertRowFrom+ InsertRowCount 后开始的那行.
+                        //2. copyStylesFromRow参数 不会把合并的单元格也弄过来(即,这个参数的功能不是格式刷)
+                        //worksheet.InsertRow(InsertRowFrom, InsertRowCount, lastSpaceLineRowNumber);
+                        worksheet.InsertRow(InsertRowFrom, InsertRowCount);
 
-                        var cellsA = $"{fillData_FirstCellInfo_StartCol_AZ}{lastSpaceLineRowNumber}:{fillData_LastCellInfo_EndCol_AZ}{lastSpaceLineRowNumber}";
-                        var cellsB = $"{fillData_FirstCellInfo_StartCol_AZ}{destRow}:{fillData_LastCellInfo_EndCol_AZ}{destRow}";
+                        #region 第二遍循环:处理样式 
 
-                        try
+                        var configLine_LineNo = lastSpaceLineRowNumber;
+                        var configLine_r1c1_left = $"{cellFirstColStartZm}{configLine_LineNo}";
+                        var configLine_r1c1_right = $"{cellLastColEndZm}{configLine_LineNo}";
+                        var configLine = $"{configLine_r1c1_left}:{configLine_r1c1_right}";
+
+                        #region 获得合并单元格
+
+                        var Start = new ExcelCellPoint(configLine_r1c1_left);
+                        var End = new ExcelCellPoint(configLine_r1c1_right);
+
+                        var listCell = new List<object>();
+                        var col = new ExcelCellPoint(configLine_r1c1_left).Col;
+                        //获得当前行,哪些单独单元格+合并单元格
+                        while (true)
                         {
-                            worksheet.Cells[cellsA].Copy(worksheet.Cells[cellsA]);
-                        }
-                        catch (Exception e)
-                        {
-                            //Sample01_1 数据测试量从10w到 100w时会报错
-                            //Can't delete/overwrite merged cells. A range is partly merged with the another merged range
-                            worksheet.Cells[cellsB].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.None);
-                            worksheet.SelectedRange.Clear();
-                            worksheet.Cells[cellsA].Copy(worksheet.Cells[cellsA]);
+                            if (worksheet.MergedCells[configLine_LineNo, col] == null)
+                            {
+                                var cell = new ExcelCellPoint(new ExcelCellPoint(configLine_LineNo, col).R1C1);
+                                listCell.Add(cell);
+                                col++;
+                            }
+                            else
+                            {
+                                var cell = new ExcelCellRange(new ExcelCellPoint(configLine_LineNo, col).R1C1, worksheet);
+                                listCell.Add(cell);
+                                col = cell.End.Col + 1;
+                            }
+                            if (col > End.Col)
+                            {
+                                break;
+                            }
                         }
 
+                        var rangeCells = new List<ExcelCellRange>();
+                        foreach (var item in listCell)
+                        {
+                            if (item is ExcelCellRange && ((ExcelCellRange)item).IsMerge)
+                            {
+                                rangeCells.Add(((ExcelCellRange)item));
+                            }
+                        }
+
+                        #endregion
+
+
+                        for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
+                        {
+                            int destRow = dictDestRow[i];
+
+                            #region 不用copy,只 合并单元格 关于背景颜这些,InsertRow 使用第三个参数就可以了
+                            foreach (var item in rangeCells)
+                            {
+                                //var r1c1 = $"{item.Start.ColStr}{destRow}:{item.End.ColStr}{destRow}";
+                                ////if (!worksheet.Cells[r1c1].Merge)
+                                ////{
+                                ////     worksheet.Cells[r1c1].Merge = true; 
+                                ////}
+                                //worksheet.Cells[r1c1].Merge = true; //insert row 的数据没有合并单元格的, 所有就去掉了判断
+
+                                //不用r1c1, 不优化程序, 节省一步创建字符串的过程
+                                worksheet.Cells[destRow, item.Start.Col, destRow, item.End.Col].Merge = true;
+                            }
+                            #endregion
+
+                            #region 使用copy
+                            //var destRowLine = $"{cellFirstColStartZm}{destRow}:{cellLastColEndZm}{destRow}";
+                            //worksheet.Cells[configLine].Copy(worksheet.Cells[destRowLine]);//copy好比格式刷, 这里只格式化配置行所在的表格部分. 效率比上面注释的慢差不多一倍(测试数据4w条,要4秒多, 用上面的是2秒多,且文件体积也要小 50% ) 
+                            #endregion
+
+                            //不要用[row,col]索引器,[row,col]表示某单元格.注意:copy会把source行的除了height(觉得是一个bug)以外的全部复制一行出来
+                            worksheet.Row(destRow).Height = worksheet.Row(configLine_LineNo).Height; //修正height
+
+
+                        }
+                        #endregion
                     }
 
-                    //第三遍填充数据
+                    //第三遍喜欢:填充数据
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
                         int destRow = dictDestRow[i];
@@ -3200,6 +3230,7 @@ namespace EPPlusExtensions
             var dictList = new List<Dictionary<string, string>>();
             var dictSummeryList = new List<Dictionary<string, string>>();
             var sheetMergedCellsList = sheet.MergedCells.ToList();
+            //var sheetMergedCellsListDict = 
 
             Debug.Assert(arr != null, nameof(arr) + " != null");
             for (int i = 0; i < arr.GetLength(0); i++)
@@ -3217,46 +3248,46 @@ namespace EPPlusExtensions
                     if (!cellStr.StartsWith("$tb")) continue;
 
                     //  {"L15", "付款对象"}, $tb1
-                    string key = ExcelCellPoint.R1C1FormulasReverse(j + 1) + (i + 1);
+                    string cellPosition = ExcelCellPoint.R1C1FormulasReverse(j + 1) + (i + 1);
 
                     string nthStr = RegexHelper.GetFirstNumber(cellStr);
                     int nth = Convert.ToInt32(nthStr);
                     if (cellStr.StartsWith("$tbs")) //模版摘要/汇总等信息单元格
                     {
-                        string val = Regex.Replace(cellStr, "^[$]tbs" + nthStr, ""); //$需要转义
+                        string cellConfigValue = Regex.Replace(cellStr, "^[$]tbs" + nthStr, ""); //$需要转义
                         if (dictSummeryList.Count < nth)
                         {
                             dictSummeryList.Add(new Dictionary<string, string>());
                         }
-                        if (dictSummeryList[nth - 1].ContainsValue(val))
+                        if (dictSummeryList[nth - 1].ContainsValue(cellConfigValue))
                         {
-                            throw new ArgumentException($"Excel文件中的$tbs{nth}部分配置了相同的项:{val}");
+                            throw new ArgumentException($"Excel文件中的$tbs{nth}部分配置了相同的项:{cellConfigValue}");
                         }
-                        dictSummeryList[nth - 1].Add(key.Trim(), val.Trim());
+                        dictSummeryList[nth - 1].Add(cellPosition.Trim(), cellConfigValue.Trim());
                     }
                     else if (cellStr.StartsWith($"$tb{nthStr}$")) //模版提供了多少行,若没有配置,在调用FillData()时默认提供1行
                     {
-                        string valStr = Regex.Replace(cellStr, $@"^[$]tb{nth}[$]", ""); //$需要转义
-                        var val = String.Compare(valStr, "max", StringComparison.OrdinalIgnoreCase) == 0 //$tb1$max这种配置的
+                        string cellConfigValue = Regex.Replace(cellStr, $@"^[$]tb{nth}[$]", ""); //$需要转义, 这个值一般都是数字
+                        var cellConfigValueInt = string.Compare(cellConfigValue, "max", StringComparison.OrdinalIgnoreCase) == 0 //$tb1$max这种配置的
                             ? EPPlusConfig.MaxRow07 - i
-                            : Convert.ToInt32(valStr);
-                        if (config.SheetBodyMapperExceltemplateLine.ContainsKey(val))
+                            : Convert.ToInt32(cellConfigValue);
+                        if (config.SheetBodyMapperExcelTemplateLine.ContainsKey(cellConfigValueInt))
                         {
                             throw new ArgumentException($"Excel文件中重复配置了tb{nthStr}的行数");
                         }
-                        config.SheetBodyMapperExceltemplateLine.Add(nth, val);
+                        config.SheetBodyMapperExcelTemplateLine.Add(nth, cellConfigValueInt);
                     }
                     else //StartsWith($"$tb{nthStr}")
                     {
-                        string val = Regex.Replace(cellStr, "^[$]tb" + nthStr, ""); //$需要转义
+                        string cellConfigValue = Regex.Replace(cellStr, "^[$]tb" + nthStr, ""); //$需要转义
 
                         if (dictList.Count < nth)
                         {
                             dictList.Add(new Dictionary<string, string>());
                         }
-                        if (dictList[nth - 1].ContainsValue(val))
+                        if (dictList[nth - 1].ContainsValue(cellConfigValue))
                         {
-                            throw new ArgumentException($"Excel文件中的$tb{nth}部分配置了相同的项:{val}");
+                            throw new ArgumentException($"Excel文件中的$tb{nth}部分配置了相同的项:{cellConfigValue}");
                         }
 
                         if (sheet.Cells[i + 1, j + 1].Merge)
@@ -3268,7 +3299,7 @@ namespace EPPlusExtensions
                             //在生成excel后打开时会提示***.xlsx中发现不可读取的内容。是否恢复此工作簿的内容.
                             //选择修复文档内容后,里面的内容是正确的(至少我测试的几个是这样的)
                             //所以,同行多列合并的单元格的key 必须是 A15 这种格式的
-                            var newKey = sheetMergedCellsList.Find(a => a.Contains(key));
+                            var newKey = sheetMergedCellsList.Find(a => a.Contains(cellPosition));
                             if (newKey == null)
                             {
                                 //描述出现null的情况
@@ -3285,15 +3316,15 @@ namespace EPPlusExtensions
                                  * 结果就是G10的配置项将会被隐藏
                                  * 如果手动的合并F10:G10,Excel将会alert此操作会仅保留左上角的值
                                  */
-                                throw new Exception($"excel的单元格{key}存在配置问题,请检查");
+                                throw new Exception($"excel的单元格{cellPosition}存在配置问题,请检查");
                             }
                             var cells = newKey.Split(':');
-                            var dictListKey = RegexHelper.GetFirstNumber(cells[0]) == RegexHelper.GetFirstNumber(cells[1]) ? key : newKey;
-                            dictList[nth - 1].Add(dictListKey, val);
+                            var dictListKey = RegexHelper.GetFirstNumber(cells[0]) == RegexHelper.GetFirstNumber(cells[1]) ? cellPosition : newKey;
+                            dictList[nth - 1].Add(dictListKey, cellConfigValue);
                         }
                         else
                         {
-                            dictList[nth - 1].Add(key.Trim(), val.Trim());
+                            dictList[nth - 1].Add(cellPosition.Trim(), cellConfigValue.Trim());
                         }
                     }
 
