@@ -12,6 +12,7 @@ namespace EPPlusExtensions
     {
         public int Row;
         public int Col;
+        public string ColStr;
 
         /// <summary>
         /// 譬如A2等
@@ -35,7 +36,8 @@ namespace EPPlusExtensions
             //K3 = row:3, col:11
             r1C1 = r1C1.Split(':')[0].Trim(); //防止传入 "A1:B3" 这种的配置格式的
             Row = Convert.ToInt32(RegexHelper.GetLastNumber(r1C1));//3
-            Col = R1C1Formulas(RegexHelper.GetFirstStringByReg(r1C1, "[A-Za-z]+"));//K -> 11
+            ColStr = RegexHelper.GetFirstStringByReg(r1C1, "[A-Za-z]+");
+            Col = R1C1Formulas(ColStr);//K -> 11
             R1C1 = r1C1;
 
         }
@@ -49,6 +51,7 @@ namespace EPPlusExtensions
         {
             Row = row;
             Col = col;
+            ColStr = R1C1FormulasReverse(col);
             R1C1 = R1C1FormulasReverse(col) + row;
         }
 
@@ -63,7 +66,8 @@ namespace EPPlusExtensions
             var r1C1 = excelAddress.Address;
             r1C1 = r1C1.Split(':')[0].Trim(); //防止传入 "A1:B3" 这种的配置格式的
             Row = Convert.ToInt32(RegexHelper.GetLastNumber(r1C1));//3
-            Col = R1C1Formulas(RegexHelper.GetFirstStringByReg(r1C1, "[A-Za-z]+"));//K -> 11
+            ColStr = RegexHelper.GetFirstStringByReg(r1C1, "[A-Za-z]+");
+            Col = R1C1Formulas(ColStr);//K -> 11
             R1C1 = r1C1;
         }
 
