@@ -293,10 +293,10 @@ namespace EPPlusExtensions
         {
             EPPlusHelper.FillData_Head(config, configSource, worksheet);
             int sheetBodyAddRowCount = 0;
-            if (configSource?.Body?.InfoList.Count > 0)
+            if (configSource?.Body?.ConfigList.Count > 0)
             {
                 long allDataTableRows = 0;
-                foreach (var bodyInfo in configSource.Body.InfoList)
+                foreach (var bodyInfo in configSource.Body.ConfigList)
                 {
                     allDataTableRows += bodyInfo?.Option?.DataSource?.Rows.Count ?? 0;
                 }
@@ -362,15 +362,15 @@ namespace EPPlusExtensions
 
             if (config == null || configSource == null ||
                 config.Body == null || configSource.Body == null ||
-                config.Body.InfoList == null || configSource.Body.InfoList == null ||
-                config.Body.InfoList.Count <= 0 || configSource.Body.InfoList.Count <= 0)
+                config.Body.InfoList == null || configSource.Body.ConfigList == null ||
+                config.Body.InfoList.Count <= 0 || configSource.Body.ConfigList.Count <= 0)
             {
                 return sheetBodyAddRowCount;
             }
 
             int sheetBodyDeleteRowCount = 0; //sheet body 中删除了多少行(只含配置的行,对于FillData()内的删除行则不包括在内).  
             var dictConfig = config.Body.InfoList.ToDictionary(a => a.Nth, a => a.Option);
-            var dictConfigSource = configSource.Body.InfoList.ToDictionary(a => a.Nth, a => a.Option);
+            var dictConfigSource = configSource.Body.ConfigList.ToDictionary(a => a.Nth, a => a.Option);
             foreach (var itemInfo in config.Body.InfoList)
             {
                 var nth = itemInfo.Nth;//body的第N个配置
@@ -907,7 +907,7 @@ namespace EPPlusExtensions
         /// <param name="nth"></param>
         /// <param name="fillModel"></param>
         /// <returns></returns>
-        private static Dictionary<string, FillDataColums> InitFillDataColumnStat(DataTable datatable, List<EPPlusConfigCellsInfo> nth, SheetBodyFillDataMethod fillModel)
+        private static Dictionary<string, FillDataColums> InitFillDataColumnStat(DataTable datatable, List<EPPlusConfigFixedCell> nth, SheetBodyFillDataMethod fillModel)
         {
             var fillDataColumnStat = new Dictionary<string, FillDataColums>();
             foreach (DataColumn column in datatable.Columns)
@@ -3243,8 +3243,8 @@ namespace EPPlusExtensions
             Debug.Assert(arr != null, nameof(arr) + " != null");
             var sheetMergedCellsList = sheet.MergedCells.ToList();
 
-            var dictList = new List<List<EPPlusConfigCellsInfo>>();
-            var dictSummeryList = new List<List<EPPlusConfigCellsInfo>>();
+            var dictList = new List<List<EPPlusConfigFixedCell>>();
+            var dictSummeryList = new List<List<EPPlusConfigFixedCell>>();
             for (int i = 0; i < arr.GetLength(0); i++)
             {
                 for (int j = 0; j < arr.GetLength(1); j++)
@@ -3269,16 +3269,16 @@ namespace EPPlusExtensions
                         string cellConfigValue = Regex.Replace(cellStr, "^[$]tbs" + nthStr, ""); //$需要转义
                         if (dictSummeryList.Count < nth)
                         {
-                            dictSummeryList.Add(new List<EPPlusConfigCellsInfo>());
+                            dictSummeryList.Add(new List<EPPlusConfigFixedCell>());
                         }
 
                         if (dictSummeryList[nth - 1].Find(a => a.ConfigValue == cellConfigValue) !=
-                            default(EPPlusConfigCellsInfo))
+                            default(EPPlusConfigFixedCell))
                         {
                             throw new ArgumentException($"Excel文件中的$tbs{nth}部分配置了相同的项:{cellConfigValue}");
                         }
 
-                        dictSummeryList[nth - 1].Add(new EPPlusConfigCellsInfo()
+                        dictSummeryList[nth - 1].Add(new EPPlusConfigFixedCell()
                         { Address = cellPosition, ConfigValue = cellConfigValue.Trim() });
                     }
                     else if (cellStr.StartsWith($"$tb{nthStr}$")) //模版提供了多少行,若没有配置,在调用FillData()时默认提供1行  $tb1$1
@@ -3311,11 +3311,11 @@ namespace EPPlusExtensions
 
                         if (dictList.Count < nth)
                         {
-                            dictList.Add(new List<EPPlusConfigCellsInfo>());
+                            dictList.Add(new List<EPPlusConfigFixedCell>());
                         }
 
                         if (dictList[nth - 1].Find(a => a.ConfigValue == cellConfigValue) !=
-                            default(EPPlusConfigCellsInfo))
+                            default(EPPlusConfigFixedCell))
                         {
                             throw new ArgumentException($"Excel文件中的$tb{nth}部分配置了相同的项:{cellConfigValue}");
                         }
@@ -3354,18 +3354,18 @@ namespace EPPlusExtensions
                             // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                             if (RegexHelper.GetFirstNumber(cells[0]) == RegexHelper.GetFirstNumber(cells[1])) //是同一行的
                             {
-                                dictList[nth - 1].Add(new EPPlusConfigCellsInfo()
+                                dictList[nth - 1].Add(new EPPlusConfigFixedCell()
                                 { Address = cellPosition, ConfigValue = cellConfigValue });
                             }
                             else
                             {
-                                dictList[nth - 1].Add(new EPPlusConfigCellsInfo()
+                                dictList[nth - 1].Add(new EPPlusConfigFixedCell()
                                 { Address = newKey, ConfigValue = cellConfigValue });
                             }
                         }
                         else
                         {
-                            dictList[nth - 1].Add(new EPPlusConfigCellsInfo()
+                            dictList[nth - 1].Add(new EPPlusConfigFixedCell()
                             { Address = cellPosition, ConfigValue = cellConfigValue });
                         }
                     }
@@ -3416,14 +3416,14 @@ namespace EPPlusExtensions
         /// <param name="sheet"></param>
         /// <param name="startWith"></param>
         /// <returns></returns>
-        private static List<EPPlusConfigCellsInfo> GetConfigFromExcel(ExcelWorksheet sheet, string startWith)
+        private static List<EPPlusConfigFixedCell> GetConfigFromExcel(ExcelWorksheet sheet, string startWith)
         {
             if (!startWith.StartsWith("$")) throw new ArgumentException("配置项必须是$开头");
 
             object[,] arr = sheet.Cells.Value as object[,];
             Debug.Assert(arr != null, nameof(arr) + " != null");
 
-            var fixedCellsInfoList = new List<EPPlusConfigCellsInfo>();
+            var fixedCellsInfoList = new List<EPPlusConfigFixedCell>();
             var replaceStr = startWith.RemovePrefix("$");
             for (var i = 0; i < arr.GetLength(0); i++)
             {
@@ -3442,7 +3442,7 @@ namespace EPPlusExtensions
                         throw new ArgumentException($"Excel文件中的{startWith}部分配置了相同的项:{val}");
                     }
 
-                    fixedCellsInfoList.Add(new EPPlusConfigCellsInfo() { Address = key, ConfigValue = val.Trim() });
+                    fixedCellsInfoList.Add(new EPPlusConfigFixedCell() { Address = key, ConfigValue = val.Trim() });
                     //arr[i,j] = "";//把当前单元格值清空
                     //sheet.Cells[i + 1, j + 1].Value = ""; //不知道为什么上面的清空不了,但是有时候有能清除掉 注用这种方式清空值,,每个单元格 会有一个 ascii 为 9 (\t) 的符号进去
                     sheet.Cells[i + 1, j + 1].Value = null; //统一用 null 来清空单元格
@@ -3487,10 +3487,10 @@ namespace EPPlusExtensions
                 }
             }
 
-            var fixedCellsInfoList = new List<EPPlusConfigSourceCellsInfo>();
+            var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell>();
             foreach (var item in dict)
             {
-                fixedCellsInfoList.Add(new EPPlusConfigSourceCellsInfo() { ConfigValue = item.Key, FillValue = dict.Values });
+                fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key, FillValue = dict.Values });
             }
 
             configSource.Head = new EPPlusConfigSourceHead() { CellsInfoList = fixedCellsInfoList };
@@ -3528,10 +3528,10 @@ namespace EPPlusExtensions
                 }
             }
 
-            var fixedCellsInfoList = new List<EPPlusConfigSourceCellsInfo>();
+            var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell>();
             foreach (var item in dict)
             {
-                fixedCellsInfoList.Add(new EPPlusConfigSourceCellsInfo() { ConfigValue = item.Key, FillValue = dict.Values });
+                fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key, FillValue = dict.Values });
             }
 
             configSource.Foot = new EPPlusConfigSourceFoot { CellsInfoList = fixedCellsInfoList };
