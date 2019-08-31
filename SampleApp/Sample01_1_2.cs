@@ -30,7 +30,17 @@ namespace SampleApp
                 var dtHead = GetDataTable_Head();
                 //EPPlusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
                 EPPlusHelper.SetConfigSourceHead(configSource, dtHead);
-                configSource.SheetBody[1] = GetDataTable_Body();
+                configSource.Body.InfoList = new List<EPPlusConfigSourceBodyInfo>()
+                {
+                    new EPPlusConfigSourceBodyInfo
+                    {
+                        Nth = 1,
+                        Option = new EPPlusConfigSourceBodyOption()
+                        {
+                            DataSource =GetDataTable_Body(),
+                        }
+                    }
+                };
                 EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "导出测试");
                 ws.Protection.IsProtected = true;

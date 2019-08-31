@@ -7,8 +7,14 @@ namespace EPPlusExtensions
     /// </summary>
     public class SheetBodyFillDataMethod
     {
+        /// <summary>
+        /// 填充数据选项
+        /// </summary>
         public SheetBodyFillDataMethodOption FillDataMethodOption = SheetBodyFillDataMethodOption.Default;
 
+        /// <summary>
+        /// 填充数据同步方式
+        /// </summary>
         public SynchronizationDataSourceConfig SynchronizationDataSource = new SynchronizationDataSourceConfig();
 
     }
