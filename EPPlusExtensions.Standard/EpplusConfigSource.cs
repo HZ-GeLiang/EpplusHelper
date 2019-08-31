@@ -13,26 +13,13 @@ namespace EPPlusExtensions
     /// </summary>
     public class EPPlusConfigSource
     {
-        public EPPlusConfigSource()
-        {
-            //SheetHead = new Dictionary<string, string>();
-            //SheetBody = new Dictionary<int, DataTable>();
-            //SheetBodyFillModel = new Dictionary<int, SheetBodyFillDataMethod>();
-            //SheetBodySummary = new Dictionary<int, Dictionary<object, object>>();
-            //SheetFoot = new Dictionary<string, string>();
-        }
-        //public Dictionary<string, string> SheetHead { get; set; }
-        //public Dictionary<int, DataTable> SheetBody { get; set; }
-        //public Dictionary<int, SheetBodyFillDataMethod> SheetBodyFillModel { get; set; }
-        //public Dictionary<int, Dictionary<object, object>> SheetBodySummary { get; set; }
-        //public Dictionary<string, string> SheetFoot { get; set; }
         public EPPlusConfigSourceHead Head { get; set; } //= new EPPlusConfigSourceHead();
         public EPPlusConfigSourceBody Body { get; set; } //= new EPPlusConfigSourceBody();
         public EPPlusConfigSourceFoot Foot { get; set; } //= new EPPlusConfigSourceFoot();
 
     }
 
-    public class EPPlusConfigSourceCellsInfo
+    public class EPPlusConfigSourceFixedCell
     {
         /// <summary>
         /// 单元格配置的值:如 Name
@@ -46,17 +33,14 @@ namespace EPPlusExtensions
     }
 
 
-
-    public class EPPlusConfigSourceHeadOrFoot
+    public class EPPlusConfigSourceHead  
     {
-        public List<EPPlusConfigSourceCellsInfo> CellsInfoList { get; set; } = null;
-    }
-    public class EPPlusConfigSourceHead : EPPlusConfigSourceHeadOrFoot
-    {
+        public List<EPPlusConfigSourceFixedCell> CellsInfoList { get; set; } = null;
     }
 
-    public class EPPlusConfigSourceFoot : EPPlusConfigSourceHeadOrFoot
+    public class EPPlusConfigSourceFoot  
     {
+        public List<EPPlusConfigSourceFixedCell> CellsInfoList { get; set; } = null;
     }
 
     public class EPPlusConfigSourceBody
@@ -64,12 +48,11 @@ namespace EPPlusExtensions
         /// <summary>
         /// 所有的配置信息
         /// </summary>
-        public List<EPPlusConfigSourceBodyInfo> InfoList { get; set; } = null;
+        public List<EPPlusConfigSourceBodyConfig> ConfigList { get; set; } = null;
     }
 
-    public class EPPlusConfigSourceBodyInfo
+    public class EPPlusConfigSourceBodyConfig
     {
-
         /// <summary>
         /// 第几个, 从1开始
         /// </summary>
@@ -83,13 +66,20 @@ namespace EPPlusExtensions
 
     public class EPPlusConfigSourceBodyOption
     {
-        //SheetBody = new Dictionary<int, DataTable>();
-        //SheetBodyFillModel = new Dictionary<int, SheetBodyFillDataMethod>();
-        //SheetBodySummary = new Dictionary<int, Dictionary<object, object>>();
-
+        /// <summary>
+        /// 数据源
+        /// </summary>
         public DataTable DataSource { get; set; } = null;
+
+        /// <summary>
+        /// 填充方式
+        /// </summary>
         public SheetBodyFillDataMethod FillMethod { get; set; } = null;
-        public List<EPPlusConfigSourceCellsInfo> Summary { get; set; } = null;
+
+        /// <summary>
+        /// 固定的一些单元格
+        /// </summary>
+        public List<EPPlusConfigSourceFixedCell> Summary { get; set; } = null;
 
     }
 

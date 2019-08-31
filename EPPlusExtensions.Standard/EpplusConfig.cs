@@ -21,131 +21,12 @@ namespace EPPlusExtensions
         //public static readonly int MaxCol03 = 256;
 
         #endregion
-
-        /// <summary>
-        /// 用来初始化的一些数据的
-        /// </summary>
-        public EPPlusConfig()
-        {
-            //SheetHeadMapperExcel = new Dictionary<string, string>();
-            //SheetHeadMapperSource = new Dictionary<string, string>();
-            //SheetHeadCellCustomSetValue = null;
-
-            //注:body是没有数据源的配置的,全靠一个默认约定
-            //SheetBodyMapperExcel = new Dictionary<int, Dictionary<string, string>>();
-            //SheetBodyCellCustomSetValue = new Dictionary<int, Action<string, object, ExcelRange>>();
-            //SheetBodySummaryMapperExcel = new Dictionary<int, Dictionary<string, string>>();
-            //SheetBodySummaryMapperSource = new Dictionary<int, Dictionary<string, string>>();
-            //SheetBodySummaryCellCustomSetValue = new Dictionary<int, Action<string, object, ExcelRange>>();
-            //SheetBodyMapperExcelTemplateLine = new Dictionary<int, int>();
-
-            //SheetFootMapperExcel = new Dictionary<string, string>();
-            //SheetFootMapperSource = new Dictionary<string, string>();
-            //SheetFootCellCustomSetValue = null;
-
-            //Report = new EPPlusReport();
-            //IsReport = false;
-            //DeleteFillDateStartLineWhenDataSourceEmpty = false;
-        }
-
-        #region head
-
-        #region 注释的代码
-        ///// <summary>
-        ///// sheet head 用来完成指定单元格的内容配置
-        ///// 譬如A2,Name. key不区分大小写,即A2与a2是一样的.建议大写
-        ///// </summary>
-        //public Dictionary<string, string> SheetHeadMapperExcel { get; set; }
-
-        ///// <summary>
-        ///// sheet head 的数据源的配置
-        ///// 譬如Name,张三. key严格区分大小写
-        ///// </summary>
-        //public Dictionary<string, string> SheetHeadMapperSource { get; set; }
-
-        ///// <summary>
-        ///// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
-        ///// </summary>
-        //public Action<string, object, ExcelRange> SheetHeadCellCustomSetValue; 
-        #endregion
-
+  
         public EPPlusConfigFixedCells Head { get; set; }
-
-        #endregion
-
-        #region body
-
-        #region 注释的代码
-        ///// <summary>
-        ///// sheet body 的内容配置.注.int必须是从1开始的且递增+1的自然数
-        ///// </summary>
-        //public Dictionary<int, Dictionary<string, string>> SheetBodyMapperExcel;
-
-        ///// <summary>
-        ///// 自定义设置值  action 3个参数 分别代表 (colName,  cellValue, cell)
-        ///// </summary>
-        //public Dictionary<int, Action<string, object, ExcelRange>> SheetBodyCellCustomSetValue;
-
-        ///// <summary>
-        ///// sheet body中固定的单元格. 譬如汇总信息等.譬如A8,Name,前面的int表示这个汇总是哪个SheetBody的
-        ///// </summary>
-        //public Dictionary<int, Dictionary<string, string>> SheetBodySummaryMapperExcel { get; set; }
-
-        ///// <summary>
-        ///// sheet body中固定的单元格的数据源,譬如Name,张三
-        ///// </summary>
-        //public Dictionary<int, Dictionary<string, string>> SheetBodySummaryMapperSource { get; set; }
-        ///// <summary>
-        ///// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
-        ///// </summary>
-        //public Dictionary<int, Action<string, object, ExcelRange>> SheetBodySummaryCellCustomSetValue;
-
-        ///// <summary>
-        ///// SheetBody模版自带(提供)多少行(根据这个,在结合数据源,程序内部判断是否新增行)
-        ///// </summary>
-        //public Dictionary<int, int> SheetBodyMapperExcelTemplateLine { get; set; } 
-        #endregion
 
         public EPPlusConfigBody Body { get; set; }
 
-        #endregion
-
-        #region foot
-
-        #region 注释的代码
-        ///// <summary>
-        ///// sheet foot 用来完成指定单元格的内容配置
-        ///// 譬如A8,Name
-        ///// </summary>
-        //public Dictionary<string, string> SheetFootMapperExcel { get; set; }
-
-        ///// <summary>
-        ///// sheet foot 的数据源
-        ///// 譬如 Name,张三</summary>
-        //public Dictionary<string, string> SheetFootMapperSource { get; set; }
-
-        ///// <summary>
-        ///// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
-        ///// </summary>
-        //public Action<string, object, ExcelRange> SheetFootCellCustomSetValue;
-
-        //使用方式
-        //config.SheetBodyCellCustomSetValue.Add(1, (colName, cellValue, cell) =>
-        //{
-        //    if (colName == "配置列名")
-        //    {
-        //        cell.Formula = (string)val;//值为公式
-        //    }
-        //    else
-        //    {
-        //        cell.Value = val;
-        //    }
-        //} 
-        #endregion
-
         public EPPlusConfigFixedCells Foot { get; set; }
-
-        #endregion
 
         /// <summary>
         /// 报表(excel能折叠的那种)的显示的一些配置
@@ -219,15 +100,17 @@ namespace EPPlusExtensions
         //};
 
     }
+
     /// <summary>
     /// 配置信息-固定的单元格
     /// </summary>
     public class EPPlusConfigFixedCells
     {
+
         ///// <summary>
         ///// 固定单元格信息们
         ///// </summary>
-        public List<EPPlusConfigCellsInfo> ConfigCellList { get; set; } = null;
+        public List<EPPlusConfigFixedCell> ConfigCellList { get; set; } = null;
 
         ///// <summary>
         ///// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
@@ -237,23 +120,20 @@ namespace EPPlusExtensions
     }
 
     /// <summary>
-    /// 每一个固定单元格配置信息
+    /// 每一个固定单元格项的配置信息
     /// </summary>
-    public class EPPlusConfigCellsInfo
+    public class EPPlusConfigFixedCell
     {
         /// <summary>
         /// 单元格地址:如 A8 ,不区分大小写,即A2与a2是一样的.建议大写
         /// </summary>
         public string Address { get; set; }
+
         /// <summary>
         /// 单元格配置的值:如 Name
         /// </summary>
         public string ConfigValue { get; set; }
-
-        ///// <summary>
-        ///// 填写的值:如 张三
-        ///// </summary>
-        //public string FillValue { get; set; }
+ 
     }
 
     public class EPPlusConfigBody
@@ -263,6 +143,7 @@ namespace EPPlusExtensions
         /// </summary>
         public List<EPPlusConfigBodyInfo> InfoList { get; set; } = null;
     }
+
     public class EPPlusConfigBodyInfo
     {
 
@@ -278,35 +159,21 @@ namespace EPPlusExtensions
     }
 
     public class EPPlusConfigBodyOption
-    {
-        //SheetBodyMapperExcel = new Dictionary<int, Dictionary<string, string>>();
-        //SheetBodyCellCustomSetValue = new Dictionary<int, Action<string, object, ExcelRange>>();
-        //SheetBodySummaryMapperExcel = new Dictionary<int, Dictionary<string, string>>();
-        //SheetBodySummaryMapperSource = new Dictionary<int, Dictionary<string, string>>();
-        //SheetBodySummaryCellCustomSetValue = new Dictionary<int, Action<string, object, ExcelRange>>();
-        //SheetBodyMapperExcelTemplateLine = new Dictionary<int, int>();
-
+    { 
         /// <summary>
         /// sheet body 的内容配置.
         /// </summary>
-        public List<EPPlusConfigCellsInfo> MapperExcel { get; set; }
+        public List<EPPlusConfigFixedCell> MapperExcel { get; set; }
 
         /// <summary>
         /// 自定义设置值  action 3个参数 分别代表 (colName,  cellValue, cell)
         /// </summary>
         public Action<string, object, ExcelRange> CustomSetValue { get; set; }
 
-
         ///// <summary>
         ///// sheet body中固定的单元格. 譬如汇总信息等.譬如A8,Name
         ///// </summary>
-        public List<EPPlusConfigCellsInfo> SummaryMapperExcel { get; set; }
-
-        /// <summary>
-        /// sheet body中固定的单元格的数据源,譬如Name,张三
-        /// </summary>
-        // todo:...
-        public Dictionary<string, string> SummaryMapperSource { get; set; }
+        public List<EPPlusConfigFixedCell> SummaryMapperExcel { get; set; }
 
         /// <summary>
         /// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
@@ -317,7 +184,6 @@ namespace EPPlusExtensions
         /// SheetBody模版自带(提供)多少行(根据这个,在结合数据源,程序内部判断是否新增行)
         /// </summary>
         public int? MapperExcelTemplateLine { get; set; }
-
     }
 
 
