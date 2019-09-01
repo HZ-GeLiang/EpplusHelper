@@ -36,9 +36,9 @@ namespace SampleApp
                 EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, 1);
                 var dtHead = GetDataTable_Head();
                 EPPlusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
-                configSource.Body.InfoList = new List<EPPlusConfigSourceBodyInfo>()
+                configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
                 {
-                    new EPPlusConfigSourceBodyInfo
+                    new EPPlusConfigSourceBodyConfig
                     {
                         Nth = 1,
                         Option = new EPPlusConfigSourceBodyOption()
