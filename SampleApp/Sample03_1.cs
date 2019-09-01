@@ -27,9 +27,9 @@ namespace SampleApp
                 var config = EPPlusHelper.GetEmptyConfig();
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
                 EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet1");
-                configSource.Body.InfoList = new List<EPPlusConfigSourceBodyInfo>()
+                configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
                 {
-                    new EPPlusConfigSourceBodyInfo
+                    new EPPlusConfigSourceBodyConfig
                     {
                         Nth = 1,
                         Option = new EPPlusConfigSourceBodyOption()
@@ -47,7 +47,7 @@ namespace SampleApp
                             }
                         }
                     },
-                    new EPPlusConfigSourceBodyInfo
+                    new EPPlusConfigSourceBodyConfig
                     {
                         Nth = 2,
                         Option = new EPPlusConfigSourceBodyOption()
@@ -55,7 +55,7 @@ namespace SampleApp
                             DataSource =GetProduct2()
                         }
                     },
-                    new EPPlusConfigSourceBodyInfo
+                    new EPPlusConfigSourceBodyConfig
                     {
                         Nth = 3,
                         Option = new EPPlusConfigSourceBodyOption()

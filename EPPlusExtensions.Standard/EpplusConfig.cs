@@ -21,7 +21,7 @@ namespace EPPlusExtensions
         //public static readonly int MaxCol03 = 256;
 
         #endregion
-  
+
         public EPPlusConfigFixedCells Head { get; set; }
 
         public EPPlusConfigBody Body { get; set; }
@@ -133,7 +133,7 @@ namespace EPPlusExtensions
         /// 单元格配置的值:如 Name
         /// </summary>
         public string ConfigValue { get; set; }
- 
+
     }
 
     public class EPPlusConfigBody
@@ -141,10 +141,37 @@ namespace EPPlusExtensions
         /// <summary>
         /// 所有的配置信息
         /// </summary>
-        public List<EPPlusConfigBodyInfo> InfoList { get; set; } = null;
+        public List<EPPlusConfigBodyConfig> ConfigList { get; set; } = null;
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nth">第几个配置,从1开始</param>
+        /// <returns></returns>
+        public EPPlusConfigBodyConfig this[int nth]
+        {
+            get
+            {
+                if (ConfigList == null) throw new Exception($"{nameof(ConfigList)}为null");
+                if (nth < 1) throw new ArgumentOutOfRangeException($"{nameof(nth)}不能小于1");
+
+                var bodyConfig = ConfigList.Find(a => a.Nth == nth);
+                if (bodyConfig == null)
+                {
+                    bodyConfig = new EPPlusConfigBodyConfig()
+                    {
+                        Nth = nth,
+                        Option = new EPPlusConfigBodyOption(),
+                    };
+                    ConfigList.Add(bodyConfig);
+                }
+                return bodyConfig;
+            }
+        }
     }
 
-    public class EPPlusConfigBodyInfo
+    public class EPPlusConfigBodyConfig
     {
 
         /// <summary>
@@ -159,32 +186,63 @@ namespace EPPlusExtensions
     }
 
     public class EPPlusConfigBodyOption
-    { 
+    {
         /// <summary>
-        /// sheet body 的内容配置.
+        /// body 的内容配置.
         /// </summary>
-        public List<EPPlusConfigFixedCell> MapperExcel { get; set; }
+        public List<EPPlusConfigFixedCell> ConfigLine { get; set; }
+
+        ///// <summary>
+        ///// body中固定的单元格. 譬如汇总信息等.譬如A8,Name
+        ///// </summary>
+        public List<EPPlusConfigFixedCell> ConfigExtra { get; set; }
 
         /// <summary>
         /// 自定义设置值  action 3个参数 分别代表 (colName,  cellValue, cell)
         /// </summary>
         public Action<string, object, ExcelRange> CustomSetValue { get; set; }
 
-        ///// <summary>
-        ///// sheet body中固定的单元格. 譬如汇总信息等.譬如A8,Name
-        ///// </summary>
-        public List<EPPlusConfigFixedCell> SummaryMapperExcel { get; set; }
+        /// <summary>
+        /// SheetBody模版自带(提供)多少行(根据这个,在结合数据源,程序内部判断是否新增行)
+        /// </summary>
+        public int? MapperExcelTemplateLine { get; set; }
 
         /// <summary>
         /// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
         /// </summary>
         public Action<string, object, ExcelRange> SummaryCustomSetValue { get; set; }
 
+        public InsertRowStyle InsertRowStyle { get; set; } = new InsertRowStyle();
+
+
+    }
+    public class InsertRowStyle
+    {
+        public InsertRowStyleOperation Operation { get; set; } = InsertRowStyleOperation.CopyAll;
+
+        #region 这2个是 CopyStyleAndMergedCellFromConfigRow 的配置
         /// <summary>
-        /// SheetBody模版自带(提供)多少行(根据这个,在结合数据源,程序内部判断是否新增行)
+        /// 新增行时复制配置项所在行的样式(新增的行不含单元格合并) ,相同的工作簿,该选项 false 时, 生成的文件体积会减小很多
         /// </summary>
-        public int? MapperExcelTemplateLine { get; set; }
+        public bool NeedCopyStyles { get; set; } = true;
+
+        /// <summary>
+        /// 配置行有合并单元格时,新增行也需要
+        /// </summary>
+        public bool NeedMergeCell { get; set; } = true; 
+        #endregion
+
     }
 
-
+    public enum InsertRowStyleOperation
+    {
+        /// <summary>
+        /// 复制配置行的所有样式(含合并单元格)
+        /// </summary>
+        CopyAll = 1,
+        /// <summary>
+        /// 复制配置行的样式,然后合并单元格(如果配置行有)
+        /// </summary>
+        CopyStyleAndMergeCell = 2
+    }
 }

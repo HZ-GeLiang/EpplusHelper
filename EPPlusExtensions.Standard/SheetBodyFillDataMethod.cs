@@ -26,7 +26,7 @@ namespace EPPlusExtensions
         /// </summary>
         Default = 1,
         /// <summary>
-        /// 在约定填充的基础上,数据源Datatable的列如果没有被填充使用,那么将自动填充
+        /// 在约定填充的基础上,数据源 DataTable 的列如果没有被填充使用,那么将自动填充
         /// </summary>
         [Obsolete("不推荐使用,很多测试没通过")]
         SynchronizationDataSource = 2
@@ -54,13 +54,13 @@ namespace EPPlusExtensions
     }
 
 
-    public class FillDataColums
+    public class FillDataColumns
     {
-        public FillDataColumsState State { get; set; }
-        public string ColumName { get; set; }
+        public FillDataColumnsState State { get; set; }
+        public string ColumnName { get; set; }
     }
 
-    public enum FillDataColumsState
+    public enum FillDataColumnsState
     {
         /// <summary>
         /// 未使用

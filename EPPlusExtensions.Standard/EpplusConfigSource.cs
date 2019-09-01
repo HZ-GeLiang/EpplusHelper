@@ -67,7 +67,7 @@ namespace EPPlusExtensions
     public class EPPlusConfigSourceBodyOption
     {
         /// <summary>
-        /// 数据源
+        /// 数据源, 对应  EPPlusConfig 的 ConfigLine
         /// </summary>
         public DataTable DataSource { get; set; } = null;
 
@@ -77,11 +77,8 @@ namespace EPPlusExtensions
         public SheetBodyFillDataMethod FillMethod { get; set; } = null;
 
         /// <summary>
-        /// 固定的一些单元格
+        /// 固定的一些单元格 如表格的汇总栏什么的
         /// </summary>
-        public List<EPPlusConfigSourceFixedCell> Summary { get; set; } = null;
-
+        public List<EPPlusConfigSourceFixedCell> ConfigExtra { get; set; } = null;
     }
-
-
 }
