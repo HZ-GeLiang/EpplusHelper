@@ -26,15 +26,32 @@ namespace SampleApp
             {
                 var config = EPPlusHelper.GetEmptyConfig();
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
-                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, 1);
+                //EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, 1);
+                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet2");
+                config.Body[1].Option.InsertRowStyle.Operation = InsertRowStyleOperation.CopyStyleAndMergeCell;
+                config.Body[1].Option.InsertRowStyle.NeedMergeCell = false;
                 var dtHead = GetDataTable_Head();
                 //EPPlusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
                 EPPlusHelper.SetConfigSourceHead(configSource, dtHead);
-                configSource.SheetBody[1] = GetDataTable_Body();
+
+                configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
+                {
+                    new EPPlusConfigSourceBodyConfig
+                    {
+                        Nth = 1,
+                        Option = new EPPlusConfigSourceBodyOption()
+                        {
+                            DataSource = GetDataTable_Body()
+                        }
+                    }
+                };
+
                 var stopwatch = new System.Diagnostics.Stopwatch();
-                Console.WriteLine("runTime 开始" );
+                Console.WriteLine("runTime 开始");
                 stopwatch.Start();
-                EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
+
+                //EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
+                EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", "Sheet2");
                 stopwatch.Stop();
                 Console.WriteLine("runTime 时差:" + stopwatch.Elapsed);
                 Console.WriteLine("runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
@@ -43,12 +60,13 @@ namespace SampleApp
                 //ws.Protection.AllowSelectLockedCells = false;
                 //ws.Protection.AllowSelectUnlockedCells = true;
                 //ws.Protection.SetPassword("123");
-                EPPlusHelper.DeleteWorksheet(excelPackage, 1);
+                //EPPlusHelper.DeleteWorksheet(excelPackage, 1);
+                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNames);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save(@"模版\Sample01_1_Result.xlsx");
 
-                Console.ReadKey();
+                //Console.ReadKey();
 
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
@@ -73,10 +91,15 @@ namespace SampleApp
             dt.Columns.Add("Math");
             dt.Columns.Add("English");
 
-            for (int i = 0; i < 100; i++)
+            //1000000
+            var c = 10;
+            //for (int i = 0; i < 400*c*c; i++)
+            //for (int i = 0; i < 1000000; i++)
+            //for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 400; i++)
             {
                 DataRow dr = dt.NewRow();
-                dr["Name"] = $"张三{i+1}";
+                dr["Name"] = $"张三{i + 1}";
                 dr["Chinese"] = 60;
                 dr["Math"] = 60.5;
                 dr["English"] = 61;
