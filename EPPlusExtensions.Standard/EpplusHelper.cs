@@ -620,7 +620,6 @@ namespace EPPlusExtensions
                         : rightCellInfo.ColStr;
                     #endregion
 
-
                     //第一遍循环:计算要插入多少行
                     var insertRows = 0;//要新增多少行
                     var insertRowFrom = 0;//从哪行开始
@@ -669,7 +668,41 @@ namespace EPPlusExtensions
                         {
                             if (dictConfig[nth].InsertRowStyle.NeedCopyStyles)
                             {
-                                worksheet.InsertRow(insertRowFrom, insertRows, lastSpaceLineRowNumber);
+                                //在测试中,数据量 >= EPPlusConfig.MaxRow07/2-1  时, 在这里程序会抛异常, 这个数据量值仅做参考
+
+                                //解决方案,分批插入, 且分批插入的 RowFrom 必须是第一次 InsertRow 的结尾行, 不然 第三遍循环:填充数据 会异常
+
+
+                                var insertRowsMax = EPPlusConfig.MaxRow07 / 2 - 1;
+                                if (insertRows >= insertRowsMax)
+                                {
+                                    var insertCount = insertRows / insertRowsMax;
+                                    var mod = insertRows % insertRowsMax;
+                                    int _rowFrom; int _rows; int _copyStylesFromRow;
+                                    for (int i = 0; i < insertCount; i++)
+                                    {
+                                        _rowFrom = insertRowFrom + i * insertRowsMax;
+                                        _rows = insertRowsMax;
+                                        _copyStylesFromRow = _rowFrom + _rows;
+                                        worksheet.InsertRow(_rowFrom, _rows, _copyStylesFromRow);
+                                     
+                                    }
+                                    if (mod > 0)
+                                    {
+                                        _rowFrom = insertRowFrom + insertCount * insertRowsMax;
+                                        _rows = mod;
+                                        _copyStylesFromRow = lastSpaceLineRowNumber;
+                                        worksheet.InsertRow(_rowFrom, _rows, _copyStylesFromRow);
+                                    }
+                                }
+                                else
+                                {
+                                    worksheet.InsertRow(insertRowFrom, insertRows, lastSpaceLineRowNumber);
+                                }
+
+
+                                //worksheet.InsertRow(insertRowFrom, insertRows-100000, lastSpaceLineRowNumber-10000);
+                                //worksheet.InsertRow(insertRowFrom+ insertRows - 100000, 10000, lastSpaceLineRowNumber);
                             }
                             else
                             {
@@ -730,7 +763,7 @@ namespace EPPlusExtensions
                         #endregion
                     }
 
-                    //第三遍喜欢:填充数据
+                    //第三遍循环:填充数据
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
                         int destRow = dictDestRow[i];
@@ -907,7 +940,6 @@ namespace EPPlusExtensions
 
         }
 
-
         /// <summary>
         /// 填充第N个配置的一些零散的单元格的值(譬如汇总信息等)
         /// </summary>
@@ -1000,7 +1032,6 @@ namespace EPPlusExtensions
                 }
             }
         }
-
 
         private static void FillData_Foot(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet, int sheetBodyAddRowCount)
         {
