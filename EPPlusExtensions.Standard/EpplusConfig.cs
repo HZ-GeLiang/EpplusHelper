@@ -13,8 +13,8 @@ namespace EPPlusExtensions
         #region Excel的最大行与列 
 
         //excel 2007 和 excel 2010 工作表最大有 2^20=1048576行,2^14=16384列
-        public static readonly int MaxRow07 = 1048576;
-        public static readonly int MaxCol07 = 16384;
+        public static readonly int MaxRow07 = ExcelPackage.MaxRows;// 1048576;
+        public static readonly int MaxCol07 = ExcelPackage.MaxColumns;// 16384;
 
         //excel 2003 工作表最大有 2^16=65536行,2^8=256列
         //public static readonly int MaxRow03 = 65536;
@@ -229,7 +229,7 @@ namespace EPPlusExtensions
         /// <summary>
         /// 配置行有合并单元格时,新增行也需要
         /// </summary>
-        public bool NeedMergeCell { get; set; } = true; 
+        public bool NeedMergeCell { get; set; } = true;
         #endregion
 
     }

@@ -668,12 +668,11 @@ namespace EPPlusExtensions
                         {
                             if (dictConfig[nth].InsertRowStyle.NeedCopyStyles)
                             {
-                                //在测试中,数据量 >= EPPlusConfig.MaxRow07/2-1  时, 在这里程序会抛异常, 这个数据量值仅做参考
-
+                                //在测试中,数据量 >= EPPlusConfig.MaxRow07/2-1  时,程序会抛异常, 这个数据量值仅做参考
                                 //解决方案,分批插入, 且分批插入的 RowFrom 必须是第一次 InsertRow 的结尾行, 不然 第三遍循环:填充数据 会异常
+                                //同时又发现了一个bug: worksheet.InsertRow 第三个参数 要满足 _rows + _copyStylesFromRow < EPPlusConfig.MaxRow07 , 但是_copyStylesFromRow 又是  _rowFrom + _rows 后开始数的行数 .nnd. 为了 防止报错, 我后面写了if-else 结果就是 后面新增的行没有样式
 
-
-                                var insertRowsMax = EPPlusConfig.MaxRow07 / 2 - 1;
+                                var insertRowsMax = (EPPlusConfig.MaxRow07 / 2 - 1) - 1;
                                 if (insertRows >= insertRowsMax)
                                 {
                                     var insertCount = insertRows / insertRowsMax;
@@ -684,25 +683,38 @@ namespace EPPlusExtensions
                                         _rowFrom = insertRowFrom + i * insertRowsMax;
                                         _rows = insertRowsMax;
                                         _copyStylesFromRow = _rowFrom + _rows;
-                                        worksheet.InsertRow(_rowFrom, _rows, _copyStylesFromRow);
-                                     
+                                        //防止报错, 结果就是 后面新增的行没有样式
+                                        if (_rows + _copyStylesFromRow > EPPlusConfig.MaxRow07)
+                                        {
+                                            worksheet.InsertRow(_rowFrom, _rows);
+                                        }
+                                        else
+                                        {
+                                            worksheet.InsertRow(_rowFrom, _rows, _copyStylesFromRow);
+                                        }
+
                                     }
                                     if (mod > 0)
                                     {
                                         _rowFrom = insertRowFrom + insertCount * insertRowsMax;
                                         _rows = mod;
                                         _copyStylesFromRow = lastSpaceLineRowNumber;
-                                        worksheet.InsertRow(_rowFrom, _rows, _copyStylesFromRow);
+                                        //防止报错, 结果就是 后面新增的行没有样式
+                                        if (_rows + _copyStylesFromRow > EPPlusConfig.MaxRow07)
+                                        {
+                                            worksheet.InsertRow(_rowFrom, _rows);
+                                        }
+                                        else
+                                        {
+                                            worksheet.InsertRow(_rowFrom, _rows, _copyStylesFromRow);
+                                        }
+
                                     }
                                 }
                                 else
                                 {
                                     worksheet.InsertRow(insertRowFrom, insertRows, lastSpaceLineRowNumber);
                                 }
-
-
-                                //worksheet.InsertRow(insertRowFrom, insertRows-100000, lastSpaceLineRowNumber-10000);
-                                //worksheet.InsertRow(insertRowFrom+ insertRows - 100000, 10000, lastSpaceLineRowNumber);
                             }
                             else
                             {

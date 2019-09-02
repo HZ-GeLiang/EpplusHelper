@@ -53,8 +53,11 @@ namespace SampleApp
                 //EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
                 EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", "Sheet2");
                 stopwatch.Stop();
-                Console.WriteLine("runTime 时差:" + stopwatch.Elapsed);
-                Console.WriteLine("runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
+                Console.WriteLine("导出数据runTime 时差:" + stopwatch.Elapsed);
+                Console.WriteLine("导出数据runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
+
+                stopwatch.Reset();
+                stopwatch.Start();
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "导出测试");
                 //ws.Protection.IsProtected = true;
                 //ws.Protection.AllowSelectLockedCells = false;
@@ -65,9 +68,11 @@ namespace SampleApp
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save(@"模版\Sample01_1_Result.xlsx");
+                stopwatch.Stop();
+                Console.WriteLine("保存数据runTime 时差:" + stopwatch.Elapsed);
+                Console.WriteLine("保存数据runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
 
-                //Console.ReadKey();
-
+                Console.ReadKey();
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }
@@ -91,12 +96,12 @@ namespace SampleApp
             dt.Columns.Add("Math");
             dt.Columns.Add("English");
 
-            //1000000
-            var c = 10;
             //for (int i = 0; i < 400*c*c; i++)
             //for (int i = 0; i < 1000000; i++)
+            //for (int i = 0; i < 800000; i++)
             //for (int i = 0; i < 100000; i++)
-            for (int i = 0; i < 400; i++)
+            //for (int i = 0; i < 1048576/2-1; i++)
+            for (int i = 0; i < 550000; i++)
             {
                 DataRow dr = dt.NewRow();
                 dr["Name"] = $"张三{i + 1}";
