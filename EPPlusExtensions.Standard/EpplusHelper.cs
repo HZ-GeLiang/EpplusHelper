@@ -964,7 +964,7 @@ namespace EPPlusExtensions
         private static void FillData_Body_Summary(EPPlusConfig config, ExcelWorksheet worksheet, Dictionary<int, EPPlusConfigSourceBodyOption> dictConfigSource, int nth, Dictionary<int, EPPlusConfigBodyOption> dictConfig, int sheetBodyAddRowCount)
         {
             if (dictConfigSource[nth].ConfigExtra == null) return;
-            var dictConfigSourceSummary = dictConfigSource[nth].ConfigExtra.ToDictionary(a => a.ConfigValue);
+            var dictConfigSourceSummary = dictConfigSource[nth].ConfigExtra.Source.ToDictionary(a => a.ConfigValue);
             foreach (var item in dictConfig[nth].ConfigExtra)
             {
                 var excelCellPoint = new ExcelCellPoint(item.Address);
@@ -1667,27 +1667,29 @@ namespace EPPlusExtensions
         /// <param name="dr">数据源是这个</param>
         public static void SetConfigSourceHead(EPPlusConfigSource configSource, DataTable dt, DataRow dr)
         {
-            var dict = new Dictionary<string, string>();
-            for (int i = 0; i < dr.ItemArray.Length; i++)
-            {
-                var colName = dt.Columns[i].ColumnName;
-                if (!dict.ContainsKey(colName))
-                {
-                    dict.Add(colName, dr[i] == DBNull.Value || dr[i] == null ? "" : dr[i].ToString());
-                }
-                else
-                {
-                    throw new Exception(nameof(SetConfigSourceHead) + "方法异常");
-                }
-            }
+            //var dict = new Dictionary<string, string>();
+            //for (int i = 0; i < dr.ItemArray.Length; i++)
+            //{
+            //    var colName = dt.Columns[i].ColumnName;
+            //    if (!dict.ContainsKey(colName))
+            //    {
+            //        dict.Add(colName, dr[i] == DBNull.Value || dr[i] == null ? "" : dr[i].ToString());
+            //    }
+            //    else
+            //    {
+            //        throw new Exception(nameof(SetConfigSourceHead) + "方法异常");
+            //    }
+            //}
 
-            var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell>();
-            foreach (var item in dict)
-            {
-                fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key, FillValue = dict.Values });
-            }
+            //var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell>();
+            //foreach (var item in dict)
+            //{
+            //    fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key, FillValue = dict.Values });
+            //}
 
-            configSource.Head = new EPPlusConfigSourceHead() { CellsInfoList = fixedCellsInfoList };
+            //configSource.Head = new EPPlusConfigSourceHead() { CellsInfoList = fixedCellsInfoList };
+
+            configSource.Head = new EPPlusConfigSourceHead() { CellsInfoList = EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dt, dr) };
         }
 
         /// <summary>
@@ -1708,27 +1710,30 @@ namespace EPPlusExtensions
         /// <param name="dr">数据源是这个</param>
         public static void SetConfigSourceFoot(EPPlusConfigSource configSource, DataTable dt, DataRow dr)
         {
-            var dict = new Dictionary<string, string>();
-            for (int i = 0; i < dr.ItemArray.Length; i++)
-            {
-                var colName = dt.Columns[i].ColumnName;
-                if (!dict.ContainsKey(colName))
-                {
-                    dict.Add(colName, dr[i] == DBNull.Value || dr[i] == null ? "" : dr[i].ToString());
-                }
-                else
-                {
-                    throw new Exception(nameof(SetConfigSourceFoot) + "方法异常");
-                }
-            }
+            //var dict = new Dictionary<string, string>();
+            //for (int i = 0; i < dr.ItemArray.Length; i++)
+            //{
+            //    var colName = dt.Columns[i].ColumnName;
+            //    if (!dict.ContainsKey(colName))
+            //    {
+            //        dict.Add(colName, dr[i] == DBNull.Value || dr[i] == null ? "" : dr[i].ToString());
+            //    }
+            //    else
+            //    {
+            //        throw new Exception(nameof(SetConfigSourceFoot) + "方法异常");
+            //    }
+            //}
 
-            var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell>();
-            foreach (var item in dict)
-            {
-                fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key, FillValue = dict.Values });
-            }
+            //var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell>();
+            //foreach (var item in dict)
+            //{
+            //    fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key, FillValue = dict.Values });
+            //}
 
-            configSource.Foot = new EPPlusConfigSourceFoot { CellsInfoList = fixedCellsInfoList };
+            //configSource.Foot = new EPPlusConfigSourceFoot { CellsInfoList = fixedCellsInfoList };
+            configSource.Foot = new EPPlusConfigSourceFoot { CellsInfoList = EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dt, dr) };
+
+
         }
 
         #endregion

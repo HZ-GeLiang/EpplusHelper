@@ -32,19 +32,26 @@ namespace SampleApp
                 config.Body[1].Option.InsertRowStyle.NeedMergeCell = false;
                 var dtHead = GetDataTable_Head();
                 //EPPlusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
-                EPPlusHelper.SetConfigSourceHead(configSource, dtHead);
+                //EPPlusHelper.SetConfigSourceHead(configSource, dtHead);
+                configSource.Head = dtHead;
 
-                configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
-                {
-                    new EPPlusConfigSourceBodyConfig
-                    {
-                        Nth = 1,
-                        Option = new EPPlusConfigSourceBodyOption()
-                        {
-                            DataSource = GetDataTable_Body()
-                        }
-                    }
-                };
+
+                //configSource.Head["budgetCycle"] = "上半年";
+
+                //configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
+                //{
+                //    new EPPlusConfigSourceBodyConfig
+                //    {
+                //        Nth = 1,
+                //        Option = new EPPlusConfigSourceBodyOption()
+                //        {
+                //            DataSource = GetDataTable_Body()
+                //        }
+                //    }
+                //};
+
+                configSource.Body[1].Option.DataSource = GetDataTable_Body();
+
 
                 var stopwatch = new System.Diagnostics.Stopwatch();
                 Console.WriteLine("runTime 开始");
@@ -101,7 +108,8 @@ namespace SampleApp
             //for (int i = 0; i < 800000; i++)
             //for (int i = 0; i < 100000; i++)
             //for (int i = 0; i < 1048576/2-1; i++)
-            for (int i = 0; i < 550000; i++)
+            //for (int i = 0; i < 550000; i++)
+            for (int i = 0; i < 550; i++)
             {
                 DataRow dr = dt.NewRow();
                 dr["Name"] = $"张三{i + 1}";
