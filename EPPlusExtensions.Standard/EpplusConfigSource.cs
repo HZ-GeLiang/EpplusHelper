@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions.Helper;
 
 namespace EPPlusExtensions
 {
@@ -18,6 +19,18 @@ namespace EPPlusExtensions
         public EPPlusConfigSourceFoot Foot { get; set; } //= new EPPlusConfigSourceFoot();
 
     }
+    public class EPPlusConfigSourceFixedCell<TValue>
+    {
+        /// <summary>
+        /// 单元格配置的值:如 Name
+        /// </summary>
+        public string ConfigValue { get; set; }
+
+        /// <summary>
+        /// 填写的值:如 张三
+        /// </summary>
+        public TValue FillValue { get; set; }
+    }
 
     public class EPPlusConfigSourceFixedCell
     {
@@ -30,9 +43,93 @@ namespace EPPlusExtensions
         /// 填写的值:如 张三
         /// </summary>
         public object FillValue { get; set; }
-
     }
 
+    public class EPPlusConfigSourceConfigExtras<TValue>
+    {
+        public List<EPPlusConfigSourceFixedCell<TValue>> CellsInfoList { get; set; } = null;
+
+        public EPPlusConfigSourceFixedCell<TValue> this[string key]
+        {
+            get
+            {
+                var cell = GetCellAndTryAdd(key);
+                return cell;
+            }
+            set
+            {
+                var cell = GetCellAndTryAdd(key);
+                cell.FillValue = Utils.ConvertToTValue<TValue>(value);
+            }
+        }
+
+        private EPPlusConfigSourceFixedCell<TValue> GetCellAndTryAdd(string key)
+        {
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException($"{nameof(key)}不能为空");
+            if (CellsInfoList == null)
+            {
+                CellsInfoList = new List<EPPlusConfigSourceFixedCell<TValue>>();
+            }
+
+            var cell = CellsInfoList.Find(a => a.ConfigValue == key);
+            if (cell == null)
+            {
+                cell = new EPPlusConfigSourceFixedCell<TValue>() { ConfigValue = key };
+                CellsInfoList.Add(cell);
+            }
+
+            return cell;
+        }
+
+        public static List<EPPlusConfigSourceFixedCell<TValue>> ConvertToConfigExtraList<TKey, TValue>(Dictionary<TKey, TValue> dict)
+        {
+            var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell<TValue>>();
+
+            if (typeof(TKey) is string)
+            {
+                foreach (var item in dict)
+                {
+                    fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell<TValue>() { ConfigValue = item.Key as string, FillValue = item.Value });
+                }
+            }
+            else
+            {
+                foreach (var item in dict)
+                {
+                    fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell<TValue>() { ConfigValue = item.Key.ToString(), FillValue = item.Value });
+                }
+            }
+
+            return fixedCellsInfoList;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dt">用来获得列名</param>
+        /// <param name="dr">数据源是这个</param>
+        public static List<EPPlusConfigSourceFixedCell<TValue>> ConvertToConfigExtraList(DataTable dt, DataRow dr)
+        {
+
+            var dict = new Dictionary<string, TValue>();
+            for (int i = 0; i < dr.ItemArray.Length; i++)
+            {
+                var colName = dt.Columns[i].ColumnName;
+                if (!dict.ContainsKey(colName))
+                {
+                    dict.Add(colName, Utils.ConvertToTValue<TValue>(dr[i]));
+                }
+                else
+                {
+                    throw new Exception(nameof(ConvertToConfigExtraList) + "方法异常");
+                }
+            }
+            return ConvertToConfigExtraList<string, TValue>(dict);
+        }
+
+
+
+    }
     public class EPPlusConfigSourceConfigExtras
     {
         public List<EPPlusConfigSourceFixedCell> CellsInfoList { get; set; } = null;
@@ -70,7 +167,6 @@ namespace EPPlusExtensions
         }
 
 
-
         public static List<EPPlusConfigSourceFixedCell> ConvertToConfigExtraList<TKey, TValue>(Dictionary<TKey, TValue> dict)
         {
             var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell>();
@@ -79,20 +175,19 @@ namespace EPPlusExtensions
             {
                 foreach (var item in dict)
                 {
-                    fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key as string, FillValue = dict.Values });
+                    fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key as string, FillValue = item.Value });
                 }
             }
             else
             {
                 foreach (var item in dict)
                 {
-                    fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key.ToString(), FillValue = dict.Values });
+                    fixedCellsInfoList.Add(new EPPlusConfigSourceFixedCell() { ConfigValue = item.Key.ToString(), FillValue = item.Value });
                 }
             }
 
             return fixedCellsInfoList;
         }
-
 
         /// <summary>
         /// 
@@ -116,6 +211,83 @@ namespace EPPlusExtensions
             }
             return ConvertToConfigExtraList(dict);
         }
+    }
+
+
+    public class EPPlusConfigSourceHead<TValue> : EPPlusConfigSourceConfigExtras<TValue>
+    {
+        public static implicit operator EPPlusConfigSourceHead<TValue>(DataTable dt)
+        {
+            return new EPPlusConfigSourceHead<TValue>()
+            {
+                CellsInfoList = dt == null || dt.Rows.Count == 0
+                    ? new List<EPPlusConfigSourceFixedCell<TValue>>()
+                    : EPPlusConfigSourceConfigExtras<TValue>.ConvertToConfigExtraList(dt, dt.Rows[0])
+            };
+        }
+
+        public static implicit operator EPPlusConfigSourceHead<TValue>(Dictionary<string, TValue> dict) => ConvertToSelf(dict);
+
+        private static EPPlusConfigSourceHead<TValue> ConvertToSelf<TKey, TValue>(Dictionary<TKey, TValue> dict)
+        {
+            return new EPPlusConfigSourceHead<TValue>()
+            {
+                CellsInfoList = dict == null || dict.Count <= 0
+                    ? new List<EPPlusConfigSourceFixedCell<TValue>>()
+                    : EPPlusConfigSourceConfigExtras<TValue>.ConvertToConfigExtraList(dict)
+            };
+        }
+
+        public object this[string key]
+        {
+            get
+            {
+                return base[key].FillValue;
+            }
+            set
+            {
+                base[key].FillValue = Utils.ConvertToTValue<TValue>(value);
+            }
+        }
+
+    }
+
+    public class EPPlusConfigSourceFoot<TValue> : EPPlusConfigSourceConfigExtras<TValue>
+    {
+        public static implicit operator EPPlusConfigSourceFoot<TValue>(DataTable dt)
+        {
+            return new EPPlusConfigSourceFoot<TValue>()
+            {
+                CellsInfoList = dt == null || dt.Rows.Count == 0
+                    ? new List<EPPlusConfigSourceFixedCell<TValue>>()
+                    : EPPlusConfigSourceConfigExtras<TValue>.ConvertToConfigExtraList(dt, dt.Rows[0])
+            };
+        }
+
+        public static implicit operator EPPlusConfigSourceFoot<TValue>(Dictionary<string, TValue> dict) => ConvertToSelf(dict);
+
+        private static EPPlusConfigSourceFoot<TValue> ConvertToSelf<TKey, TValue>(Dictionary<TKey, TValue> dict)
+        {
+            return new EPPlusConfigSourceFoot<TValue>()
+            {
+                CellsInfoList = dict == null || dict.Count <= 0
+                    ? new List<EPPlusConfigSourceFixedCell<TValue>>()
+                    : EPPlusConfigSourceConfigExtras<TValue>.ConvertToConfigExtraList(dict)
+            };
+        }
+
+        public object this[string key]
+        {
+            get
+            {
+                return base[key].FillValue;
+            }
+            set
+            {
+                base[key].FillValue = Utils.ConvertToTValue<TValue>(value);
+            }
+        }
+
     }
 
     public class EPPlusConfigSourceHead : EPPlusConfigSourceConfigExtras

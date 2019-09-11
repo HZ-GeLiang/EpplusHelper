@@ -85,6 +85,7 @@ namespace EPPlusExtensions
         /// GetList异常时,获得全部异常,而不是一个
         /// </summary>
         public bool GetList_NeedAllException = false;
+
         /// <summary>
         /// 当GetList_NeedAllException 为 true 时, 错误消息只显示列信息
         /// </summary>
