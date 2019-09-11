@@ -26,32 +26,11 @@ namespace SampleApp
             {
                 var config = EPPlusHelper.GetEmptyConfig();
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
-                //EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, 1);
                 EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet2");
                 config.Body[1].Option.InsertRowStyle.Operation = InsertRowStyleOperation.CopyStyleAndMergeCell;
                 config.Body[1].Option.InsertRowStyle.NeedMergeCell = false;
-                var dtHead = GetDataTable_Head();
-                //EPPlusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
-                //EPPlusHelper.SetConfigSourceHead(configSource, dtHead);
-                configSource.Head = dtHead;
-
-
-                //configSource.Head["budgetCycle"] = "上半年";
-
-                //configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
-                //{
-                //    new EPPlusConfigSourceBodyConfig
-                //    {
-                //        Nth = 1,
-                //        Option = new EPPlusConfigSourceBodyOption()
-                //        {
-                //            DataSource = GetDataTable_Body()
-                //        }
-                //    }
-                //};
-
+                configSource.Head = GetDataTable_Head();
                 configSource.Body[1].Option.DataSource = GetDataTable_Body();
-
 
                 var stopwatch = new System.Diagnostics.Stopwatch();
                 Console.WriteLine("runTime 开始");

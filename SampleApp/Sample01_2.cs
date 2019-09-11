@@ -35,18 +35,8 @@ namespace SampleApp
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
                 EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, 1);
                 var dtHead = GetDataTable_Head();
-                EPPlusHelper.SetConfigSourceHead(configSource, dtHead, dtHead.Rows[0]);
-                configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
-                {
-                    new EPPlusConfigSourceBodyConfig
-                    {
-                        Nth = 1,
-                        Option = new EPPlusConfigSourceBodyOption()
-                        {
-                            DataSource = GetDataTable_Body()
-                        }
-                    }
-                };
+                configSource.Head = dtHead;
+                configSource.Body[1].Option.DataSource = GetDataTable_Body();
                 EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
                 EPPlusHelper.DeleteWorksheet(excelPackage, 1);
 
