@@ -1246,7 +1246,7 @@ namespace EPPlusExtensions
 
             for (int i = 0; i < configExtra.Count; i++)
             {
-                config.Body[i + 1].Option.ConfigExtra = configLine[i];
+                config.Body[i + 1].Option.ConfigExtra = configExtra[i];
             }
 
         }
