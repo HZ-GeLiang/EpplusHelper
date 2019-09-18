@@ -40,7 +40,7 @@ namespace SampleApp
                 ws.Protection.AllowSelectUnlockedCells = true;
                 ws.Protection.SetPassword("123");
                 //EPPlusHelper.DeleteWorksheet(excelPackage, 1);
-                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNames);
+                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save(@"模版\Sample01_1_2_Result.xlsx");
