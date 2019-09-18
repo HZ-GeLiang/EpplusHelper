@@ -185,6 +185,9 @@ namespace EPPlusExtensions
         public EPPlusConfigBodyOption Option = new EPPlusConfigBodyOption();
     }
 
+    /// <summary>
+    /// 设置的详细内容
+    /// </summary>
     public class EPPlusConfigBodyOption
     {
         /// <summary>
@@ -198,9 +201,10 @@ namespace EPPlusExtensions
         public List<EPPlusConfigFixedCell> ConfigExtra { get; set; }
 
         /// <summary>
-        /// 自定义设置值  action 3个参数 分别代表 (colName,  cellValue, cell)
+        /// 该Action只对ConfigLine有效
+        /// 自定义设置值 T1-T4 分别代表 (colName, cellValue, cells, args) 属性名, 属性值, 所在的单元格, 程序内部提供的参数
         /// </summary>
-        public Action<string, object, ExcelRange> CustomSetValue { get; set; }
+        public Action<string, object, ExcelRange, CustomSetValueArgument> CustomSetValue { get; set; }
 
         /// <summary>
         /// SheetBody模版自带(提供)多少行(根据这个,在结合数据源,程序内部判断是否新增行)
@@ -216,6 +220,31 @@ namespace EPPlusExtensions
 
 
     }
+    public class CustomSetValueArgument
+    {
+        public List<EPPlusConfigFixedCell> ConfigLine { get; set; }
+        public List<EPPlusConfigFixedCell> ConfigExtra { get; set; }
+        public ExcelWorksheet Worksheet { get; set; }
+        public FillArea Area { get; set; }
+    }
+
+    public enum FillArea
+    {
+        /// <summary>
+        /// 标题
+        /// </summary>
+        TitleExt = 1,
+        /// <summary>
+        /// 内容(配置的哪些)
+        /// </summary>
+        Content = 2,
+        /// <summary>
+        /// 内容扩展,DataTable 未配置的列)
+        /// </summary>
+        ContentExt = 3,
+
+    }
+
     public class InsertRowStyle
     {
         public InsertRowStyleOperation Operation { get; set; } = InsertRowStyleOperation.CopyAll;

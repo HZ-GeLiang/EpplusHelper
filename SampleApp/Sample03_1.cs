@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,59 +29,6 @@ namespace SampleApp
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
                 EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet1");
 
-
-
-                #region 代码废弃
-                //configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
-                //{
-                //    new EPPlusConfigSourceBodyConfig
-                //    {
-                //        Nth = 1,
-                //        Option = new EPPlusConfigSourceBodyOption()
-                //        {
-                //            DataSource =GetProduct1(),
-                //            FillMethod=new SheetBodyFillDataMethod()
-                //            {
-                //                FillDataMethodOption = SheetBodyFillDataMethodOption.SynchronizationDataSource,
-                //                SynchronizationDataSource = new SynchronizationDataSourceConfig()
-                //                {
-                //                    NeedBody = true,
-                //                    NeedTitle = true,
-                //                    Include = "使用人,购买时间"
-                //                }
-                //            }
-                //        }
-                //    },
-                //    new EPPlusConfigSourceBodyConfig
-                //    {
-                //        Nth = 2,
-                //        Option = new EPPlusConfigSourceBodyOption()
-                //        {
-                //            DataSource =GetProduct2()
-                //        }
-                //    },
-                //    new EPPlusConfigSourceBodyConfig
-                //    {
-                //        Nth = 3,
-                //        Option = new EPPlusConfigSourceBodyOption()
-                //        {
-                //            DataSource =GetProduct3(),
-                //            FillMethod= new SheetBodyFillDataMethod()
-                //            {
-                //                FillDataMethodOption = SheetBodyFillDataMethodOption.SynchronizationDataSource,
-                //                SynchronizationDataSource = new SynchronizationDataSourceConfig()
-                //                {
-                //                    NeedBody = true,
-                //                    NeedTitle = true,
-                //                    Exclude = "Id"
-                //                }
-                //            }
-                //        },
-                //    }
-                //}; 
-                #endregion
-
-
                 configSource.Body[1].Option.DataSource = GetProduct1();
                 configSource.Body[1].Option.FillMethod = new SheetBodyFillDataMethod()
                 {
@@ -92,6 +40,26 @@ namespace SampleApp
                         Include = "使用人,购买时间"
                     }
                 };
+                config.Body[1].Option.CustomSetValue = (colName, val, cells, configOption) =>
+                {
+                    //config.Body[1].Option.ConfigLine
+                    if (configOption.Area == FillArea.TitleExt)
+                    {
+                        cells.Value = $"标题扩展-{val}";
+                    }
+                    else if (configOption.Area == FillArea.ContentExt)
+                    {
+                        cells.Value = $"内容扩展-{val}";
+
+                        cells.StyleID = configOption.Worksheet.Cells[4, 4].StyleID;
+                    }
+                    else
+                    {
+                        //cell.Value = val;
+                        cells.Value = config.UseFundamentals ? config.CellFormatDefault(colName, val, cells) : val;
+                    }
+                };
+
                 configSource.Body[2].Option.DataSource = GetProduct2();
                 configSource.Body[3].Option.DataSource = GetProduct3();
                 configSource.Body[3].Option.FillMethod = new SheetBodyFillDataMethod()
