@@ -1297,6 +1297,37 @@ namespace EPPlusExtensions
 
         #region 一些帮助方法
 
+        public static string GetLeftCellAddress(ExcelWorksheet ws, string currentCellAddress)
+        {
+            var ea = new ExcelAddress(currentCellAddress);
+            var row = ea.Start.Row;
+            var col = ea.Start.Column;
+            var cell = ws.Cells[row, col];
+            if (cell.Merge)
+            {
+                var mergeCellAddress = ws.MergedCells[row, col];//最准确的合并单元格值
+                var mergeCell = new ExcelAddress(mergeCellAddress);
+                //var margeCell_Range = new ExcelCellRange(mergeCellAddress);
+
+                var leftCellRow = mergeCell.Start.Row;
+                var leftCellCol = mergeCell.Start.Column - 1;
+                var leftCellAddress = ws.MergedCells[leftCellRow, leftCellCol];
+                if (leftCellAddress == null) //左边的单元格是普通的单元格
+                {
+                    return new ExcelCellPoint(leftCellRow, leftCellCol).R1C1;
+                }
+                else
+                {
+                    ea = new ExcelAddress(leftCellAddress);
+                    return ea.Address;
+                }
+            }
+            else
+            {
+                return new ExcelCellPoint(row, col - 1).R1C1;
+            }
+        }
+
         /// <summary>
         /// 获得合并单元格的值 
         /// </summary>
@@ -1306,9 +1337,9 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static string GetMergeCellText(ExcelWorksheet ws, int row, int col)
         {
-            string range = ws.MergedCells[row, col];
-            if (range == null) return GetCellText(ws, row, col);
-            var ea = new ExcelAddress(range);
+            string mergeCellAddress = ws.MergedCells[row, col];
+            if (mergeCellAddress == null) return GetCellText(ws, row, col); //不是合并单元格
+            var ea = new ExcelAddress(mergeCellAddress);
             return ws.Cells[ea.Start.Row, ea.Start.Column].Text;
         }
 
