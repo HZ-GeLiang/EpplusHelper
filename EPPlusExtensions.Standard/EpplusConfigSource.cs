@@ -81,11 +81,13 @@ namespace EPPlusExtensions
             return cell;
         }
 
-        public static List<EPPlusConfigSourceFixedCell<TValue>> ConvertToConfigExtraList<TKey, TValue>(Dictionary<TKey, TValue> dict)
+        public static List<EPPlusConfigSourceFixedCell<TValue>> ConvertToConfigExtraList<TKey>(Dictionary<TKey, TValue> dict) 
         {
             var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell<TValue>>();
 
+#pragma warning disable 184
             if (typeof(TKey) is string)
+#pragma warning restore 184
             {
                 foreach (var item in dict)
                 {
@@ -124,7 +126,7 @@ namespace EPPlusExtensions
                     throw new Exception(nameof(ConvertToConfigExtraList) + "方法异常");
                 }
             }
-            return ConvertToConfigExtraList<string, TValue>(dict);
+            return ConvertToConfigExtraList<string>(dict);
         }
 
 
@@ -171,7 +173,9 @@ namespace EPPlusExtensions
         {
             var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell>();
 
+#pragma warning disable 184
             if (typeof(TKey) is string)
+#pragma warning restore 184
             {
                 foreach (var item in dict)
                 {
@@ -228,7 +232,7 @@ namespace EPPlusExtensions
 
         public static implicit operator EPPlusConfigSourceHead<TValue>(Dictionary<string, TValue> dict) => ConvertToSelf(dict);
 
-        private static EPPlusConfigSourceHead<TValue> ConvertToSelf<TKey, TValue>(Dictionary<TKey, TValue> dict)
+        private static EPPlusConfigSourceHead<TValue> ConvertToSelf<TKey>(Dictionary<TKey, TValue> dict)
         {
             return new EPPlusConfigSourceHead<TValue>()
             {
@@ -238,16 +242,10 @@ namespace EPPlusExtensions
             };
         }
 
-        public object this[string key]
+        public new object this[string key]
         {
-            get
-            {
-                return base[key].FillValue;
-            }
-            set
-            {
-                base[key].FillValue = Utils.ConvertToTValue<TValue>(value);
-            }
+            get => base[key].FillValue;
+            set => base[key].FillValue = Utils.ConvertToTValue<TValue>(value);
         }
 
     }
@@ -266,7 +264,7 @@ namespace EPPlusExtensions
 
         public static implicit operator EPPlusConfigSourceFoot<TValue>(Dictionary<string, TValue> dict) => ConvertToSelf(dict);
 
-        private static EPPlusConfigSourceFoot<TValue> ConvertToSelf<TKey, TValue>(Dictionary<TKey, TValue> dict)
+        private static EPPlusConfigSourceFoot<TValue> ConvertToSelf<TKey>(Dictionary<TKey, TValue> dict)
         {
             return new EPPlusConfigSourceFoot<TValue>()
             {
@@ -276,16 +274,10 @@ namespace EPPlusExtensions
             };
         }
 
-        public object this[string key]
+        public new object this[string key]
         {
-            get
-            {
-                return base[key].FillValue;
-            }
-            set
-            {
-                base[key].FillValue = Utils.ConvertToTValue<TValue>(value);
-            }
+            get => base[key].FillValue;
+            set => base[key].FillValue = Utils.ConvertToTValue<TValue>(value);
         }
 
     }
@@ -327,12 +319,9 @@ namespace EPPlusExtensions
             };
         }
 
-        public object this[string key]
+        public new object this[string key]
         {
-            get
-            {
-                return base[key].FillValue;
-            }
+            get => base[key].FillValue;
             set
             {
                 base[key].FillValue = value;
@@ -378,16 +367,10 @@ namespace EPPlusExtensions
             };
         }
 
-        public object this[string key]
+        public new object this[string key]
         {
-            get
-            {
-                return base[key].FillValue;
-            }
-            set
-            {
-                base[key].FillValue = value;
-            }
+            get => base[key].FillValue;
+            set => base[key].FillValue = value;
         }
     }
 
