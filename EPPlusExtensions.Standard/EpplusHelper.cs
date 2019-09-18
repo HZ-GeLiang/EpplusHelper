@@ -23,7 +23,7 @@ namespace EPPlusExtensions
         /// <summary>
         /// 填充Excel时创建的工作簿名字
         /// </summary>
-        public static List<string> FillDataWorkSheetNames = new List<string>();
+        public static List<string> FillDataWorkSheetNameList = new List<string>();
 
         //类型参考网址: http://filext.com/faq/office_mime_types.php
         public const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -47,17 +47,35 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 根据workSheetIndex获得模版worksheet,然后复制一份出来并重命名成workSheetName并返回 
+        /// 根据workSheetIndex获得模版worksheet,然后复制一份并重命名成workSheetName后返回 
         /// </summary>
         /// <param name="excelPackage"></param>
-        /// <param name="workSheetIndex">从1开始</param>
+        /// <param name="copyWorkSheetIndex">从1开始</param>
         /// <param name="workSheetNewName"></param>
         /// <returns></returns>
-        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, int workSheetIndex, string workSheetNewName)
+        public static ExcelWorksheet DuplicateWorkSheetAndRename(ExcelPackage excelPackage, int copyWorkSheetIndex, string workSheetNewName)
         {
-            if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
+            if (copyWorkSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(copyWorkSheetIndex));
             if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
-            var wsMom = GetExcelWorksheet(excelPackage, workSheetIndex);
+            //您为工作表或图表输入的名称无效。请确保：
+            //    ·名称不多于31个字符。
+            //    ·名称不包含下列任一字符:：\/？*[或]。   注意, 对于： 只有全角和半角字符, 但是这2个都不可以
+            //    ·名称不为空。
+            if (workSheetNewName.Length > 31)
+            {
+                throw new ArgumentNullException(nameof(workSheetNewName) + "名称不多于31个字符");
+            }
+            var violateChars = new char[] { ':', '：', '\\', '/', '？', '*', '[', ']' };
+            if (violateChars.Any(violateChar => workSheetNewName.Contains(violateChar)))
+            {
+                throw new ArgumentNullException(nameof(workSheetNewName) + "名称不包含下列任一字符:：\\/？*[或]。");
+            }
+            if (workSheetNewName.Length <= 0)
+            {
+                throw new ArgumentNullException(nameof(workSheetNewName) + "名称不为空");
+            }
+
+            var wsMom = GetExcelWorksheet(excelPackage, copyWorkSheetIndex);
             var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
             ws.Name = workSheetNewName;
             return ws;
@@ -260,7 +278,7 @@ namespace EPPlusExtensions
             if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetName == null) throw new ArgumentNullException(nameof(destWorkSheetName));
             ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetName, workSheetNewName);
-            EPPlusHelper.FillDataWorkSheetNames.Add(workSheetNewName);
+            EPPlusHelper.FillDataWorkSheetNameList.Add(workSheetNewName);
             config.WorkSheetDefault?.Invoke(worksheet);
             EPPlusHelper.FillData(config, configSource, worksheet);
         }
@@ -277,8 +295,9 @@ namespace EPPlusExtensions
         {
             if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(destWorkSheetIndex));
-            ExcelWorksheet worksheet = EPPlusHelper.GetExcelWorksheet(excelPackage, destWorkSheetIndex, workSheetNewName);
-            EPPlusHelper.FillDataWorkSheetNames.Add(workSheetNewName);
+
+            ExcelWorksheet worksheet = EPPlusHelper.DuplicateWorkSheetAndRename(excelPackage, destWorkSheetIndex, workSheetNewName);
+            EPPlusHelper.FillDataWorkSheetNameList.Add(workSheetNewName);//往list里添加数据
             config.WorkSheetDefault?.Invoke(worksheet);
             EPPlusHelper.FillData(config, configSource, worksheet);
         }
@@ -453,7 +472,7 @@ namespace EPPlusExtensions
                 int lastSpaceLineRowNumber = 0; //表示最后一行的行号是多少
                 int tempLine = dictConfig[nth].MapperExcelTemplateLine ?? 1; //获得第N个配置中excel模版提供了多少行,默认1行
                 var hasMergeCell = dictConfig[nth].ConfigLine.Find(a => a.Address.Contains(":")) != null;
-                Dictionary<string, FillDataColumns> fillDataColumsStat = null;//Datatable 的列的使用情况
+                Dictionary<string, FillDataColumns> fillDataColumnsStat = null;//Datatable 的列的使用情况  
 
                 if (hasMergeCell)
                 {
@@ -563,16 +582,16 @@ namespace EPPlusExtensions
                                     var isFillData_Body = fillMethod.SynchronizationDataSource.NeedBody;
                                     if ((isFillData_Title) || isFillData_Body)
                                     {
-                                        if (fillDataColumsStat == null)
+                                        if (fillDataColumnsStat == null)
                                         {
-                                            fillDataColumsStat = InitFillDataColumnStat(datatable, dictConfig[nth].ConfigLine, fillMethod);
+                                            fillDataColumnsStat = InitFillDataColumnStat(datatable, dictConfig[nth].ConfigLine, fillMethod);
                                         }
 
                                         if (isFillData_Title)
                                         {
                                             var eachCount = 0;
                                             var config_firstCell_col = new ExcelCellPoint(dictConfig[nth].ConfigLine.First().Address).Col;
-                                            foreach (var item in fillDataColumsStat.Values)
+                                            foreach (var item in fillDataColumnsStat.Values)
                                             {
                                                 if (item.State != FillDataColumnsState.WillUse) continue;
                                                 var extensionDestCol_title = config_firstCell_col + dictConfig[nth].ConfigLine.Count + eachCount;
@@ -584,7 +603,7 @@ namespace EPPlusExtensions
                                         if (isFillData_Body)
                                         {
                                             var eachCount = 0;
-                                            foreach (var item in fillDataColumsStat.Values)
+                                            foreach (var item in fillDataColumnsStat.Values)
                                             {
 
                                                 if (item.State != FillDataColumnsState.WillUse) continue;
@@ -817,23 +836,22 @@ namespace EPPlusExtensions
                                 {
                                     continue;
                                 }
-
                                 if (fillMethod.FillDataMethodOption == SheetBodyFillDataMethodOption.SynchronizationDataSource)
                                 {
                                     var isFillData_Title = fillMethod.SynchronizationDataSource.NeedTitle && i == 0;
                                     var isFillData_Body = fillMethod.SynchronizationDataSource.NeedBody;
                                     if (isFillData_Title || isFillData_Body)
                                     {
-                                        if (fillDataColumsStat == null)
+                                        if (fillDataColumnsStat == null)
                                         {
-                                            fillDataColumsStat = InitFillDataColumnStat(datatable, dictConfig[nth].ConfigLine, fillMethod);
+                                            fillDataColumnsStat = InitFillDataColumnStat(datatable, dictConfig[nth].ConfigLine, fillMethod);
                                         }
 
                                         if (isFillData_Title)
                                         {
                                             var eachCount = 0;
                                             var config_firstCell_col = new ExcelCellPoint(dictConfig[nth].ConfigLine.First().Address).Col;
-                                            foreach (var item in fillDataColumsStat.Values)
+                                            foreach (var item in fillDataColumnsStat.Values)
                                             {
                                                 if (item.State != FillDataColumnsState.WillUse) continue;
                                                 var extensionDestCol_title = config_firstCell_col + dictConfig[nth].ConfigLine.Count + eachCount;
@@ -845,7 +863,7 @@ namespace EPPlusExtensions
                                         if (isFillData_Body)
                                         {
                                             var eachCount = 0;
-                                            foreach (var item in fillDataColumsStat.Values)
+                                            foreach (var item in fillDataColumnsStat.Values)
                                             {
                                                 if (item.State != FillDataColumnsState.WillUse) continue;
                                                 var extensionDestCol = configLineCellPoint[j].Col + 1 + eachCount;
