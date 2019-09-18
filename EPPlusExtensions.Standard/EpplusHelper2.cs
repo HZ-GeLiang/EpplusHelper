@@ -62,10 +62,11 @@ namespace EPPlusExtensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ws"></param>
-        /// <param name="rowIndex">数据起始行(不含列名),从1开始</param>
-        /// <param name="everyCellPrefix">被遍历的单元格内容不为空时的起始字符必须是该字符,然后忽略该字符</param>
+        /// <param name="rowIndex">数据起始行(不含列名),从1开始</param> 
+        /// <param name="everyCellReplaceOldValue"></param>
+        /// <param name="everyCellReplaceNewValue"></param>
         /// <returns></returns>
-        public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellPrefix, string everyCellReplaceOldValue, string everyCellReplaceNewValue) where T : class, new()
+        public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellReplaceOldValue, string everyCellReplaceNewValue) where T : class, new()
         {
             var args = GetExcelListArgsDefault<T>(ws, rowIndex);
             if (everyCellReplaceOldValue != null && everyCellReplaceNewValue != null)
@@ -1058,7 +1059,7 @@ namespace EPPlusExtensions
         {
             if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
             var sheet = GetExcelWorksheet(excelPackage, workSheetIndex);
-            EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, sheet);
+            EPPlusHelper.SetDefaultConfigFromExcel(config, sheet);
         }
 
         /// <summary>
@@ -1072,15 +1073,15 @@ namespace EPPlusExtensions
         {
             if (workSheetName == null) throw new ArgumentNullException(nameof(workSheetName));
             var sheet = GetExcelWorksheet(excelPackage, workSheetName);
-            EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, sheet);
+            EPPlusHelper.SetDefaultConfigFromExcel(config, sheet);
         }
+
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="excelPackage"></param>
         /// <param name="config"></param>
         /// <param name="sheet"></param>
-        public static void SetDefaultConfigFromExcel(ExcelPackage excelPackage, EPPlusConfig config, ExcelWorksheet sheet)
+        public static void SetDefaultConfigFromExcel(EPPlusConfig config, ExcelWorksheet sheet)
         {
             //让 sheet.Cells.Value 强制从A1单元格开始
             //遇到问题描述:创建一个excel,在C7,C8,C9,10单元格写入一些字符串, sheet.Cells.Value 是object[4,3]的数组, 但我要的是object[10,3]的数组
@@ -1160,7 +1161,7 @@ namespace EPPlusExtensions
                             }
                         }
 
-                        var nthOption = config.Body.ConfigList.Find(a => a.Nth == nth).Option;
+                        var nthOption = config.Body[nth].Option;
                         if (nthOption.MapperExcelTemplateLine != null)
                         {
                             throw new ArgumentException($"Excel文件中重复配置了项$tb{nthStr}${cellConfigValue}");
@@ -1332,7 +1333,7 @@ namespace EPPlusExtensions
             {
                 return cell.Text;//有的单元格通过cell.Text取值会发生异常,但cell.Value却是有值的
             }
-            catch (System.NullReferenceException e)
+            catch (System.NullReferenceException)
             {
                 if (when_TextProperty_NullReferenceException_Use_ValueProperty)
                 {
@@ -1743,9 +1744,8 @@ namespace EPPlusExtensions
         public static List<ExcelCellInfo> GetCellsBy(ExcelWorksheet ws, string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
-            var cellsValue = ws.Cells.Value as object[,];
+            object[,] cellsValue = ws.Cells.Value as object[,];
             if (cellsValue == null) throw new ArgumentNullException();
-
             return GetCellsBy(ws, cellsValue, a => a != null && a.ToString() == value);
         }
 
@@ -1754,7 +1754,7 @@ namespace EPPlusExtensions
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="cellsValue">一般通过ws.Cells.Value as object[,] 获得 </param>
-        /// <param name="match">示例: a => a != null && a.GetType() == typeof(string) && ((string) a == "备注")</param>
+        /// <param name="match">示例: a => a != null &amp;&amp; a.GetType() == typeof(string) &amp;&amp; ((string) a == "备注")</param>
         /// <returns></returns>
         public static List<ExcelCellInfo> GetCellsBy(ExcelWorksheet ws, object[,] cellsValue, Predicate<object> match)
         {
