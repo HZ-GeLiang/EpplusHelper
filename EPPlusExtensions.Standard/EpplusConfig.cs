@@ -125,7 +125,9 @@ namespace EPPlusExtensions
     public class EPPlusConfigFixedCell
     {
         /// <summary>
-        /// 单元格地址:如 A8 ,不区分大小写,即A2与a2是一样的.建议大写
+        /// 单元格地址:如 A8
+        /// 不区分大小写,即A2与a2是一样的.建议大写
+        /// 对于合并单元格,A2:B2, 返回的也是A2
         /// </summary>
         public string Address { get; set; }
 
@@ -133,6 +135,16 @@ namespace EPPlusExtensions
         /// 单元格配置的值:如 Name
         /// </summary>
         public string ConfigValue { get; set; }
+
+        /// <summary>
+        /// 是否是合并单元格
+        /// </summary>
+        public bool? IsMergeCell { get; set; }
+
+        /// <summary>
+        /// 完整的address,用来给记录合并单元格的
+        /// </summary>
+        public string FullAddress { get; set; }
 
     }
 
@@ -195,6 +207,11 @@ namespace EPPlusExtensions
         /// </summary>
         public List<EPPlusConfigFixedCell> ConfigLine { get; set; }
 
+        /// <summary>
+        /// 配置一共占用了多少列
+        /// </summary>
+        public int ConfigLineInterval { get; set; }
+
         ///// <summary>
         ///// body中固定的单元格. 譬如汇总信息等.譬如A8,Name
         ///// </summary>
@@ -247,6 +264,9 @@ namespace EPPlusExtensions
 
     public class InsertRowStyle
     {
+        /// <summary>
+        /// 插入新增行的操作
+        /// </summary>
         public InsertRowStyleOperation Operation { get; set; } = InsertRowStyleOperation.CopyAll;
 
         #region 这2个是 CopyStyleAndMergedCellFromConfigRow 的配置
