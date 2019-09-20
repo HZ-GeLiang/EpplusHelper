@@ -1058,8 +1058,9 @@ namespace EPPlusExtensions
         public static void SetDefaultConfigFromExcel(ExcelPackage excelPackage, EPPlusConfig config, int workSheetIndex)
         {
             if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
-            var sheet = GetExcelWorksheet(excelPackage, workSheetIndex);
-            EPPlusHelper.SetDefaultConfigFromExcel(config, sheet);
+            var worksheet = GetExcelWorksheet(excelPackage, workSheetIndex);
+            EPPlusHelper.SetDefaultConfigFromExcel(config, worksheet);
+            SetConfigBodyFromExcel_OtherPara(config, worksheet);
         }
 
         /// <summary>
@@ -1072,8 +1073,55 @@ namespace EPPlusExtensions
         public static void SetDefaultConfigFromExcel(ExcelPackage excelPackage, EPPlusConfig config, string workSheetName)
         {
             if (workSheetName == null) throw new ArgumentNullException(nameof(workSheetName));
-            var sheet = GetExcelWorksheet(excelPackage, workSheetName);
-            EPPlusHelper.SetDefaultConfigFromExcel(config, sheet);
+            var worksheet = GetExcelWorksheet(excelPackage, workSheetName);
+            EPPlusHelper.SetDefaultConfigFromExcel(config, worksheet);
+            SetConfigBodyFromExcel_OtherPara(config, worksheet);
+        }
+
+        /// <summary>
+        ///  这个不能在FillData里面算, 会有问题
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="worksheet"></param>
+        private static void SetConfigBodyFromExcel_OtherPara(EPPlusConfig config, ExcelWorksheet worksheet)
+        {
+            foreach (var configItem in config.Body.ConfigList)
+            {
+                var nth = configItem.Nth;
+
+                var allConfig_interval = config.Body[nth].Option.ConfigLine.Count; //配置共计用了多少列, 默认: 1个配置用了1列
+
+                var mergedCellsList = worksheet.MergedCells.ToList();
+                foreach (var configCellInfo in config.Body[nth].Option.ConfigLine)
+                {
+                    if (worksheet.Cells[configCellInfo.Address].Merge) //item.Address  D4
+                    {
+                        var addressPrecise =EPPlusHelper.GetMergeCellAddressPrecise(worksheet, configCellInfo.Address); //D4:E4格式的
+                        allConfig_interval += new ExcelCellRange(addressPrecise).IntervalCol;
+
+                        configCellInfo.FullAddress= addressPrecise;
+                        configCellInfo.IsMergeCell = true;
+
+                    }
+                    else
+                    {
+                        var mergeCellAddress = mergedCellsList.Find(a => a.Contains(configCellInfo.Address));
+                        if (mergeCellAddress != null)
+                        {
+                            allConfig_interval += new ExcelCellRange(mergeCellAddress).IntervalCol;
+                            configCellInfo.FullAddress = mergeCellAddress;
+                            configCellInfo.IsMergeCell = true;
+                        }
+                        else
+                        {
+                            configCellInfo.FullAddress = configCellInfo.Address;
+                            configCellInfo.IsMergeCell = false;
+                        }
+                    }
+                }
+
+                config.Body[nth].Option.ConfigLineInterval = allConfig_interval;
+            }
         }
 
         /// <summary>
@@ -1094,6 +1142,8 @@ namespace EPPlusExtensions
             config.Head = new EPPlusConfigFixedCells() { ConfigCellList = GetConfigFromExcel(sheet, "$th") };
             SetConfigBodyFromExcel(config, sheet);
             config.Foot = new EPPlusConfigFixedCells() { ConfigCellList = GetConfigFromExcel(sheet, "$tf") };
+
+
         }
 
         /// <summary>
@@ -1142,8 +1192,7 @@ namespace EPPlusExtensions
                             throw new ArgumentException($"Excel文件中的$tbs{nth}部分配置了相同的项:{cellConfigValue}");
                         }
 
-                        configExtra[nth - 1].Add(new EPPlusConfigFixedCell()
-                        { Address = cellPosition, ConfigValue = cellConfigValue.Trim() });
+                        configExtra[nth - 1].Add(new EPPlusConfigFixedCell() { Address = cellPosition, ConfigValue = cellConfigValue.Trim(), });
                     }
                     else if (cellStr.StartsWith($"$tb{nthStr}$")) //模版提供了多少行,若没有配置,在调用FillData()时默认提供1行  $tb1$1
                     {
@@ -1178,8 +1227,7 @@ namespace EPPlusExtensions
                             configLine.Add(new List<EPPlusConfigFixedCell>());
                         }
 
-                        if (configLine[nth - 1].Find(a => a.ConfigValue == cellConfigValue) !=
-                            default(EPPlusConfigFixedCell))
+                        if (configLine[nth - 1].Find(a => a.ConfigValue == cellConfigValue) != default(EPPlusConfigFixedCell))
                         {
                             throw new ArgumentException($"Excel文件中的$tb{nth}部分配置了相同的项:{cellConfigValue}");
                         }
@@ -1218,19 +1266,16 @@ namespace EPPlusExtensions
                             // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                             if (RegexHelper.GetFirstNumber(cells[0]) == RegexHelper.GetFirstNumber(cells[1])) //是同一行的
                             {
-                                configLine[nth - 1].Add(new EPPlusConfigFixedCell()
-                                { Address = cellPosition, ConfigValue = cellConfigValue });
+                                configLine[nth - 1].Add(new EPPlusConfigFixedCell() { Address = cellPosition, ConfigValue = cellConfigValue });
                             }
                             else
                             {
-                                configLine[nth - 1].Add(new EPPlusConfigFixedCell()
-                                { Address = newKey, ConfigValue = cellConfigValue });
+                                configLine[nth - 1].Add(new EPPlusConfigFixedCell() { Address = newKey, ConfigValue = cellConfigValue });
                             }
                         }
                         else
                         {
-                            configLine[nth - 1].Add(new EPPlusConfigFixedCell()
-                            { Address = cellPosition, ConfigValue = cellConfigValue });
+                            configLine[nth - 1].Add(new EPPlusConfigFixedCell() { Address = cellPosition, ConfigValue = cellConfigValue });
                         }
                     }
 
@@ -1296,6 +1341,42 @@ namespace EPPlusExtensions
         #endregion
 
         #region 一些帮助方法
+
+        /// <summary>
+        /// 获得精确的合并单元格地址
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <returns></returns>
+        public static string GetMergeCellAddressPrecise(ExcelWorksheet ws, int row, int col)
+        {
+            var mergeCellAddress = ws.MergedCells[row, col];//最准确的合并单元格值
+            if (mergeCellAddress == null)
+            {
+                //不是合并单元格
+                return new ExcelCellPoint(row, col).R1C1;
+            }
+            else
+            {
+                return mergeCellAddress;
+            }
+        }
+
+        public static string GetMergeCellAddressPrecise(ExcelWorksheet ws, string r1c1)
+        {
+            var excelRange = new ExcelCellRange(r1c1);
+            if (excelRange.End.Col == 0) //r1c1 为 D4  这种值
+            {
+                return GetMergeCellAddressPrecise(ws, excelRange.Start.Row, excelRange.Start.Col);
+            }
+            else
+            {
+                return GetMergeCellAddressPrecise(ws, excelRange.Start.Row, excelRange.End.Col);
+            }
+        }
+
+
 
         public static string GetLeftCellAddress(ExcelWorksheet ws, string currentCellAddress)
         {

@@ -40,9 +40,13 @@ namespace EPPlusExtensions
             }
         }
 
-        public ExcelCellRange(string range)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="r1c1">地址</param>
+        public ExcelCellRange(string r1c1)
         {
-            Init(range,
+            Init(r1c1,
                 out string Range,
                 out ExcelCellPoint Start,
                 out ExcelCellPoint End,
@@ -79,7 +83,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 范围(保存的是配置时的字符串.在程序中用来当作key使用)
+        /// 范围也就是R1C1的地址(保存的是配置时的字符串.在程序中用来当作key使用)
         /// </summary>
         public string Range { get; private set; }
 
