@@ -27,8 +27,8 @@ namespace EPPlusExtensions
         Default = 1,
         /// <summary>
         /// 在约定填充的基础上,数据源 DataTable 的列如果没有被填充使用,那么将自动填充
+        /// 目前仅对单行的模版有效,且不包含样式(包括但不限于单行多列单元格)的新增
         /// </summary>
-        [Obsolete("不推荐使用,很多测试没通过")]
         SynchronizationDataSource = 2
 
     }

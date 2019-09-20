@@ -572,11 +572,75 @@ namespace EPPlusExtensions
                             }
                             #endregion
 
-                            #region 同步数据源
-                            if (j == cellRange.Count - 1) //循环到了最后一列
-                            {
-                                //todo:....
-                            }
+                            #region 同步数据源 (不写了,因为没用到, 写起来也烦,下面代码未完成)
+
+                            //if (j == cellRange.Count - 1) //循环到了最后一列
+                            //{
+                            //    if (dictConfigSource[nth].FillMethod == null)
+                            //    {
+                            //        continue;
+                            //    }
+                            //    var fillMethod = dictConfigSource[nth].FillMethod;
+                            //    if (fillMethod == null || fillMethod.FillDataMethodOption == SheetBodyFillDataMethodOption.Default)
+                            //    {
+                            //        continue;
+                            //    }
+                            //    if (fillMethod.FillDataMethodOption == SheetBodyFillDataMethodOption.SynchronizationDataSource)
+                            //    {
+                            //        var isFillData_Title = fillMethod.SynchronizationDataSource.NeedTitle && i == 0;
+                            //        var isFillData_Body = fillMethod.SynchronizationDataSource.NeedBody;
+                            //        if (isFillData_Title || isFillData_Body)
+                            //        {
+                            //            if (fillDataColumnsStat == null)
+                            //            {
+                            //                fillDataColumnsStat = InitFillDataColumnStat(datatable, dictConfig[nth].ConfigLine, fillMethod);
+                            //            }
+
+                            //            if (isFillData_Title)
+                            //            {
+
+                            //                var config_lastCell_address = dictConfig[nth].ConfigLine.Last().Address;
+                            //                var isMergeCell = worksheet.Cells[config_lastCell_address].Merge;
+
+                            //                ExcelCellRange config_lastCell_Info = new ExcelCellRange();//structe 不能为null
+                            //                if (isMergeCell)
+                            //                {
+                            //                    var eachCount = 0;
+                            //                }
+                            //                else
+                            //                {
+
+                            //                }
+
+
+                            //            }
+                            //            if (isFillData_Body)
+                            //            {
+                            //                var eachCount = 0;
+                            //                var config_lastCell_Col = new ExcelCellPoint(dictConfig[nth].ConfigLine.Last().Address).Col;//配置列的最后一个address
+                            //                var lastCell = worksheet.Cells[destRow, config_lastCell_Col];
+                            //                foreach (var item in fillDataColumnsStat.Values)
+                            //                {
+                            //                    int extensionDestStartCol = cellRange[j].Start.Col + 1 + eachCount;
+                            //                    int extensionDestEndCol = cellRange[j].End.Col + 1 + eachCount;
+                            //                    var extensionCell_body = worksheet.Cells[destRow, extensionDestStartCol, destRow + maxIntervalRow, extensionDestEndCol];
+
+                            //                    SetWorksheetCellsValue(config, extensionCell_body, row[item.ColumnName], item.ColumnName);
+                            //                    if (dictConfig[nth].CustomSetValue != null)
+                            //                    {
+                            //                        customSetValueArugment.Area = FillArea.ContentExt;
+                            //                        dictConfig[nth].CustomSetValue.Invoke(item.ColumnName, row[item.ColumnName], extensionCell_body, customSetValueArugment);
+                            //                    }
+                            //                    else
+                            //                    {
+                            //                        SetWorksheetCellsValue(config, extensionCell_body, row[item.ColumnName], item.ColumnName);
+                            //                    }
+                            //                    eachCount++;
+                            //                }
+                            //            }
+                            //        }
+                            //    }
+                            //}
                             #endregion
                         }
 
@@ -641,6 +705,10 @@ namespace EPPlusExtensions
                         //3. copyStylesFromRow 不会把合并的单元格也弄过来(即,这个参数的功能不是格式刷)
                         if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyAll)
                         {
+                            //if (insertRowFrom ==11)
+                            //{
+                            //    var aaa = 2;
+                            //}
                             worksheet.InsertRow(insertRowFrom, insertRows); //用这个参数创建的excel,文件体积要小,插入速度没测试
                         }
                         else if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyStyleAndMergeCell)
@@ -671,7 +739,6 @@ namespace EPPlusExtensions
                                         {
                                             worksheet.InsertRow(_rowFrom, _rows, _copyStylesFromRow);
                                         }
-
                                     }
                                     if (mod > 0)
                                     {
@@ -801,6 +868,7 @@ namespace EPPlusExtensions
                                 {
                                     var isFillData_Title = fillMethod.SynchronizationDataSource.NeedTitle && i == 0;
                                     var isFillData_Body = fillMethod.SynchronizationDataSource.NeedBody;
+
                                     if (isFillData_Title || isFillData_Body)
                                     {
                                         if (fillDataColumnsStat == null)
@@ -810,16 +878,21 @@ namespace EPPlusExtensions
 
                                         if (isFillData_Title)
                                         {
-                                            var eachCount = 0;
-                                            var config_firstCell_col = new ExcelCellPoint(dictConfig[nth].ConfigLine.First().Address).Col;
-                                            var config_lastCell_col = new ExcelCellPoint(dictConfig[nth].ConfigLine.Last().Address).Col;
+                                            var eachCount_Col = 0;
+                                            var lastConfigCell = dictConfig[nth].ConfigLine.Last();
+                                            var eachCount_Col_Step = lastConfigCell.IsMergeCell == true
+                                                ? new ExcelCellRange(lastConfigCell.FullAddress).IntervalCol + 1
+                                                : 1;
+
+                                            var config_firstCell_Col = new ExcelCellPoint(dictConfig[nth].ConfigLine.First().Address).Col;
+                                            var config_lastCell_col = new ExcelCellPoint(lastConfigCell.Address).Col;
                                             var titleLine_LastCell = worksheet.Cells[destRow - 1, config_lastCell_col];//标题行的最后一列的address
 
                                             foreach (var item in fillDataColumnsStat.Values)
                                             {
                                                 if (item.State != FillDataColumnsState.WillUse) continue;
-                                                var extensionDestCol_title = config_firstCell_col + dictConfig[nth].ConfigLine.Count + eachCount;
-                                                var extensionCell_title = worksheet.Cells[destRow - 1, extensionDestCol_title];
+                                                var extensionDestCol_title_Col = config_firstCell_Col + dictConfig[nth].ConfigLineInterval + eachCount_Col;
+                                                var extensionCell_title = worksheet.Cells[destRow - 1, extensionDestCol_title_Col];
                                                 extensionCell_title.StyleID = titleLine_LastCell.StyleID;
 
                                                 if (dictConfig[nth].CustomSetValue != null)
@@ -831,19 +904,26 @@ namespace EPPlusExtensions
                                                 {
                                                     SetWorksheetCellsValue(config, extensionCell_title, item.ColumnName, item.ColumnName);
                                                 }
-                                                eachCount++;
+                                                eachCount_Col += eachCount_Col_Step;
                                             }
                                         }
                                         if (isFillData_Body)
                                         {
-                                            var eachCount = 0;
-                                            var config_lastCell_Col = new ExcelCellPoint(dictConfig[nth].ConfigLine.Last().Address).Col;//配置列的最后一个address
+                                            var eachCount_Col = 0;
+                                            var lastConfigCell = dictConfig[nth].ConfigLine.Last();
+                                            var eachCount_Col_Step = lastConfigCell.IsMergeCell == true
+                                                ? new ExcelCellRange(lastConfigCell.FullAddress).IntervalCol + 1
+                                                : 1;
+
+                                            var lastCell_IntervalCol = eachCount_Col_Step - 1;
+                                            var config_lastCell_Col = new ExcelCellPoint(lastConfigCell.Address).Col;//配置列的最后一个address
                                             var lastCell = worksheet.Cells[destRow, config_lastCell_Col];
+
                                             foreach (var item in fillDataColumnsStat.Values)
                                             {
                                                 if (item.State != FillDataColumnsState.WillUse) continue;
-                                                var extensionDestCol_body = configLineCellPoint[j].Col + 1 + eachCount;
-                                                var extensionCell_body = worksheet.Cells[destRow, extensionDestCol_body];
+                                                var extensionDestCol_body_Col = (configLineCellPoint[j].Col + 1) + eachCount_Col + lastCell_IntervalCol;
+                                                var extensionCell_body = worksheet.Cells[destRow, extensionDestCol_body_Col];
                                                 extensionCell_body.StyleID = lastCell.StyleID;
 
                                                 //还有好多样式没有弄
@@ -871,7 +951,7 @@ namespace EPPlusExtensions
                                                 {
                                                     SetWorksheetCellsValue(config, extensionCell_body, row[item.ColumnName], item.ColumnName);
                                                 }
-                                                eachCount++;
+                                                eachCount_Col += eachCount_Col_Step;
                                             }
                                         }
                                     }

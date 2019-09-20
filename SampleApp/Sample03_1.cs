@@ -74,10 +74,10 @@ namespace SampleApp
                 };
 
                 EPPlusHelper.FillData(excelPackage, config, configSource, "Result", "Sheet1");
-                EPPlusHelper.DeleteWorksheet(excelPackage, "Sheet1");
+                EPPlusHelper.DeleteWorksheetAll(excelPackage,  EPPlusHelper.FillDataWorkSheetNameList);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(@"模版\Sample03_1_result.xlsx");
+                ms.Save(@"模版\Sample03_1_Result.xlsx");
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }
@@ -151,7 +151,7 @@ namespace SampleApp
             dr["Price"] = "55";
             dr["Weight"] = "1kg";
             dr["Long"] = "10cm";
-            dr["Wide"] = "10cm";
+            dr["Wide"] = "11cm";
             dr["高"] = "22cm";
             dr["经销商"] = "A";
             dt.Rows.Add(dr);

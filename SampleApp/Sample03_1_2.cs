@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,11 +15,11 @@ namespace SampleApp
     /// <summary>
     /// 填充数据与数据源同步
     /// </summary>
-    class Sample03_2
+    class Sample03_1_2
     {
         public void Run()
         {
-            string filePath = @"模版\Sample03_2.xlsx";
+            string filePath = @"模版\Sample03_1.xlsx";
             using (MemoryStream ms = new MemoryStream())
             //using (FileStream fs = System.IO.File.OpenRead(filePath))
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -26,15 +27,18 @@ namespace SampleApp
             {
                 var config = EPPlusHelper.GetEmptyConfig();
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
-                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet1");
+                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet2");
+
                 configSource.Body[1].Option.DataSource = GetProduct1();
                 configSource.Body[1].Option.FillMethod = new SheetBodyFillDataMethod()
                 {
                     FillDataMethodOption = SheetBodyFillDataMethodOption.SynchronizationDataSource,
                     SynchronizationDataSource = new SynchronizationDataSourceConfig()
                     {
-                        NeedBody = true,
-                        NeedTitle = true,
+                        //NeedBody = true,
+                        //NeedTitle = true,
+                        NeedBody = false,
+                        NeedTitle = false,
                         Include = "使用人,购买时间"
                     }
                 };
@@ -65,17 +69,22 @@ namespace SampleApp
                     FillDataMethodOption = SheetBodyFillDataMethodOption.SynchronizationDataSource,
                     SynchronizationDataSource = new SynchronizationDataSourceConfig()
                     {
-                        NeedBody = true,
-                        NeedTitle = true,
+                        //NeedBody = true,
+                        //NeedTitle = true,
+                        NeedBody = false,
+                        NeedTitle = false,
                         Exclude = "Id"
                     }
                 };
 
-                EPPlusHelper.FillData(excelPackage, config, configSource, "Result", "Sheet1");
+                //发现样式有问题,用这个设置,但是生成的文件会增加体积
+                config.Body[3].Option.InsertRowStyle.Operation = InsertRowStyleOperation.CopyStyleAndMergeCell;
+
+                EPPlusHelper.FillData(excelPackage, config, configSource, "Result", "Sheet2");
                 EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(@"模版\Sample03_2_Result.xlsx");
+                ms.Save(@"模版\Sample03_1_2_Result.xlsx");
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }
@@ -149,7 +158,7 @@ namespace SampleApp
             dr["Price"] = "55";
             dr["Weight"] = "1kg";
             dr["Long"] = "10cm";
-            dr["Wide"] = "10cm";
+            dr["Wide"] = "11cm";
             dr["高"] = "22cm";
             dr["经销商"] = "A";
             dt.Rows.Add(dr);
@@ -163,6 +172,17 @@ namespace SampleApp
             dr["Wide"] = "20cm";
             dr["高"] = "30cm";
             dr["经销商"] = "B";
+            dt.Rows.Add(dr);
+
+            dr = dt.NewRow();
+            dr["Id"] = "8";
+            dr["Name"] = "月饼";
+            dr["Price"] = "40";
+            dr["Weight"] = "5cm";
+            dr["Long"] = "6cm";
+            dr["Wide"] = "4cm";
+            dr["高"] = "3cm";
+            dr["经销商"] = "yb";
             dt.Rows.Add(dr);
             return dt;
         }
