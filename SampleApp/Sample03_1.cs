@@ -40,23 +40,25 @@ namespace SampleApp
                         Include = "使用人,购买时间"
                     }
                 };
-                config.Body[1].Option.CustomSetValue = (colName, val, cells, configOption) =>
+                config.Body[1].Option.CustomSetValue = (customValue) =>
                 {
                     //config.Body[1].Option.ConfigLine
-                    if (configOption.Area == FillArea.TitleExt)
+                    if (customValue.Area == FillArea.TitleExt)
                     {
-                        cells.Value = $"标题扩展-{val}";
+                        customValue.Cell.Value = $"标题扩展-{customValue.Value}";
                     }
-                    else if (configOption.Area == FillArea.ContentExt)
+                    else if (customValue.Area == FillArea.ContentExt)
                     {
-                        cells.Value = $"内容扩展-{val}";
+                        customValue.Cell.Value = $"内容扩展-{customValue.Value}";
 
-                        cells.StyleID = configOption.Worksheet.Cells[4, 4].StyleID;
+                        customValue.Cell.StyleID = customValue.Worksheet.Cells[4, 4].StyleID;
                     }
                     else
                     {
                         //cell.Value = val;
-                        cells.Value = config.UseFundamentals ? config.CellFormatDefault(colName, val, cells) : val;
+                        customValue.Cell.Value = config.UseFundamentals
+                            ? config.CellFormatDefault(customValue.ColName, customValue.Value, customValue.Cell)
+                            : customValue.Value;
                     }
                 };
 
@@ -74,7 +76,7 @@ namespace SampleApp
                 };
 
                 EPPlusHelper.FillData(excelPackage, config, configSource, "Result", "Sheet1");
-                EPPlusHelper.DeleteWorksheetAll(excelPackage,  EPPlusHelper.FillDataWorkSheetNameList);
+                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save(@"模版\Sample03_1_Result.xlsx");
