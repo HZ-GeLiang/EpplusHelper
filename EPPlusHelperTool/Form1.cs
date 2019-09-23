@@ -23,31 +23,33 @@ namespace EPPlusHelperTool
         /// <returns></returns>
         private string SelectFile(string filter = null)
         {
-            //显示选择 文件对话框
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            //显示选择 文件对话框'
+            using (OpenFileDialog openFileDialog1 = new OpenFileDialog())
+            {
+                openFileDialog1.InitialDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+                //openFileDialog1.InitialDirectory = "c:\\";
+                //openFileDialog1.Filter = "excel (*.xlsx)|*.xlsx";
+                if (filter != null)
+                {
+                    openFileDialog1.Filter = filter;
+                }
+                openFileDialog1.FilterIndex = 2;
+                openFileDialog1.RestoreDirectory = true;
 
-            //openFileDialog1.InitialDirectory = "c:\\";
-            openFileDialog1.InitialDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
-            //openFileDialog1.Filter = "excel (*.xlsx)|*.xlsx";
-            if (filter != null)
-            {
-                openFileDialog1.Filter = filter;
+                var dialogResult = openFileDialog1.ShowDialog();
+                if (dialogResult == DialogResult.OK)
+                {
+                    return openFileDialog1.FileName; //显示文件路径
+                }
+                else
+                {
+                    return openFileDialog1.SafeFileName;
+                }
             }
-            openFileDialog1.FilterIndex = 2;
-            openFileDialog1.RestoreDirectory = true;
 
-            var dialogResult = openFileDialog1.ShowDialog();
-            if (dialogResult == DialogResult.OK)
-            {
-                return openFileDialog1.FileName; //显示文件路径
-            }
-            else
-            {
-                return openFileDialog1.SafeFileName;
-            }
         }
 
-        private void textBoxDragDrop(object sender, DragEventArgs e)
+        private void TextBoxDragDrop(object sender, DragEventArgs e)
         {
             string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
             ((System.Windows.Forms.TextBox)sender).Text = path;
@@ -61,20 +63,12 @@ namespace EPPlusHelperTool
             }
         }
 
-        private void textBoxDragEnter(object sender, DragEventArgs e)
+        private void TextBoxDragEnter(object sender, DragEventArgs e)
         {
             e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Link : DragDropEffects.None;
         }
 
-        /// <summary>
-        /// 打开文件目录
-        /// </summary>
-        /// <param name="filePath"></param>
-        private void OpenFileDirectory(string filePath)
-        {
-            MessageBox.Show($"文件已经生成,在'{filePath}'");
-            System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
-        }
+
         /// <summary>
         /// 打开目录
         /// </summary>
@@ -322,7 +316,7 @@ namespace EPPlusHelperTool
 
         }
 
-        private void btn_SelectExcelFile(object sender, EventArgs e)
+        private void Btn_SelectExcelFile(object sender, EventArgs e)
         {
             var selectFilePath = SelectFile("excel (*.xlsx)|*.xlsx");
             if (selectFilePath.Length > 0)
@@ -461,7 +455,7 @@ namespace EPPlusHelperTool
             }
         }
 
-        private void dataGridViewExcel_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void DataGridViewExcel_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             DataGridView dgv = (DataGridView)sender;
             if (dgv.Rows.Count <= 0) return;
