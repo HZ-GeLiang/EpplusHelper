@@ -83,8 +83,8 @@
             this.filePath1.Name = "filePath1";
             this.filePath1.Size = new System.Drawing.Size(366, 66);
             this.filePath1.TabIndex = 4;
-            this.filePath1.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxDragDrop);
-            this.filePath1.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxDragEnter);
+            this.filePath1.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBoxDragDrop);
+            this.filePath1.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBoxDragEnter);
             // 
             // label1
             // 
@@ -103,7 +103,7 @@
             this.SelectFileBtn1.TabIndex = 6;
             this.SelectFileBtn1.Text = "选择...";
             this.SelectFileBtn1.UseVisualStyleBackColor = true;
-            this.SelectFileBtn1.Click += new System.EventHandler(this.btn_SelectExcelFile);
+            this.SelectFileBtn1.Click += new System.EventHandler(this.Btn_SelectExcelFile);
             // 
             // label3
             // 
@@ -122,8 +122,8 @@
             this.filePath2.Name = "filePath2";
             this.filePath2.Size = new System.Drawing.Size(371, 66);
             this.filePath2.TabIndex = 10;
-            this.filePath2.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxDragDrop);
-            this.filePath2.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxDragEnter);
+            this.filePath2.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBoxDragDrop);
+            this.filePath2.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBoxDragEnter);
             // 
             // SelectFileBtn2
             // 
@@ -133,7 +133,7 @@
             this.SelectFileBtn2.TabIndex = 11;
             this.SelectFileBtn2.Text = "选择...";
             this.SelectFileBtn2.UseVisualStyleBackColor = true;
-            this.SelectFileBtn2.Click += new System.EventHandler(this.btn_SelectExcelFile);
+            this.SelectFileBtn2.Click += new System.EventHandler(this.Btn_SelectExcelFile);
             // 
             // CheckTemplateConfiguration
             // 
@@ -246,7 +246,7 @@
             this.dataGridViewExcel2.RowTemplate.Height = 23;
             this.dataGridViewExcel2.Size = new System.Drawing.Size(354, 183);
             this.dataGridViewExcel2.TabIndex = 25;
-            this.dataGridViewExcel2.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewExcel_CellClick);
+            this.dataGridViewExcel2.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewExcel_CellClick);
             // 
             // dataGridViewTextBoxColumn4
             // 
@@ -313,7 +313,7 @@
             this.dataGridViewExcel1.RowTemplate.Height = 23;
             this.dataGridViewExcel1.Size = new System.Drawing.Size(354, 183);
             this.dataGridViewExcel1.TabIndex = 22;
-            this.dataGridViewExcel1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewExcel_CellClick);
+            this.dataGridViewExcel1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewExcel_CellClick);
             // 
             // GenerateConfiguration
             // 
