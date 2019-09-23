@@ -13,6 +13,16 @@ namespace EPPlusExtensions
     /// <typeparam name="T">T是给Filter用的</typeparam>
     public class GetExcelListArgs<T> where T : class
     {
+        /// <summary>
+        /// excel模板数据从哪列开始
+        /// </summary>
+        public int DataColStart { get; set; } = 1;
+
+        /// <summary>
+        /// excel模板数据从哪列结束
+        /// </summary>
+        public int? DataColEnd { get; set; } = EPPlusConfig.MaxCol07;
+
         public ExcelWorksheet ws { get; set; }
 
         /// <summary>

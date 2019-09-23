@@ -24,39 +24,54 @@ namespace SampleApp
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var config = EPPlusHelper.GetEmptyConfig();
-                var configSource = EPPlusHelper.GetEmptyConfigSource();
-                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet2");
-                config.Body[1].Option.InsertRowStyle.Operation = InsertRowStyleOperation.CopyStyleAndMergeCell;
-                config.Body[1].Option.InsertRowStyle.NeedMergeCell = false;
-                configSource.Head = GetDataTable_Head();
-                configSource.Body[1].Option.DataSource = GetDataTable_Body();
 
-                var stopwatch = new System.Diagnostics.Stopwatch();
-                Console.WriteLine("runTime 开始");
-                stopwatch.Start();
+                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet2");
+                //string range = ws.MergedCells[1, 2];
+                string range = ws.MergedCells[6, 2];
+                var ab1 = EPPlusHelper.GetLeftCellAddress(ws, "F2");
+                var ab2 = EPPlusHelper.GetLeftCellAddress(ws, "G2");
+                var ab3 = EPPlusHelper.GetLeftCellAddress(ws, "F5");
+                var ab4 = EPPlusHelper.GetLeftCellAddress(ws, "G2:H2");
+                var ab5 = EPPlusHelper.GetLeftCellAddress(ws, "G2:I2");
+                var ab6 = EPPlusHelper.GetLeftCellAddress(ws, "G2:H3");
+                var aC1 = EPPlusHelper.GetMergeCellAddressPrecise(ws, 1,2);
+                var ea = new ExcelAddress(range);
+                //return ws.Cells[ea.Start.Row, ea.Start.Column].Text;
 
-                //EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
-                EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", "Sheet2");
-                stopwatch.Stop();
-                Console.WriteLine("导出数据runTime 时差:" + stopwatch.Elapsed);
-                Console.WriteLine("导出数据runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
 
-                stopwatch.Reset();
-                stopwatch.Start();
-                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "导出测试");
-                //ws.Protection.IsProtected = true;
-                //ws.Protection.AllowSelectLockedCells = false;
-                //ws.Protection.AllowSelectUnlockedCells = true;
-                //ws.Protection.SetPassword("123");
-                //EPPlusHelper.DeleteWorksheet(excelPackage, 1);
-                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(@"模版\Sample01_1_Result.xlsx");
-                stopwatch.Stop();
-                Console.WriteLine("保存数据runTime 时差:" + stopwatch.Elapsed);
-                Console.WriteLine("保存数据runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
+                //var config = EPPlusHelper.GetEmptyConfig();
+                //var configSource = EPPlusHelper.GetEmptyConfigSource();
+                //EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet2");
+                //config.Body[1].Option.InsertRowStyle.Operation = InsertRowStyleOperation.CopyStyleAndMergeCell;
+                //config.Body[1].Option.InsertRowStyle.NeedMergeCell = false;
+                //configSource.Head = GetDataTable_Head();
+                //configSource.Body[1].Option.DataSource = GetDataTable_Body();
+
+                //var stopwatch = new System.Diagnostics.Stopwatch();
+                //Console.WriteLine("runTime 开始");
+                //stopwatch.Start();
+
+                ////EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", 1);
+                //EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", "Sheet2");
+                //stopwatch.Stop();
+                //Console.WriteLine("导出数据runTime 时差:" + stopwatch.Elapsed);
+                //Console.WriteLine("导出数据runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
+
+                //stopwatch.Reset();
+                //stopwatch.Start();
+                //var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "导出测试");
+                ////ws.Protection.IsProtected = true;
+                ////ws.Protection.AllowSelectLockedCells = false;
+                ////ws.Protection.AllowSelectUnlockedCells = true;
+                ////ws.Protection.SetPassword("123");
+                ////EPPlusHelper.DeleteWorksheet(excelPackage, 1);
+                //EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
+                //excelPackage.SaveAs(ms);
+                //ms.Position = 0;
+                //ms.Save(@"模版\Sample01_1_Result.xlsx");
+                //stopwatch.Stop();
+                //Console.WriteLine("保存数据runTime 时差:" + stopwatch.Elapsed);
+                //Console.WriteLine("保存数据runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
 
                 Console.ReadKey();
             }
