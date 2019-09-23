@@ -19,7 +19,7 @@ namespace SampleApp
         {
             string filePath = $@"模版\Sample04_2.xlsx";
             string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
-            var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName);
+            var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName, null);
             var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
             foreach (var item in defaultConfigList)
             {
