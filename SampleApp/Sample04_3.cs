@@ -25,13 +25,14 @@ namespace SampleApp
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                var sheetTitleLineNumber = new Dictionary<int, int>()
+                var dataConfigInfo = new List<ExcelDataConfigInfo>()
                 {
-                    {1, 2},
-                    {2, 2},
-                    {3, 1},
+                    new ExcelDataConfigInfo() {WorkSheetIndex = 1, TitleLine = 2, TitleColumn = 1},
+                    new ExcelDataConfigInfo() {WorkSheetIndex = 2, TitleLine = 2, TitleColumn = 1},
+                    new ExcelDataConfigInfo() {WorkSheetIndex = 3, TitleLine = 1, TitleColumn = 1},
                 };
-                var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, sheetTitleLineNumber);
+
+                var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, dataConfigInfo);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save(@"模版\Sample04_3_Result.xlsx");
@@ -44,6 +45,7 @@ namespace SampleApp
                 }
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+
         }
 
     }

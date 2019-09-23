@@ -41,6 +41,8 @@ namespace EPPlusExtensions
                 MatchingModelEqualsCheck = true,
                 GetList_NeedAllException = false,
                 GetList_ErrorMessage_OnlyShowColomn = false,
+                DataColStart = 1,
+                DataColEnd = EPPlusConfig.MaxCol07,
             };
         }
 
@@ -99,7 +101,7 @@ namespace EPPlusExtensions
                 throw new ArgumentException($@"数据起始行的标题行值'{rowIndex_DataName}'错误,值应该大于0");
             }
 
-            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, 1, EPPlusConfig.MaxCol07, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
+            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, args.DataColStart, args.DataColEnd, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
             if (colNameList.Count == 0)
             {
                 throw new Exception("未读取到单元格标题");
@@ -143,7 +145,6 @@ namespace EPPlusExtensions
                 {
                     if (dictExcelColumnIndexToModelPropName_Temp.ContainsKey(excelColumnIndex))
                     {
-                        PropertyInfo pInfoTemp = null;
                         var propNameTemp = dictExcelColumnIndexToModelPropName_Temp[excelColumnIndex];
                         //不做属性的 DisplayExcelColumnName = 当前属性的验证 (因为还没想到这个属性是一定要验证的情况)
                         //if (dictModelPropNameToExcelColumnName.ContainsKey(propNameTemp) && dictModelPropNameToExcelColumnName[propNameTemp] == propName)
@@ -151,7 +152,7 @@ namespace EPPlusExtensions
                         //   pInfoTemp = type.GetProperty(propName);
                         //}
 
-                        pInfoTemp = type.GetProperty(propNameTemp);
+                        var pInfoTemp = type.GetProperty(propNameTemp);
                         if (pInfoTemp != null)
                         {
                             propName = propNameTemp;
@@ -674,7 +675,7 @@ namespace EPPlusExtensions
                 throw new ArgumentException($@"数据起始行的标题行值'{rowIndex_DataName}'错误,值应该大于0");
             }
 
-            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, 1, EPPlusConfig.MaxCol07, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
+            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, args.DataColStart, args.DataColEnd, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
             if (colNameList.Count == 0)
             {
                 throw new Exception("未读取到单元格标题");
@@ -1096,10 +1097,10 @@ namespace EPPlusExtensions
                 {
                     if (worksheet.Cells[configCellInfo.Address].Merge) //item.Address  D4
                     {
-                        var addressPrecise =EPPlusHelper.GetMergeCellAddressPrecise(worksheet, configCellInfo.Address); //D4:E4格式的
+                        var addressPrecise = EPPlusHelper.GetMergeCellAddressPrecise(worksheet, configCellInfo.Address); //D4:E4格式的
                         allConfig_interval += new ExcelCellRange(addressPrecise).IntervalCol;
 
-                        configCellInfo.FullAddress= addressPrecise;
+                        configCellInfo.FullAddress = addressPrecise;
                         configCellInfo.IsMergeCell = true;
 
                     }
@@ -1486,40 +1487,16 @@ namespace EPPlusExtensions
             ws.View.FreezePanes(row, column);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <param name="sheetTitleLineNumber">工作簿标题行,key:工作簿名字,value:行号</param>
-        /// <returns>工作簿Name,DatTable的创建代码</returns>
-        public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<string, int> sheetTitleLineNumber)
-        {
-            if (sheetTitleLineNumber == null)
-            {
-                sheetTitleLineNumber = new Dictionary<string, int>();
-            }
-            ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
-            List<DefaultConfig> list = new List<DefaultConfig>();
-            foreach (var ws in wss)
-            {
-                int titleLine = sheetTitleLineNumber != null || sheetTitleLineNumber.ContainsKey(ws.Name)
-                    ? sheetTitleLineNumber[ws.Name]
-                    : 2;
-                list.Add(FillExcelDefaultConfig(ws, titleLine));
-            }
-
-            return list;
-        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="fileOutDirectoryName"></param>
-        /// <param name="sheetTitleLineNumber"></param>
+        /// <param name="dataConfigInfo"></param>
         /// <param name="cellCustom"></param>
         /// <returns></returns>
-        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, Dictionary<int, int> sheetTitleLineNumber = null, Action<ExcelRange> cellCustom = null)
+        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
             List<DefaultConfig> defaultConfigList;
             using (MemoryStream ms = new MemoryStream())
@@ -1527,7 +1504,7 @@ namespace EPPlusExtensions
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
-                defaultConfigList = FillExcelDefaultConfig(excelPackage, sheetTitleLineNumber, cellCustom);
+                defaultConfigList = FillExcelDefaultConfig(excelPackage, dataConfigInfo, cellCustom);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
                 ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
@@ -1540,39 +1517,91 @@ namespace EPPlusExtensions
         /// 
         /// </summary>
         /// <param name="excelPackage"></param>
-        /// <param name="sheetTitleLineNumber">工作簿标题行,key:第几个工作簿,从1开始,value:行号</param>
+        /// <param name="dataConfigInfo"></param>
         /// <param name="cellCustom"></param>
         /// <returns>工作簿Name,DatTable的创建代码</returns>
-        public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, Dictionary<int, int> sheetTitleLineNumber, Action<ExcelRange> cellCustom = null)
+        public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
             ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
             List<DefaultConfig> list = new List<DefaultConfig>();
-            var eachCount = 0;
+            var eachCount = 1;
             foreach (var ws in wss)
             {
-                int titleLine = sheetTitleLineNumber == null
-                    ? 1
-                    : sheetTitleLineNumber.ContainsKey(eachCount) ? sheetTitleLineNumber[eachCount] : 1;
-                list.Add(FillExcelDefaultConfig(ws, titleLine, cellCustom));
+                int titleLine = 1;
+                int titleColumn = 1;
+                if (dataConfigInfo != null)
+                {
+                    var configInfo = dataConfigInfo.Find(a => a.WorkSheetIndex == eachCount);
+                    if (configInfo != null)
+                    {
+                        titleLine = configInfo.TitleLine;
+                        titleColumn = configInfo.TitleColumn;
+                    }
+                }
+
+                list.Add(FillExcelDefaultConfig(ws, titleLine, titleColumn, cellCustom));
                 eachCount++;
             }
             return list;
         }
+
+
+        /// <summary>
+        /// 返回模版的 titleLine 和  titleColumn
+        /// </summary> 
+        /// <param name="dataConfigInfo"></param>
+        /// <param name="wsIndex"></param>
+        /// <param name="wsName"></param>
+        /// <param name="titleLine"></param>
+        /// <param name="titleColumn"></param>
+        public static void GetExcelDataConfigInfo(List<ExcelDataConfigInfo> dataConfigInfo, int wsIndex, string wsName, out int titleLine, out int titleColumn)
+        {
+            titleLine = 2;
+            titleColumn = 1;
+            if (dataConfigInfo == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(wsName))
+            {
+                var result = dataConfigInfo.Find(info => info.WorkSheetName == wsName);
+                if (result != null)
+                {
+                    titleLine = result.TitleLine;
+                    titleColumn = result.TitleColumn;
+                    return;
+                }
+            }
+            if (wsIndex > 0)
+            {
+                var result = dataConfigInfo.Find(info => info.WorkSheetIndex == wsIndex);
+                if (result != null)
+                {
+                    titleLine = result.TitleLine;
+                    titleColumn = result.TitleColumn;
+                    return;
+                }
+            }
+
+        }
+
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="titleLineNumber"></param>
+        /// <param name="titleColumnNumber"></param>
         /// <param name="cellCustom">对单元格进行额外处理</param>
         /// <returns></returns>
-        public static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber, Action<ExcelRange> cellCustom = null)
+        public static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber, int titleColumnNumber, Action<ExcelRange> cellCustom = null)
         {
             var colNameList = new List<ExcelCellInfoValue>();
             var nameRepeatCounter = new Dictionary<string, int>();
             #region 获得colNameList
 
-            int col = 1;
+            int col = titleColumnNumber;
             while (col <= EPPlusConfig.MaxCol07)
             {
                 var excelColName = ws.Cells[titleLineNumber, col].Merge ? GetMergeCellText(ws, titleLineNumber, col) : GetCellText(ws, titleLineNumber, col);

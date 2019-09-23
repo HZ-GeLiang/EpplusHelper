@@ -62,9 +62,17 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TitleCol1 = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.TitleCol2 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).BeginInit();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // filePath1
@@ -230,7 +238,8 @@
             this.dataGridViewExcel2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn4,
             this.dataGridViewTextBoxColumn5,
-            this.dataGridViewTextBoxColumn6});
+            this.dataGridViewTextBoxColumn6,
+            this.Column2});
             this.dataGridViewExcel2.Location = new System.Drawing.Point(517, 95);
             this.dataGridViewExcel2.Name = "dataGridViewExcel2";
             this.dataGridViewExcel2.RowHeadersVisible = false;
@@ -296,7 +305,8 @@
             this.dataGridViewExcel1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn1,
             this.dataGridViewTextBoxColumn2,
-            this.dataGridViewTextBoxColumn3});
+            this.dataGridViewTextBoxColumn3,
+            this.Column1});
             this.dataGridViewExcel1.Location = new System.Drawing.Point(12, 95);
             this.dataGridViewExcel1.Name = "dataGridViewExcel1";
             this.dataGridViewExcel1.RowHeadersVisible = false;
@@ -358,17 +368,21 @@
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.label10);
+            this.panel2.Controls.Add(this.TitleCol1);
             this.panel2.Location = new System.Drawing.Point(372, 103);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(119, 113);
+            this.panel2.Size = new System.Drawing.Size(119, 147);
             this.panel2.TabIndex = 26;
             // 
             // panel3
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Controls.Add(this.label11);
+            this.panel3.Controls.Add(this.TitleCol2);
             this.panel3.Location = new System.Drawing.Point(877, 103);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(126, 113);
+            this.panel3.Size = new System.Drawing.Size(126, 147);
             this.panel3.TabIndex = 27;
             // 
             // label4
@@ -388,6 +402,50 @@
             this.label5.Size = new System.Drawing.Size(17, 12);
             this.label5.TabIndex = 29;
             this.label5.Text = "B ";
+            // 
+            // Column1
+            // 
+            this.Column1.HeaderText = "标题列";
+            this.Column1.Name = "Column1";
+            // 
+            // Column2
+            // 
+            this.Column2.HeaderText = "标题列";
+            this.Column2.Name = "Column2";
+            // 
+            // TitleCol1
+            // 
+            this.TitleCol1.Location = new System.Drawing.Point(11, 106);
+            this.TitleCol1.Name = "TitleCol1";
+            this.TitleCol1.Size = new System.Drawing.Size(100, 21);
+            this.TitleCol1.TabIndex = 30;
+            this.TitleCol1.Text = "1";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(9, 88);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(41, 12);
+            this.label10.TabIndex = 30;
+            this.label10.Text = "标题列";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(14, 88);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(41, 12);
+            this.label11.TabIndex = 31;
+            this.label11.Text = "标题列";
+            // 
+            // TitleCol2
+            // 
+            this.TitleCol2.Location = new System.Drawing.Point(16, 106);
+            this.TitleCol2.Name = "TitleCol2";
+            this.TitleCol2.Size = new System.Drawing.Size(100, 21);
+            this.TitleCol2.TabIndex = 32;
+            this.TitleCol2.Text = "1";
             // 
             // Form1
             // 
@@ -424,6 +482,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExcel1)).EndInit();
             this.panel1.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -465,6 +527,12 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox TitleCol1;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox TitleCol2;
     }
 }
 

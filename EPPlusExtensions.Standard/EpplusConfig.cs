@@ -221,7 +221,7 @@ namespace EPPlusExtensions
         /// 该Action只对ConfigLine有效
         /// 自定义设置值 T1-T4 分别代表 (colName, cellValue, cells, args) 属性名, 属性值, 所在的单元格, 程序内部提供的参数
         /// </summary>
-        public Action<string, object, ExcelRange, CustomSetValueArgument> CustomSetValue { get; set; }
+        public Action<CustomValue> CustomSetValue { get; set; }
 
         /// <summary>
         /// SheetBody模版自带(提供)多少行(根据这个,在结合数据源,程序内部判断是否新增行)
@@ -229,21 +229,61 @@ namespace EPPlusExtensions
         public int? MapperExcelTemplateLine { get; set; }
 
         /// <summary>
-        /// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
+        /// 自定义设置值  
         /// </summary>
-        public Action<string, object, ExcelRange> SummaryCustomSetValue { get; set; }
+        public Action<CustomValue> SummaryCustomSetValue { get; set; }
 
         public InsertRowStyle InsertRowStyle { get; set; } = new InsertRowStyle();
-
-
     }
-    public class CustomSetValueArgument
+
+    public class CustomValue
     {
+        
+        /// <summary>
+        /// 属性名:列名 (要填充的列,如姓名)
+        /// </summary>
+        public string ColName { get; set; }
+        /// <summary>
+        ///属性值: 要填充的值 
+        /// </summary>
+        public object Value { get; set; }
+        /// <summary>
+        /// 重所在的单元格:填充的单元格
+        /// </summary>
+        public ExcelRange Cell { get; set; }
+
+        #region 程序内部提供的参数
+
+        /// <summary>
+        /// 程序内部提供的参数:配置行信息
+        /// </summary>
         public List<EPPlusConfigFixedCell> ConfigLine { get; set; }
+
+        /// <summary>
+        /// 程序内部提供的参数:额外要填充的单元格信息
+        /// </summary>
         public List<EPPlusConfigFixedCell> ConfigExtra { get; set; }
+
+        /// <summary>
+        /// 程序内部提供的参数:填充的工作簿
+        /// </summary>
         public ExcelWorksheet Worksheet { get; set; }
-        public FillArea Area { get; set; }
+
+        /// <summary>
+        /// 程序内部提供的参数:填充的区域
+        /// </summary>
+        public FillArea? Area { get; set; } 
+
+        #endregion
     }
+
+    //public class CustomSetValueArgument
+    //{
+    //    public List<EPPlusConfigFixedCell> ConfigLine { get; set; }
+    //    public List<EPPlusConfigFixedCell> ConfigExtra { get; set; }
+    //    public ExcelWorksheet Worksheet { get; set; }
+    //    public FillArea Area { get; set; }
+    //}
 
     public enum FillArea
     {

@@ -476,13 +476,12 @@ namespace EPPlusExtensions
 
 
                 //3.赋值
-                var customSetValueArugment = new CustomSetValueArgument()
+                var customValue = new CustomValue()
                 {
                     ConfigLine = config.Body[nth].Option.ConfigLine,
                     ConfigExtra = config.Body[nth].Option.ConfigExtra,
                     Worksheet = worksheet,
-
-                }; //注: 这里没有用深拷贝,所以,在使用的时候,不要修改内部的值, 否则后果自负.
+                };  //注: 这里没有用深拷贝,所以,在使用的时候,不要修改内部的值, 否则后果自负.
 
                 if (hasMergeCell)
                 {
@@ -563,8 +562,11 @@ namespace EPPlusExtensions
 
                             if (dictConfig[nth].CustomSetValue != null)
                             {
-                                customSetValueArugment.Area = FillArea.Content;
-                                dictConfig[nth].CustomSetValue.Invoke(colMapperName, val, cells, customSetValueArugment);
+                                customValue.Area = FillArea.Content;
+                                customValue.ColName = colMapperName;
+                                customValue.Value = val;
+                                customValue.Cell = cells;
+                                dictConfig[nth].CustomSetValue.Invoke(customValue);
                             }
                             else
                             {
@@ -572,76 +574,6 @@ namespace EPPlusExtensions
                             }
                             #endregion
 
-                            #region 同步数据源 (不写了,因为没用到, 写起来也烦,下面代码未完成)
-
-                            //if (j == cellRange.Count - 1) //循环到了最后一列
-                            //{
-                            //    if (dictConfigSource[nth].FillMethod == null)
-                            //    {
-                            //        continue;
-                            //    }
-                            //    var fillMethod = dictConfigSource[nth].FillMethod;
-                            //    if (fillMethod == null || fillMethod.FillDataMethodOption == SheetBodyFillDataMethodOption.Default)
-                            //    {
-                            //        continue;
-                            //    }
-                            //    if (fillMethod.FillDataMethodOption == SheetBodyFillDataMethodOption.SynchronizationDataSource)
-                            //    {
-                            //        var isFillData_Title = fillMethod.SynchronizationDataSource.NeedTitle && i == 0;
-                            //        var isFillData_Body = fillMethod.SynchronizationDataSource.NeedBody;
-                            //        if (isFillData_Title || isFillData_Body)
-                            //        {
-                            //            if (fillDataColumnsStat == null)
-                            //            {
-                            //                fillDataColumnsStat = InitFillDataColumnStat(datatable, dictConfig[nth].ConfigLine, fillMethod);
-                            //            }
-
-                            //            if (isFillData_Title)
-                            //            {
-
-                            //                var config_lastCell_address = dictConfig[nth].ConfigLine.Last().Address;
-                            //                var isMergeCell = worksheet.Cells[config_lastCell_address].Merge;
-
-                            //                ExcelCellRange config_lastCell_Info = new ExcelCellRange();//structe 不能为null
-                            //                if (isMergeCell)
-                            //                {
-                            //                    var eachCount = 0;
-                            //                }
-                            //                else
-                            //                {
-
-                            //                }
-
-
-                            //            }
-                            //            if (isFillData_Body)
-                            //            {
-                            //                var eachCount = 0;
-                            //                var config_lastCell_Col = new ExcelCellPoint(dictConfig[nth].ConfigLine.Last().Address).Col;//配置列的最后一个address
-                            //                var lastCell = worksheet.Cells[destRow, config_lastCell_Col];
-                            //                foreach (var item in fillDataColumnsStat.Values)
-                            //                {
-                            //                    int extensionDestStartCol = cellRange[j].Start.Col + 1 + eachCount;
-                            //                    int extensionDestEndCol = cellRange[j].End.Col + 1 + eachCount;
-                            //                    var extensionCell_body = worksheet.Cells[destRow, extensionDestStartCol, destRow + maxIntervalRow, extensionDestEndCol];
-
-                            //                    SetWorksheetCellsValue(config, extensionCell_body, row[item.ColumnName], item.ColumnName);
-                            //                    if (dictConfig[nth].CustomSetValue != null)
-                            //                    {
-                            //                        customSetValueArugment.Area = FillArea.ContentExt;
-                            //                        dictConfig[nth].CustomSetValue.Invoke(item.ColumnName, row[item.ColumnName], extensionCell_body, customSetValueArugment);
-                            //                    }
-                            //                    else
-                            //                    {
-                            //                        SetWorksheetCellsValue(config, extensionCell_body, row[item.ColumnName], item.ColumnName);
-                            //                    }
-                            //                    eachCount++;
-                            //                }
-                            //            }
-                            //        }
-                            //    }
-                            //}
-                            #endregion
                         }
 
                         if (config.IsReport)
@@ -841,8 +773,11 @@ namespace EPPlusExtensions
 
                             if (dictConfig[nth].CustomSetValue != null)
                             {
-                                customSetValueArugment.Area = FillArea.Content;
-                                dictConfig[nth].CustomSetValue.Invoke(colMapperName, val, cells, customSetValueArugment);
+                                customValue.Area = FillArea.Content;
+                                customValue.ColName = colMapperName;
+                                customValue.Value = val;
+                                customValue.Cell = cells;
+                                dictConfig[nth].CustomSetValue.Invoke(customValue);
                             }
                             else
                             {
@@ -897,8 +832,11 @@ namespace EPPlusExtensions
 
                                                 if (dictConfig[nth].CustomSetValue != null)
                                                 {
-                                                    customSetValueArugment.Area = FillArea.TitleExt;
-                                                    dictConfig[nth].CustomSetValue.Invoke(item.ColumnName, item.ColumnName, extensionCell_title, customSetValueArugment);
+                                                    customValue.Area = FillArea.TitleExt;
+                                                    customValue.ColName = item.ColumnName;
+                                                    customValue.Value = item.ColumnName;
+                                                    customValue.Cell = extensionCell_title;
+                                                    dictConfig[nth].CustomSetValue.Invoke(customValue);
                                                 }
                                                 else
                                                 {
@@ -944,8 +882,11 @@ namespace EPPlusExtensions
                                                 SetWorksheetCellsValue(config, extensionCell_body, row[item.ColumnName], item.ColumnName);
                                                 if (dictConfig[nth].CustomSetValue != null)
                                                 {
-                                                    customSetValueArugment.Area = FillArea.ContentExt;
-                                                    dictConfig[nth].CustomSetValue.Invoke(item.ColumnName, row[item.ColumnName], extensionCell_body, customSetValueArugment);
+                                                    customValue.Area = FillArea.ContentExt;
+                                                    customValue.ColName = item.ColumnName;
+                                                    customValue.Value = row[item.ColumnName];
+                                                    customValue.Cell = extensionCell_body;
+                                                    dictConfig[nth].CustomSetValue.Invoke(customValue);
                                                 }
                                                 else
                                                 {
@@ -977,6 +918,36 @@ namespace EPPlusExtensions
                 }
 
                 FillData_Body_Summary(config, worksheet, dictConfigSource, nth, dictConfig, sheetBodyAddRowCount);
+
+                #region FillData_Body_Summary
+                //填充第N个配置的一些零散的单元格的值(譬如汇总信息等)
+
+                if (dictConfigSource[nth].ConfigExtra != null)
+                {
+                    var dictConfigSourceSummary = dictConfigSource[nth].ConfigExtra.Source.ToDictionary(a => a.ConfigValue);
+                    foreach (var item in dictConfig[nth].ConfigExtra)
+                    {
+                        var excelCellPoint = new ExcelCellPoint(item.Address);
+                        string colMapperName = item.ConfigValue;
+                        object val = dictConfigSourceSummary[colMapperName].FillValue;
+                        ExcelRange cells = worksheet.Cells[excelCellPoint.Row + sheetBodyAddRowCount, excelCellPoint.Col];
+
+                        if (dictConfig[nth].SummaryCustomSetValue != null)
+                        {
+                            customValue.Area = null;
+                            customValue.ColName = colMapperName;
+                            customValue.Value = val;
+                            customValue.Cell = cells;
+
+                            dictConfig[nth].SummaryCustomSetValue.Invoke(customValue);
+                        }
+                        else
+                        {
+                            SetWorksheetCellsValue(config, cells, val, colMapperName);
+                        }
+                    }
+                }
+                #endregion
             }
 
             return sheetBodyAddRowCount;
@@ -1053,7 +1024,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 填充第N个配置的一些零散的单元格的值(譬如汇总信息等)
+        /// 
         /// </summary>
         /// <param name="config"></param>
         /// <param name="worksheet"></param>
@@ -1063,24 +1034,7 @@ namespace EPPlusExtensions
         /// <param name="sheetBodyAddRowCount"></param>
         private static void FillData_Body_Summary(EPPlusConfig config, ExcelWorksheet worksheet, Dictionary<int, EPPlusConfigSourceBodyOption> dictConfigSource, int nth, Dictionary<int, EPPlusConfigBodyOption> dictConfig, int sheetBodyAddRowCount)
         {
-            if (dictConfigSource[nth].ConfigExtra == null) return;
-            var dictConfigSourceSummary = dictConfigSource[nth].ConfigExtra.Source.ToDictionary(a => a.ConfigValue);
-            foreach (var item in dictConfig[nth].ConfigExtra)
-            {
-                var excelCellPoint = new ExcelCellPoint(item.Address);
-                string colMapperName = item.ConfigValue;
-                object val = dictConfigSourceSummary[colMapperName].FillValue;
-                ExcelRange cells = worksheet.Cells[excelCellPoint.Row + sheetBodyAddRowCount, excelCellPoint.Col];
 
-                if (dictConfig[nth].SummaryCustomSetValue != null)
-                {
-                    dictConfig[nth].SummaryCustomSetValue.Invoke(colMapperName, val, cells);
-                }
-                else
-                {
-                    SetWorksheetCellsValue(config, cells, val, colMapperName);
-                }
-            }
         }
 
         /// <summary>

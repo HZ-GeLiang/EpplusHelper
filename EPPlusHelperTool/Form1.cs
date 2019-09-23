@@ -144,14 +144,18 @@ namespace EPPlusHelperTool
                 }
                 #endregion
 
-                Dictionary<int, int> sheetTitleLineNumber = new Dictionary<int, int>();
+                var dataConfigInfo = new List<ExcelDataConfigInfo>();
                 for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
                 {
-                    var titleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value);
-                    sheetTitleLineNumber.Add(i, titleLine);
+                    dataConfigInfo.Add(new ExcelDataConfigInfo()
+                    {
+                        WorkSheetIndex = i + 1,
+                        TitleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value),
+                        TitleColumn = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[3].Value),
+                    });
                 }
 
-                EPPlusHelper.FillExcelDefaultConfig(filePath, fileDir, sheetTitleLineNumber, cell =>
+                EPPlusHelper.FillExcelDefaultConfig(filePath, fileDir, dataConfigInfo, cell =>
                  {
                      var cellValue = EPPlusHelper.GetCellText(cell);
                      var cellValueLower = cellValue.ToLower();
@@ -190,16 +194,19 @@ namespace EPPlusHelperTool
                 {
                     WScount1_Click(null, null);
                 }
-
-                Dictionary<int, int> sheetTitleLineNumber = new Dictionary<int, int>();
+                var dataConfigInfo = new List<ExcelDataConfigInfo>();
                 for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
                 {
-                    var titleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value);
-                    sheetTitleLineNumber.Add(i, titleLine);
+                    dataConfigInfo.Add(new ExcelDataConfigInfo()
+                    {
+                        WorkSheetIndex = i + 1,
+                        TitleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value),
+                        TitleColumn = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[3].Value)
+                    });
                 }
 
                 string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
-                var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName, sheetTitleLineNumber);
+                var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName, dataConfigInfo);
                 var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
                 foreach (var item in defaultConfigList)
                 {
@@ -246,6 +253,9 @@ namespace EPPlusHelperTool
                 var ws1TitleLine = Convert.ToInt32(this.TitleLine1.Text.Trim());
                 var ws2TitleLine = Convert.ToInt32(this.TitleLine2.Text.Trim());
 
+                var ws1TitleCol = Convert.ToInt32(this.TitleCol1.Text.Trim());
+                var ws2TitleCol = Convert.ToInt32(this.TitleCol2.Text.Trim());
+
                 //using (FileStream fs1 = System.IO.File.OpenRead(ws1Path))
                 //using (FileStream fs2 = System.IO.File.OpenRead(ws2Path))
                 using (FileStream fs1 = new FileStream(ws1Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -255,8 +265,8 @@ namespace EPPlusHelperTool
                 {
                     var ws1 = GetWorkSheet(excelPackage1, ws1Index_string);
                     var ws2 = GetWorkSheet(excelPackage2, ws2Index_string);
-                    var ws1Props = EPPlusHelper.FillExcelDefaultConfig(ws1, ws1TitleLine).ClassPropertyList;
-                    var ws2Props = EPPlusHelper.FillExcelDefaultConfig(ws2, ws2TitleLine).ClassPropertyList;
+                    var ws1Props = EPPlusHelper.FillExcelDefaultConfig(ws1, ws1TitleLine, ws1TitleCol).ClassPropertyList;
+                    var ws2Props = EPPlusHelper.FillExcelDefaultConfig(ws2, ws2TitleLine, ws2TitleCol).ClassPropertyList;
 
                     {
                         StringBuilder sb = new StringBuilder();
@@ -398,6 +408,7 @@ namespace EPPlusHelperTool
                 control.Rows[index].Cells[0].Value = i;
                 control.Rows[index].Cells[1].Value = excelPackage.Workbook.Worksheets[i].Name;
                 control.Rows[index].Cells[2].Value = 1;
+                control.Rows[index].Cells[3].Value = 1;
                 names.Append($"{excelPackage.Workbook.Worksheets[i].Name},");
             }
 
@@ -455,6 +466,10 @@ namespace EPPlusHelperTool
             DataGridView dgv = (DataGridView)sender;
             if (dgv.Rows.Count <= 0) return;
 
+            if (e.RowIndex == -1)
+            {
+                return;//不知道-1 是标格的title 
+            }
             var row = dgv.Rows[e.RowIndex];
             var txt = row.Cells[e.ColumnIndex].Value.ToString();
 
@@ -467,6 +482,11 @@ namespace EPPlusHelperTool
             {
                 if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel1") this.TitleLine1.Text = txt;
                 else if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel2") this.TitleLine2.Text = txt;
+            }
+            else if (e.ColumnIndex == 3)
+            {
+                if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel1") this.TitleCol1.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel2") this.TitleCol2.Text = txt;
             }
         }
 
