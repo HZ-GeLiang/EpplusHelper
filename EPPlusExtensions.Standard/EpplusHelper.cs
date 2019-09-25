@@ -38,6 +38,9 @@ namespace EPPlusExtensions
         public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, int workSheetIndex)
         {
             if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
+
+            workSheetIndex = ConvertwsIndex(excelPackage, workSheetIndex);
+
             int sheetCount = excelPackage.Workbook.Worksheets.Count;
             if (workSheetIndex > sheetCount)
             {
@@ -45,6 +48,9 @@ namespace EPPlusExtensions
             }
             return excelPackage.Workbook.Worksheets[workSheetIndex];
         }
+
+        
+
 
         /// <summary>
         /// 根据workSheetIndex获得模版worksheet,然后复制一份并重命名成workSheetName后返回 
@@ -158,7 +164,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        ///  
+        ///  尝试删除,如果删除的目标不存在,也不会报错
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="workSheetIndex">从1开始,注:每删除一个ws后,索引重新计算</param>
@@ -170,6 +176,9 @@ namespace EPPlusExtensions
             {
                 return;
             }
+
+            workSheetIndex = ConvertwsIndex(excelPackage, workSheetIndex);
+
             if (excelPackage.Workbook.Worksheets[workSheetIndex] != null)
             {
                 excelPackage.Workbook.Worksheets.Delete(workSheetIndex);
