@@ -1344,6 +1344,23 @@ namespace EPPlusExtensions
         #region 一些帮助方法
 
         /// <summary>
+        /// 将workSheetIndex转换为代码中确切的值
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="workSheetIndex">从1开始</param>
+        /// <returns></returns>
+        private static int ConvertwsIndex(ExcelPackage excelPackage, int workSheetIndex)
+        {
+            if (!excelPackage.Compatibility.IsWorksheets1Based)
+            {
+                workSheetIndex -= 1; //从0开始的, 自己 -1;
+            }
+
+            return workSheetIndex;
+        }
+
+
+        /// <summary>
         /// 获得精确的合并单元格地址
         /// </summary>
         /// <param name="ws"></param>
