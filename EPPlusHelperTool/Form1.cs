@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using EPPlusExtensions;
@@ -149,27 +150,35 @@ namespace EPPlusHelperTool
                     });
                 }
 
-                EPPlusHelper.FillExcelDefaultConfig(filePath, fileDir, dataConfigInfo, cell =>
-                 {
-                     var cellValue = EPPlusHelper.GetCellText(cell);
-                     var cellValueLower = cellValue.ToLower();
-                     foreach (var item in columnTypeList_DateTime)
-                     {
-                         if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
-                         {
-                             cell.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
-                             break;
-                         }
-                     }
-                     foreach (var item in columnTypeList_DateTime)
-                     {
-                         if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
-                         {
-                             cell.Style.Numberformat.Format = "@"; //Format as text
-                             break;
-                         }
-                     }
-                 });
+                var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileDir, dataConfigInfo, cell =>
+                {
+                    var cellValue = EPPlusHelper.GetCellText(cell);
+                    var cellValueLower = cellValue.ToLower();
+                    foreach (var item in columnTypeList_DateTime)
+                    {
+                        if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
+                        {
+                            cell.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
+                            break;
+                        }
+                    }
+                    foreach (var item in columnTypeList_DateTime)
+                    {
+                        if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
+                        {
+                            cell.Style.Numberformat.Format = "@"; //Format as text
+                            break;
+                        }
+                    }
+                });
+
+                var haveConfig = defaultConfigList.Find(a => a.ClassPropertyList.Count > 0) != null;
+                if (!haveConfig)
+                {
+                    MessageBox.Show("未检测到配置信息");
+                    return;
+                }
+
                 OpenDirectory(fileDir);
             });
         }
@@ -201,14 +210,41 @@ namespace EPPlusHelperTool
 
                 string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
                 var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName, dataConfigInfo);
+
+                var haveConfig = defaultConfigList.Find(a => a.ClassPropertyList.Count > 0) != null;
+                if (!haveConfig)
+                {
+                    MessageBox.Show("未检测到配置信息");
+                    return;
+                }
+
+                //将字符串写入文件
+                StringBuilder errMsg = new StringBuilder();
+
                 var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
+
+                //foreach (var item in defaultConfigList.Where(item => item.ClassPropertyList.Count > 0))
                 foreach (var item in defaultConfigList)
                 {
-                    //将字符串全部写入文件
-                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDataTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDataTableSnippe);
-                    File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
+                    if (item.ClassPropertyList.Count > 0)
+                    {
+
+                        File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDataTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDataTableSnippe);
+                        File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
+                    }
+                    else
+                    {
+                        errMsg.Append(item.WorkSheetName + "、");
+                    }
                 }
+
+                errMsg.RemoveLastChar('、');
                 WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
+                if (errMsg.Length > 0)
+                {
+                    MessageBox.Show($"下列工作簿未生成配置项:{errMsg}");
+                }
+
             });
         }
 
@@ -396,11 +432,14 @@ namespace EPPlusHelperTool
         {
             control.Rows.Clear();
             var count = excelPackage.Workbook.Worksheets.Count;
+
             for (int i = 1; i <= count; i++)
             {
                 int index = control.Rows.Add();
                 control.Rows[index].Cells[0].Value = i;
-                control.Rows[index].Cells[1].Value = excelPackage.Workbook.Worksheets[i].Name;
+                control.Rows[index].Cells[1].Value = excelPackage.Compatibility.IsWorksheets1Based
+                    ? excelPackage.Workbook.Worksheets[i].Name
+                    : excelPackage.Workbook.Worksheets[i - 1].Name;
                 control.Rows[index].Cells[2].Value = 1;
                 control.Rows[index].Cells[3].Value = 1;
                 names.Append($"{excelPackage.Workbook.Worksheets[i].Name},");

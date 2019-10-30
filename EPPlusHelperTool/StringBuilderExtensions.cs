@@ -19,6 +19,11 @@ namespace EPPlusHelperTool
             if (count > value.Length) throw new System.ArgumentException(nameof(count));
             return value.Remove(value.Length - count, count);
         }
+        public static StringBuilder RemoveLastChar(this StringBuilder value, char c)
+        {
+            if (value == null) throw new System.ArgumentNullException(nameof(value));
+            return value.Length <= 0 ? value : value[value.Length - 1] == c ? value.RemoveLastChar() : value;
+        }
 
     }
 }
