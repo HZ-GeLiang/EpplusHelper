@@ -17,8 +17,7 @@ namespace SampleApp
     {
         public void Run()
         {
-            string str = $@"序号	工号	姓名	性别";
-            var result = EPPlusHelper.GetFillDefaultConfig(str);
+            var result = EPPlusHelper.GetFillDefaultConfig("序号	工号	姓名	性别");
             Console.WriteLine(result);
         }
 
