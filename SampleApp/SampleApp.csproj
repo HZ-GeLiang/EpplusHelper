@@ -94,7 +94,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CurryingExtensions.cs" />
     <Compile Include="MethodExtension\MemoryStreamExtensions.cs" />
     <Compile Include="MethodExtension\StringBuilderExtensions.cs" />
     <Compile Include="MethodExtension\StringExtensions.cs" />
