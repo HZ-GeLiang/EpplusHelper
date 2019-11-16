@@ -18,38 +18,6 @@ namespace EPPlusHelperTool
             InitializeComponent();
         }
 
-        /// <summary>
-        /// 弹出一个选择文件的对话框
-        /// </summary>
-        /// <returns></returns>
-        private string SelectFile(string filter = null)
-        {
-            //显示选择 文件对话框'
-            using (OpenFileDialog openFileDialog1 = new OpenFileDialog())
-            {
-                openFileDialog1.InitialDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
-                //openFileDialog1.InitialDirectory = "c:\\";
-                //openFileDialog1.Filter = "excel (*.xlsx)|*.xlsx";
-                if (filter != null)
-                {
-                    openFileDialog1.Filter = filter;
-                }
-                openFileDialog1.FilterIndex = 2;
-                openFileDialog1.RestoreDirectory = true;
-
-                var dialogResult = openFileDialog1.ShowDialog();
-                if (dialogResult == DialogResult.OK)
-                {
-                    return openFileDialog1.FileName; //显示文件路径
-                }
-                else
-                {
-                    return openFileDialog1.SafeFileName;
-                }
-            }
-
-        }
-
         private void TextBoxDragDrop(object sender, DragEventArgs e)
         {
             string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
@@ -67,17 +35,6 @@ namespace EPPlusHelperTool
         private void TextBoxDragEnter(object sender, DragEventArgs e)
         {
             e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Link : DragDropEffects.None;
-        }
-
-
-        /// <summary>
-        /// 打开目录
-        /// </summary>
-        /// <param name="fileDirectoryName"></param>
-        private void OpenDirectory(string fileDirectoryName)
-        {
-            MessageBox.Show($"文件已经生成,在目录'{fileDirectoryName}'");
-            System.Diagnostics.Process.Start(fileDirectoryName);
         }
 
         private static ExcelWorksheet GetWorkSheet(ExcelPackage excelPackage, string ws1Index_string)
@@ -112,22 +69,16 @@ namespace EPPlusHelperTool
                 {
                     WScount1_Click(null, null);
                 }
-                //var fileName = Path.GetFileNameWithoutExtension(filePath);
-                //var suffix = Path.GetExtension(filePath);
                 var fileDir = Path.GetDirectoryName(filePath);
 
-                //Path.GetDirectoryName(Path.GetFullPath(tempPath))
-                //string filePathOut = Path.Combine(fileDir, $"{fileName}_result{suffix}");
-                //EPPlusHelper.FillExcelDefaultConfig(filePath, filePathOut);
-
                 var columnTypeList_DateTime = new List<string>()
-            {
-                "时间", "日期", "date", "time","今天","昨天","明天","前天","day"
-            };
+                {
+                    "时间", "日期", "date", "time","今天","昨天","明天","前天","day"
+                };
                 var columnTypeList_String = new List<string>()
-            {
-                "id","身份证","银行卡","卡号","手机","mobile","tel","序号","number","编号","No"
-            };
+                {
+                    "id","身份证","银行卡","卡号","手机","mobile","tel","序号","number","编号","No"
+                };
                 #region 关键字tolower
                 for (int i = 0; i < columnTypeList_DateTime.Count; i++)
                 {
@@ -178,8 +129,8 @@ namespace EPPlusHelperTool
                     MessageBox.Show("未检测到配置信息");
                     return;
                 }
-
-                OpenDirectory(fileDir);
+                MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
+                WinFormHelper.OpenDirectory(fileDir);
             });
         }
 
@@ -220,15 +171,12 @@ namespace EPPlusHelperTool
 
                 //将字符串写入文件
                 StringBuilder errMsg = new StringBuilder();
-
                 var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
 
-                //foreach (var item in defaultConfigList.Where(item => item.ClassPropertyList.Count > 0))
                 foreach (var item in defaultConfigList)
                 {
                     if (item.ClassPropertyList.Count > 0)
                     {
-
                         File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDataTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDataTableSnippe);
                         File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
                     }
@@ -244,7 +192,6 @@ namespace EPPlusHelperTool
                 {
                     MessageBox.Show($"下列工作簿未生成配置项:{errMsg}");
                 }
-
             });
         }
 
@@ -286,8 +233,6 @@ namespace EPPlusHelperTool
                 var ws1TitleCol = Convert.ToInt32(this.TitleCol1.Text.Trim());
                 var ws2TitleCol = Convert.ToInt32(this.TitleCol2.Text.Trim());
 
-                //using (FileStream fs1 = System.IO.File.OpenRead(ws1Path))
-                //using (FileStream fs2 = System.IO.File.OpenRead(ws2Path))
                 using (FileStream fs1 = new FileStream(ws1Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (FileStream fs2 = new FileStream(ws2Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (ExcelPackage excelPackage1 = new ExcelPackage(fs1))
@@ -353,7 +298,7 @@ namespace EPPlusHelperTool
 
         private void Btn_SelectExcelFile(object sender, EventArgs e)
         {
-            var selectFilePath = SelectFile("excel (*.xlsx)|*.xlsx");
+            var selectFilePath = WinFormHelper.SelectFile("excel (*.xlsx)|*.xlsx");
             if (selectFilePath.Length > 0)
             {
                 if (((System.Windows.Forms.Control)sender).Name == "SelectFileBtn1")
@@ -383,18 +328,14 @@ namespace EPPlusHelperTool
                     MessageBox.Show("只支持.xlsx文件");
                     return;
                 }
-                using (MemoryStream ms = new MemoryStream())
-                ////using (FileStream fs = System.IO.File.OpenRead(filePath))
-                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (ExcelPackage excelPackage = new ExcelPackage(fs))
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var excelPackage = new ExcelPackage(fs))
                 {
-                    var control = this.dgv1;
-                    StringBuilder names = new StringBuilder();
-                    SetDataSourceForDGV(excelPackage, control, names);
+                    SetDataSourceForDGV(excelPackage, this.dgv1);
 
                     if (EPPlusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0)
                     {
-                        MessageBox.Show("当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
+                        MessageBox.Show("检测到当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
                     }
                 }
             });
@@ -415,33 +356,28 @@ namespace EPPlusHelperTool
                     MessageBox.Show("只支持.xlsx文件");
                     return;
                 }
-                using (MemoryStream ms = new MemoryStream())
-                ////using (FileStream fs = System.IO.File.OpenRead(filePath))
-                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (ExcelPackage excelPackage = new ExcelPackage(fs))
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var excelPackage = new ExcelPackage(fs))
                 {
-                    var control = this.dgv2;
-                    StringBuilder names = new StringBuilder();
-                    SetDataSourceForDGV(excelPackage, control, names);
+                    SetDataSourceForDGV(excelPackage, this.dgv2);
                 }
             });
         }
 
-        private static void SetDataSourceForDGV(ExcelPackage excelPackage, DataGridView control, StringBuilder names)
+        private static void SetDataSourceForDGV(ExcelPackage excelPackage, DataGridView control)
         {
+            //StringBuilder names = new StringBuilder();
             control.Rows.Clear();
-            var count = excelPackage.Workbook.Worksheets.Count;
 
-            for (int i = 1; i <= count; i++)
+            foreach (var ws in EPPlusHelper.GetExcelWorksheets(excelPackage))
             {
-                int index = control.Rows.Add();
-                control.Rows[index].Cells[0].Value = i;
-                control.Rows[index].Cells[1].Value = excelPackage.Compatibility.IsWorksheets1Based
-                    ? excelPackage.Workbook.Worksheets[i].Name
-                    : excelPackage.Workbook.Worksheets[i - 1].Name;
-                control.Rows[index].Cells[2].Value = 1;
-                control.Rows[index].Cells[3].Value = 1;
-                names.Append($"{excelPackage.Workbook.Worksheets[i].Name},");
+                var index = control.Rows.Add();
+                control.Rows[index].Cells[0].Value = ws.Index;
+                control.Rows[index].Cells[1].Value = ws.Name;
+                var firstValueCellPoint = EPPlusHelper.GetFirstValueCellPoint(ws);
+                control.Rows[index].Cells[2].Value = firstValueCellPoint.Row;
+                control.Rows[index].Cells[3].Value = firstValueCellPoint.Col;
+                //names.Append($"{ws.Name},");
             }
 
             //var msg = $"一共有{count}个工作簿,分别是:{names.RemoveLastChar(',')}";
@@ -464,9 +400,8 @@ namespace EPPlusHelperTool
                     return;
                 }
                 using (MemoryStream ms = new MemoryStream())
-                ////using (FileStream fs = System.IO.File.OpenRead(filePath))
-                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (ExcelPackage excelPackage = new ExcelPackage(fs))
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var excelPackage = new ExcelPackage(fs))
                 {
                     EPPlusHelper.DeleteWorksheet(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden);
                     excelPackage.SaveAs(ms);
@@ -476,7 +411,8 @@ namespace EPPlusHelperTool
                     var fileName = Path.GetFileNameWithoutExtension(filePath);
                     string filePathOut = Path.Combine(fileDir, $"{fileName}_OnlyVisibleWS.xlsx");
                     ms.Save(filePathOut);
-                    OpenDirectory(fileDir);
+                    MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
+                    WinFormHelper.OpenDirectory(fileDir);
                 }
             });
         }
@@ -518,7 +454,7 @@ namespace EPPlusHelperTool
             }
             else if (e.ColumnIndex == 3)
             {
-                if (((System.Windows.Forms.Control)sender).Name == "dgv1") 
+                if (((System.Windows.Forms.Control)sender).Name == "dgv1")
                     this.TitleCol1.Text = txt;
                 else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.TitleCol2.Text = txt;
             }
