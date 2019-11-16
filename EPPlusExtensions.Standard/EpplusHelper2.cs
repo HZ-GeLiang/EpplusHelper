@@ -1685,8 +1685,24 @@ namespace EPPlusExtensions
         }
 
 
+        public static List<string> KeysTypeOfDateTime => new List<string>
+        {
+            "时间", "日期", "date", "Date", "DATE", "time", "Time", "TIME",
+            "今天", "昨天", "明天", "前天",
+            "day", "Day", "DAY",
+            "tomorrow","Tomorrow","TOMORROW",
+
+        };
+        public static List<string> KeysTypeOfString => new List<string>
+        {
+            "序号", "编号", "id", "Id", "ID", "number", "Number", "NUMBER", "No",
+            "身份证", "银行卡", "卡号", "手机", "座机",
+            "mobile", "Mobile", "MOBILE", "tel", "Tel", "TEL",
+        };
+
+
         /// <summary>
-        /// 
+        /// 填充excel默认配置
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="titleLineNumber"></param>
@@ -1779,37 +1795,13 @@ namespace EPPlusExtensions
             StringBuilder sbColumnType = new StringBuilder();
             sbAddDr.AppendLine($@"//var dr = dt.NewRow();");
 
-            #region 关键字
-            var columnTypeList_DateTime = new List<string>()
-            {
-                "时间", "日期", "date", "time","今天","昨天","明天","前天","day"
-            };
-            var columnTypeList_String = new List<string>()
-            {
-                "id","身份证","银行卡","卡号","手机","mobile","tel","序号","number","编号","No"
-            };
-            #endregion
-
-            #region 关键字tolower
-            for (int i = 0; i < columnTypeList_DateTime.Count; i++)
-            {
-                columnTypeList_DateTime[i] = columnTypeList_DateTime[i].ToLower();
-            }
-            for (int i = 0; i < columnTypeList_String.Count; i++)
-            {
-                columnTypeList_String[i] = columnTypeList_String[i].ToLower();
-            }
-            #endregion
 
             foreach (var colName in colNameList)
             {
                 var propName = colName.IsRename ? colName.NameNew : colName.Name;
                 sbColumn.AppendLine($"dt.Columns.Add(\"{propName}\");");
                 sbAddDr.AppendLine($"//dr[\"{propName}\"] = ");
-
-                var propName_lower = propName.ToLower();
                 bool sb_CrateClassSnippe_AppendLine_InForeach = false;
-
 
                 if (colName.IsRename)
                 {
@@ -1824,26 +1816,19 @@ namespace EPPlusExtensions
                         sb_CreateClassSnippet.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
                     }
                 }
-                foreach (var item in columnTypeList_DateTime)
+
+                if (KeysTypeOfDateTime.Any(item => propName.Contains(item)))
                 {
-                    if (propName_lower.IndexOf(item, StringComparison.Ordinal) != -1)
-                    {
-                        sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(DateTime);");
-                        sb_CreateClassSnippet.AppendLine($" public DateTime {propName} {{ get; set; }}");
-                        sb_CrateClassSnippe_AppendLine_InForeach = true;
-                        break;
-                    }
+                    sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(DateTime);");
+                    sb_CreateClassSnippet.AppendLine($" public DateTime {propName} {{ get; set; }}");
+                    sb_CrateClassSnippe_AppendLine_InForeach = true;
                 }
 
-                foreach (var item in columnTypeList_String)
+                if (KeysTypeOfString.Any(item => propName.Contains(item)))
                 {
-                    if (propName_lower.IndexOf(item, StringComparison.Ordinal) != -1)
-                    {
-                        sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(String);");
-                        sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
-                        sb_CrateClassSnippe_AppendLine_InForeach = true;
-                        break;//处理过了就break,不然会重复处理 譬如 银行卡号, 此时符合 银行卡 和卡号
-                    }
+                    sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(string);");
+                    sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
+                    sb_CrateClassSnippe_AppendLine_InForeach = true;
                 }
 
                 if (!sb_CrateClassSnippe_AppendLine_InForeach)
