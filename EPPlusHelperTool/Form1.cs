@@ -108,7 +108,7 @@ namespace EPPlusHelperTool
                     MessageBox.Show("路径不能为空");
                     return;
                 }
-                if (this.dataGridViewExcel1.Rows.Count == 0)
+                if (this.dgv1.Rows.Count == 0)
                 {
                     WScount1_Click(null, null);
                 }
@@ -140,13 +140,13 @@ namespace EPPlusHelperTool
                 #endregion
 
                 var dataConfigInfo = new List<ExcelDataConfigInfo>();
-                for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
+                for (int i = 0; i < dgv1.Rows.Count; i++)
                 {
                     dataConfigInfo.Add(new ExcelDataConfigInfo()
                     {
                         WorkSheetIndex = i + 1,
-                        TitleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value),
-                        TitleColumn = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[3].Value),
+                        TitleLine = Convert.ToInt32(dgv1.Rows[i].Cells[2].Value),
+                        TitleColumn = Convert.ToInt32(dgv1.Rows[i].Cells[3].Value),
                     });
                 }
 
@@ -193,18 +193,18 @@ namespace EPPlusHelperTool
                     MessageBox.Show("路径不能为空");
                     return;
                 }
-                if (this.dataGridViewExcel1.Rows.Count == 0)
+                if (this.dgv1.Rows.Count == 0)
                 {
                     WScount1_Click(null, null);
                 }
                 var dataConfigInfo = new List<ExcelDataConfigInfo>();
-                for (int i = 0; i < dataGridViewExcel1.Rows.Count; i++)
+                for (int i = 0; i < dgv1.Rows.Count; i++)
                 {
                     dataConfigInfo.Add(new ExcelDataConfigInfo()
                     {
                         WorkSheetIndex = i + 1,
-                        TitleLine = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[2].Value),
-                        TitleColumn = Convert.ToInt32(dataGridViewExcel1.Rows[i].Cells[3].Value)
+                        TitleLine = Convert.ToInt32(dgv1.Rows[i].Cells[2].Value),
+                        TitleColumn = Convert.ToInt32(dgv1.Rows[i].Cells[3].Value)
                     });
                 }
 
@@ -269,11 +269,11 @@ namespace EPPlusHelperTool
                     MessageBox.Show("比较文件路径一致,无法比较");
                     return;
                 }
-                if (this.dataGridViewExcel1.Rows.Count == 0)
+                if (this.dgv1.Rows.Count == 0)
                 {
                     WScount1_Click(null, null);
                 }
-                if (this.dataGridViewExcel1.Rows.Count == 0)
+                if (this.dgv1.Rows.Count == 0)
                 {
                     WScount2_Click(null, null);
                 }
@@ -297,7 +297,6 @@ namespace EPPlusHelperTool
                     var ws2 = GetWorkSheet(excelPackage2, ws2Index_string);
                     var ws1Props = EPPlusHelper.FillExcelDefaultConfig(ws1, ws1TitleLine, ws1TitleCol).ClassPropertyList;
                     var ws2Props = EPPlusHelper.FillExcelDefaultConfig(ws2, ws2TitleLine, ws2TitleCol).ClassPropertyList;
-
                     {
                         StringBuilder sb = new StringBuilder();
                         AppendCols(ws1Props, ws2Props, sb);
@@ -389,7 +388,7 @@ namespace EPPlusHelperTool
                 using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (ExcelPackage excelPackage = new ExcelPackage(fs))
                 {
-                    var control = this.dataGridViewExcel1;
+                    var control = this.dgv1;
                     StringBuilder names = new StringBuilder();
                     SetDataSourceForDGV(excelPackage, control, names);
 
@@ -421,7 +420,7 @@ namespace EPPlusHelperTool
                 using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (ExcelPackage excelPackage = new ExcelPackage(fs))
                 {
-                    var control = this.dataGridViewExcel2;
+                    var control = this.dgv2;
                     StringBuilder names = new StringBuilder();
                     SetDataSourceForDGV(excelPackage, control, names);
                 }
@@ -494,7 +493,7 @@ namespace EPPlusHelperTool
             }
         }
 
-        private void DataGridViewExcel_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dgv_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             DataGridView dgv = (DataGridView)sender;
             if (dgv.Rows.Count <= 0) return;
@@ -508,20 +507,21 @@ namespace EPPlusHelperTool
 
             if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
             {
-                if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel1") this.wsNameOrIndex1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel2") this.wsNameOrIndex2.Text = txt;
+                if (((System.Windows.Forms.Control)sender).Name == "dgv1") this.wsNameOrIndex1.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.wsNameOrIndex2.Text = txt;
             }
             else if (e.ColumnIndex == 2)
             {
-                if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel1") this.TitleLine1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel2") this.TitleLine2.Text = txt;
+                if (((System.Windows.Forms.Control)sender).Name == "dgv1")
+                    this.TitleLine1.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.TitleLine2.Text = txt;
             }
             else if (e.ColumnIndex == 3)
             {
-                if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel1") this.TitleCol1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dataGridViewExcel2") this.TitleCol2.Text = txt;
+                if (((System.Windows.Forms.Control)sender).Name == "dgv1") 
+                    this.TitleCol1.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.TitleCol2.Text = txt;
             }
         }
-
     }
 }
