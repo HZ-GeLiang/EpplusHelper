@@ -44,8 +44,8 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.WScount1 = new System.Windows.Forms.Button();
-            this.WScount2 = new System.Windows.Forms.Button();
+            this.BtnAnalyze1 = new System.Windows.Forms.Button();
+            this.BtnAnalyze2 = new System.Windows.Forms.Button();
             this.dgv2 = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -211,25 +211,25 @@
             this.label9.TabIndex = 17;
             this.label9.Text = "行位置";
             // 
-            // WScount1
+            // BtnAnalyze1
             // 
-            this.WScount1.Location = new System.Drawing.Point(519, 53);
-            this.WScount1.Name = "WScount1";
-            this.WScount1.Size = new System.Drawing.Size(75, 23);
-            this.WScount1.TabIndex = 20;
-            this.WScount1.Text = "工作簿分析";
-            this.WScount1.UseVisualStyleBackColor = true;
-            this.WScount1.Click += new System.EventHandler(this.WScount1_Click);
+            this.BtnAnalyze1.Location = new System.Drawing.Point(519, 53);
+            this.BtnAnalyze1.Name = "BtnAnalyze1";
+            this.BtnAnalyze1.Size = new System.Drawing.Size(75, 23);
+            this.BtnAnalyze1.TabIndex = 20;
+            this.BtnAnalyze1.Text = "工作簿分析";
+            this.BtnAnalyze1.UseVisualStyleBackColor = true;
+            this.BtnAnalyze1.Click += new System.EventHandler(this.LoadDgv);
             // 
-            // WScount2
+            // BtnAnalyze2
             // 
-            this.WScount2.Location = new System.Drawing.Point(519, 329);
-            this.WScount2.Name = "WScount2";
-            this.WScount2.Size = new System.Drawing.Size(75, 23);
-            this.WScount2.TabIndex = 24;
-            this.WScount2.Text = "工作簿分析";
-            this.WScount2.UseVisualStyleBackColor = true;
-            this.WScount2.Click += new System.EventHandler(this.WScount2_Click);
+            this.BtnAnalyze2.Location = new System.Drawing.Point(519, 329);
+            this.BtnAnalyze2.Name = "BtnAnalyze2";
+            this.BtnAnalyze2.Size = new System.Drawing.Size(75, 23);
+            this.BtnAnalyze2.TabIndex = 24;
+            this.BtnAnalyze2.Text = "工作簿分析";
+            this.BtnAnalyze2.UseVisualStyleBackColor = true;
+            this.BtnAnalyze2.Click += new System.EventHandler(this.LoadDgv);
             // 
             // dgv2
             // 
@@ -466,9 +466,9 @@
             this.Controls.Add(this.filePath2);
             this.Controls.Add(this.filePath1);
             this.Controls.Add(this.dgv2);
-            this.Controls.Add(this.WScount2);
+            this.Controls.Add(this.BtnAnalyze2);
             this.Controls.Add(this.dgv1);
-            this.Controls.Add(this.WScount1);
+            this.Controls.Add(this.BtnAnalyze1);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.wsNameOrIndex2);
             this.Controls.Add(this.label7);
@@ -509,8 +509,8 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Button WScount1;
-        private System.Windows.Forms.Button WScount2;
+        private System.Windows.Forms.Button BtnAnalyze1;
+        private System.Windows.Forms.Button BtnAnalyze2;
         private System.Windows.Forms.DataGridView dgv2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;

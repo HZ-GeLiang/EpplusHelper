@@ -22,14 +22,7 @@ namespace EPPlusHelperTool
         {
             string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
             ((System.Windows.Forms.TextBox)sender).Text = path;
-            if (((System.Windows.Forms.Control)sender).Name == "filePath1")
-            {
-                WScount1_Click(null, null);
-            }
-            if (((System.Windows.Forms.Control)sender).Name == "filePath2")
-            {
-                WScount2_Click(null, null);
-            }
+            LoadDgv(sender, e);
         }
 
         private void TextBoxDragEnter(object sender, DragEventArgs e)
@@ -67,8 +60,6 @@ namespace EPPlusHelperTool
                 }
 
                 var fileDir = Path.GetDirectoryName(filePath);
-
-
 
                 var dataConfigInfo = new List<ExcelDataConfigInfo>();
                 for (int i = 0; i < dgv1.Rows.Count; i++)
@@ -118,10 +109,6 @@ namespace EPPlusHelperTool
                 {
                     MessageBox.Show("路径不能为空");
                     return;
-                }
-                if (this.dgv1.Rows.Count == 0)
-                {
-                    WScount1_Click(null, null);
                 }
                 var dataConfigInfo = new List<ExcelDataConfigInfo>();
                 for (int i = 0; i < dgv1.Rows.Count; i++)
@@ -281,11 +268,25 @@ namespace EPPlusHelperTool
         }
 
 
-        private void WScount1_Click(object sender, EventArgs e)
+        private void LoadDgv(object sender, EventArgs e)
         {
             TryRun(() =>
             {
-                string filePath = filePath1.Text.Trim().移除路径前后引号();
+                var callerName = ((System.Windows.Forms.Control)sender).Name;
+                string filePath = "";
+                if (sender is System.Windows.Forms.TextBox)
+                {
+                    filePath = ((System.Windows.Forms.TextBox)sender).Text.Trim().移除路径前后引号();
+                }
+                else if (callerName == "BtnAnalyze1")
+                {
+                    filePath = this.filePath1.Text.Trim().移除路径前后引号();
+                }
+                else if (callerName == "BtnAnalyze2")
+                {
+                    filePath = this.filePath2.Text.Trim().移除路径前后引号();
+                }
+
                 if (string.IsNullOrEmpty(filePath))
                 {
                     MessageBox.Show("路径不能为空");
@@ -299,43 +300,22 @@ namespace EPPlusHelperTool
                 using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (var excelPackage = new ExcelPackage(fs))
                 {
-                    SetDataSourceForDGV(excelPackage, this.dgv1);
-
-                    if (EPPlusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0)
+                    if (callerName == "filePath1" || callerName == "BtnAnalyze1")
                     {
-                        MessageBox.Show("检测到当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
+                        SetDataSourceForDGV(excelPackage, this.dgv1);
+                        if (EPPlusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0)
+                        {
+                            MessageBox.Show("检测到当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
+                        }
+                    }
+                    if (callerName == "filePath2" || callerName == "BtnAnalyze2")
+                    {
+                        SetDataSourceForDGV(excelPackage, this.dgv2);
                     }
                 }
             });
         }
 
-        private void WScount2_Click(object sender, EventArgs e)
-        {
-            TryRun(() =>
-            {
-                string filePath = filePath2.Text.Trim().移除路径前后引号();
-                if (string.IsNullOrEmpty(filePath))
-                {
-                    MessageBox.Show("路径不能为空");
-                    return;
-                }
-                if (string.Compare(".xlsx", System.IO.Path.GetExtension(filePath), true) != 0)
-                {
-                    MessageBox.Show("只支持.xlsx文件");
-                    return;
-                }
-                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var excelPackage = new ExcelPackage(fs))
-                {
-                    SetDataSourceForDGV(excelPackage, this.dgv2);
-                }
-            });
-        }
-        private void WScount0_Click(object sender, EventArgs e)
-        {
-            var obj = ((System.Windows.Forms.Control)sender).Name;
-
-        }
         private static void SetDataSourceForDGV(ExcelPackage excelPackage, DataGridView control)
         {
             //StringBuilder names = new StringBuilder();
@@ -428,7 +408,8 @@ namespace EPPlusHelperTool
             {
                 if (((System.Windows.Forms.Control)sender).Name == "dgv1")
                     this.TitleCol1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.TitleCol2.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") 
+                    this.TitleCol2.Text = txt;
             }
         }
     }
