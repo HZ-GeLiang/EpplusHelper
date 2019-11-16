@@ -274,15 +274,15 @@ namespace EPPlusHelperTool
             {
                 var callerName = ((System.Windows.Forms.Control)sender).Name;
                 string filePath = "";
-                if (sender is System.Windows.Forms.TextBox)
-                {
-                    filePath = ((System.Windows.Forms.TextBox)sender).Text.Trim().移除路径前后引号();
-                }
-                else if (callerName == "BtnAnalyze1")
+                //if (sender is System.Windows.Forms.TextBox)
+                //{
+                //    filePath = ((System.Windows.Forms.TextBox)sender).Text.Trim().移除路径前后引号();
+                //}
+                if (callerName == "filePath1" || callerName == "BtnAnalyze1")
                 {
                     filePath = this.filePath1.Text.Trim().移除路径前后引号();
                 }
-                else if (callerName == "BtnAnalyze2")
+                else if (callerName == "filePath2" || callerName == "BtnAnalyze2")
                 {
                     filePath = this.filePath2.Text.Trim().移除路径前后引号();
                 }
@@ -408,7 +408,7 @@ namespace EPPlusHelperTool
             {
                 if (((System.Windows.Forms.Control)sender).Name == "dgv1")
                     this.TitleCol1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") 
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2")
                     this.TitleCol2.Text = txt;
             }
         }
