@@ -23,6 +23,22 @@ namespace EPPlusExtensions
         #region GetExcelWorksheet
 
         /// <summary>
+        /// 获得当前Excel的所有工作簿
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        public static IEnumerable<ExcelWorksheet> GetExcelWorksheets(ExcelPackage excelPackage)
+        {
+            for (var i = 1; i <= excelPackage.Workbook.Worksheets.Count; i++)
+            {
+                //    var ws = excelPackage.Compatibility.IsWorksheets1Based
+                //        ? excelPackage.Workbook.Worksheets[i]
+                //        : excelPackage.Workbook.Worksheets[i - 1];
+                //    yield return ws;
+                yield return GetExcelWorksheet(excelPackage, i);
+            }
+        }
+
+        /// <summary>
         /// 获得Excel的第N个Sheet
         /// </summary>
         /// <param name="excelPackage"></param>
@@ -30,19 +46,10 @@ namespace EPPlusExtensions
         public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, int workSheetIndex)
         {
             if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
-
-            workSheetIndex = ConvertwsIndex(excelPackage, workSheetIndex);
-
-            int sheetCount = excelPackage.Workbook.Worksheets.Count;
-            if (workSheetIndex > sheetCount)
-            {
-                throw new ArgumentException($@"形参{nameof(workSheetIndex)}大于当前Excel的工作簿数量", nameof(workSheetIndex));//指定的参数已超出有效值的范围
-            }
-            return excelPackage.Workbook.Worksheets[workSheetIndex];
+            workSheetIndex = ConvertWorkSheetIndex(excelPackage, workSheetIndex);
+            var ws = excelPackage.Workbook.Worksheets[workSheetIndex];
+            return ws;
         }
-
-        
-
 
         /// <summary>
         /// 根据workSheetIndex获得模版worksheet,然后复制一份并重命名成workSheetName后返回 
@@ -101,6 +108,7 @@ namespace EPPlusExtensions
             if (ws == null) throw new ArgumentException($@"当前Excel中不存在名为'{workName}'的worksheet", nameof(workName));
             return ws;
         }
+
         /// <summary>
         /// 获得当前Excel的所有工作簿的名字
         /// </summary>
@@ -108,12 +116,12 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static List<string> GetExcelWorksheetNames(ExcelPackage excelPackage)
         {
-            List<string> wsNameList = new List<string>();
-            for (int i = 1; i <= excelPackage.Workbook.Worksheets.Count; i++)
-            {
-                wsNameList.Add(GetExcelWorksheet(excelPackage, i).Name);
-            }
-            return wsNameList;
+            //for (int i = 1; i <= excelPackage.Workbook.Worksheets.Count; i++)
+            //{
+            //    wsNameList.Add(GetExcelWorksheet(excelPackage, i).Name);
+            //}
+            //return wsNameList;
+            return GetExcelWorksheets(excelPackage).Select(item => item.Name).ToList();
         }
 
         /// <summary>
@@ -169,7 +177,7 @@ namespace EPPlusExtensions
                 return;
             }
 
-            workSheetIndex = ConvertwsIndex(excelPackage, workSheetIndex);
+            workSheetIndex = ConvertWorkSheetIndex(excelPackage, workSheetIndex);
 
             if (excelPackage.Workbook.Worksheets[workSheetIndex] != null)
             {
@@ -520,7 +528,7 @@ namespace EPPlusExtensions
 
                                 lastSpaceLineRowNumber = destRow + maxIntervalRow + 1; //最后一行空行的位置
                                 worksheet.InsertRow(destRow, maxIntervalRow + 1, destRow + maxIntervalRow + 1); //新增N行,注意,此时新增行的高度是有问题的
-                                //2.复制样式(含修正)
+                                                                                                                //2.复制样式(含修正)
                                 for (int j = 0; j <= maxIntervalRow; j++) //修正height
                                 {
                                     worksheet.Row(destRow + j).Height = worksheet.Row(destRow + j + maxIntervalRow + 1).Height;
@@ -997,7 +1005,7 @@ namespace EPPlusExtensions
             var rightAddressCol = ExcelCellPoint.R1C1Formulas(rightCol);
 
             var allCell = new List<object>(); //所有的单元格
-            //获得当前行,哪些单独单元格+合并单元格
+                                              //获得当前行,哪些单独单元格+合并单元格
             while (true)
             {
                 if (worksheet.MergedCells[lineNo, leftAddressCol] == null)

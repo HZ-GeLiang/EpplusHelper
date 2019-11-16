@@ -1122,11 +1122,10 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        /// 让 sheet.Cells.Value 强制从A1单元格开始
         /// </summary>
-        /// <param name="config"></param>
         /// <param name="sheet"></param>
-        public static void SetDefaultConfigFromExcel(EPPlusConfig config, ExcelWorksheet sheet)
+        public static void SetSheetCellsValueFromA1(ExcelWorksheet sheet)
         {
             //让 sheet.Cells.Value 强制从A1单元格开始
             //遇到问题描述:创建一个excel,在C7,C8,C9,10单元格写入一些字符串, sheet.Cells.Value 是object[4,3]的数组, 但我要的是object[10,3]的数组
@@ -1135,12 +1134,82 @@ namespace EPPlusExtensions
             {
                 cellA1.Value = null;
             }
+        }
 
+        /// <summary>
+        /// 获得第一个有值的单元格
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <returns></returns>
+        public static ExcelCellPoint GetFirstValueCellPoint(ExcelWorksheet ws) => (ExcelCellPoint)GetFirstValueCellInfo<ExcelCellPoint>(ws);
+        /// <summary>
+        /// 获得第一个有值的单元格
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <returns></returns>
+        public static ExcelCellRange GetFirstValueCellRange(ExcelWorksheet ws) => (ExcelCellRange)GetFirstValueCellInfo<ExcelCellRange>(ws);
+
+        /// <summary>
+        /// 获得第一个有值的单元格
+        /// </summary>
+        /// <typeparam name="TOut"></typeparam>
+        /// <param name="ws"></param>
+        /// <returns></returns>
+        private static object GetFirstValueCellInfo<TOut>(ExcelWorksheet ws)
+        {
+            var returnType = typeof(TOut);
+            EPPlusHelper.SetSheetCellsValueFromA1(ws);
+            //if (ws.Cells.Value.GetType() == typeof(object[,]))
+            //{
+            object[,] arr = ws.Cells.Value as object[,];
+            for (int i = 0; i < arr.GetLength(0); i++)
+            {
+                for (int j = 0; j < arr.GetLength(1); j++)
+                {
+                    if (arr[i, j] == null) continue;
+                    if (arr[i, j].ToString().Length <= 0) continue;
+                    if (returnType == typeof(ExcelCellPoint))
+                    {
+                        var cell = new ExcelCellPoint(i + 1, j + 1);
+                        return cell;
+                    }
+                    else if (returnType == typeof(ExcelCellRange))
+                    {
+                        var mergeCellAddress = GetMergeCellAddressPrecise(ws, i + 1, j + 1);
+                        var cell = new ExcelCellRange(mergeCellAddress);
+                        return cell;
+                    }
+                    else
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(returnType), $@"不支持的参数{nameof(returnType)}类型:{returnType}");
+                    }
+                }
+            }
+            if (returnType == typeof(ExcelCellPoint))
+            {
+                return new ExcelCellPoint();
+            }
+            else if (returnType == typeof(ExcelCellRange))
+            {
+                return new ExcelCellPoint();
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(returnType), $@"不支持的参数{nameof(returnType)}类型:{returnType}");
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="sheet"></param>
+        public static void SetDefaultConfigFromExcel(EPPlusConfig config, ExcelWorksheet sheet)
+        {
+            SetSheetCellsValueFromA1(sheet);
             config.Head = new EPPlusConfigFixedCells() { ConfigCellList = GetConfigFromExcel(sheet, "$th") };
             SetConfigBodyFromExcel(config, sheet);
             config.Foot = new EPPlusConfigFixedCells() { ConfigCellList = GetConfigFromExcel(sheet, "$tf") };
-
-
         }
 
         /// <summary>
@@ -1345,13 +1414,12 @@ namespace EPPlusExtensions
         /// <param name="excelPackage"></param>
         /// <param name="workSheetIndex">从1开始</param>
         /// <returns></returns>
-        private static int ConvertwsIndex(ExcelPackage excelPackage, int workSheetIndex)
+        private static int ConvertWorkSheetIndex(ExcelPackage excelPackage, int workSheetIndex)
         {
             if (!excelPackage.Compatibility.IsWorksheets1Based)
             {
                 workSheetIndex -= 1; //从0开始的, 自己 -1;
             }
-
             return workSheetIndex;
         }
 
@@ -1552,8 +1620,20 @@ namespace EPPlusExtensions
                     var configInfo = dataConfigInfo.Find(a => a.WorkSheetIndex == eachCount);
                     if (configInfo != null)
                     {
-                        titleLine = configInfo.TitleLine;
-                        titleColumn = configInfo.TitleColumn;
+                        //titleLine = configInfo.TitleLine;
+                        //titleColumn = configInfo.TitleColumn;
+                        var address = GetMergeCellAddressPrecise(ws, row: configInfo.TitleLine, col: configInfo.TitleColumn);
+                        var cellRange = new ExcelCellRange(address);
+                        if (cellRange.IsMerge)
+                        {
+                            titleLine = cellRange.End.Row;
+                            titleColumn = cellRange.End.Col;
+                        }
+                        else
+                        {
+                            titleLine = cellRange.Start.Row;
+                            titleColumn = cellRange.Start.Col;
+                        }
                     }
                 }
 

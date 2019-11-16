@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,11 +11,35 @@ namespace EPPlusHelperTool
     public class WinFormHelper
     {
 
-        public static string 获得文件目录地址()
+        /// <summary>
+        /// 弹出一个选择文件的对话框
+        /// </summary>
+        /// <returns></returns>
+        public static string SelectFile(string filter = null)
         {
-            FolderBrowserDialog path = new FolderBrowserDialog();
-            path.ShowDialog();
-            return path.SelectedPath;
+            //显示选择 文件对话框
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+
+            //openFileDialog1.InitialDirectory = "c:\\";
+            openFileDialog1.InitialDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+            //openFileDialog1.Filter = "excel (*.xlsx)|*.xlsx";
+            if (filter != null)
+            {
+                openFileDialog1.Filter = filter;
+            }
+
+            openFileDialog1.FilterIndex = 2;
+            openFileDialog1.RestoreDirectory = true;
+
+            var dialogResult = openFileDialog1.ShowDialog();
+            if (dialogResult == DialogResult.OK)
+            {
+                return openFileDialog1.FileName; //显示文件路径
+            }
+            else
+            {
+                return openFileDialog1.SafeFileName;
+            }
         }
 
         public static void OpenFilePath(string savePath)
@@ -31,12 +56,41 @@ namespace EPPlusHelperTool
             }
         }
 
-        public static string GetSaveFilePath()
+        /// <summary>
+        /// 打开目录
+        /// </summary>
+        /// <param name="fileDirectoryName"></param>
+        public static void OpenDirectory(string fileDirectoryName)
         {
-            string path = AppDomain.CurrentDomain.BaseDirectory;
-            System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(path);
-            string saveFilePath = di.Parent.FullName; //上级目录
-            return saveFilePath;
+            //MessageBox.Show($"文件已经生成,在目录'{fileDirectoryName}'");
+            System.Diagnostics.Process.Start(fileDirectoryName);
         }
+
+        /// <summary>
+        /// 提示文件生成路径并且打开文件所在目录
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="openDirectory"></param>
+        public static void PromptFilePathAndOpenDirectory(string filepath, string openDirectory)
+        {
+            if (!string.IsNullOrEmpty(filepath))
+            {
+                MessageBox.Show($"文件已经生成,在'{filepath}'");
+            }
+            if (string.IsNullOrEmpty(openDirectory))
+            {
+                if (!string.IsNullOrEmpty(filepath))
+                {
+                    var directoryName = Path.GetDirectoryName(filepath);
+                    OpenDirectory(directoryName);
+                }
+            }
+            else
+            {
+                OpenDirectory(openDirectory);
+            }
+
+        }
+
     }
 }
