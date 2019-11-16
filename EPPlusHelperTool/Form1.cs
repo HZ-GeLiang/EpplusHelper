@@ -65,30 +65,10 @@ namespace EPPlusHelperTool
                     MessageBox.Show("路径不能为空");
                     return;
                 }
-                if (this.dgv1.Rows.Count == 0)
-                {
-                    WScount1_Click(null, null);
-                }
+
                 var fileDir = Path.GetDirectoryName(filePath);
 
-                var columnTypeList_DateTime = new List<string>()
-                {
-                    "时间", "日期", "date", "time","今天","昨天","明天","前天","day"
-                };
-                var columnTypeList_String = new List<string>()
-                {
-                    "id","身份证","银行卡","卡号","手机","mobile","tel","序号","number","编号","No"
-                };
-                #region 关键字tolower
-                for (int i = 0; i < columnTypeList_DateTime.Count; i++)
-                {
-                    columnTypeList_DateTime[i] = columnTypeList_DateTime[i].ToLower();
-                }
-                for (int i = 0; i < columnTypeList_String.Count; i++)
-                {
-                    columnTypeList_String[i] = columnTypeList_String[i].ToLower();
-                }
-                #endregion
+
 
                 var dataConfigInfo = new List<ExcelDataConfigInfo>();
                 for (int i = 0; i < dgv1.Rows.Count; i++)
@@ -104,22 +84,17 @@ namespace EPPlusHelperTool
                 var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileDir, dataConfigInfo, cell =>
                 {
                     var cellValue = EPPlusHelper.GetCellText(cell);
-                    var cellValueLower = cellValue.ToLower();
-                    foreach (var item in columnTypeList_DateTime)
+
+                    foreach (var key in EPPlusHelper.KeysTypeOfDateTime.Where(item => cellValue.Contains(item)))
                     {
-                        if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
-                        {
-                            cell.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
-                            break;
-                        }
+                        cell.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
+                        break;
                     }
-                    foreach (var item in columnTypeList_DateTime)
+
+                    foreach (var key in EPPlusHelper.KeysTypeOfString.Where(item => cellValue.Contains(item)))
                     {
-                        if (cellValueLower.IndexOf(item, StringComparison.Ordinal) != -1)
-                        {
-                            cell.Style.Numberformat.Format = "@"; //Format as text
-                            break;
-                        }
+                        cell.Style.Numberformat.Format = "@"; //Format as text
+                        break;
                     }
                 });
 
@@ -216,14 +191,7 @@ namespace EPPlusHelperTool
                     MessageBox.Show("比较文件路径一致,无法比较");
                     return;
                 }
-                if (this.dgv1.Rows.Count == 0)
-                {
-                    WScount1_Click(null, null);
-                }
-                if (this.dgv1.Rows.Count == 0)
-                {
-                    WScount2_Click(null, null);
-                }
+
                 var ws1Index_string = this.wsNameOrIndex1.Text.Trim();
                 var ws2Index_string = this.wsNameOrIndex2.Text.Trim();
 
@@ -363,7 +331,11 @@ namespace EPPlusHelperTool
                 }
             });
         }
+        private void WScount0_Click(object sender, EventArgs e)
+        {
+            var obj = ((System.Windows.Forms.Control)sender).Name;
 
+        }
         private static void SetDataSourceForDGV(ExcelPackage excelPackage, DataGridView control)
         {
             //StringBuilder names = new StringBuilder();
