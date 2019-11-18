@@ -108,7 +108,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 284);
+            this.label3.Location = new System.Drawing.Point(10, 281);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(149, 12);
             this.label3.TabIndex = 9;
@@ -117,7 +117,7 @@
             // filePath2
             // 
             this.filePath2.AllowDrop = true;
-            this.filePath2.Location = new System.Drawing.Point(12, 300);
+            this.filePath2.Location = new System.Drawing.Point(12, 297);
             this.filePath2.Multiline = true;
             this.filePath2.Name = "filePath2";
             this.filePath2.Size = new System.Drawing.Size(501, 43);
@@ -127,7 +127,7 @@
             // 
             // SelectFileBtn2
             // 
-            this.SelectFileBtn2.Location = new System.Drawing.Point(519, 300);
+            this.SelectFileBtn2.Location = new System.Drawing.Point(519, 297);
             this.SelectFileBtn2.Name = "SelectFileBtn2";
             this.SelectFileBtn2.Size = new System.Drawing.Size(74, 23);
             this.SelectFileBtn2.TabIndex = 11;
@@ -141,7 +141,7 @@
             this.CheckTemplateConfiguration.Name = "CheckTemplateConfiguration";
             this.CheckTemplateConfiguration.Size = new System.Drawing.Size(83, 52);
             this.CheckTemplateConfiguration.TabIndex = 12;
-            this.CheckTemplateConfiguration.Text = "上下Sheet行的比较";
+            this.CheckTemplateConfiguration.Text = "上下Sheet行的内容比较";
             this.CheckTemplateConfiguration.UseVisualStyleBackColor = true;
             this.CheckTemplateConfiguration.Click += new System.EventHandler(this.CheckTemplateConfiguration_Click);
             // 
@@ -154,7 +154,7 @@
             // 
             // wsNameOrIndex2
             // 
-            this.wsNameOrIndex2.Location = new System.Drawing.Point(404, 378);
+            this.wsNameOrIndex2.Location = new System.Drawing.Point(404, 375);
             this.wsNameOrIndex2.Name = "wsNameOrIndex2";
             this.wsNameOrIndex2.Size = new System.Drawing.Size(100, 21);
             this.wsNameOrIndex2.TabIndex = 15;
@@ -174,7 +174,6 @@
             this.TitleLine1.Name = "TitleLine1";
             this.TitleLine1.Size = new System.Drawing.Size(42, 21);
             this.TitleLine1.TabIndex = 16;
-            this.TitleLine1.Text = "1";
             // 
             // TitleLine2
             // 
@@ -182,12 +181,11 @@
             this.TitleLine2.Name = "TitleLine2";
             this.TitleLine2.Size = new System.Drawing.Size(41, 21);
             this.TitleLine2.TabIndex = 16;
-            this.TitleLine2.Text = "1";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(402, 363);
+            this.label7.Location = new System.Drawing.Point(402, 360);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(65, 12);
             this.label7.TabIndex = 13;
@@ -223,7 +221,7 @@
             // 
             // BtnAnalyze2
             // 
-            this.BtnAnalyze2.Location = new System.Drawing.Point(519, 329);
+            this.BtnAnalyze2.Location = new System.Drawing.Point(519, 326);
             this.BtnAnalyze2.Name = "BtnAnalyze2";
             this.BtnAnalyze2.Size = new System.Drawing.Size(75, 23);
             this.BtnAnalyze2.TabIndex = 24;
@@ -240,7 +238,7 @@
             this.dataGridViewTextBoxColumn5,
             this.dataGridViewTextBoxColumn6,
             this.Column2});
-            this.dgv2.Location = new System.Drawing.Point(12, 351);
+            this.dgv2.Location = new System.Drawing.Point(12, 348);
             this.dgv2.Name = "dgv2";
             this.dgv2.RowHeadersVisible = false;
             this.dgv2.RowTemplate.Height = 23;
@@ -384,7 +382,6 @@
             this.TitleCol1.Name = "TitleCol1";
             this.TitleCol1.Size = new System.Drawing.Size(40, 21);
             this.TitleCol1.TabIndex = 30;
-            this.TitleCol1.Text = "1";
             // 
             // panel3
             // 
@@ -394,7 +391,7 @@
             this.panel3.Controls.Add(this.TitleLine2);
             this.panel3.Controls.Add(this.label9);
             this.panel3.Controls.Add(this.CheckTemplateConfiguration);
-            this.panel3.Location = new System.Drawing.Point(387, 352);
+            this.panel3.Location = new System.Drawing.Point(387, 349);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(126, 182);
             this.panel3.TabIndex = 27;
@@ -415,25 +412,24 @@
             this.TitleCol2.Name = "TitleCol2";
             this.TitleCol2.Size = new System.Drawing.Size(39, 21);
             this.TitleCol2.TabIndex = 32;
-            this.TitleCol2.Text = "1";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(404, 78);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(65, 12);
+            this.label4.Size = new System.Drawing.Size(59, 12);
             this.label4.TabIndex = 28;
-            this.label4.Text = "Sheet操作A";
+            this.label4.Text = "Sheet信息";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(405, 346);
+            this.label5.Location = new System.Drawing.Point(405, 343);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(65, 12);
+            this.label5.Size = new System.Drawing.Size(59, 12);
             this.label5.TabIndex = 29;
-            this.label5.Text = "Sheet操作B";
+            this.label5.Text = "Sheet信息";
             // 
             // label2
             // 
@@ -456,7 +452,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(611, 554);
+            this.ClientSize = new System.Drawing.Size(605, 546);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.GenerateConfigurationCode);

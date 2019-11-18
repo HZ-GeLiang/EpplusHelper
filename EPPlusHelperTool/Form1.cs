@@ -300,27 +300,38 @@ namespace EPPlusHelperTool
                 using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (var excelPackage = new ExcelPackage(fs))
                 {
-                    if (callerName == "filePath1" || callerName == "BtnAnalyze1")
+                    SetDataSourceForDGV(excelPackage, callerName, this);
+                    if ((callerName == "filePath1" || callerName == "BtnAnalyze1") && (EPPlusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0))
                     {
-                        SetDataSourceForDGV(excelPackage, this.dgv1);
-                        if (EPPlusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0)
-                        {
-                            MessageBox.Show("检测到当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
-                        }
+                        MessageBox.Show("检测到当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
                     }
-                    if (callerName == "filePath2" || callerName == "BtnAnalyze2")
-                    {
-                        SetDataSourceForDGV(excelPackage, this.dgv2);
-                    }
+
                 }
             });
         }
 
-        private static void SetDataSourceForDGV(ExcelPackage excelPackage, DataGridView control)
+        private static void SetDataSourceForDGV(ExcelPackage excelPackage, string callerName, Form1 form1)
         {
+            DataGridView control = null;
+            var block = 0;
+
+            if (callerName == "filePath1" || callerName == "BtnAnalyze1")
+            {
+                control = form1.dgv1;
+                block = 1;
+            }
+            else if (callerName == "filePath2" || callerName == "BtnAnalyze2")
+            {
+                control = form1.dgv2;
+                block = 2;
+            }
+            else
+            {
+                return;
+            }
             //StringBuilder names = new StringBuilder();
             control.Rows.Clear();
-
+            var i = 0;
             foreach (var ws in EPPlusHelper.GetExcelWorksheets(excelPackage))
             {
                 var index = control.Rows.Add();
@@ -329,6 +340,21 @@ namespace EPPlusHelperTool
                 var firstValueCellPoint = EPPlusHelper.GetFirstValueCellPoint(ws);
                 control.Rows[index].Cells[2].Value = firstValueCellPoint.Row;
                 control.Rows[index].Cells[3].Value = firstValueCellPoint.Col;
+
+                if (i == 0 && block == 1)
+                {
+                    form1.wsNameOrIndex1.Text = control.Rows[index].Cells[1].Value.ToString();
+                    form1.TitleLine1.Text = control.Rows[index].Cells[2].Value.ToString();
+                    form1.TitleCol1.Text = control.Rows[index].Cells[3].Value.ToString();
+                }
+                else if (i == 0 && block == 2)
+                {
+                    form1.wsNameOrIndex2.Text = control.Rows[index].Cells[1].Value.ToString();
+                    form1.TitleLine2.Text = control.Rows[index].Cells[2].Value.ToString();
+                    form1.TitleCol2.Text = control.Rows[index].Cells[3].Value.ToString();
+                }
+
+                i++;
                 //names.Append($"{ws.Name},");
             }
 
