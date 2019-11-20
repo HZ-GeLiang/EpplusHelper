@@ -7,7 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using EPPlusExtensions;
-using EPPlusHelperTool.MethodExtension;
+using EPPlusTool;
+using EPPlusTool.MethodExtension;
 
 namespace EPPlusHelperTool
 {

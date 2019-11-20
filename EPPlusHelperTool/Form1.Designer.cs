@@ -476,7 +476,7 @@
             this.Controls.Add(this.panel3);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
-            this.Text = "EPPlusHelperTool Owner By GeLiang ";
+            this.Text = "EPPlusTool Owner By GeLiang ";
             ((System.ComponentModel.ISupportInitialize)(this.dgv2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgv1)).EndInit();
             this.panel2.ResumeLayout(false);
