@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\Samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EPPlusExtensions.Standard", "EPPlusExtensions.Standard\EPPlusExtensions.Standard.csproj", "{61C85A35-F5B4-4EDA-933F-794AE04527E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusHelperTool", "EPPlusHelperTool\EPPlusHelperTool.csproj", "{1EA804CB-E21E-438B-9FC6-9370A41DDE72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusTool", "EPPlusHelperTool\EPPlusTool.csproj", "{1EA804CB-E21E-438B-9FC6-9370A41DDE72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

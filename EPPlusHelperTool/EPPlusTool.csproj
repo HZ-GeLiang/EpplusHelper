@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1EA804CB-E21E-438B-9FC6-9370A41DDE72}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>EPPlusHelperTool</RootNamespace>
-    <AssemblyName>EPPlusHelperTool</AssemblyName>
+    <RootNamespace>EPPlusTool</RootNamespace>
+    <AssemblyName>EPPlusTool</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -74,6 +74,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
