@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace EPPlusExtensions.Attributes
 {
+    /// <summary>
+    /// 枚举值未定义
+    /// </summary>
     public class EnumUndefinedAttribute : System.Attribute
     {
         public string ErrorMessage { get; private set; }

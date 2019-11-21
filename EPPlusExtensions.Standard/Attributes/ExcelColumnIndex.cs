@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace EPPlusExtensions.Attributes
 {
+    /// <summary>
+    /// Excel的标题列所在的列序号是多少,从1开始
+    /// </summary>
     public class ExcelColumnIndexAttribute : System.Attribute
     {
         public int Index { get; private set; }
