@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace EPPlusExtensions.Attributes
 {
+    /// <summary>
+    /// excel上的标题列
+    /// </summary>
     public class DisplayExcelColumnNameAttribute : System.Attribute
     {
         public string Name { get; private set; }
