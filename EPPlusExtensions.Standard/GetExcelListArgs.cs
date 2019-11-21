@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions.Attributes;
 
 namespace EPPlusExtensions
 {
@@ -100,6 +101,12 @@ namespace EPPlusExtensions
         /// 当GetList_NeedAllException 为 true 时, 错误消息只显示列信息
         /// </summary>
         public bool GetList_ErrorMessage_OnlyShowColomn = false;
+
+        /// <summary>
+        /// Key是属性名字,Value是该属性的类型的 KVSource&lt;TKey,Tvalue&gt;
+        /// </summary>
+        public Dictionary<string, object> KVSource = new Dictionary<string, object>();
+
 
     }
 
