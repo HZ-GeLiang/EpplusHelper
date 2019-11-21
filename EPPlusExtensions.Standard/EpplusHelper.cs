@@ -1531,7 +1531,6 @@ namespace EPPlusExtensions
             #endregion
             #region Enum
 
-
             bool isNullable_Enum = Nullable.GetUnderlyingType(pInfo_PropertyType)?.IsEnum == true;
             if (isNullable_Enum)
             {
@@ -1652,21 +1651,38 @@ namespace EPPlusExtensions
                 throw new System.ArgumentException(attr.ErrorMessage);
             }
 
+            var message = FormatAttributeMsg(pInfo.Name, model, value, attr.ErrorMessage, attr.Args);
+            throw new System.ArgumentException(message);
+
+        }
+
+        /// <summary>
+        /// 格式化Attract的错误消息
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pInfo_Name"></param>
+        /// <param name="model"></param>
+        /// <param name="value"></param>
+        /// <param name="attrErrorMessage"></param>
+        /// <param name="attrArgs"></param>
+        /// <returns></returns>
+        private static string FormatAttributeMsg<T>(string pInfo_Name, T model, string value, string attrErrorMessage, string[] attrArgs) where T : class, new()
+        {
             //拼接ErrorMessage
             var allProp = ReflectionHelper.GetProperties<T>();
 
-            for (int i = 0; i < attr.Args.Length; i++)
+            for (int i = 0; i < attrArgs.Length; i++)
             {
-                var propertyName = attr.Args[i];
+                var propertyName = attrArgs[i];
                 if (string.IsNullOrEmpty(propertyName))
                 {
                     continue;
                 }
 
-                //如果占位符这是常量且刚好和属性名一直,请把占位符拆成多个占位符使用
-                if (propertyName == pInfo.Name)
+                //注:如果占位符这是常量且刚好和属性名一致,请把占位符拆成多个占位符使用
+                if (propertyName == pInfo_Name)
                 {
-                    attr.Args[i] = value;
+                    attrArgs[i] = value;
                 }
                 else
                 {
@@ -1675,13 +1691,13 @@ namespace EPPlusExtensions
                     {
                         continue;
                     }
-                    attr.Args[i] = prop.GetValue(model).ToString();
+
+                    attrArgs[i] = prop.GetValue(model).ToString();
                 }
             }
 
-            string message = string.Format(attr.ErrorMessage, attr.Args);
-            throw new System.ArgumentException(message);
-
+            string message = string.Format(attrErrorMessage, attrArgs);
+            return message;
         }
 
         #endregion

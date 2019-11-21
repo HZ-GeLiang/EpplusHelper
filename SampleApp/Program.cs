@@ -25,50 +25,10 @@ namespace SampleApp
     {
         static void Main(string[] args1)
         {
-            ExcelTextFormat format = new ExcelTextFormat();
-            format.Delimiter = ';';
-            format.Culture = new CultureInfo(Thread.CurrentThread.CurrentCulture.ToString());
-            format.Culture.DateTimeFormat.ShortDatePattern = "dd-mm-yyyy";
-            format.Encoding = new UTF8Encoding();
-
-            //read the CSV file from disk
-            FileInfo file = new FileInfo($@"C:\Users\child\Desktop\test.csv");
-
-
-            //create a new Excel package
-            using (ExcelPackage excelPackage = new ExcelPackage())
-            {
-                //create a WorkSheet
-                ExcelWorksheet worksheet = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
-
-                worksheet.Cells["A1"].LoadFromText(file, format);
-            }
+            new Sample02_1_2().Run();
         }
     }
-
-
-    public class 预算部门
-    {
-        public string 筛选 { get; set; }
-        public string 一级科目 { get; set; }
-        public string 二级科目 { get; set; }
-        public string 核算原则 { get; set; }
-        [ExcelColumnIndex(6)]
-        [DisplayExcelColumnName("备案金额")]
-        public string 备案金额1 { get; set; }
-        [ExcelColumnIndex(7)]
-        [DisplayExcelColumnName("合计")]
-        public string 合计1 { get; set; }
-        [ExcelColumnIndex(8)]
-        [DisplayExcelColumnName("备案金额")]
-        public string 备案金额2 { get; set; }
-        [ExcelColumnIndex(9)]
-        [DisplayExcelColumnName("合计")]
-        public string 合计2 { get; set; }
-        [DisplayExcelColumnName("备  注")]
-        public string 备注 { get; set; }
-    }
-
+     
 
     public static class CurryingExtensions
     {
