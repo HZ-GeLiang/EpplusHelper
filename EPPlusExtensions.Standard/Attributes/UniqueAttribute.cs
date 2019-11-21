@@ -8,7 +8,7 @@ namespace EPPlusExtensions.Attributes
 {
     public class UniqueAttribute : System.Attribute
     {
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; private set; }
         public UniqueAttribute() { }
 
         public UniqueAttribute(string errorMessage)

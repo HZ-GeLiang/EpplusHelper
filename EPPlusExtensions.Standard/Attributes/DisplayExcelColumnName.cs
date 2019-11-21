@@ -8,7 +8,7 @@ namespace EPPlusExtensions.Attributes
 {
     public class DisplayExcelColumnNameAttribute : System.Attribute
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         public DisplayExcelColumnNameAttribute(string name)
         {

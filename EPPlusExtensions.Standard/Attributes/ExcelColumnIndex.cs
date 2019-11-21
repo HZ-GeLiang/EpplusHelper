@@ -8,7 +8,7 @@ namespace EPPlusExtensions.Attributes
 {
     public class ExcelColumnIndexAttribute : System.Attribute
     {
-        public int Index { get; set; }
+        public int Index { get; private set; }
 
         /// <summary>
         /// 从1开始的
