@@ -8,8 +8,8 @@ namespace EPPlusExtensions.Attributes
 {
     public class EnumUndefinedAttribute : System.Attribute
     {
-        public string ErrorMessage { get; set; }
-        public string[] Args { get; set; }
+        public string ErrorMessage { get; private set; }
+        public string[] Args { get; private set; }
         public EnumUndefinedAttribute(string errorMessageFormat, params string[] args)
         {
             this.ErrorMessage = errorMessageFormat;
