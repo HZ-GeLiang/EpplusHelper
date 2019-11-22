@@ -556,7 +556,7 @@ namespace EPPlusExtensions
                                 //Type kvsourceTypeTKey = kvsourceType.GenericTypeArguments[0];
                                 //Type kvsourceTypeTValue = kvsourceType.GenericTypeArguments[1];
 
-                                var prop_kvsource = (KVSource)kvsource;
+                                var prop_kvsource = (IKVSource)kvsource;
                                 bool inKvSource = prop_kvsource.ContainsKey(value, out object kv_Value);
 
                                 if (!inKvSource && kvsetAttr.MustInSet)
@@ -581,7 +581,7 @@ namespace EPPlusExtensions
                         //验证特性
                         GetList_ValidAttribute(pInfo, model, value);
                         //赋值, 注:遇到 KV<,> 类型的统一不处理
-                        if (!propAttrs.ContainsKey(key_KVSetAttribute))
+                        if (!pInfo.PropertyType.HasImplementedRawGeneric(typeof(KV<,>)))
                         {
                             GetList_SetModelValue(pInfo, model, value);
                         }
