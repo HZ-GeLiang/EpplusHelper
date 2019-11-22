@@ -29,13 +29,13 @@ namespace EPPlusExtensions.Attributes
         /// </summary>
         public string[] Args { get; private set; }
 
-
         public KVSetAttribute(string name)
         {
             this.Name = name;
             this.MustInSet = true;
             this.Args = new string[0];
         }
+
         public KVSetAttribute(string name, bool mustInSet)
         {
             this.Name = name;
@@ -148,39 +148,25 @@ namespace EPPlusExtensions.Attributes
     public class KV<TKey, TValue>
     {
         private KeyValuePair<TKey, TValue> _kv;
-        private Type TKeyType;
-        private Type TValueType;
 
         public bool HasValue { get; set; } = false;
 
-        public KV()
-        {
-            this.TKeyType = typeof(TKey);
-            this.TValueType = typeof(TValue);
-        }
+        public KV() { }
 
-        public KV(TKey key, TValue value)
-        {
-            _kv = new KeyValuePair<TKey, TValue>(key, value);
-            this.TKeyType = typeof(TKey);
-            this.TValueType = typeof(TValue);
-        }
+        public KV(TKey key, TValue value) => _kv = new KeyValuePair<TKey, TValue>(key, value);
 
-        //public TKey Key => this._kv.Key;
+        public override string ToString() => this._kv.Key.ToString();
 
-        //public TValue Value => this._kv.Value;
-
-
-        public override string ToString() => this._kv.ToString();
-
-        //public KVSource<TKey, TValue> CreateKVSource() =>  return new KVSource<TKey, TValue>();//这样写,对象必须不能为空,改用扩展方法
     }
 
+    /// <summary>
+    /// 因为当对象为Null时,无法获得, 所以,改用扩展方法
+    /// </summary>
     public static class KVExtensionMethod
     {
         public static KvSource<TKey, TValue> CreateKVSource<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>();
         public static Dictionary<TKey, TValue> CreateKVSourceData<TKey, TValue>(this KV<TKey, TValue> source) => new Dictionary<TKey, TValue>();
-        public static Type GetKVSourceType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType();
+        //public static Type GetKVSourceType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType();
         public static Type GetKeyType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[0];
         public static Type GetValueType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[1];
     }
