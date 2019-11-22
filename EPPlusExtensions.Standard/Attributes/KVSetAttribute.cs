@@ -60,13 +60,19 @@ namespace EPPlusExtensions.Attributes
         }
     }
 
-    public abstract class KVSource
+    interface IKVSource
     {
-        public abstract bool ContainsKey(object key, out object value);
-        //public abstract object GetValueByKey(object key);
+        bool ContainsKey(object key, out object value);
+
+        //ICollection<object> Keys();
+        //ICollection<object> Values();
+        //bool ContainsKey(object key);
+        //void Clear();
+        //int Count();
+        //object GetValue();
     }
 
-    public class KvSource<TKey, TValue> : KVSource
+    public class KvSource<TKey, TValue> : IKVSource
     {
         private IDictionary<TKey, TValue> _data;
 
@@ -74,20 +80,32 @@ namespace EPPlusExtensions.Attributes
 
         public KvSource(IDictionary<TKey, TValue> data) => this._data = data;
 
-        #region 注释的代码
-        //public ICollection<TKey> Keys => this._data.Keys;
-        //public ICollection<TValue> Values => this._data.Values;
-        //public bool ContainsKey(TKey key) => this._data.ContainsKey(key);
+        public bool TryAdd(TKey key, TValue value)
+        {
+            if (this._data.ContainsKey(key))
+            {
+                return false;
+            }
+            else
+            {
+                this._data.Add(key, value);
+                return true;
+            }
+        }
 
-        //public bool ContainsKey(object key)
-        //{
-        //    if (key == null) throw new Exception("Key为null");
-        //    return key.GetType() == typeof(TKey)
-        //        ? ContainsKey((TKey)key)
-        //        : this._data.ContainsKey((TKey)Convert.ChangeType(key, typeof(TKey)));
-        //}
-
-        //public void Add(TKey key, TValue value) => this._data.Add(key, value);
+        public bool TryAdd(object key, object value)
+        {
+            if (key == null) throw new Exception("Key为null");
+            if (this._data.ContainsKey((TKey)key))
+            {
+                return false;
+            }
+            else
+            {
+                this._data.Add((TKey)key, (TValue)value);
+                return true;
+            }
+        }
 
         public KvSource<TKey, TValue> AddRange(IDictionary<TKey, TValue> data)
         {
@@ -98,20 +116,12 @@ namespace EPPlusExtensions.Attributes
             return this;
         }
 
-        //public bool Remove(TKey key) => this._data.Remove(key);
-        //public bool TryGetValue(TKey key, out TValue value) => this._data.TryGetValue(key, out value);
+        public void Clear()
+        {
+            this._data.Clear();
+        }
 
-        //public void Clear() => this._data.Clear();
-
-        //public int Count => this._data.Count;
-
-        //public TValue this[TKey key] => this._data[key];
-
-        //public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => this._data.GetEnumerator();
-
-        #endregion
-
-        public override bool ContainsKey(object key, out object value)
+        public bool ContainsKey(object key, out object value)
         {
             if (key == null) throw new Exception("Key为null");
             var _key = (TKey)Convert.ChangeType(key, typeof(TKey));
@@ -119,6 +129,20 @@ namespace EPPlusExtensions.Attributes
             value = isExists ? this._data[_key] : (object)default(TValue);
             return isExists;
         }
+
+        public bool ContainsKey(object key)
+        {
+            if (key == null) throw new Exception("Key为null");
+            var _key = (TKey)Convert.ChangeType(key, typeof(TKey));
+            var isExists = this._data.ContainsKey(_key);
+            return isExists;
+        }
+
+        public int Count => this._data.Count;
+        public ICollection<TKey> Keys => this._data.Keys;
+        public ICollection<TValue> Values => this._data.Values;
+        public IDictionary<TKey, TValue> Data => this._data;
+
     }
 
     public class KV<TKey, TValue>
@@ -142,12 +166,10 @@ namespace EPPlusExtensions.Attributes
             this.TValueType = typeof(TValue);
         }
 
-        public TKey Key => this._kv.Key;
+        //public TKey Key => this._kv.Key;
 
-        public TValue Value => this._kv.Value;
-        public Type KeyType => this.TKeyType;
+        //public TValue Value => this._kv.Value;
 
-        public Type ValueType => this.TValueType;
 
         public override string ToString() => this._kv.ToString();
 
@@ -157,7 +179,9 @@ namespace EPPlusExtensions.Attributes
     public static class KVExtensionMethod
     {
         public static KvSource<TKey, TValue> CreateKVSource<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>();
+        public static Dictionary<TKey, TValue> CreateKVSourceData<TKey, TValue>(this KV<TKey, TValue> source) => new Dictionary<TKey, TValue>();
         public static Type GetKVSourceType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType();
-
+        public static Type GetKeyType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[0];
+        public static Type GetValueType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[1];
     }
 }
