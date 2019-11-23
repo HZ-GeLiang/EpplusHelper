@@ -37,7 +37,7 @@ namespace SampleApp
                     {
                         //添加方式1
                         var dataSource = propModel.部门.CreateKVSourceData();
-                        //dataSource.Add("事业1部", 1);
+                        dataSource.Add("事业1部", 1);
                         dataSource.Add("事业2部", 2);
                         dataSource.Add("事业3部", 3);
                         source.AddRange(dataSource);
@@ -87,6 +87,7 @@ namespace SampleApp
                     args.KVSource.Add(nameof(propModel.部门), source);
 
                     var list = EPPlusHelper.GetList<ysbm>(args);
+
                     ObjectDumper.Write(list);
                     Console.WriteLine("读取完毕");
                 }

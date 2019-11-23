@@ -157,6 +157,9 @@ namespace EPPlusExtensions.Attributes
 
         public override string ToString() => this._kv.Key.ToString();
 
+        public TKey Key => this._kv.Key;
+        public TValue Value => this._kv.Value;
+
     }
 
     /// <summary>
