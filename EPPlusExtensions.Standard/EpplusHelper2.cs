@@ -363,17 +363,19 @@ namespace EPPlusExtensions
                 var propName = GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out bool needContinue);
                 if (needContinue) continue;
 
-                if (!cache_PropertyInfo.ContainsKey(propName))
-                {
-                    var pInfo2 = type.GetProperty(propName);
-                    if (pInfo2 == null) //防御式编程判断
-                    {
-                        throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
-                    }
-                    cache_PropertyInfo.Add(propName, pInfo2);
-                }
+                //if (!cache_PropertyInfo.ContainsKey(propName))
+                //{
+                //    var pInfo2 = type.GetProperty(propName);
+                //    if (pInfo2 == null) //防御式编程判断
+                //    {
+                //        throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
+                //    }
+                //    cache_PropertyInfo.Add(propName, pInfo2);
+                //}
 
-                PropertyInfo pInfo = cache_PropertyInfo[propName];
+                //PropertyInfo pInfo = cache_PropertyInfo[propName];
+
+                PropertyInfo pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
 
                 #region 初始化Attr要处理相关的数据
                 dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>());//这里new 的Dict 的key 代表的是Attribute的FullName
@@ -451,17 +453,19 @@ namespace EPPlusExtensions
                     var propName = GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out bool needContinue);
                     if (needContinue) continue;
 
-                    if (!cache_PropertyInfo.ContainsKey(propName))
-                    {
-                        var pInfo2 = type.GetProperty(propName);
-                        if (pInfo2 == null)//防御式编程判断
-                        {
-                            throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
-                        }
-                        cache_PropertyInfo.Add(propName, pInfo2);
-                    }
+                    //if (!cache_PropertyInfo.ContainsKey(propName))
+                    //{
+                    //    var pInfo2 = type.GetProperty(propName);
+                    //    if (pInfo2 == null)//防御式编程判断
+                    //    {
+                    //        throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
+                    //    }
+                    //    cache_PropertyInfo.Add(propName, pInfo2);
+                    //}
 
-                    PropertyInfo pInfo = cache_PropertyInfo[propName];
+                    //PropertyInfo pInfo = cache_PropertyInfo[propName];
+
+                    PropertyInfo pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
 #if DEBUG
@@ -744,6 +748,24 @@ namespace EPPlusExtensions
             #endregion
 
             return args.HavingFilter == null ? list : list.Where(item => args.HavingFilter.Invoke(item)).ToList();
+        }
+
+        private static PropertyInfo GetPropertyInfo<T>(Dictionary<string, PropertyInfo> cache_PropertyInfo, string propName, Type type)
+            where T : class, new()
+        {
+            if (!cache_PropertyInfo.ContainsKey(propName))
+            {
+                var pInfo2 = type.GetProperty(propName);
+                if (pInfo2 == null) //防御式编程判断
+                {
+                    throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
+                }
+
+                cache_PropertyInfo.Add(propName, pInfo2);
+            }
+
+            PropertyInfo pInfo = cache_PropertyInfo[propName];
+            return pInfo;
         }
 
 
