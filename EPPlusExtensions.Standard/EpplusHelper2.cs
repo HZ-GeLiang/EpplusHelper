@@ -338,8 +338,8 @@ namespace EPPlusExtensions
                 ? GetExcelListArgs<T>.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
 
-            var ctor = type.GetConstructor(new Type[] { });
-            if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
+            //var ctor = type.GetConstructor(new Type[] { });
+            //if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
 
             var dictPropAttrs = new Dictionary<string, Dictionary<string, Attribute>>();//属性里包含的Attribute
 
@@ -413,14 +413,19 @@ namespace EPPlusExtensions
 #if DEBUG
             var debugvar_whileCount = 0;
 #endif
-
+            Func<object[], object> DeletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
             while (true)//异常或者出现空行,触发break;
             {
 #if DEBUG
                 debugvar_whileCount++;
 #endif
-                bool isNoDataAllColumn = true;//判断整行数据是否都没有数据
-                T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转
+                //判断整行数据是否都没有数据
+                bool isNoDataAllColumn = true;
+
+                //Sample02_3,12000的数据
+                //T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转  1.2-2.1秒
+                //T model = type.CreateInstance<T>();//3秒+
+                T model = (T)DeletgateCreateInstance(null); //上面的方法给拆开来 . 1.1-1.4
 
                 foreach (ExcelCellInfo excelCellInfo in colNameList)
                 {
@@ -1006,8 +1011,7 @@ namespace EPPlusExtensions
         /// <param name="colNameToCellInfo"></param>
         /// <param name="ws"></param>
         /// <returns></returns>
-        private static MatchingModelException GetMatchingModelExceptionCase_gt(List<string> modelPropNotExistsExcelColumn,
-            Type type, Dictionary<string, List<ExcelCellInfo>> colNameToCellInfo, ExcelWorksheet ws)
+        private static MatchingModelException GetMatchingModelExceptionCase_gt(List<string> modelPropNotExistsExcelColumn, Type type, Dictionary<string, List<ExcelCellInfo>> colNameToCellInfo, ExcelWorksheet ws)
         {
 
             if (modelPropNotExistsExcelColumn.Count <= 0)
