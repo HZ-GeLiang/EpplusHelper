@@ -349,6 +349,7 @@ namespace EPPlusExtensions
             string key_UniqueAttribute = typeof(UniqueAttribute).FullName;
             string key_KVSetAttribute = typeof(KVSetAttribute).FullName;
 
+            var cache_PropertyInfo = new Dictionary<string, PropertyInfo>();
             foreach (ExcelCellInfo excelCellInfo in colNameList)
             {
                 int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
@@ -359,11 +360,17 @@ namespace EPPlusExtensions
                 string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
                 if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
 
-                PropertyInfo pInfo = type.GetProperty(propName);
-                if (pInfo == null)//防御式编程判断
+                if (!cache_PropertyInfo.ContainsKey(propName))
                 {
-                    throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
+                    var pInfo2 = type.GetProperty(propName);
+                    if (pInfo2 == null)//防御式编程判断
+                    {
+                        throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
+                    }
+                    cache_PropertyInfo.Add(propName, pInfo2);
                 }
+
+                PropertyInfo pInfo = cache_PropertyInfo[propName];
 
                 #region 初始化Attr要处理相关的数据
                 dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>());//这里new 的Dict 的key 代表的是Attribute的FullName
@@ -414,6 +421,7 @@ namespace EPPlusExtensions
             var debugvar_whileCount = 0;
 #endif
             Func<object[], object> DeletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
+            
             while (true)//异常或者出现空行,触发break;
             {
 #if DEBUG
@@ -437,12 +445,17 @@ namespace EPPlusExtensions
                     string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
                     if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
 
-                    PropertyInfo pInfo = type.GetProperty(propName);
-                    if (pInfo == null)//防御式编程判断
+                    if (!cache_PropertyInfo.ContainsKey(propName))
                     {
-                        throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
+                        var pInfo2 = type.GetProperty(propName);
+                        if (pInfo2 == null)//防御式编程判断
+                        {
+                            throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
+                        }
+                        cache_PropertyInfo.Add(propName, pInfo2);
                     }
 
+                    PropertyInfo pInfo = cache_PropertyInfo[propName];
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
 #if DEBUG
@@ -551,15 +564,15 @@ namespace EPPlusExtensions
                             }
 
                             object kvsource = args.KVSource[kvsetAttr.Name];
-                            Type kvsourceType = kvsource.GetType();
+                            var kvsourceType = kvsource.GetType();
 
                             //var is_kvsourceType = kvsourceType.GetGenericTypeDefinition() == typeof(KVSource<,>);
                             var is_kvsourceType = kvsourceType.HasImplementedRawGeneric(typeof(KvSource<,>));
 
                             if (is_kvsourceType)
                             {
-                                //Type kvsourceTypeTKey = kvsourceType.GenericTypeArguments[0];
-                                //Type kvsourceTypeTValue = kvsourceType.GenericTypeArguments[1];
+                                //var kvsourceTypeTKey = kvsourceType.GenericTypeArguments[0];
+                                //var kvsourceTypeTValue = kvsourceType.GenericTypeArguments[1];
 
                                 var prop_kvsource = (IKVSource)kvsource;
                                 bool inKvSource = prop_kvsource.ContainsKey(value, out object kv_Value);
@@ -572,8 +585,8 @@ namespace EPPlusExtensions
                                     throw new ArgumentException(msg, pInfo.Name);
                                 }
 
-                                Type[] typeKVArr = pInfo.PropertyType.GetGenericArguments();
-                                Type typeKV = typeof(KV<,>).MakeGenericType(typeKVArr);
+                                var typeKVArr = pInfo.PropertyType.GetGenericArguments();
+                                var typeKV = typeof(KV<,>).MakeGenericType(typeKVArr);
                                 var modelValue = typeKV.GetConstructor(typeKVArr).Invoke(new object[] { value, kv_Value });
                                 typeKV.GetProperty("HasValue").SetValue(modelValue, inKvSource);
                                 pInfo.SetValue(model, modelValue);
