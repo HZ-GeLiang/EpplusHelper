@@ -352,18 +352,21 @@ namespace EPPlusExtensions
             var cache_PropertyInfo = new Dictionary<string, PropertyInfo>();
             foreach (ExcelCellInfo excelCellInfo in colNameList)
             {
-                int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
-                if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
-                {
-                    continue;
-                }
-                string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
-                if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
+                //int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
+                //if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
+                //{
+                //    continue;
+                //}
+                //string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
+                //if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
+
+                var propName = GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out bool needContinue);
+                if (needContinue) continue;
 
                 if (!cache_PropertyInfo.ContainsKey(propName))
                 {
                     var pInfo2 = type.GetProperty(propName);
-                    if (pInfo2 == null)//防御式编程判断
+                    if (pInfo2 == null) //防御式编程判断
                     {
                         throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
                     }
@@ -421,7 +424,7 @@ namespace EPPlusExtensions
             var debugvar_whileCount = 0;
 #endif
             Func<object[], object> DeletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
-            
+
             while (true)//异常或者出现空行,触发break;
             {
 #if DEBUG
@@ -437,13 +440,16 @@ namespace EPPlusExtensions
 
                 foreach (ExcelCellInfo excelCellInfo in colNameList)
                 {
-                    int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
-                    if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
-                    {
-                        continue;
-                    }
-                    string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
-                    if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
+                    //int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
+                    //if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
+                    //{
+                    //    continue;
+                    //}
+                    //string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
+                    //if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
+
+                    var propName = GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out bool needContinue);
+                    if (needContinue) continue;
 
                     if (!cache_PropertyInfo.ContainsKey(propName))
                     {
@@ -738,6 +744,22 @@ namespace EPPlusExtensions
             #endregion
 
             return args.HavingFilter == null ? list : list.Where(item => args.HavingFilter.Invoke(item)).ToList();
+        }
+
+
+        private static string GetPropName<T>(ExcelAddress ExcelAddress, Dictionary<ExcelAddress, int> dictExcelAddressCol,
+            Dictionary<int, string> dictExcelColumnIndexToModelPropName_All, out bool needContinue) where T : class, new()
+        {
+            var propName = "";
+            int excelCellInfo_ColIndex = dictExcelAddressCol[ExcelAddress];
+            if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null) //不存在,跳过
+            {
+                needContinue = true;
+                return propName;
+            }
+            propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
+            needContinue = string.IsNullOrEmpty(propName);
+            return propName;
         }
 
         public static DataTable GetDataTable(GetExcelListArgs<DataRow> args)
