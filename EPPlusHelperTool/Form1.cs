@@ -88,6 +88,12 @@ namespace EPPlusHelperTool
                         cell.Style.Numberformat.Format = "@"; //Format as text
                         break;
                     }
+
+                    foreach (var key in EPPlusHelper.KeysTypeOfDecimal.Where(item => cellValue.Contains(item)))
+                    {
+                        //cell.Style.Numberformat.Format = "@"; //Format as text
+                        break;
+                    }
                 });
 
                 var haveConfig = defaultConfigList.Find(a => a.ClassPropertyList.Count > 0) != null;
