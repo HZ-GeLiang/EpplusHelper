@@ -31,10 +31,10 @@ namespace SampleApp
 
                     var propModel = new ysbm();
 
-                    var dataSource = propModel.部门.CreateKVSourceData();
+                    var dataSource = propModel.部门2.CreateKVSourceData();
                     dataSource.Add("事业1部", 1);
                     dataSource.Add("事业2部", 2);
-                    dataSource.Add("事业3部", 3);
+                    dataSource.Add("事业3部", null);
                     args.KVSource.Add(nameof(propModel.部门), propModel.部门.CreateKVSource().AddRange(dataSource));
                     args.KVSource.Add(nameof(propModel.部门2), propModel.部门2.CreateKVSource().AddRange(dataSource));
 
@@ -57,9 +57,9 @@ namespace SampleApp
         {
             public string 序号 { get; set; }
             [KVSet("部门", true, "'{0}'在数据库中未找到", "部门")]//'事业1部'在数据库中未找到
-            public KV<string, long> 部门 { get; set; }
+            public KV<string, long?> 部门 { get; set; }
             [KVSet("部门", false, "'{0}'在数据库中未找到", "部门2")]//'事业1部'在数据库中未找到
-            public KV<string, long> 部门2 { get; set; }
+            public KV<string, long?> 部门2 { get; set; }
         }
     }
 }
