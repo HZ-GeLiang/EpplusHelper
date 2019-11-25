@@ -337,14 +337,21 @@ namespace EPPlusExtensions
 
         }
 
+        public static List<string> KeysTypeOfDecimal => new List<string>
+        {
+            "金额", "钱", "数额",
+            "money", "Money", "MONEY",
+            "amount", "Amount", "AMOUNT",
+        };
+
         public static List<string> KeysTypeOfDateTime => new List<string>
         {
             "时间", "日期", "date", "Date", "DATE", "time", "Time", "TIME",
             "今天", "昨天", "明天", "前天",
             "day", "Day", "DAY",
             "tomorrow","Tomorrow","TOMORROW",
-
         };
+
         public static List<string> KeysTypeOfString => new List<string>
         {
             "序号", "编号", "id", "Id", "ID", "number", "Number", "NUMBER", "No",
@@ -479,6 +486,13 @@ namespace EPPlusExtensions
                 {
                     sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(string);");
                     sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
+                    sb_CrateClassSnippe_AppendLine_InForeach = true;
+                }
+
+                if (KeysTypeOfDecimal.Any(item => propName.Contains(item)))
+                {
+                    sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(decimal);");
+                    sb_CreateClassSnippet.AppendLine($" public decimal {propName} {{ get; set; }}");
                     sb_CrateClassSnippe_AppendLine_InForeach = true;
                 }
 
