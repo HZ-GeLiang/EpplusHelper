@@ -489,8 +489,10 @@ namespace EPPlusExtensions
 
                     if (!valueIsNullOrEmpty)
                     {
-
-                        isNoDataAllColumn = false;
+                        if (isNoDataAllColumn)
+                        {
+                            isNoDataAllColumn = false;
+                        }
 
                         #region 判断每个单元格的开头
                         if (args.EveryCellPrefix?.Length > 0)
@@ -507,17 +509,17 @@ namespace EPPlusExtensions
                         #region 对每个单元格进行值的替换
                         if (everyCellReplace != null)
                         {
-                            foreach (var item in everyCellReplace)
+                            foreach (var replaceItem in everyCellReplace)
                             {
-                                if (!value.Contains(item.Key))
+                                if (!value.Contains(replaceItem.Key))
                                 {
                                     continue;
                                 }
-                                var everyCellReplaceOldValue = item.Key;
-                                var everyCellReplaceNewValue = item.Value ?? "";
-                                if (everyCellReplaceOldValue?.Length > 0)
+                                var cellReplaceOldValue = replaceItem.Key;
+                                var cellReplaceNewValue = replaceItem.Value ?? "";
+                                if (cellReplaceOldValue?.Length > 0)
                                 {
-                                    value = value.Replace(everyCellReplaceOldValue, everyCellReplaceNewValue);
+                                    value = value.Replace(cellReplaceOldValue, cellReplaceNewValue);
                                 }
                             }
                         }
