@@ -6,6 +6,7 @@ Sample01_1_2-基本使用,删除工作簿操作代码上不同
 读取Excel的内容
 Sample02_1-基本使用
 Sample02_1_2-使用了kv类型
+Sample02_1_2-使用了kv类型,多个属性同个数据源,但是mustInset值不一样
 Sample02_2-支持 System.ComponentModel.DataAnnotations
 Sample02_3-内置Attribute的示例
 Sample02_4-当excel列名字重复时,按顺序映射到对应model属性中

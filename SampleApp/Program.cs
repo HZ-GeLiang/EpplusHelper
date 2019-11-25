@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,21 +16,38 @@ using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using SampleApp.MethodExtension;
-
-
 namespace SampleApp
 {
     //Func<float, Func<int, float>> happyWater = new Func<float, int, float>((price, number) => number * price).Currying();
     //Func<float, int, float> happyWater2 = new Func<float, int, float>((price, number) => number * price);
 
+
     class Program
     {
         static void Main(string[] args1)
         {
-            new Sample02_1_2().Run();
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+            new Sample02_1_3().Run();
+
+            stopwatch.Stop();
+            Console.WriteLine("runTime 时差:" + stopwatch.Elapsed);
+            Console.WriteLine("runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
+            Console.ReadKey();
+        }
+
+        static T GetT<T>()
+        {
+            var type = typeof(T);
+
+
+            var ctor = type.GetConstructor(new Type[] { });
+            if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
+
+            return default(T);
         }
     }
-     
+
 
     public static class CurryingExtensions
     {
@@ -36,5 +55,58 @@ namespace SampleApp
 
         public static Func<T1, Func<T2, TOutput>> Currying<T1, T2, TOutput>(this Func<T1, T2, TOutput> f) => x => y => f(x, y);
         public static Func<T1, Func<T2, Func<T3, TOutput>>> Currying<T1, T2, T3, TOutput>(this Func<T1, T2, T3, TOutput> f) => x => y => z => f(x, y, z);
+    }
+
+    public static class ExpressionTreeHelper
+    {
+        /// <summary>
+        /// Create object.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="objects"></param>
+        /// <returns></returns>
+        public static T CreateInstance<T>(this Type type, params object[] objects)
+        {
+            Type[] typeArray = objects.Select(obj => obj.GetType()).ToArray();
+            Func<object[], object> deleObj = BuildDeletgateObj(type, typeArray);
+            return (T)deleObj(objects);
+        }
+
+        /// <summary>
+        /// Get a delegate object and use it to generate a entity class.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="typeList"></param>
+        /// <returns></returns>
+        private static Func<object[], object> BuildDeletgateObj(Type type, Type[] typeList)
+        {
+            ConstructorInfo constructor = type.GetConstructor(typeList);
+            ParameterExpression paramExp = Expression.Parameter(typeof(object[]), "args_");
+            Expression[] expList = GetExpressionArray(typeList, paramExp);
+
+            NewExpression newExp = Expression.New(constructor, expList);
+
+            Expression<Func<object[], object>> expObj = Expression.Lambda<Func<object[], object>>(newExp, paramExp);
+            return expObj.Compile();
+        }
+
+        /// <summary>
+        /// Get an expression array.
+        /// </summary>
+        /// <param name="typeList"></param>
+        /// <param name="paramExp"></param>
+        /// <returns></returns>
+        private static Expression[] GetExpressionArray(Type[] typeList, ParameterExpression paramExp)
+        {
+            List<Expression> expList = new List<Expression>();
+            for (int i = 0; i < typeList.Length; i++)
+            {
+                var paramObj = Expression.ArrayIndex(paramExp, Expression.Constant(i));
+                var expObj = Expression.Convert(paramObj, typeList[i]);
+                expList.Add(expObj);
+            }
+
+            return expList.ToArray();
+        }
     }
 }
