@@ -1,5 +1,5 @@
 ﻿
-==============旧版本的代码升级DLL版本记录=============
+==============旧版本的代码升级DLL版本记录,仅供参考.=============
 1.
 configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
 {
