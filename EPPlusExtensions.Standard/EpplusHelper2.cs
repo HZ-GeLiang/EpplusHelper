@@ -592,7 +592,7 @@ namespace EPPlusExtensions
                                 if (!inKvSource && kvsetAttr.MustInSet)
                                 {
                                     var msg = string.IsNullOrEmpty(kvsetAttr.ErrorMessage)
-                                        ? $@"属性'{pInfo.Name}'值:'{value}'未在'{kvsetAttr.Name}'集合中出现"
+                                        ? $@"属性'{pInfo.Name}'值:'{value}'未在'{kvsetAttr.Name}'集合中出现."
                                         : FormatAttributeMsg(pInfo.Name, model, value, kvsetAttr.ErrorMessage, kvsetAttr.Args);// string.Format(kvsetAttr.ErrorMessage, kvsetAttr.Args);
                                     throw new ArgumentException(msg, pInfo.Name);
                                 }
