@@ -106,16 +106,20 @@ namespace EPPlusExtensions
     /// </summary>
     public class EPPlusConfigFixedCells
     {
-
-        ///// <summary>
-        ///// 固定单元格信息们
-        ///// </summary>
+        /// <summary>
+        /// 固定单元格信息们
+        /// </summary>
         public List<EPPlusConfigFixedCell> ConfigCellList { get; set; } = null;
 
-        ///// <summary>
-        ///// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
-        ///// </summary>
+        /// <summary>
+        /// 自定义设置值 action 3个参数 分别代表 (colName,  cellValue, cell)
+        /// </summary>
         public Action<string, object, ExcelRange> CellCustomSetValue { get; set; } = null;
+
+        /// <summary>
+        /// 填充配置有的列,DataColumn必须存在
+        /// </summary>
+        public bool ConfigItemMustExistInDataColumn { get; set; } = true;
 
     }
 
@@ -212,9 +216,9 @@ namespace EPPlusExtensions
         /// </summary>
         public int ConfigLineInterval { get; set; }
 
-        ///// <summary>
-        ///// body中固定的单元格. 譬如汇总信息等.譬如A8,Name
-        ///// </summary>
+        /// <summary>
+        /// body中固定的单元格. 譬如汇总信息等.譬如A8,Name
+        /// </summary>
         public List<EPPlusConfigFixedCell> ConfigExtra { get; set; }
 
         /// <summary>
@@ -234,11 +238,16 @@ namespace EPPlusExtensions
         public Action<CustomValue> SummaryCustomSetValue { get; set; }
 
         public InsertRowStyle InsertRowStyle { get; set; } = new InsertRowStyle();
+
+        /// <summary>
+        /// 填充配置有的列,DataColumn必须存在
+        /// </summary>
+        public bool ConfigItemMustExistInDataColumn { get; set; } = true;
     }
 
     public class CustomValue
     {
-        
+
         /// <summary>
         /// 属性名:列名 (要填充的列,如姓名)
         /// </summary>
@@ -272,7 +281,7 @@ namespace EPPlusExtensions
         /// <summary>
         /// 程序内部提供的参数:填充的区域
         /// </summary>
-        public FillArea? Area { get; set; } 
+        public FillArea? Area { get; set; }
 
         #endregion
     }

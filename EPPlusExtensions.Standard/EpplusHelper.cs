@@ -365,7 +365,10 @@ namespace EPPlusExtensions
 
                 //var cellpoint = new ExcelCellPoint(item.Key);
                 string colMapperName = item.ConfigValue;
-                object val = dictConfigSourceHead[item.ConfigValue].FillValue;
+                object val = config.Head.ConfigItemMustExistInDataColumn
+                    ? dictConfigSourceHead[item.ConfigValue].FillValue
+                    : dictConfigSourceHead.ContainsKey(item.ConfigValue) ? dictConfigSourceHead[item.ConfigValue].FillValue : null;
+
                 //ExcelRange cells = worksheet.Cells[cellpoint.Row , cellpoint.Col];
                 ExcelRange cells = worksheet.Cells[item.Address];
 
@@ -483,9 +486,8 @@ namespace EPPlusExtensions
                 var hasMergeCell = dictConfig[nth].ConfigLine.Find(a => a.Address.Contains(":")) != null;
                 Dictionary<string, FillDataColumns> fillDataColumnsStat = null;//Datatable 的列的使用情况  
 
-
                 //3.赋值
-                var customValue = new CustomValue()
+                var customValue = new CustomValue
                 {
                     ConfigLine = config.Body[nth].Option.ConfigLine,
                     ConfigExtra = config.Body[nth].Option.ConfigExtra,
@@ -544,7 +546,9 @@ namespace EPPlusExtensions
                         {
                             #region 赋值
                             string colMapperName = dictConfig[nth].ConfigLine[j].ConfigValue;
-                            var val = row[colMapperName];
+                            object val = dictConfig[nth].ConfigItemMustExistInDataColumn
+                                ? row[colMapperName]
+                                : row.Table.Columns.Contains(colMapperName) ? row[colMapperName] : null;
 #if DEBUG
                             if (!cellRange[j].IsMerge)
                             {
@@ -567,7 +571,7 @@ namespace EPPlusExtensions
 
                             //worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Value = val;
 
-                            ExcelRange cells = worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol];
+                            var cells = worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol];
 
                             if (dictConfig[nth].CustomSetValue != null)
                             {
@@ -776,9 +780,12 @@ namespace EPPlusExtensions
 
                             //worksheet.Cells[destRow, destCol].Value = row[j];
                             string colMapperName = dictConfig[nth].ConfigLine[j].ConfigValue;//身份证
-                            object val = row[colMapperName]; //33xxxx19941111xxxx
+                            //33xxxx19941111xxxx
+                            object val = dictConfig[nth].ConfigItemMustExistInDataColumn
+                                ? row[colMapperName]
+                                : row.Table.Columns.Contains(colMapperName) ? row[colMapperName] : null;
                             int destCol = configLineCellPoint[j].Col;
-                            ExcelRange cells = worksheet.Cells[destRow, destCol];
+                            var cells = worksheet.Cells[destRow, destCol];
 
                             if (dictConfig[nth].CustomSetValue != null)
                             {
@@ -1128,7 +1135,11 @@ namespace EPPlusExtensions
                 //worksheet.Cells["A1"].Value = "名称";//直接指定单元格进行赋值
                 var cellPoint = new ExcelCellPoint(item.Address);
                 string colMapperName = item.ConfigValue;
-                object val = dictConfigSource[item.ConfigValue].FillValue;
+
+                object val = config.Foot.ConfigItemMustExistInDataColumn
+                    ? dictConfigSource[item.ConfigValue].FillValue
+                    : dictConfigSource.ContainsKey(item.ConfigValue) ? dictConfigSource[item.ConfigValue].FillValue : null;
+                
                 ExcelRange cells = worksheet.Cells[cellPoint.Row + sheetBodyAddRowCount, cellPoint.Col];
                 if (config.Foot.CellCustomSetValue != null)
                 {
@@ -1657,7 +1668,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 格式化Attract的错误消息
+        /// 格式化Attribute的错误消息
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="pInfo_Name"></param>
