@@ -60,7 +60,6 @@ configSource.SheetHead.Add("月度报表", $"{para.Year}年{para.Month}月报表
 configSource.Head["月度报表"]= $"{para.Year}年{para.Month}月报表";
 
 4.
-
 config.SheetBodyCellCustomSetValue.Add(1, (colName, val, cell) =>
 {
     if (colName == "原币金额")
@@ -74,12 +73,12 @@ config.SheetBodyCellCustomSetValue.Add(1, (colName, val, cell) =>
 });
 
 直接写成
-config.Body[1].Option.CustomSetValue = (colName, val, cell) =>
+config.Body[1].Option.CustomSetValue = (customValue) =>
 {
-    cell.Value = val;
-    if (colName == "凭证摘要" && val.ToString().Length > 40)
+    customValue.Cell.Value = customValue.Value;
+    if (customValue.ColName == "凭证摘要"  && customValue.Value.ToString().Length > 40)
     {
         //cell.Style.Font.Color.SetColor(Color.Red); //字体颜色
-        cell.Value = val.ToString().Substring(0, 40);
+        customValue.Cell.Value = customValue.Value.ToString().Substring(0, 40);
     }
 };
