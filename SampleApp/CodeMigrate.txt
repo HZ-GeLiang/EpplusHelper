@@ -1,0 +1,58 @@
+﻿
+==============旧版本的代码升级DLL版本记录=============
+1.
+configSource.Body.ConfigList = new List<EPPlusConfigSourceBodyConfig>()
+{
+    new EPPlusConfigSourceBodyConfig
+    {
+        Nth = 1,
+        Option = new EPPlusConfigSourceBodyOption()
+        {
+            DataSource = GetDataTable_Body()
+        }
+    }
+};
+或
+configSource.SheetBody[1] =  GetDataTable_Body()
+
+直接写成
+configSource.Body[1].Option.DataSource = GetDataTable_Body()
+
+
+2.
+EPPlusHelper.SetConfigSourceHead(configSource, dtHead);
+或
+configSource.Body[1].Option.ConfigExtra = EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dictSummary)
+
+直接写成
+configSource.Body[1].Option.DataSource = dictSummary
+
+3.
+configSource.SheetHead.Add("月度报表", $"{para.Year}年{para.Month}月报表");
+
+直接写成
+configSource.Head["月度报表"]= $"{para.Year}年{para.Month}月报表";
+
+4.
+config.SheetBodyCellCustomSetValue.Add(1, (colName, val, cell) =>
+{
+    if (colName == "原币金额")
+    {
+        cell.Formula = (string)val;
+    }
+    else
+    {
+        cell.Value = val;
+    }
+});
+
+直接写成
+config.Body[1].Option.CustomSetValue = (customValue) =>
+{
+    customValue.Cell.Value = customValue.Value;
+    if (customValue.ColName == "凭证摘要"  && customValue.Value.ToString().Length > 40)
+    {
+        //cell.Style.Font.Color.SetColor(Color.Red); //字体颜色
+        customValue.Cell.Value = customValue.Value.ToString().Substring(0, 40);
+    }
+};
