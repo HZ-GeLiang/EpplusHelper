@@ -225,7 +225,7 @@ namespace EPPlusHelperTool
                         }
                     }
 
-                    MessageBox.Show("通过校验模板配置项");
+                    MessageBox.Show("A与B比较:内容一致");
                 }
             });
         }
