@@ -30,7 +30,8 @@ namespace SampleApp
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
-            new Sample04().Run();
+            //new SampleApp._01填充数据.Sample01().Run();
+            new SampleApp._02填充图片.Sample01().Run();
 
             stopwatch.Stop();
             Console.WriteLine("runTime 时差:" + stopwatch.Elapsed);
