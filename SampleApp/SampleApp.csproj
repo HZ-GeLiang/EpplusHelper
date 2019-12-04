@@ -94,6 +94,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CodeMigrate.txt" />
     <Compile Include="MethodExtension\MemoryStreamExtensions.cs" />
     <Compile Include="MethodExtension\StringBuilderExtensions.cs" />
     <Compile Include="MethodExtension\StringExtensions.cs" />
