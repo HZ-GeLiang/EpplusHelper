@@ -22,7 +22,7 @@ namespace SampleApp
 
             Console.ReadKey();
         }
-        
+
         private static void TestMatchingModel(List<string> wss)
         {
             string errMsg;
@@ -58,22 +58,19 @@ namespace SampleApp
                     }
                 }
                 Console.WriteLine($@"****{ws}-测试通过****");
-            } 
+            }
         }
 
         public static void ReadLine(string wsName)
         {
             string filePath = @"模版\Sample02_5.xlsx";
-            using (MemoryStream ms = new MemoryStream())
-            //using (FileStream fs = System.IO.File.OpenRead(filePath))
             using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (ExcelPackage excelPackage = new ExcelPackage(fs))
             {
                 ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
-                List<Model1> list;
                 try
                 {
-                    list = EPPlusHelper.GetList<Model1>(ws, 2);
+                    var list = EPPlusHelper.GetList<Model1>(ws, 2);
                     ObjectDumper.Write(list);
                 }
                 catch (Exception e)
