@@ -15,7 +15,9 @@ using EPPlusExtensions;
 using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using SampleApp._01填充数据;
 using SampleApp.MethodExtension;
+
 namespace SampleApp
 {
     //Func<float, Func<int, float>> happyWater = new Func<float, int, float>((price, number) => number * price).Currying();
@@ -28,23 +30,12 @@ namespace SampleApp
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
-            new Sample02_1_3().Run();
+            new Sample04().Run();
 
             stopwatch.Stop();
             Console.WriteLine("runTime 时差:" + stopwatch.Elapsed);
             Console.WriteLine("runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
             Console.ReadKey();
-        }
-
-        static T GetT<T>()
-        {
-            var type = typeof(T);
-
-
-            var ctor = type.GetConstructor(new Type[] { });
-            if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
-
-            return default(T);
         }
     }
 
