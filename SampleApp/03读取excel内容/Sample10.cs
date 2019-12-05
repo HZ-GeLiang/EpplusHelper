@@ -28,9 +28,8 @@ namespace SampleApp._03读取excel内容
                 var txt = dt.ToText();
                 Console.WriteLine(txt);
                 Console.WriteLine("读取完毕");
+                Console.ReadKey();
             }
-
-            Console.ReadKey();
         }
     }
 }

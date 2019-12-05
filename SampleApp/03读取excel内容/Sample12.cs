@@ -22,13 +22,13 @@ namespace SampleApp._03读取excel内容
                 using (var excelPackage = new ExcelPackage(fs))
                 {
                     var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
-                    var args = EPPlusHelper.GetExcelListArgsDefault<userLeaveInfoStat>(ws, 3);
+                    var args = EPPlusHelper.GetExcelListArgsDefault<UserLeaveStat>(ws, 3);
                     args.GetList_NeedAllException = true; //默认false
                     args.GetList_ErrorMessage_OnlyShowColomn = true; //默认false
                                                                      //true:  参数名: 姓名(B列)
                                                                      //false: 参数名: 姓名(B3,B4,B5)
 
-                    var list = EPPlusHelper.GetList<userLeaveInfoStat>(args);
+                    var list = EPPlusHelper.GetList<UserLeaveStat>(args);
                     ObjectDumper.Write(list);
                     Console.WriteLine("读取完毕");
                 }
@@ -43,7 +43,7 @@ namespace SampleApp._03读取excel内容
 
             Console.ReadKey();
         }
-        internal class userLeaveInfoStat
+        class UserLeaveStat
         {
             public string 序号 { get; set; }
             public string 姓名 { get; set; }

@@ -18,7 +18,6 @@ namespace SampleApp._05自动初始化填充配置
     {
         public void Run()
         {
-
             string filePath = @"模版\05自动初始化填充配置\Sample03.xlsx";
             string filePathSave = @"模版\05自动初始化填充配置\ResultSample03.xlsx";
             using (var ms = new MemoryStream())
@@ -45,8 +44,6 @@ namespace SampleApp._05自动初始化填充配置
                 }
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
-
         }
-
     }
 }

@@ -13,14 +13,6 @@ namespace SampleApp._03读取excel内容
 {
     class Sample01
     {
-        internal class ysbm
-        {
-            public string 序号 { get; set; }
-            public string 部门 { get; set; }
-            public string 部门负责人 { get; set; }
-            public string 部门负责人确认签字 { get; set; }
-        }
-
         public void Run()
         {
             string filePath = @"模版\03读取excel内容\Sample01.xlsx";
@@ -43,6 +35,14 @@ namespace SampleApp._03读取excel内容
 
                 Console.WriteLine("读取完毕");
             }
+        }
+
+        class ysbm
+        {
+            public string 序号 { get; set; }
+            public string 部门 { get; set; }
+            public string 部门负责人 { get; set; }
+            public string 部门负责人确认签字 { get; set; }
         }
     }
 }

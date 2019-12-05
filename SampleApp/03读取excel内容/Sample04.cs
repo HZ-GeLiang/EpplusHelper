@@ -19,7 +19,7 @@ namespace SampleApp._03读取excel内容
         {
             string filePath = @"模版\03读取excel内容\Sample01.xlsx";
             var wsName = "合并行读取";
-            using( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 try
@@ -95,7 +95,7 @@ namespace SampleApp._03读取excel内容
 
         }
 
-        private static object SafeRow(DataRow row, string name, Type type)
+        static object SafeRow(DataRow row, string name, Type type)
         {
             object o = row[name];
             if (o == DBNull.Value || o == null)
@@ -149,7 +149,7 @@ namespace SampleApp._03读取excel内容
 
         }
 
-        private static KvSource<string, long> GetSource_部门(ysbm propModel, DataTable dt)
+        static KvSource<string, long> GetSource_部门(ysbm propModel, DataTable dt)
         {
             var prop = propModel.部门;
             KvSource<string, long> kvsource = prop.CreateKVSource();
@@ -163,7 +163,7 @@ namespace SampleApp._03读取excel内容
         }
 
 
-        private class ysbm
+        class ysbm
         {
             public string 序号 { get; set; }
             //[KVSet("部门")] // 属性'部门'值:'事业1部'未在'部门'集合中出现

@@ -89,7 +89,6 @@ namespace SampleApp._04填充数据与数据源同步
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }
 
-
         static DataTable GetProduct1()
         {
             DataTable dt = new DataTable();
