@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,10 +25,10 @@ namespace SampleApp._01填充数据
                 var config = EPPlusHelper.GetEmptyConfig();
                 EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, wsName);
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
-                configSource.Head = Sample00.GetDataTable_Head();
-                configSource.Body[1].Option.DataSource = Sample00.GetDataTable_Body();
+                configSource.Head = GetDataTable_Head();
+                configSource.Body[1].Option.DataSource = GetDataTable_Body();
                 EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", wsName);
-                
+
                 EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
 
                 excelPackage.SaveAs(ms);
@@ -35,6 +36,33 @@ namespace SampleApp._01填充数据
                 ms.Save(filePathSave);
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+        }
+        static DataTable GetDataTable_Head()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("Title");
+            DataRow dr = dt.NewRow();
+            dr["Title"] = "2018第一学期考试";
+            dt.Rows.Add(dr);
+            return dt;
+        }
+        static DataTable GetDataTable_Body()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("Name");
+            dt.Columns.Add("Chinese");
+            dt.Columns.Add("Math");
+            dt.Columns.Add("English");
+            for (int i = 0; i < 5; i++)
+            {
+                DataRow dr = dt.NewRow();
+                dr["Name"] = $"张三{i + 1}";
+                dr["Chinese"] = 60;
+                dr["Math"] = 60.5;
+                dr["English"] = 61;
+                dt.Rows.Add(dr);
+            }
+            return dt;
         }
     }
 }

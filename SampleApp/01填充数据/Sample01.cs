@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,7 @@ namespace SampleApp._01填充数据
                 var config = EPPlusHelper.GetEmptyConfig();
                 EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, wsName);
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
-                configSource.Body[1].Option.DataSource = Sample00.GetDataTable_Body();
+                configSource.Body[1].Option.DataSource = GetDataTable_Body();
                 EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", wsName);
 
                 #region 添加密码
@@ -44,6 +45,24 @@ namespace SampleApp._01填充数据
                 ms.Save(filePathSave);
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+        }
+        static DataTable GetDataTable_Body()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("Name");
+            dt.Columns.Add("Chinese");
+            dt.Columns.Add("Math");
+            dt.Columns.Add("English");
+            for (int i = 0; i < 5; i++)
+            {
+                DataRow dr = dt.NewRow();
+                dr["Name"] = $"张三{i + 1}";
+                dr["Chinese"] = 60;
+                dr["Math"] = 60.5;
+                dr["English"] = 61;
+                dt.Rows.Add(dr);
+            }
+            return dt;
         }
     }
 }

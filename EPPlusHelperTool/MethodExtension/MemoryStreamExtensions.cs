@@ -13,7 +13,7 @@ namespace EPPlusTool.MethodExtension
         public static void Save(this MemoryStream memoryStream, string savePath, int memoryStreamPosition = 0)
         {
             memoryStream.Position = memoryStreamPosition;
-            using (FileStream file = new FileStream(savePath, FileMode.Create, System.IO.FileAccess.Write))
+            using (var file = new FileStream(savePath, FileMode.Create, System.IO.FileAccess.Write))
             {
                 byte[] bytes = new byte[memoryStream.Length];
                 memoryStream.Read(bytes, 0, (int)memoryStream.Length);

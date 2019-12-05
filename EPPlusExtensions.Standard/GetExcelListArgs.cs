@@ -135,7 +135,7 @@ namespace EPPlusExtensions
     public enum ScanLine
     {
         /*
-         * 适合案例:Sample02_1
+         * 适合案例:03读取excel内容 1-3
          */
         /// <summary>
         /// 合并行模式(默认,以眼睛看到的为准)

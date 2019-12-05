@@ -234,10 +234,9 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
-            using (MemoryStream ms = new MemoryStream())
-            //using (FileStream fs = System.IO.File.OpenRead(filePath))
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            using (var ms = new MemoryStream())
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
                 var defaultConfigList = FillExcelDefaultConfig(excelPackage, dataConfigInfo, cellCustom);
 
@@ -262,8 +261,8 @@ namespace EPPlusExtensions
         /// <returns>工作簿Name,DatTable的创建代码</returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
-            ExcelWorksheets wss = excelPackage.Workbook.Worksheets;
-            List<DefaultConfig> list = new List<DefaultConfig>();
+            var wss = excelPackage.Workbook.Worksheets;
+            var list = new List<DefaultConfig>();
             var eachCount = 1;
             foreach (var ws in wss)
             {
@@ -758,7 +757,7 @@ namespace EPPlusExtensions
         /// <returns>是否有进行科学技术法的cell转换.true:是,false:否</returns>
         public static bool ScientificNotationFormatToString(string fileFullPath, string fileSaveAsPath, bool containNoMatchCell = false)
         {
-            using (FileStream fs = new System.IO.FileStream(fileFullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = new FileStream(fileFullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 return ScientificNotationFormatToString(excelPackage, fileSaveAsPath, containNoMatchCell);

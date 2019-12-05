@@ -99,8 +99,6 @@
     <Compile Include="01填充数据\Sample04.cs" />
     <Compile Include="01填充数据\Sample03.cs" />
     <Compile Include="01填充数据\Sample01.cs" />
-    <Compile Include="01填充数据\Sample00.cs" />
-    <Compile Include="02填充图片\Sample00.cs" />
     <Compile Include="02填充图片\Sample01.cs" />
     <Compile Include="03读取excel内容\Sample08.cs" />
     <Compile Include="03读取excel内容\Sample07.cs" />
