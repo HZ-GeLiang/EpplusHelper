@@ -15,12 +15,11 @@ namespace SampleApp._03读取excel内容
 {
     class Sample05
     {
-        
         public void Run()
         {
             string filePath = @"模版\03读取excel内容\Sample05.xlsx";
             var wsName = 1;
-            using( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 try
@@ -52,7 +51,7 @@ namespace SampleApp._03读取excel内容
             Console.ReadKey();
         }
 
-        internal class ysbm
+        class ysbm
         {
             public string 序号 { get; set; }
             [KVSet("部门", true, "'{0}'在数据库中未找到", "部门")]//'事业1部'在数据库中未找到

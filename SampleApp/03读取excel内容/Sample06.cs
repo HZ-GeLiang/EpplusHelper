@@ -20,7 +20,7 @@ namespace SampleApp._03读取excel内容
         {
             string filePath = @"模版\03读取excel内容\Sample06.xlsx";
             var wsName = "Sheet1";
-            using( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
@@ -29,7 +29,8 @@ namespace SampleApp._03读取excel内容
                 Console.WriteLine("读取完毕");
             }
         }
-        internal class ysbm
+
+        class ysbm
         {
             public string 序号 { get; set; }
             [Required(ErrorMessage = "部门不允许为空")]
@@ -39,7 +40,7 @@ namespace SampleApp._03读取excel内容
             //public string 部门Id { get; set; }
 
             [Required(ErrorMessage = "部门Id不能为空")]
-            
+
             [Range(100, 99999, ErrorMessage = "值必须在[101,99999]之间")]
             public long 部门Id { get; set; }
 

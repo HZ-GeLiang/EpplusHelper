@@ -29,7 +29,7 @@ namespace SampleApp._03读取excel内容
                 Console.WriteLine("读取完毕");
             }
         }
-        internal class PeopleInfo
+        class PeopleInfo
         {
             public string 序号 { get; set; }
             //[Unique()]
@@ -40,8 +40,7 @@ namespace SampleApp._03读取excel内容
             public string 身份证号码 { get; set; }
             public int 年龄 { get; set; }
         }
-
-        internal enum Gender
+        enum Gender
         {
             男 = 1,
             女 = 2,

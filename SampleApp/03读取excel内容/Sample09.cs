@@ -22,7 +22,7 @@ namespace SampleApp._03读取excel内容
             Console.ReadKey();
         }
 
-        private static void TestMatchingModel(List<string> wss)
+        static void TestMatchingModel(List<string> wss)
         {
             string errMsg;
             foreach (var ws in wss)
@@ -60,10 +60,10 @@ namespace SampleApp._03读取excel内容
             }
         }
 
-        public static void ReadLine(string wsName)
+        static void ReadLine(string wsName)
         {
             string filePath = @"模版\03读取excel内容\Sample09.xlsx";
-            using( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);

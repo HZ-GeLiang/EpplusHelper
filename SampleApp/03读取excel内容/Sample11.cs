@@ -22,8 +22,8 @@ namespace SampleApp._03读取excel内容
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
                 try
                 {
-                    var args = EPPlusHelper.GetExcelListArgsDefault<userLeaveInfoStat>(ws, 3);
-                    var list = EPPlusHelper.GetList<userLeaveInfoStat>(args);
+                    var args = EPPlusHelper.GetExcelListArgsDefault<UserLeaveStat>(ws, 3);
+                    var list = EPPlusHelper.GetList<UserLeaveStat>(args);
                     ObjectDumper.Write(list);
                     Console.WriteLine("读取完毕");
                 }
@@ -36,7 +36,7 @@ namespace SampleApp._03读取excel内容
             Console.ReadKey();
         }
 
-        internal class userLeaveInfoStat
+        class UserLeaveStat
         {
             public string 序号 { get; set; }
             public string 姓名 { get; set; }
