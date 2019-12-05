@@ -10,23 +10,22 @@ using System.Threading.Tasks;
 using EPPlusExtensions;
 using SampleApp.MethodExtension;
 
-namespace SampleApp
+namespace SampleApp._04填充数据与数据源同步
 {
-    /// <summary>
-    /// 填充数据与数据源同步
-    /// </summary>
-    class Sample03_1_2
+    class Sample02
     {
         public void Run()
         {
-            string filePath = @"模版\Sample03_1.xlsx";
-            using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            string filePath = @"模版\04填充数据与数据源同步\Sample01.xlsx";
+            string filePathSave = @"模版\04填充数据与数据源同步\ResultSample02.xlsx";
+            var wsName = "Sheet2";
+            using (var ms = new MemoryStream())
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
                 var config = EPPlusHelper.GetEmptyConfig();
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
-                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet2");
+                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, wsName);
 
                 configSource.Body[1].Option.DataSource = GetProduct1();
                 configSource.Body[1].Option.FillMethod = new SheetBodyFillDataMethod()
@@ -58,7 +57,7 @@ namespace SampleApp
                     {
                         //cell.Value = val;
                         customValue.Cell.Value = config.UseFundamentals ?
-                            config.CellFormatDefault(customValue.ColName, customValue.Value, customValue.Cell) 
+                            config.CellFormatDefault(customValue.ColName, customValue.Value, customValue.Cell)
                             : customValue.Value;
                     }
                 };
@@ -81,11 +80,11 @@ namespace SampleApp
                 //发现样式有问题,用这个设置,但是生成的文件会增加体积
                 config.Body[3].Option.InsertRowStyle.Operation = InsertRowStyleOperation.CopyStyleAndMergeCell;
 
-                EPPlusHelper.FillData(excelPackage, config, configSource, "Result", "Sheet2");
+                EPPlusHelper.FillData(excelPackage, config, configSource, "Result", wsName);
                 EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(@"模版\Sample03_1_2_Result.xlsx");
+                ms.Save(filePathSave);
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }

@@ -3,39 +3,33 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EPPlusExtensions;
 using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
+using SampleApp._01填充数据;
+using SampleApp.MethodExtension;
 
-namespace SampleApp
+namespace SampleApp._03读取excel内容
 {
-    /// <summary>
-    /// 读取Excel的内容
-    /// </summary>
-    class Sample02_1_2
+    class Sample04
     {
         public void Run()
         {
-            string filePath = @"模版\Sample02_1.xlsx";
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            string filePath = @"模版\03读取excel内容\Sample01.xlsx";
+            var wsName = "合并行读取";
+            using( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
                 try
                 {
-                    ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
+                    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
                     var args = EPPlusHelper.GetExcelListArgsDefault<ysbm>(ws, 2);
-                    args.ScanLine = ScanLine.SingleLine;
-
                     var propModel = new ysbm();
-
-
                     var source = propModel.部门.CreateKVSource();
-
                     {
-                        //添加方式1
+                        //KV添加方式1-AddRange() 自己创建DataSource
                         var dataSource = propModel.部门.CreateKVSourceData();
                         dataSource.Add("事业1部", 1);
                         dataSource.Add("事业2部", 2);
@@ -43,10 +37,9 @@ namespace SampleApp
                         source.AddRange(dataSource);
                     }
                     {
-                        //添加方式2
+                        //KV添加方式2-TryAdd 自己创建Datatable
                         #region dt
                         var dt = new DataTable();
-
                         dt.Columns.Add("Id");
                         dt.Columns.Add("Name");
                         var dr1 = dt.NewRow();
@@ -69,7 +62,7 @@ namespace SampleApp
                     }
 
                     {
-                        //添加方式3
+                        //KV添加方式3-内部TryAdd,自己封装一个方法
                         #region dt
                         var dt = new DataTable();
                         dt.Columns.Add("Id");
@@ -84,6 +77,7 @@ namespace SampleApp
 
                         source.AddRange(GetSource_部门(propModel, dt).Data);
                     }
+
                     args.KVSource.Add(nameof(propModel.部门), source);
 
                     var list = EPPlusHelper.GetList<ysbm>(args);
@@ -101,7 +95,7 @@ namespace SampleApp
 
         }
 
-        public static object SafeRow(DataRow row, string name, Type type)
+        private static object SafeRow(DataRow row, string name, Type type)
         {
             object o = row[name];
             if (o == DBNull.Value || o == null)
@@ -161,9 +155,6 @@ namespace SampleApp
             KvSource<string, long> kvsource = prop.CreateKVSource();
             foreach (DataRow item in dt.Rows)
             {
-                //var key = SafeRow(item, "Name", prop.KeyType);
-                //var value = SafeRow(item, "Id", prop.ValueType);
-
                 var key = SafeRow(item, "Name", propModel.部门.GetKeyType());
                 var value = SafeRow(item, "Id", propModel.部门.GetValueType());
                 kvsource.TryAdd(key, value);
@@ -172,7 +163,7 @@ namespace SampleApp
         }
 
 
-        internal class ysbm
+        private class ysbm
         {
             public string 序号 { get; set; }
             //[KVSet("部门")] // 属性'部门'值:'事业1部'未在'部门'集合中出现

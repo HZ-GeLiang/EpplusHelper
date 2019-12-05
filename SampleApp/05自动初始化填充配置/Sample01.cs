@@ -8,12 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using EPPlusExtensions;
 
-namespace SampleApp
+namespace SampleApp._05自动初始化填充配置
 {
-    /// <summary>
-    /// 自动初始化填充配置
-    /// </summary>
-    class Sample04_1
+    class Sample01
     {
         public void Run()
         {

@@ -8,18 +8,17 @@ using System.Threading.Tasks;
 using EPPlusExtensions;
 using OfficeOpenXml;
 
-namespace SampleApp
+namespace SampleApp._03读取excel内容
 {
     /// <summary>
     /// 获得模版数据检测提示.
     /// </summary>
-    class Sample02_5
+    class Sample09
     {
         public void Run()
         {
             var wss = new List<string> { "eq", "gt", "lt", "neq1", "neq2" };
             TestMatchingModel(wss);
-
             Console.ReadKey();
         }
 
@@ -63,21 +62,21 @@ namespace SampleApp
 
         public static void ReadLine(string wsName)
         {
-            string filePath = @"模版\Sample02_5.xlsx";
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            string filePath = @"模版\03读取excel内容\Sample09.xlsx";
+            using( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
-                ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
+                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
                 try
                 {
                     var list = EPPlusHelper.GetList<Model1>(ws, 2);
                     ObjectDumper.Write(list);
+                    Console.WriteLine("读取完毕");
                 }
                 catch (Exception e)
                 {
                     throw e;
                 }
-                Console.WriteLine("读取完毕");
             }
         }
 

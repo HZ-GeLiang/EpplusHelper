@@ -36,7 +36,7 @@ namespace SampleApp._01填充数据
                 #endregion
 
                 //删除的2种方式
-                EPPlusHelper.DeleteWorksheet(excelPackage, wsName);
+                //EPPlusHelper.DeleteWorksheet(excelPackage, wsName);
                 EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
 
                 excelPackage.SaveAs(ms);

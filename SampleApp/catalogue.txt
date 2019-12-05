@@ -1,25 +1,34 @@
-﻿使用
+﻿01填充数据
+	Sample00-数据源
+	Sample01-基本填充
+	Sample02-标题行+基本填充
+	Sample03-标题行+填充的非合并行中,列不是连续的
+	Sample04-标题行+填充的非合并行中,列是合并单元格
 
-Sample01_2-附加图片, 不推荐添加, 我也没捣鼓出来怎么添加合适
+02填充图片
+	Sample00-数据源
+	Sample01-尝试添加图片, 案例失败(有空研究研究)
 
-读取Excel的内容
-Sample02_1-基本使用
-Sample02_1_2-使用了kv类型
-Sample02_1_2-使用了kv类型,多个属性同个数据源,但是mustInset值不一样
-Sample02_2-支持 System.ComponentModel.DataAnnotations
-Sample02_3-内置Attribute的示例
-Sample02_4-当excel列名字重复时,按顺序映射到对应model属性中
-Sample02_5-GetList()时可以获得模版数据检测提示.
-Sample02_6-新增GetDataTable()
-Sample02_7-GetList()支持标题列名字重复
-Sample02_8-GetList()数据源的数据存在错误时,查看给出的消息提示
+03读取excel内容
+	Sample01-逐行读取
+	Sample02-合并行读取(默认读取方式)
+	Sample03-指定行读取:标题和数据行不连续
+	Sample04-使用了kv类型
+	Sample05-使用了kv类型,多个属性同个数据源,但是mustInset值不一样
+	Sample06-支持 System.ComponentModel.DataAnnotations
+	Sample07-内置 Attribute 的示例
+	Sample08-当excel列名字重复时,按顺序映射重命名excel的标题,然后映射到对应的model属性中
+	Sample09-GetList() 时可以获得模版数据检测提示
+	Sample10-1. args.WhereFilter  和 args.HavingFilter 的使用  2.获取数据新增方法 GetDataTable() 
+	Sample11-当excel列名字重复时,GetList() 新增2个Attract: ExcelColumnIndexAttribute 和 DisplayExcelColumnNameAttribute
+	Sample12-GetList() 数据源的数据存在错误时,查看给出的消息提示, 有2个参数 args.GetList_NeedAllException 和 args.GetList_ErrorMessage_OnlyShowColomn
 
-填充数据与数据源同步(未测试完全),不推荐用
-Sample03_1-普通单元格_单行单列
-Sample03_1_2-普通单元格_单行多列
-Sample03_2-复杂单元格
+04填充数据与数据源同步
+	Sample01-普通单元格_单行单列
+	Sample02-普通单元格_单行多列
+	Sample03-复杂单元格
 
-自动初始化填充配置
-Sample04_1-给定字符串,返回配置项
-Sample04_2-简单使用
-Sample04_3-处理多个worksheet
+05自动初始化填充配置
+	Sample01-给定字符串,返回配置项
+	Sample02-简单使用
+	Sample03-处理多个worksheet

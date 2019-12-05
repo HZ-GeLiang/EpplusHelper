@@ -9,20 +9,21 @@ using System.Threading.Tasks;
 using EPPlusExtensions;
 using SampleApp.MethodExtension;
 
-namespace SampleApp
+namespace SampleApp._05自动初始化填充配置
 {
     /// <summary>
     /// 自动初始化填充配置
     /// </summary>
-    class Sample04_3
+    class Sample03
     {
         public void Run()
         {
 
-            string filePath = $@"模版\Sample04_3.xlsx";
-            using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            string filePath = @"模版\05自动初始化填充配置\Sample03.xlsx";
+            string filePathSave = @"模版\05自动初始化填充配置\ResultSample03.xlsx";
+            using (var ms = new MemoryStream())
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
                 var dataConfigInfo = new List<ExcelDataConfigInfo>()
                 {
@@ -34,8 +35,8 @@ namespace SampleApp
                 var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, dataConfigInfo);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(@"模版\Sample04_3_Result.xlsx");
-                var filePathPrefix = $@"模版\Sample04_3_Result";
+                ms.Save(filePathSave);
+                var filePathPrefix = Path.GetDirectoryName(filePath);
                 foreach (var item in defaultConfigList)
                 {
                     //将字符串全部写入文件

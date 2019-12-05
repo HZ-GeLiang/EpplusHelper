@@ -3,29 +3,29 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EPPlusExtensions;
 using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
+using SampleApp._01填充数据;
+using SampleApp.MethodExtension;
 
-namespace SampleApp
+namespace SampleApp._03读取excel内容
 {
-    /// <summary>
-    /// 读取Excel的内容
-    /// </summary>
-    class Sample02_1_3
+    class Sample05
     {
+        
         public void Run()
         {
-            string filePath = @"模版\Sample02_1.xlsx";
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            string filePath = @"模版\03读取excel内容\Sample05.xlsx";
+            var wsName = 1;
+            using( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
                 try
                 {
-                    ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet2");
+                    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
                     var args = EPPlusHelper.GetExcelListArgsDefault<ysbm>(ws, 2);
                     args.ScanLine = ScanLine.SingleLine;
 
@@ -51,7 +51,6 @@ namespace SampleApp
             Console.WriteLine("按任意键结束程序!");
             Console.ReadKey();
         }
-
 
         internal class ysbm
         {

@@ -9,23 +9,22 @@ using System.Threading.Tasks;
 using EPPlusExtensions;
 using SampleApp.MethodExtension;
 
-namespace SampleApp
+namespace SampleApp._04填充数据与数据源同步
 {
-    /// <summary>
-    /// 填充数据与数据源同步
-    /// </summary>
-    class Sample03_2
+    class Sample03
     {
         public void Run()
         {
-            string filePath = @"模版\Sample03_2.xlsx";
-            using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            string filePath = @"模版\04填充数据与数据源同步\Sample03.xlsx";
+            string filePathSave = @"模版\04填充数据与数据源同步\ResultSample03.xlsx";
+            var wsName = "Sheet1";
+            using (var ms = new MemoryStream())
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
                 var config = EPPlusHelper.GetEmptyConfig();
                 var configSource = EPPlusHelper.GetEmptyConfigSource();
-                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, "Sheet1");
+                EPPlusHelper.SetDefaultConfigFromExcel(excelPackage, config, wsName);
                 configSource.Body[1].Option.DataSource = GetProduct1();
                 configSource.Body[1].Option.FillMethod = new SheetBodyFillDataMethod()
                 {
@@ -72,11 +71,11 @@ namespace SampleApp
                     }
                 };
 
-                EPPlusHelper.FillData(excelPackage, config, configSource, "Result", "Sheet1");
+                EPPlusHelper.FillData(excelPackage, config, configSource, "Result", wsName);
                 EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(@"模版\Sample03_2_Result.xlsx");
+                ms.Save(filePathSave);
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }
