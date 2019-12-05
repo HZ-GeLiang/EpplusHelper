@@ -7,25 +7,26 @@ using System.Text;
 using System.Threading.Tasks;
 using EPPlusExtensions;
 using OfficeOpenXml;
+using SampleApp.MethodExtension;
 
-namespace SampleApp
+namespace SampleApp._03读取excel内容
 {
-    /// <summary>
-    /// 获得模版数据检测提示.
-    /// </summary>
-    class Sample02_6
+    class Sample10
     {
         public void Run()
         {
-            string filePath = @"模版\Sample02_1.xlsx";
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            string filePath = @"模版\03读取excel内容\Sample01.xlsx";
+            var wsName = "逐行读取";
+            using ( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
-                ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
+                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
                 var args = EPPlusHelper.GetExcelListArgsDefault<DataRow>(ws, 2);
                 args.WhereFilter = a => Convert.ToInt32(a["序号"]) <= 3;
                 args.HavingFilter = a => a["部门负责人"].ToString() == "赵六";
                 var dt = EPPlusHelper.GetDataTable(args);
+                var txt = dt.ToText();
+                Console.WriteLine(txt);
                 Console.WriteLine("读取完毕");
             }
 

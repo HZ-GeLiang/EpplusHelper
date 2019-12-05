@@ -12,6 +12,7 @@ using SampleApp.MethodExtension;
 
 namespace SampleApp._02填充图片
 {
+    // 我也没捣鼓出来怎么添加合适
     class Sample01
     {
         const float STANDARD_DPI = 96;
@@ -22,8 +23,8 @@ namespace SampleApp._02填充图片
             string filePathSave = @"模版\02填充图片\ResultSample01.xlsx";
             var wsName = 1;
             using (MemoryStream ms = new MemoryStream())
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+            using( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
                 var config = EPPlusHelper.GetEmptyConfig();
                 var configSource = EPPlusHelper.GetEmptyConfigSource();

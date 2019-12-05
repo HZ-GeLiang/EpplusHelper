@@ -8,16 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using EPPlusExtensions;
 
-namespace SampleApp
+namespace SampleApp._05自动初始化填充配置
 {
-    /// <summary>
-    /// 自动初始化填充配置
-    /// </summary>
-    class Sample04_2
+    class Sample02
     {
         public void Run()
         {
-            string filePath = $@"模版\Sample04_2.xlsx";
+            string filePath = @"模版\05自动初始化填充配置\Sample02.xlsx";
+
             string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
             var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileOutDirectoryName, null);
             var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result";
@@ -28,7 +26,8 @@ namespace SampleApp
                 File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
             }
 
-            OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\"));
+            System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+            // OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\05自动初始化填充配置\"));
         }
     }
 }

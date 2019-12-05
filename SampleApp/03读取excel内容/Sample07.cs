@@ -1,29 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EPPlusExtensions;
-using OfficeOpenXml;
 using EPPlusExtensions.Attributes;
+using OfficeOpenXml;
+using SampleApp._01填充数据;
+using SampleApp.MethodExtension;
 
-namespace SampleApp
+namespace SampleApp._03读取excel内容
 {
-    /// <summary>
-    /// 读取Excel的内容
-    /// </summary>
-    class Sample02_3
+    class Sample07
     {
         public void Run()
         {
-            string filePath = @"模版\Sample02_3.xlsx";
-            using (FileStream fs = new System.IO.FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ExcelPackage excelPackage = new ExcelPackage(fs))
+
+            string filePath = @"模版\03读取excel内容\Sample07.xlsx";
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
-                ExcelWorksheet ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
-                List<PeopleInfo> list = EPPlusHelper.GetList<PeopleInfo>(ws, 2);
+                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
+                var list = EPPlusHelper.GetList<PeopleInfo>(ws, 2);
+                ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
             }
         }
@@ -39,7 +41,7 @@ namespace SampleApp
             public int 年龄 { get; set; }
         }
 
-        public enum Gender
+        internal enum Gender
         {
             男 = 1,
             女 = 2,
