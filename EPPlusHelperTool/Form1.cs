@@ -195,10 +195,10 @@ namespace EPPlusHelperTool
                 var ws1TitleCol = Convert.ToInt32(this.TitleCol1.Text.Trim());
                 var ws2TitleCol = Convert.ToInt32(this.TitleCol2.Text.Trim());
 
-                using (FileStream fs1 = new FileStream(ws1Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (FileStream fs2 = new FileStream(ws2Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (ExcelPackage excelPackage1 = new ExcelPackage(fs1))
-                using (ExcelPackage excelPackage2 = new ExcelPackage(fs2))
+                using (var fs1 = new FileStream(ws1Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var fs2 = new FileStream(ws2Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var excelPackage1 = new ExcelPackage(fs1))
+                using (var excelPackage2 = new ExcelPackage(fs2))
                 {
                     var ws1 = GetWorkSheet(excelPackage1, ws1Index_string);
                     var ws2 = GetWorkSheet(excelPackage2, ws2Index_string);
@@ -384,7 +384,7 @@ namespace EPPlusHelperTool
                     MessageBox.Show("只支持.xlsx文件");
                     return;
                 }
-                using (MemoryStream ms = new MemoryStream())
+                using (var ms = new MemoryStream())
                 using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (var excelPackage = new ExcelPackage(fs))
                 {
