@@ -34,6 +34,7 @@ namespace SampleApp
             //new SampleApp._01填充数据.Sample02().Run();
             //new SampleApp._01填充数据.Sample03().Run();
             //new SampleApp._01填充数据.Sample04().Run();
+            new SampleApp._01填充数据.Sample05().Run();
 
             //new SampleApp._02填充图片.Sample01().Run(); //我也没搞懂怎么使用,计划任务
 
@@ -62,6 +63,7 @@ namespace SampleApp
             stopwatch.Stop();
             Console.WriteLine("runTime 时差:" + stopwatch.Elapsed);
             Console.WriteLine("runTime 毫秒:" + stopwatch.ElapsedMilliseconds);
+            
             Console.ReadKey();
         }
     }

@@ -96,6 +96,7 @@
   <ItemGroup>
     <Content Include="CodeMigrate.txt" />
     <Compile Include="01填充数据\Sample02.cs" />
+    <Compile Include="01填充数据\Sample05.cs" />
     <Compile Include="01填充数据\Sample04.cs" />
     <Compile Include="01填充数据\Sample03.cs" />
     <Compile Include="01填充数据\Sample01.cs" />
@@ -131,6 +132,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="模版\01填充数据\Sample05.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="模版\02填充图片\Sample01.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
