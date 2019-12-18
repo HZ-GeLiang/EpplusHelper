@@ -612,7 +612,8 @@ namespace EPPlusExtensions
                         : rightCellInfo.ColStr;
                     #endregion
 
-                    //第一遍循环:计算要插入多少行
+                    #region 第一遍循环:计算要插入多少行
+
                     var insertRows = 0;//要新增多少行
                     var insertRowFrom = 0;//从哪行开始
                     var dictDestRow = new Dictionary<int, int>();//数据源的第N行,对应excel填充的第N行
@@ -644,8 +645,10 @@ namespace EPPlusExtensions
                         sheetBodyAddRowCount++;
                         currentLoopAddLines++;
                     }
+                    #endregion
 
-                    if (insertRows > 0 && insertRowFrom > 0)
+                    var needInsert = insertRows > 0 && insertRowFrom > 0;
+                    if (needInsert)
                     {
                         //在  InsertRowFrom 行前面插入 InsertRowCount 行.
                         //注:
@@ -654,10 +657,6 @@ namespace EPPlusExtensions
                         //3. copyStylesFromRow 不会把合并的单元格也弄过来(即,这个参数的功能不是格式刷)
                         if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyAll)
                         {
-                            //if (insertRowFrom ==11)
-                            //{
-                            //    var aaa = 2;
-                            //}
                             worksheet.InsertRow(insertRowFrom, insertRows); //用这个参数创建的excel,文件体积要小,插入速度没测试
                         }
                         else if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyStyleAndMergeCell)
@@ -665,8 +664,9 @@ namespace EPPlusExtensions
                             if (dictConfig[nth].InsertRowStyle.NeedCopyStyles)
                             {
                                 //在测试中,数据量 >= EPPlusConfig.MaxRow07/2-1  时,程序会抛异常, 这个数据量值仅做参考
-                                //解决方案,分批插入, 且分批插入的 RowFrom 必须是第一次 InsertRow 的结尾行, 不然 第三遍循环:填充数据 会异常
-                                //同时又发现了一个bug: worksheet.InsertRow 第三个参数 要满足 _rows + _copyStylesFromRow < EPPlusConfig.MaxRow07 , 但是_copyStylesFromRow 又是  _rowFrom + _rows 后开始数的行数 .nnd. 为了 防止报错, 我后面写了if-else 结果就是 后面新增的行没有样式
+                                //解决方案,分批插入, 且分批插入的 RowFrom 必须是第一次 InsertRow 的结尾行, 不然 '第三遍循环:填充数据' 会异常
+                                //同时又发现了一个bug: worksheet.InsertRow() 的第三个参数要满足 _rows + _copyStylesFromRow < EPPlusConfig.MaxRow07 , 但是_copyStylesFromRow 又是  _rowFrom + _rows 后开始数的行数
+                                //nnd. 为了 屏蔽这个bug报错, 我后面写了if-else.  这样写的 结果就是 后面新增的行没有样式
 
                                 var insertRowsMax = (EPPlusConfig.MaxRow07 / 2 - 1) - 1;
                                 if (insertRows >= insertRowsMax)
@@ -716,10 +716,11 @@ namespace EPPlusExtensions
                                 worksheet.InsertRow(insertRowFrom, insertRows);
                             }
                         }
+                    }
 
-                        #region 第二遍循环:处理样式 (Height要自己单独处理)
-
-
+                    #region 第二遍循环:处理样式 (Height要自己单独处理)
+                    if (needInsert)
+                    {
                         if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyAll)
                         {
                             var configLine = $"{leftColStr}{lastSpaceLineRowNumber}:{rightColStr}{lastSpaceLineRowNumber}";
@@ -730,13 +731,12 @@ namespace EPPlusExtensions
 
                                 //copy 好比格式刷, 这里只格式化配置行所在的表格部分.
                                 //Copy 效率比 CopyStyleAndMergedCellFromConfigRow 慢差不多一倍(测试数据4w条,要4秒多, 用上面的是2秒多,且文件体积也要小很多 好像有50% ) 
-                                worksheet.Cells[configLine].Copy(worksheet.Cells[$"{leftColStr}{destRow}:{rightColStr}{destRow}"]);
+                                worksheet.Cells[configLine].Copy(worksheet.Cells[$"{leftColStr}{destRow}:{rightColStr}{destRow}"]);//注: 如果rightColStr后还有单元格,请参考Sample05
 
                                 //不要用[row,col]索引器,[row,col]表示某单元格.注意:copy会把source行的除了height(觉得是一个bug)以外的全部复制一行出来
                                 worksheet.Row(destRow).Height = worksheet.Row(lastSpaceLineRowNumber).Height; //修正height
                             }
                         }
-
                         else if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyStyleAndMergeCell)
                         {
                             var modifyInsertRowHeight = true;
@@ -766,11 +766,11 @@ namespace EPPlusExtensions
                                 }
                             }
                         }
-
-                        #endregion
                     }
+                    #endregion
 
-                    //第三遍循环:填充数据
+                    #region 第三遍循环:填充数据
+
                     for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
                     {
                         int destRow = dictDestRow[i];
@@ -784,6 +784,12 @@ namespace EPPlusExtensions
 
                             //worksheet.Cells[destRow, destCol].Value = row[j];
                             string colMapperName = dictConfig[nth].ConfigLine[j].ConfigValue;//身份证
+
+                            if (string.IsNullOrEmpty(colMapperName))
+                            {
+                                continue;
+                            }
+
                             //33xxxx19941111xxxx
                             object val = dictConfig[nth].ConfigItemMustExistInDataColumn
                                 ? row[colMapperName]
@@ -928,6 +934,7 @@ namespace EPPlusExtensions
                             SetReport(worksheet, row, config, destRow);
                         }
                     }
+                    #endregion
                 }
 
                 //已经修复bug:当只有一个配置时,且 deleteLastSpaceLine 为false,然后在excel筛选的时候能出来一行空白 原因是,配置行没被删除
@@ -3087,7 +3094,7 @@ namespace EPPlusExtensions
         /// <param name="ws"></param>
         /// <returns></returns>
         public static ExcelCellPoint GetFirstValueCellPoint(ExcelWorksheet ws) => (ExcelCellPoint)GetFirstValueCellInfo<ExcelCellPoint>(ws);
-       
+
         /// <summary>
         /// 获得第一个有值的单元格
         /// </summary>
@@ -3181,6 +3188,8 @@ namespace EPPlusExtensions
                         continue; //不用""比较, .Length速度比较快
                     }
 
+                    //var cell = sheet.Cells[i + 1, j + 1];//当单元格值是公式时,没法在configLine里进行add, 因为下面的 ntnthStr 是 ""
+
                     if (!cellStr.StartsWith("$tb")) continue;
 
                     string cellPosition = ExcelCellPoint.R1C1FormulasReverse(j + 1) + (i + 1); //  {"L15", "付款对象"}, $tb1
@@ -3235,6 +3244,7 @@ namespace EPPlusExtensions
                         {
                             configLine.Add(new List<EPPlusConfigFixedCell>());
                         }
+
 
                         if (configLine[nth - 1].Find(a => a.ConfigValue == cellConfigValue) != default(EPPlusConfigFixedCell))
                         {
@@ -3465,6 +3475,10 @@ namespace EPPlusExtensions
             //return cell.Text; //这个没有科学计数法  注:Text是Excel显示的值,Value是实际值.
             try
             {
+                //if (cell.Formula?.Length > 0)//cell 是公式
+                //{
+
+                //}
                 return cell.Text;//有的单元格通过cell.Text取值会发生异常,但cell.Value却是有值的
             }
             catch (System.NullReferenceException)
