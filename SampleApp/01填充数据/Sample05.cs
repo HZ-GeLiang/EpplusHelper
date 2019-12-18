@@ -30,9 +30,8 @@ namespace SampleApp._01填充数据
                 configSource.Body[1].Option.FillMethod = new SheetBodyFillDataMethod();
 
                 //配置项只到G列,但是H列还有公式,需要自己添加,如果不添加,在处理样式时,H列的公式将会没有
-                config.Body[1].Option.ConfigLine.Add(new EPPlusConfigFixedCell { Address = "H3" });//没办法写在configLine中,需要自己写
+                config.Body[1].Option.ConfigLine.Add(new EPPlusConfigFixedCell { Address = "H3" });//没办法在 SetConfigBodyFromExcel() 的 configLine中添加,需要自己写
 
-                //config.Body[1].Option.InsertRowStyle.Operation = InsertRowStyleOperation.CopyStyleAndMergeCell;//用了这个参数,公式全失效,后面有空研究
                 EPPlusHelper.FillData(excelPackage, config, configSource, "预算", 1);
                 EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
                 excelPackage.SaveAs(ms);
