@@ -62,16 +62,7 @@ namespace EPPlusHelperTool
 
                 var fileDir = Path.GetDirectoryName(filePath);
 
-                var dataConfigInfo = new List<ExcelDataConfigInfo>();
-                for (int i = 0; i < dgv1.Rows.Count; i++)
-                {
-                    dataConfigInfo.Add(new ExcelDataConfigInfo()
-                    {
-                        WorkSheetIndex = i + 1,
-                        TitleLine = Convert.ToInt32(dgv1.Rows[i].Cells[2].Value),
-                        TitleColumn = Convert.ToInt32(dgv1.Rows[i].Cells[3].Value),
-                    });
-                }
+                var dataConfigInfo = new List<ExcelDataConfigInfo>() { GetExcelDataConfigInfo() };
 
                 var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileDir, dataConfigInfo, cell =>
                 {
@@ -103,7 +94,10 @@ namespace EPPlusHelperTool
                     return;
                 }
                 MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
-                WinFormHelper.OpenDirectory(fileDir);
+                //if (!fileDir.Contains($@"\Desktop\"))
+                //{
+                //    WinFormHelper.OpenDirectory(fileDir);
+                //}
             });
         }
 
@@ -156,10 +150,13 @@ namespace EPPlusHelperTool
                 }
 
                 errMsg.RemoveLastChar('、');
-                WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
                 if (errMsg.Length > 0)
                 {
                     MessageBox.Show($"下列工作簿未生成配置项:{errMsg}");
+                }
+                if (!filePath.GetDirectoryName().Contains($@"\Desktop\"))
+                {
+                    WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
                 }
             });
         }
@@ -444,6 +441,111 @@ namespace EPPlusHelperTool
                 else if (((System.Windows.Forms.Control)sender).Name == "dgv2")
                     this.TitleCol2.Text = txt;
             }
+        }
+
+        private void CreateClass_Click(object sender, EventArgs e)
+        {
+            TryRun(() =>
+            {
+                string filePath = filePath1.Text.Trim().移除路径前后引号();
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    MessageBox.Show("路径不能为空");
+                    return;
+                }
+                var fileDir = Path.GetDirectoryName(filePath);
+                var dataConfigInfo = new List<ExcelDataConfigInfo>() { GetExcelDataConfigInfo() };
+
+                string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
+
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var excelPackage = new ExcelPackage(fs))
+                {
+                    var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, dataConfigInfo);
+                    var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}";
+                    var hasFile = false;
+                    foreach (var item in defaultConfigList)
+                    {
+                        if (item.ClassPropertyList.Count > 0)
+                        {
+                            hasFile = true;
+                            File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
+                        }
+                    }
+                    if (hasFile)
+                    {
+                        MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
+                    }
+                    //if (!filePath.GetDirectoryName().Contains($@"\Desktop\"))
+                    //{
+                    //    WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
+                    //}
+                }
+
+            });
+        }
+
+        private void CreateDataTable_Click(object sender, EventArgs e)
+        {
+            TryRun(() =>
+            {
+                string filePath = filePath1.Text.Trim().移除路径前后引号();
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    MessageBox.Show("路径不能为空");
+                    return;
+                }
+                var fileDir = Path.GetDirectoryName(filePath);
+                var dataConfigInfo = new List<ExcelDataConfigInfo>() { GetExcelDataConfigInfo() };
+
+                string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
+
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var excelPackage = new ExcelPackage(fs))
+                {
+                    var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, dataConfigInfo);
+                    var filePathPrefix = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}";
+
+                    var hasFile = false;
+                    foreach (var item in defaultConfigList)
+                    {
+                        if (item.ClassPropertyList.Count > 0)
+                        {
+                            hasFile = true;
+                            File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDataTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDataTableSnippe);
+                        }
+                    }
+                    //if (!filePath.GetDirectoryName().Contains($@"\Desktop\"))
+                    //{
+                    //    WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
+                    //}
+                    if (hasFile)
+                    {
+                        MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
+                    }
+                }
+
+            });
+        }
+
+        private ExcelDataConfigInfo GetExcelDataConfigInfo()
+        {
+            var excelDataConfigInfo = new ExcelDataConfigInfo()
+            {
+                TitleLine = Convert.ToInt32(this.TitleLine1.Text.Trim()),
+                TitleColumn = Convert.ToInt32(this.TitleCol1.Text.Trim()),
+            };
+            var workSheetIndexOrName = this.wsNameOrIndex1.Text.Trim();
+            if (int.TryParse(workSheetIndexOrName, out int wsIndex))
+            {
+                excelDataConfigInfo.WorkSheetIndex = wsIndex;
+            }
+            else
+            {
+                excelDataConfigInfo.WorkSheetName = workSheetIndexOrName;
+            }
+
+            return excelDataConfigInfo;
         }
     }
 }

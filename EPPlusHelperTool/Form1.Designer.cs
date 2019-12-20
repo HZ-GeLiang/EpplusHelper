@@ -69,6 +69,14 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.CreateDataTable = new System.Windows.Forms.Button();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgv2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgv1)).BeginInit();
             this.panel2.SuspendLayout();
@@ -99,7 +107,7 @@
             // 
             this.SelectFileBtn1.Location = new System.Drawing.Point(519, 23);
             this.SelectFileBtn1.Name = "SelectFileBtn1";
-            this.SelectFileBtn1.Size = new System.Drawing.Size(74, 24);
+            this.SelectFileBtn1.Size = new System.Drawing.Size(95, 24);
             this.SelectFileBtn1.TabIndex = 6;
             this.SelectFileBtn1.Text = "选择...";
             this.SelectFileBtn1.UseVisualStyleBackColor = true;
@@ -108,7 +116,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 281);
+            this.label3.Location = new System.Drawing.Point(10, 286);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(149, 12);
             this.label3.TabIndex = 9;
@@ -117,19 +125,19 @@
             // filePath2
             // 
             this.filePath2.AllowDrop = true;
-            this.filePath2.Location = new System.Drawing.Point(12, 297);
+            this.filePath2.Location = new System.Drawing.Point(12, 302);
             this.filePath2.Multiline = true;
             this.filePath2.Name = "filePath2";
-            this.filePath2.Size = new System.Drawing.Size(501, 43);
+            this.filePath2.Size = new System.Drawing.Size(501, 50);
             this.filePath2.TabIndex = 10;
             this.filePath2.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBoxDragDrop);
             this.filePath2.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBoxDragEnter);
             // 
             // SelectFileBtn2
             // 
-            this.SelectFileBtn2.Location = new System.Drawing.Point(519, 297);
+            this.SelectFileBtn2.Location = new System.Drawing.Point(519, 302);
             this.SelectFileBtn2.Name = "SelectFileBtn2";
-            this.SelectFileBtn2.Size = new System.Drawing.Size(74, 23);
+            this.SelectFileBtn2.Size = new System.Drawing.Size(95, 23);
             this.SelectFileBtn2.TabIndex = 11;
             this.SelectFileBtn2.Text = "选择...";
             this.SelectFileBtn2.UseVisualStyleBackColor = true;
@@ -137,24 +145,24 @@
             // 
             // CheckTemplateConfiguration
             // 
-            this.CheckTemplateConfiguration.Location = new System.Drawing.Point(19, 112);
+            this.CheckTemplateConfiguration.Location = new System.Drawing.Point(39, 112);
             this.CheckTemplateConfiguration.Name = "CheckTemplateConfiguration";
-            this.CheckTemplateConfiguration.Size = new System.Drawing.Size(83, 52);
+            this.CheckTemplateConfiguration.Size = new System.Drawing.Size(78, 50);
             this.CheckTemplateConfiguration.TabIndex = 12;
-            this.CheckTemplateConfiguration.Text = "上下Sheet行的内容比较";
+            this.CheckTemplateConfiguration.Text = "行内容";
             this.CheckTemplateConfiguration.UseVisualStyleBackColor = true;
             this.CheckTemplateConfiguration.Click += new System.EventHandler(this.CheckTemplateConfiguration_Click);
             // 
             // wsNameOrIndex1
             // 
-            this.wsNameOrIndex1.Location = new System.Drawing.Point(11, 29);
+            this.wsNameOrIndex1.Location = new System.Drawing.Point(4, 26);
             this.wsNameOrIndex1.Name = "wsNameOrIndex1";
             this.wsNameOrIndex1.Size = new System.Drawing.Size(100, 21);
             this.wsNameOrIndex1.TabIndex = 14;
             // 
             // wsNameOrIndex2
             // 
-            this.wsNameOrIndex2.Location = new System.Drawing.Point(404, 375);
+            this.wsNameOrIndex2.Location = new System.Drawing.Point(392, 391);
             this.wsNameOrIndex2.Name = "wsNameOrIndex2";
             this.wsNameOrIndex2.Size = new System.Drawing.Size(100, 21);
             this.wsNameOrIndex2.TabIndex = 15;
@@ -162,7 +170,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(9, 12);
+            this.label6.Location = new System.Drawing.Point(2, 10);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(65, 12);
             this.label6.TabIndex = 13;
@@ -170,22 +178,22 @@
             // 
             // TitleLine1
             // 
-            this.TitleLine1.Location = new System.Drawing.Point(65, 56);
+            this.TitleLine1.Location = new System.Drawing.Point(52, 53);
             this.TitleLine1.Name = "TitleLine1";
-            this.TitleLine1.Size = new System.Drawing.Size(42, 21);
+            this.TitleLine1.Size = new System.Drawing.Size(52, 21);
             this.TitleLine1.TabIndex = 16;
             // 
             // TitleLine2
             // 
-            this.TitleLine2.Location = new System.Drawing.Point(70, 52);
+            this.TitleLine2.Location = new System.Drawing.Point(47, 53);
             this.TitleLine2.Name = "TitleLine2";
-            this.TitleLine2.Size = new System.Drawing.Size(41, 21);
+            this.TitleLine2.Size = new System.Drawing.Size(52, 21);
             this.TitleLine2.TabIndex = 16;
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(402, 360);
+            this.label7.Location = new System.Drawing.Point(392, 372);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(65, 12);
             this.label7.TabIndex = 13;
@@ -194,7 +202,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(401, 145);
+            this.label8.Location = new System.Drawing.Point(394, 142);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(41, 12);
             this.label8.TabIndex = 17;
@@ -203,7 +211,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(13, 58);
+            this.label9.Location = new System.Drawing.Point(2, 57);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(41, 12);
             this.label9.TabIndex = 17;
@@ -213,7 +221,7 @@
             // 
             this.BtnAnalyze1.Location = new System.Drawing.Point(519, 53);
             this.BtnAnalyze1.Name = "BtnAnalyze1";
-            this.BtnAnalyze1.Size = new System.Drawing.Size(75, 23);
+            this.BtnAnalyze1.Size = new System.Drawing.Size(95, 23);
             this.BtnAnalyze1.TabIndex = 20;
             this.BtnAnalyze1.Text = "工作簿分析";
             this.BtnAnalyze1.UseVisualStyleBackColor = true;
@@ -221,9 +229,9 @@
             // 
             // BtnAnalyze2
             // 
-            this.BtnAnalyze2.Location = new System.Drawing.Point(519, 326);
+            this.BtnAnalyze2.Location = new System.Drawing.Point(519, 329);
             this.BtnAnalyze2.Name = "BtnAnalyze2";
-            this.BtnAnalyze2.Size = new System.Drawing.Size(75, 23);
+            this.BtnAnalyze2.Size = new System.Drawing.Size(95, 23);
             this.BtnAnalyze2.TabIndex = 24;
             this.BtnAnalyze2.Text = "工作簿分析";
             this.BtnAnalyze2.UseVisualStyleBackColor = true;
@@ -238,7 +246,7 @@
             this.dataGridViewTextBoxColumn5,
             this.dataGridViewTextBoxColumn6,
             this.Column2});
-            this.dgv2.Location = new System.Drawing.Point(12, 348);
+            this.dgv2.Location = new System.Drawing.Point(12, 363);
             this.dgv2.Name = "dgv2";
             this.dgv2.RowHeadersVisible = false;
             this.dgv2.RowTemplate.Height = 23;
@@ -314,7 +322,7 @@
             this.dgv1.Name = "dgv1";
             this.dgv1.RowHeadersVisible = false;
             this.dgv1.RowTemplate.Height = 23;
-            this.dgv1.Size = new System.Drawing.Size(373, 183);
+            this.dgv1.Size = new System.Drawing.Size(373, 195);
             this.dgv1.TabIndex = 22;
             this.dgv1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellClick);
             // 
@@ -325,52 +333,56 @@
             // 
             // GenerateConfiguration
             // 
-            this.GenerateConfiguration.Location = new System.Drawing.Point(15, 115);
+            this.GenerateConfiguration.Location = new System.Drawing.Point(52, 106);
             this.GenerateConfiguration.Name = "GenerateConfiguration";
-            this.GenerateConfiguration.Size = new System.Drawing.Size(83, 51);
+            this.GenerateConfiguration.Size = new System.Drawing.Size(66, 24);
             this.GenerateConfiguration.TabIndex = 7;
-            this.GenerateConfiguration.Text = "单个Excel填充配置";
+            this.GenerateConfiguration.Text = "填充配置";
             this.GenerateConfiguration.UseVisualStyleBackColor = true;
             this.GenerateConfiguration.Click += new System.EventHandler(this.GenerateConfiguration_Click);
             // 
             // GenerateConfigurationCode
             // 
-            this.GenerateConfigurationCode.Location = new System.Drawing.Point(516, 165);
+            this.GenerateConfigurationCode.Location = new System.Drawing.Point(516, 130);
             this.GenerateConfigurationCode.Name = "GenerateConfigurationCode";
-            this.GenerateConfigurationCode.Size = new System.Drawing.Size(77, 48);
+            this.GenerateConfigurationCode.Size = new System.Drawing.Size(98, 24);
             this.GenerateConfigurationCode.TabIndex = 18;
-            this.GenerateConfigurationCode.Text = "每个Sheet填充配置";
+            this.GenerateConfigurationCode.Text = "生成所有配置";
             this.GenerateConfigurationCode.UseVisualStyleBackColor = true;
             this.GenerateConfigurationCode.Click += new System.EventHandler(this.GenerateConfigurationCode_Click);
             // 
             // DelHiddenWs
             // 
-            this.DelHiddenWs.Location = new System.Drawing.Point(519, 102);
+            this.DelHiddenWs.Location = new System.Drawing.Point(516, 102);
             this.DelHiddenWs.Name = "DelHiddenWs";
-            this.DelHiddenWs.Size = new System.Drawing.Size(74, 55);
+            this.DelHiddenWs.Size = new System.Drawing.Size(98, 22);
             this.DelHiddenWs.TabIndex = 19;
-            this.DelHiddenWs.Text = "删除所有隐藏Sheet";
+            this.DelHiddenWs.Text = "删除所有隐藏";
             this.DelHiddenWs.UseVisualStyleBackColor = true;
             this.DelHiddenWs.Click += new System.EventHandler(this.DelHiddenWs_Click);
             // 
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.label15);
+            this.panel2.Controls.Add(this.label14);
+            this.panel2.Controls.Add(this.label13);
+            this.panel2.Controls.Add(this.button1);
             this.panel2.Controls.Add(this.label10);
             this.panel2.Controls.Add(this.TitleCol1);
             this.panel2.Controls.Add(this.wsNameOrIndex1);
             this.panel2.Controls.Add(this.label6);
             this.panel2.Controls.Add(this.GenerateConfiguration);
             this.panel2.Controls.Add(this.TitleLine1);
-            this.panel2.Location = new System.Drawing.Point(391, 84);
+            this.panel2.Location = new System.Drawing.Point(387, 84);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(119, 180);
+            this.panel2.Size = new System.Drawing.Size(123, 192);
             this.panel2.TabIndex = 26;
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(9, 91);
+            this.label10.Location = new System.Drawing.Point(5, 83);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(41, 12);
             this.label10.TabIndex = 30;
@@ -378,29 +390,32 @@
             // 
             // TitleCol1
             // 
-            this.TitleCol1.Location = new System.Drawing.Point(67, 88);
+            this.TitleCol1.Location = new System.Drawing.Point(52, 79);
             this.TitleCol1.Name = "TitleCol1";
-            this.TitleCol1.Size = new System.Drawing.Size(40, 21);
+            this.TitleCol1.Size = new System.Drawing.Size(52, 21);
             this.TitleCol1.TabIndex = 30;
             // 
             // panel3
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Controls.Add(this.label16);
+            this.panel3.Controls.Add(this.label17);
             this.panel3.Controls.Add(this.label11);
+            this.panel3.Controls.Add(this.label18);
             this.panel3.Controls.Add(this.TitleCol2);
             this.panel3.Controls.Add(this.TitleLine2);
             this.panel3.Controls.Add(this.label9);
             this.panel3.Controls.Add(this.CheckTemplateConfiguration);
-            this.panel3.Location = new System.Drawing.Point(387, 349);
+            this.panel3.Location = new System.Drawing.Point(387, 364);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(126, 182);
+            this.panel3.Size = new System.Drawing.Size(123, 182);
             this.panel3.TabIndex = 27;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
             this.label11.Cursor = System.Windows.Forms.Cursors.SizeAll;
-            this.label11.Location = new System.Drawing.Point(14, 89);
+            this.label11.Location = new System.Drawing.Point(2, 87);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(41, 12);
             this.label11.TabIndex = 31;
@@ -408,9 +423,9 @@
             // 
             // TitleCol2
             // 
-            this.TitleCol2.Location = new System.Drawing.Point(72, 85);
+            this.TitleCol2.Location = new System.Drawing.Point(47, 83);
             this.TitleCol2.Name = "TitleCol2";
-            this.TitleCol2.Size = new System.Drawing.Size(39, 21);
+            this.TitleCol2.Size = new System.Drawing.Size(52, 21);
             this.TitleCol2.TabIndex = 32;
             // 
             // label4
@@ -425,7 +440,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(405, 343);
+            this.label5.Location = new System.Drawing.Point(405, 358);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(59, 12);
             this.label5.TabIndex = 29;
@@ -436,9 +451,9 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(517, 84);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(59, 12);
+            this.label2.Size = new System.Drawing.Size(83, 12);
             this.label2.TabIndex = 30;
-            this.label2.Text = "Excel操作";
+            this.label2.Text = "批量Sheet操作";
             // 
             // label12
             // 
@@ -448,11 +463,86 @@
             this.label12.Size = new System.Drawing.Size(0, 12);
             this.label12.TabIndex = 31;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(41, 133);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(77, 24);
+            this.button1.TabIndex = 31;
+            this.button1.Text = "创建 Class";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.CreateClass_Click);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(7, 107);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(29, 12);
+            this.label13.TabIndex = 32;
+            this.label13.Text = "单个";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(6, 145);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(29, 12);
+            this.label14.TabIndex = 33;
+            this.label14.Text = "操作";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(6, 126);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(35, 12);
+            this.label15.TabIndex = 34;
+            this.label15.Text = "Sheet";
+            // 
+            // CreateDataTable
+            // 
+            this.CreateDataTable.Location = new System.Drawing.Point(406, 247);
+            this.CreateDataTable.Name = "CreateDataTable";
+            this.CreateDataTable.Size = new System.Drawing.Size(99, 24);
+            this.CreateDataTable.TabIndex = 35;
+            this.CreateDataTable.Text = "创建 DataTable";
+            this.CreateDataTable.UseVisualStyleBackColor = true;
+            this.CreateDataTable.Click += new System.EventHandler(this.CreateDataTable_Click);
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(3, 131);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(35, 12);
+            this.label16.TabIndex = 37;
+            this.label16.Text = "Sheet";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(3, 150);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(29, 12);
+            this.label17.TabIndex = 36;
+            this.label17.Text = "比较";
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(4, 112);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(29, 12);
+            this.label18.TabIndex = 35;
+            this.label18.Text = "上下";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(605, 546);
+            this.ClientSize = new System.Drawing.Size(619, 555);
+            this.Controls.Add(this.CreateDataTable);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.GenerateConfigurationCode);
@@ -530,6 +620,14 @@
         private System.Windows.Forms.TextBox TitleCol2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Button CreateDataTable;
     }
 }
 
