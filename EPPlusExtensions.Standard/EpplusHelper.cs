@@ -3325,7 +3325,7 @@ namespace EPPlusExtensions
                 if (sb.RemoveLastChar(',').Length > 0)
                 {
                     throw new ArgumentException($"Excel文件中的$tb{bodyCoinfig.Key}部分配置了相同的项:{sb}");
-                } 
+                }
                 #endregion
 
                 config.Body[bodyCoinfig.Key].Option.ConfigLine = bodyCoinfig.Value.Option.ConfigLine;
@@ -3571,42 +3571,62 @@ namespace EPPlusExtensions
         /// 
         /// </summary>
         /// <param name="excelPackage"></param>
-        /// <param name="dataConfigInfo"></param>
+        /// <param name="dataConfigInfo">指定的worksheet</param>
         /// <param name="cellCustom"></param>
         /// <returns>工作簿Name,DatTable的创建代码</returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
             var wss = excelPackage.Workbook.Worksheets;
             var list = new List<DefaultConfig>();
-            var eachCount = 1;
+            if (dataConfigInfo != null)
+            {
+                foreach (var item in dataConfigInfo)
+                {
+                    if (string.IsNullOrEmpty(item.WorkSheetName) && item.WorkSheetIndex > 0)
+                    {
+                        var eachCount = 1;
+                        foreach (var ws in wss)
+                        {
+                            if (item.WorkSheetIndex == eachCount)
+                            {
+                                item.WorkSheetName = ws.Name;
+                                break;
+                            }
+                            eachCount++;
+                        }
+                    }
+                }
+            }
+
             foreach (var ws in wss)
             {
                 int titleLine = 1;
                 int titleColumn = 1;
-                if (dataConfigInfo != null)
+                if (dataConfigInfo == null)
                 {
-                    var configInfo = dataConfigInfo.Find(a => a.WorkSheetIndex == eachCount);
-                    if (configInfo != null)
-                    {
-                        //titleLine = configInfo.TitleLine;
-                        //titleColumn = configInfo.TitleColumn;
-                        var address = GetMergeCellAddressPrecise(ws, row: configInfo.TitleLine, col: configInfo.TitleColumn);
-                        var cellRange = new ExcelCellRange(address);
-                        if (cellRange.IsMerge)
-                        {
-                            titleLine = cellRange.End.Row;
-                            titleColumn = cellRange.End.Col;
-                        }
-                        else
-                        {
-                            titleLine = cellRange.Start.Row;
-                            titleColumn = cellRange.Start.Col;
-                        }
-                    }
+                    list.Add(FillExcelDefaultConfig(ws, titleLine, titleColumn, cellCustom));
+                    continue;
                 }
 
+                var configInfo = dataConfigInfo.Find(a => a.WorkSheetName == ws.Name);
+                if (configInfo == null)
+                {
+                    continue;
+                }
+                var address = GetMergeCellAddressPrecise(ws, row: configInfo.TitleLine, col: configInfo.TitleColumn);
+                var cellRange = new ExcelCellRange(address);
+                if (cellRange.IsMerge)
+                {
+                    titleLine = cellRange.End.Row;
+                    titleColumn = cellRange.End.Col;
+                }
+                else
+                {
+                    titleLine = cellRange.Start.Row;
+                    titleColumn = cellRange.Start.Col;
+                }
                 list.Add(FillExcelDefaultConfig(ws, titleLine, titleColumn, cellCustom));
-                eachCount++;
+                continue;
             }
             return list;
         }
