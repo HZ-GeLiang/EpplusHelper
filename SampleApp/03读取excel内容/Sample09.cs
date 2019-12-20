@@ -13,77 +13,81 @@ namespace SampleApp._03读取excel内容
     /// <summary>
     /// 获得模版数据检测提示.
     /// </summary>
-    class Sample09
+    public class Sample09
     {
-        public void Run()
+        public static void Run()
         {
-            var wss = new List<string> { "eq", "gt", "lt", "neq1", "neq2" };
-            TestMatchingModel(wss);
-            Console.ReadKey();
-        }
-
-        static void TestMatchingModel(List<string> wss)
-        {
-            string errMsg;
-            foreach (var ws in wss)
+            foreach (var item in TestCaseList)
             {
+                var ws = item.WsName;
                 Console.WriteLine($@"****{ws}-测试ing****");
-
-                try
-                {
-                    ReadLine(ws);
-                }
-                catch (Exception e)
-                {
-                    errMsg = "模版多提供了model属性中不存在的列:C1(c)!";
-                    if (ws == "gt" && e.Message != errMsg)
-                    {
-                        throw e;
-                    }
-                    errMsg = "模版少提供了model属性中定义的列:'b'!";
-                    if (ws == "lt" && e.Message != errMsg)
-                    {
-                        throw e;
-                    }
-                    errMsg = "模版多提供了model属性中不存在的列:B1(c)!模版少提供了model属性中定义的列:'b'!";
-                    if (ws == "neq1" && e.Message != errMsg)
-                    {
-                        throw e;
-                    }
-                    errMsg = "模版多提供了model属性中不存在的列:A1(c),B1(d)!模版少提供了model属性中定义的列:'a','b'!";
-                    if (ws == "neq2" && e.Message != errMsg)
-                    {
-                        throw e;
-                    }
-                }
-                Console.WriteLine($@"****{ws}-测试通过****");
+                ReadLine(ws, out Exception ex);
+                Console.WriteLine(ex?.Message == item.ErrMsgShouldBe ? $@"****{ws}-测试通过****" : $@"****{ws}-测试不通过****{ex?.Message }");
             }
         }
 
-        static void ReadLine(string wsName)
+        public static List<TestCase> TestCaseList = new List<TestCase>
         {
-            string filePath = @"模版\03读取excel内容\Sample09.xlsx";
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var excelPackage = new ExcelPackage(fs))
+            new TestCase {WsName = "eq", ErrMsgShouldBe = null},
+            new TestCase {WsName = "gt", ErrMsgShouldBe = "模版多提供了model属性中不存在的列:C1(c)!"},
+            new TestCase {WsName = "lt", ErrMsgShouldBe = "模版少提供了model属性中定义的列:'b'!"},
+            new TestCase {WsName = "neq1", ErrMsgShouldBe = "模版多提供了model属性中不存在的列:B1(c)!模版少提供了model属性中定义的列:'b'!"},
+            new TestCase {WsName = "neq2", ErrMsgShouldBe = "模版多提供了model属性中不存在的列:A1(c),B1(d)!模版少提供了model属性中定义的列:'a','b'!"},
+        };
+
+        static List<ExcelModel> ReadLine(string wsName, out Exception ex)
+        {
+            ex = null;
+            List<ExcelModel> list = null;
+            try
             {
-                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
-                try
+                string filePath = @"模版\03读取excel内容\Sample09.xlsx";
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var excelPackage = new ExcelPackage(fs))
                 {
-                    var list = EPPlusHelper.GetList<Model1>(ws, 2);
+                    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
+                    list = EPPlusHelper.GetList<ExcelModel>(ws, 2);
                     ObjectDumper.Write(list);
-                    Console.WriteLine("读取完毕");
-                }
-                catch (Exception e)
-                {
-                    throw e;
+                    Console.WriteLine($@"{wsName}读取完毕");
                 }
             }
+            catch (Exception e)
+            {
+                ex = e;
+            }
+            return list;
         }
 
-        class Model1
+        public class ExcelModel
         {
             public string a { get; set; }
             public string b { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null || !obj.GetType().Equals(this.GetType()))
+                {
+                    return false;
+                }
+
+                ExcelModel y = (ExcelModel)obj;
+
+                return this.a == y.a &&
+                       this.b == y.b;
+            }
+
+            //重写Equals方法必须重写GetHashCode方法，否则发生警告
+            public override int GetHashCode()
+            {
+                return this.a.GetHashCode() +
+                       this.b.GetHashCode();
+            }
+        }
+
+        public class TestCase
+        {
+            public string WsName { get; set; }
+            public string ErrMsgShouldBe { get; set; }
         }
     }
 }

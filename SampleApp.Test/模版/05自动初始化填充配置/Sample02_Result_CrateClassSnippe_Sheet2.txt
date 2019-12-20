@@ -1,0 +1,6 @@
+public class Sheet2 {
+ public string 序号 { get; set; }
+ public string 工号 { get; set; }
+ public string 姓名 { get; set; }
+ public string 性别 { get; set; }
+}

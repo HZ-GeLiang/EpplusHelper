@@ -14,9 +14,9 @@ using SampleApp.MethodExtension;
 
 namespace SampleApp._03读取excel内容
 {
-    class Sample08
+    public class Sample08
     {
-        public void Run()
+        public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample08.xlsx";
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -29,13 +29,36 @@ namespace SampleApp._03读取excel内容
                 var list = EPPlusHelper.GetList<ExcelModel>(args);
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
+                return list;
             }
         }
-        class ExcelModel
+        public class ExcelModel
         {
             public string 名字 { get; set; }
             public string 名字2 { get; set; }
             public string 名字3 { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null || !obj.GetType().Equals(this.GetType()))
+                {
+                    return false;
+                }
+
+                ExcelModel y = (ExcelModel)obj;
+
+                return this.名字 == y.名字 &&
+                       this.名字2 == y.名字2 &&
+                       this.名字3 == y.名字3;
+            }
+
+            //重写Equals方法必须重写GetHashCode方法，否则发生警告
+            public override int GetHashCode()
+            {
+                return this.名字.GetHashCode() +
+                       this.名字2.GetHashCode() +
+                       this.名字3.GetHashCode();
+            }
         }
     }
 }

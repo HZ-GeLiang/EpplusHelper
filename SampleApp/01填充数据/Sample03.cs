@@ -11,12 +11,13 @@ using SampleApp.MethodExtension;
 
 namespace SampleApp._01填充数据
 {
-    class Sample03
+    public class Sample03
     {
-        public void Run()
+        public static bool OpenDir = true;
+        public static string filePathSave = @"模版\01填充数据\ResultSample03.xlsx";
+        public static void Run()
         {
             string filePath = @"模版\01填充数据\Sample01.xlsx";
-            string filePathSave = @"模版\01填充数据\ResultSample03.xlsx";
             var wsName = "带标题行且填充列有间隔";
             using (var ms = new MemoryStream())
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -36,7 +37,10 @@ namespace SampleApp._01填充数据
                 ms.Position = 0;
                 ms.Save(filePathSave);
             }
-            System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+            if (OpenDir)
+            {
+                System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+            }
         }
         static DataTable GetDataTable_Head()
         {

@@ -14,12 +14,14 @@ namespace SampleApp._05自动初始化填充配置
     /// <summary>
     /// 自动初始化填充配置
     /// </summary>
-    class Sample03
+    public class Sample03
     {
-        public void Run()
+        public static bool OpenDir = true;
+        public static string filePathSave = @"模版\05自动初始化填充配置\ResultSample03.xlsx";
+        public static void Run()
         {
             string filePath = @"模版\05自动初始化填充配置\Sample03.xlsx";
-            string filePathSave = @"模版\05自动初始化填充配置\ResultSample03.xlsx";
+
             using (var ms = new MemoryStream())
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
@@ -43,7 +45,10 @@ namespace SampleApp._05自动初始化填充配置
                     File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
                 }
             }
-            System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+            if (OpenDir)
+            {
+                System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+            }
         }
     }
 }

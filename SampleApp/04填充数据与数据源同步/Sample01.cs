@@ -12,12 +12,13 @@ using SampleApp.MethodExtension;
 
 namespace SampleApp._04填充数据与数据源同步
 {
-    class Sample01
+    public class Sample01
     {
-        public void Run()
+        public static bool OpenDir = true;
+        public static string filePathSave = @"模版\04填充数据与数据源同步\ResultSample01.xlsx";
+        public static void Run()
         {
             string filePath = @"模版\04填充数据与数据源同步\Sample01.xlsx";
-            string filePathSave = @"模版\04填充数据与数据源同步\ResultSample01.xlsx";
             var wsName = "Sheet1";
             using (var ms = new MemoryStream())
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -79,9 +80,11 @@ namespace SampleApp._04填充数据与数据源同步
                 ms.Position = 0;
                 ms.Save(filePathSave);
             }
-            System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+            if (OpenDir)
+            {
+                System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+            }
         }
-
 
         static DataTable GetProduct1()
         {

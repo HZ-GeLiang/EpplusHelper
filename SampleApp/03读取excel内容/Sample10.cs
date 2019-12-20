@@ -11,13 +11,13 @@ using SampleApp.MethodExtension;
 
 namespace SampleApp._03读取excel内容
 {
-    class Sample10
+    public class Sample10
     {
-        public void Run()
+        public static DataTable Run()
         {
             string filePath = @"模版\03读取excel内容\Sample01.xlsx";
             var wsName = "逐行读取";
-            using ( var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
@@ -28,7 +28,7 @@ namespace SampleApp._03读取excel内容
                 var txt = dt.ToText();
                 Console.WriteLine(txt);
                 Console.WriteLine("读取完毕");
-                Console.ReadKey();
+                return dt;
             }
         }
     }

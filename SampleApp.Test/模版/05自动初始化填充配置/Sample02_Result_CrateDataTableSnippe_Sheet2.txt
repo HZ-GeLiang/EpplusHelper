@@ -1,0 +1,12 @@
+DataTable dt = new DataTable();
+dt.Columns.Add("序号");
+dt.Columns.Add("工号");
+dt.Columns.Add("姓名");
+dt.Columns.Add("性别");
+dt.Columns["序号"].DataType = typeof(string);
+//var dr = dt.NewRow();
+//dr["序号"] = 
+//dr["工号"] = 
+//dr["姓名"] = 
+//dr["性别"] = 
+//dt.Rows.Add(dr);

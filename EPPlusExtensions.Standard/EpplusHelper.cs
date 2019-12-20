@@ -3172,10 +3172,11 @@ namespace EPPlusExtensions
         {
             object[,] arr = sheet.Cells.Value as object[,];
             Debug.Assert(arr != null, nameof(arr) + " != null");
+
             var sheetMergedCellsList = sheet.MergedCells.ToList();
 
-            var configLine = new List<List<EPPlusConfigFixedCell>>();
-            var configExtra = new List<List<EPPlusConfigFixedCell>>();
+            var bodyCoinfigCache = new Dictionary<int, EPPlusConfigBodyConfig>();
+
             for (int i = 0; i < arr.GetLength(0); i++)
             {
                 for (int j = 0; j < arr.GetLength(1); j++)
@@ -3196,27 +3197,34 @@ namespace EPPlusExtensions
 
                     string nthStr = RegexHelper.GetFirstNumber(cellStr);
                     int nth = Convert.ToInt32(nthStr);
+                    if (!bodyCoinfigCache.ContainsKey(nth))
+                    {
+                        bodyCoinfigCache.Add(nth, new EPPlusConfigBodyConfig
+                        {
+                            Nth = nth,
+                            Option = new EPPlusConfigBodyOption()
+                            {
+                                ConfigLine = new List<EPPlusConfigFixedCell>(),
+                                ConfigExtra = new List<EPPlusConfigFixedCell>()
+                            }
+                        });
+                    }
+
+                    var bodyConfig = bodyCoinfigCache[nth];
+
+                    string cellConfigValue;
+
                     if (cellStr.StartsWith("$tbs")) //模版摘要/汇总等信息单元格
                     {
-                        string cellConfigValue = Regex.Replace(cellStr, "^[$]tbs" + nthStr, ""); //$需要转义
-                        if (configExtra.Count < nth)
-                        {
-                            configExtra.Add(new List<EPPlusConfigFixedCell>());
-                        }
-
-                        if (configExtra[nth - 1].Find(a => a.ConfigValue == cellConfigValue) !=
-                            default(EPPlusConfigFixedCell))
-                        {
-                            throw new ArgumentException($"Excel文件中的$tbs{nth}部分配置了相同的项:{cellConfigValue}");
-                        }
-
-                        configExtra[nth - 1].Add(new EPPlusConfigFixedCell() { Address = cellPosition, ConfigValue = cellConfigValue.Trim(), });
+                        //string cellConfigValue = Regex.Replace(cellStr, "^[$]tbs" + nthStr, ""); //$需要转义
+                        cellConfigValue = cellStr.RemovePrefix("$tbs").Trim();
+                        bodyConfig.Option.ConfigExtra.Add(new EPPlusConfigFixedCell { Address = cellPosition, ConfigValue = cellConfigValue });
                     }
                     else if (cellStr.StartsWith($"$tb{nthStr}$")) //模版提供了多少行,若没有配置,在调用FillData()时默认提供1行  $tb1$1
                     {
-                        string cellConfigValue = Regex.Replace(cellStr, $@"^[$]tb{nth}[$]", ""); //$需要转义, 这个值一般都是数字
-
-                        if (!int.TryParse(cellConfigValue, out int cellConfigValueInt))
+                        // string cellConfigValue = Regex.Replace(cellStr, $@"^[$]tb{nth}[$]", ""); //$需要转义, 这个值一般都是数字
+                        cellConfigValue = cellStr.RemovePrefix($"$tb{nthStr}$").Trim();
+                        if (!int.TryParse(cellConfigValue, out var cellConfigValueInt))
                         {
                             if (string.Compare(cellConfigValue, "max", StringComparison.OrdinalIgnoreCase) == 0) //$tb1$max这种配置的
                             {
@@ -3228,28 +3236,18 @@ namespace EPPlusExtensions
                             }
                         }
 
-                        var nthOption = config.Body[nth].Option;
-                        if (nthOption.MapperExcelTemplateLine != null)
+                        if (config.Body[nth].Option.MapperExcelTemplateLine != null)
                         {
                             throw new ArgumentException($"Excel文件中重复配置了项$tb{nthStr}${cellConfigValue}");
                         }
 
-                        nthOption.MapperExcelTemplateLine = cellConfigValueInt;
+                        config.Body[nth].Option.MapperExcelTemplateLine = cellConfigValueInt;
                     }
-                    else //StartsWith($"$tb{nthStr}")
+                    else if (cellStr.StartsWith($"$tb{nthStr}"))
                     {
-                        string cellConfigValue = Regex.Replace(cellStr, "^[$]tb" + nthStr, ""); //$需要转义
+                        //string cellConfigValue = Regex.Replace(cellStr, $"^[$]tb{nthStr}", ""); //$需要转义
 
-                        if (configLine.Count < nth)
-                        {
-                            configLine.Add(new List<EPPlusConfigFixedCell>());
-                        }
-
-
-                        if (configLine[nth - 1].Find(a => a.ConfigValue == cellConfigValue) != default(EPPlusConfigFixedCell))
-                        {
-                            throw new ArgumentException($"Excel文件中的$tb{nth}部分配置了相同的项:{cellConfigValue}");
-                        }
+                        cellConfigValue = cellStr.RemovePrefix($"$tb{nthStr}").Trim();
 
                         if (sheet.Cells[i + 1, j + 1].Merge)
                         {
@@ -3285,16 +3283,16 @@ namespace EPPlusExtensions
                             // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                             if (RegexHelper.GetFirstNumber(cells[0]) == RegexHelper.GetFirstNumber(cells[1])) //是同一行的
                             {
-                                configLine[nth - 1].Add(new EPPlusConfigFixedCell() { Address = cellPosition, ConfigValue = cellConfigValue });
+                                bodyConfig.Option.ConfigLine.Add(new EPPlusConfigFixedCell { Address = cellPosition, ConfigValue = cellConfigValue });
                             }
                             else
                             {
-                                configLine[nth - 1].Add(new EPPlusConfigFixedCell() { Address = newKey, ConfigValue = cellConfigValue });
+                                bodyConfig.Option.ConfigLine.Add(new EPPlusConfigFixedCell { Address = newKey, ConfigValue = cellConfigValue });
                             }
                         }
                         else
                         {
-                            configLine[nth - 1].Add(new EPPlusConfigFixedCell() { Address = cellPosition, ConfigValue = cellConfigValue });
+                            bodyConfig.Option.ConfigLine.Add(new EPPlusConfigFixedCell { Address = cellPosition, ConfigValue = cellConfigValue });
                         }
                     }
 
@@ -3304,14 +3302,34 @@ namespace EPPlusExtensions
                 }
             }
 
-            for (int i = 0; i < configLine.Count; i++)
+            StringBuilder sb = new StringBuilder();
+            foreach (var bodyCoinfig in bodyCoinfigCache)
             {
-                config.Body[i + 1].Option.ConfigLine = configLine[i];
-            }
+                #region 验证
 
-            for (int i = 0; i < configExtra.Count; i++)
-            {
-                config.Body[i + 1].Option.ConfigExtra = configExtra[i];
+                sb.Clear();
+                foreach (var item in bodyCoinfig.Value.Option.ConfigExtra.GetRepeatBy(a => new { a.ConfigValue }))
+                {
+                    sb.Append($@"{item.Address}-{item.ConfigValue},");
+                }
+                if (sb.RemoveLastChar(',').Length > 0)
+                {
+                    throw new ArgumentException($"Excel文件中的$tbs{bodyCoinfig.Key}部分配置了相同的项:{sb}");
+                }
+
+                sb.Clear();
+                foreach (var item in bodyCoinfig.Value.Option.ConfigLine.GetRepeatBy(a => new { a.ConfigValue }))
+                {
+                    sb.Append($@"{item.Address}-{item.ConfigValue},");
+                }
+                if (sb.RemoveLastChar(',').Length > 0)
+                {
+                    throw new ArgumentException($"Excel文件中的$tb{bodyCoinfig.Key}部分配置了相同的项:{sb}");
+                } 
+                #endregion
+
+                config.Body[bodyCoinfig.Key].Option.ConfigLine = bodyCoinfig.Value.Option.ConfigLine;
+                config.Body[bodyCoinfig.Key].Option.ConfigExtra = bodyCoinfig.Value.Option.ConfigExtra;
             }
 
         }

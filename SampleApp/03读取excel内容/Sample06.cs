@@ -14,9 +14,9 @@ using SampleApp.MethodExtension;
 
 namespace SampleApp._03读取excel内容
 {
-    class Sample06
+    public class Sample06
     {
-        public void Run()
+        public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample06.xlsx";
             var wsName = "Sheet1";
@@ -24,13 +24,14 @@ namespace SampleApp._03读取excel内容
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
-                var list = EPPlusHelper.GetList<ysbm>(ws, 2);
+                var list = EPPlusHelper.GetList<ExcelModel>(ws, 2);
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
+                return list;
             }
         }
 
-        class ysbm
+        public class ExcelModel
         {
             public string 序号 { get; set; }
             [Required(ErrorMessage = "部门不允许为空")]
@@ -48,6 +49,36 @@ namespace SampleApp._03读取excel内容
             public string 预算部门负责人 { get; set; }
             public string 部门负责人 { get; set; }
             public string 部门负责人确认签字 { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null || !obj.GetType().Equals(this.GetType()))
+                {
+                    return false;
+                }
+
+                ExcelModel y = (ExcelModel)obj;
+
+                return this.序号 == y.序号 &&
+                       this.部门 == y.部门 &&
+                       this.部门Id == y.部门Id &&
+                       this.预算部门 == y.预算部门 &&
+                       this.预算部门负责人 == y.预算部门负责人 &&
+                       this.部门负责人 == y.部门负责人 &&
+                       this.部门负责人确认签字 == y.部门负责人确认签字;
+            }
+
+            //重写Equals方法必须重写GetHashCode方法，否则发生警告
+            public override int GetHashCode()
+            {
+                return this.序号.GetHashCode() +
+                       this.部门.GetHashCode() +
+                       this.部门Id.GetHashCode() +
+                       this.预算部门.GetHashCode() +
+                       this.预算部门负责人.GetHashCode() +
+                       this.部门负责人.GetHashCode() +
+                       this.部门负责人确认签字.GetHashCode();
+            }
         }
     }
 }
