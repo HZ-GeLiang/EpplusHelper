@@ -11,12 +11,14 @@ using SampleApp.MethodExtension;
 
 namespace SampleApp._01填充数据
 {
-    class Sample01
+    public class Sample01
     {
-        public void Run()
+        public static bool OpenDir = true;
+        public static string filePathSave = @"模版\01填充数据\ResultSample01.xlsx";
+
+        public static void Run()
         {
             string filePath = @"模版\01填充数据\Sample01.xlsx";
-            string filePathSave = @"模版\01填充数据\ResultSample01.xlsx";
             var wsName = "基本填充";
             using (var ms = new MemoryStream())
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -44,7 +46,10 @@ namespace SampleApp._01填充数据
                 ms.Position = 0;
                 ms.Save(filePathSave);
             }
-            System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+            if (OpenDir)
+            {
+                System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+            }
         }
         static DataTable GetDataTable_Body()
         {

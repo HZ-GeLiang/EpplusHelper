@@ -10,12 +10,13 @@ using EPPlusExtensions;
 
 namespace SampleApp._05自动初始化填充配置
 {
-    class Sample01
+    public class Sample01
     {
-        public void Run()
+        public static string Run()
         {
             var result = EPPlusHelper.GetFillDefaultConfig("序号	工号	姓名	性别");
             Console.WriteLine(result);
+            return result;
         }
 
     }

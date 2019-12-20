@@ -1,0 +1,21 @@
+DataTable dt = new DataTable();
+dt.Columns.Add("序号");
+dt.Columns.Add("工号");
+dt.Columns.Add("姓名");
+dt.Columns.Add("性别");
+dt.Columns.Add("入司时间");
+dt.Columns.Add("转正时间");
+dt.Columns.Add("离职时间");
+dt.Columns["序号"].DataType = typeof(string);
+dt.Columns["入司时间"].DataType = typeof(DateTime);
+dt.Columns["转正时间"].DataType = typeof(DateTime);
+dt.Columns["离职时间"].DataType = typeof(DateTime);
+//var dr = dt.NewRow();
+//dr["序号"] = 
+//dr["工号"] = 
+//dr["姓名"] = 
+//dr["性别"] = 
+//dr["入司时间"] = 
+//dr["转正时间"] = 
+//dr["离职时间"] = 
+//dt.Rows.Add(dr);

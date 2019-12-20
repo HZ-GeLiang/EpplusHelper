@@ -11,32 +11,25 @@ using EPPlusExtensions.Attributes;
 
 namespace SampleApp._03读取excel内容
 {
-    class Sample11
+    public class Sample11
     {
-        public void Run()
+
+        public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample11.xlsx";
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
-                try
-                {
-                    var args = EPPlusHelper.GetExcelListArgsDefault<UserLeaveStat>(ws, 3);
-                    var list = EPPlusHelper.GetList<UserLeaveStat>(args);
-                    ObjectDumper.Write(list);
-                    Console.WriteLine("读取完毕");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
+                var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 3);
+                var list = EPPlusHelper.GetList(args);
+                ObjectDumper.Write(list);
+                Console.WriteLine("读取完毕");
+                return list;
             }
-
-            Console.ReadKey();
         }
 
-        class UserLeaveStat
+        public class ExcelModel
         {
             public string 序号 { get; set; }
             public string 姓名 { get; set; }
@@ -48,6 +41,30 @@ namespace SampleApp._03读取excel内容
             [ExcelColumnIndex(4)]
             [DisplayExcelColumnName("请假次数")]
             public string FebruaryStatistics { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null || !obj.GetType().Equals(this.GetType()))
+                {
+                    return false;
+                }
+
+                ExcelModel y = (ExcelModel)obj;
+
+                return this.序号 == y.序号 &&
+                       this.姓名 == y.姓名 &&
+                       this.JanuaryStatistics == y.JanuaryStatistics &&
+                       this.FebruaryStatistics == y.FebruaryStatistics;
+            }
+
+            //重写Equals方法必须重写GetHashCode方法，否则发生警告
+            public override int GetHashCode()
+            {
+                return this.序号.GetHashCode() +
+                       this.姓名.GetHashCode() +
+                       this.JanuaryStatistics.GetHashCode() +
+                       this.FebruaryStatistics.GetHashCode();
+            }
         }
 
     }

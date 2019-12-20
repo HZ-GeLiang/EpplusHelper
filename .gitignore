@@ -55,3 +55,18 @@
 /EPPlusTool/bin
 /EPPlusTool/obj
 /SampleApp/bin/Debug - 副本
+/core21/bin
+/core21/obj
+/core22/bin/Debug/netcoreapp3.1
+/core22/obj
+/core30/bin/Debug/netcoreapp3.1
+/core30/obj
+/nfx45/bin/Debug
+/nfx45/obj/Debug
+/core30
+/core22
+/core21
+/nfx45
+/packages
+/SampleApp.Test/bin/Debug
+/SampleApp.Test/obj/Debug

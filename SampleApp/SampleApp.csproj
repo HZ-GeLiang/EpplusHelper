@@ -135,41 +135,53 @@
     <None Include="模版\01填充数据\Sample05.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="模版\02填充图片\Sample01.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="模版\01填充数据\Sample01.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="模版\03读取excel内容\Sample05.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="模版\02填充图片\Sample01.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="模版\03读取excel内容\Sample01.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="模版\03读取excel内容\Sample12.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="模版\03读取excel内容\Sample02.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="模版\03读取excel内容\Sample11.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="模版\03读取excel内容\Sample03.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\03读取excel内容\Sample04.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\03读取excel内容\Sample05.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="模版\03读取excel内容\Sample06.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="模版\03读取excel内容\Sample07.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="模版\03读取excel内容\Sample09.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="模版\03读取excel内容\Sample08.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="模版\03读取excel内容\Sample09.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\03读取excel内容\Sample10.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\03读取excel内容\Sample11.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\03读取excel内容\Sample12.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="模版\04填充数据与数据源同步\Sample01.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="模版\04填充数据与数据源同步\Sample03.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="模版\05自动初始化填充配置\Sample02.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

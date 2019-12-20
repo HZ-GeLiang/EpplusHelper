@@ -10,9 +10,10 @@ using EPPlusExtensions;
 
 namespace SampleApp._05自动初始化填充配置
 {
-    class Sample02
+    public class Sample02
     {
-        public void Run()
+        public static bool OpenDir = true;
+        public static void Run()
         {
             string filePath = @"模版\05自动初始化填充配置\Sample02.xlsx";
 
@@ -25,9 +26,11 @@ namespace SampleApp._05自动初始化填充配置
                 File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateDataTableSnippe)}_{item.WorkSheetName}.txt", item.CrateDataTableSnippe);
                 File.WriteAllText($@"{filePathPrefix}_{nameof(item.CrateClassSnippe)}_{item.WorkSheetName}.txt", item.CrateClassSnippe);
             }
-
-            System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
-            // OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\05自动初始化填充配置\"));
+            if (OpenDir)
+            {
+                System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
+                // OpenDirectoryHelp.OpenFilePath(System.IO.Path.Combine(OpenDirectoryHelp.GetSaveFilePath(), @"Debug\模版\05自动初始化填充配置\"));
+            }
         }
     }
 }
