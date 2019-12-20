@@ -3576,29 +3576,31 @@ namespace EPPlusExtensions
         /// <returns>工作簿Name,DatTable的创建代码</returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
-            var wss = excelPackage.Workbook.Worksheets;
-            var list = new List<DefaultConfig>();
             if (dataConfigInfo != null)
             {
                 foreach (var item in dataConfigInfo)
                 {
-                    if (string.IsNullOrEmpty(item.WorkSheetName) && item.WorkSheetIndex > 0)
+                    //WorkSheetIndex没设置,但是设置了WorkSheetName
+                    if (!string.IsNullOrEmpty(item.WorkSheetName) || item.WorkSheetIndex <= 0)
                     {
-                        var eachCount = 1;
-                        foreach (var ws in wss)
+                        continue;
+                    }
+
+                    var eachCount = 1;
+                    foreach (var ws in excelPackage.Workbook.Worksheets)
+                    {
+                        if (item.WorkSheetIndex == eachCount)
                         {
-                            if (item.WorkSheetIndex == eachCount)
-                            {
-                                item.WorkSheetName = ws.Name;
-                                break;
-                            }
-                            eachCount++;
+                            item.WorkSheetName = ws.Name;
+                            break;
                         }
+                        eachCount++;
                     }
                 }
             }
 
-            foreach (var ws in wss)
+            var list = new List<DefaultConfig>();
+            foreach (var ws in excelPackage.Workbook.Worksheets)
             {
                 int titleLine = 1;
                 int titleColumn = 1;
