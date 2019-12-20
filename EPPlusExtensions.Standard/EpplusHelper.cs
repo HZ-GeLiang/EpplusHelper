@@ -2173,7 +2173,7 @@ namespace EPPlusExtensions
             string key_KVSetAttribute = typeof(KVSetAttribute).FullName;
 
             var cache_PropertyInfo = new Dictionary<string, PropertyInfo>();
-            foreach (ExcelCellInfo excelCellInfo in colNameList)
+            foreach (var excelCellInfo in colNameList)
             {
                 //int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
                 //if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
@@ -2226,14 +2226,15 @@ namespace EPPlusExtensions
             int row = rowIndex;
             Exception exception = null;
 
-            int? step = null;
+            bool dynamicCalcStep;//动态计算step
+
             switch (args.ScanLine)
             {
                 case ScanLine.SingleLine:
-                    step = 1;
+                    dynamicCalcStep = false;
                     break;
                 case ScanLine.MergeLine:
-                    //while里面动态计算
+                    dynamicCalcStep = true; //while里面动态计算
                     break;
                 default:
                     throw new Exception("不支持的ScanLine");
@@ -2250,6 +2251,22 @@ namespace EPPlusExtensions
 #endif
             Func<object[], object> DeletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
 
+            #region MyRegion
+            if (dynamicCalcStep && args.ScanLine == ScanLine.MergeLine && row == rowIndex) // 这个if目前为止肯定成立,可以不写
+            {
+                string range = ws.MergedCells[row, 1];
+                if (range != null)//数据的第一行第一列是合并单元格
+                {
+                    var ea = new ExcelAddress(range);
+                    if (ea.Rows > 1)
+                    {
+                        //参考03的sample14,只会读取3行.因为A列是多行合并单元格,但实际要5行
+
+                    }
+                }
+            }
+            #endregion
+
             while (true)//异常或者出现空行,触发break;
             {
 #if DEBUG
@@ -2263,7 +2280,7 @@ namespace EPPlusExtensions
                 //T model = type.CreateInstance<T>();//3秒+
                 T model = (T)DeletgateCreateInstance(null); //上面的方法给拆开来 . 1.1-1.4
 
-                foreach (ExcelCellInfo excelCellInfo in colNameList)
+                foreach (var excelCellInfo in colNameList)
                 {
                     //int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
                     //if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
@@ -2456,25 +2473,31 @@ namespace EPPlusExtensions
                 }
 
                 //先添加Step
-                if (step != null)
+                if (dynamicCalcStep)
                 {
-                    row += (int)step;
-                }
-                else
-                {
-                    string range = ws.MergedCells[row, 1];
-                    if (range == null)
+                    //while里面动态计算
+                    string rangeCell = ws.MergedCells[row, 1];
+                    if (rangeCell == null)//不是合并单元格
                     {
                         row += 1;
                     }
                     else
                     {
-                        var ea = new ExcelAddress(range);
+                        #region 按第一列合并的行数进行step的增加
+
+                        var ea = new ExcelAddress(rangeCell);
                         row += ea.Rows;
+                        //示例 03.14,有个bug,应该是读取5行,而不是3行.
+                        //todo:待解决
+                        #endregion
                     }
                 }
-                //在判断异常
+                else
+                {
+                    row += 1;
+                }
 
+                //再判断异常
                 if (exception != null)
                 {
                     if (args.GetList_NeedAllException)
@@ -3261,20 +3284,17 @@ namespace EPPlusExtensions
                             var newKey = sheetMergedCellsList.Find(a => a.Contains(cellPosition));
                             if (newKey == null)
                             {
-                                //描述出现null的情况
-                                /*
-                                 * F10 G10
-                                 * F11 G11
-                                 * F12 G12
-                                 * 这些单元格被合并为一个单元格,即用F10:G12来描述
-                                 * 此时,配置单元格读取应该是F10,G10将不会被读取,
-                                 * 直到上面为止,都是正确的,但是,偏偏有一个神一样的操作,
-                                 * 当excel模版出现不规范操作(Excel一眼看上去将没有问题),G10单元格被读取出来后,那么在sheetMergedCellsList中肯定找不到
-                                 * 然后下面一行代码就抛出未将对象引用设置到对象的实例异常
-                                 * 该操作是:B10, D10, F10, G10单元格均有配置项,B10:C12进行单元格合并,然后用格式刷,对D10:E12, F10:G10进行格式化
-                                 * 结果就是G10的配置项将会被隐藏,excel会提示 合并单元格时，仅保留左上角的值，而放弃其他值。但是这个其他值没有被清空,而是看不到了
-                                 * 如果手动的合并F10:G10,Excel将会alert此操作会仅保留左上角的值
-                                 */
+                                /*描述出现null的情况(经过验证,在EPPLUS的4.5.3.2中这个BUG没有了,其他版本不知道)
+                                 * 有如下单元格 A2, B2, A3, B3, A4, B4 这6个单元格都有值,
+                                 * 然后把这6个单元格给合并起来成一个单元格 (可以用A2:B4来描述)
+                                 * 当读取 A2, B2, A3, B3, A3, B4, A2:B4 这7个单元格时,所有的值都为A1
+                                 * 因为在合并时,excel会提示 合并单元格时，仅保留左上角的值，而放弃其他值.
+                                 * 但是,偏偏有一个神操作会造成 newKey为null. 即:在sheetMergedCellsList中肯定找不到
+                                 * 且该操作在excel看上去没问题,但是当程序运行时会让我的下一行代码异常.
+                                 * 该操作是用格式刷:把A2:B4个合并后,用格式刷选中D2,让D2:E4合并为一个单元格.
+                                 * 此时A2:B4只有A2单元格有值,其他任意单元格都是A2值(取消合并单元格可以验证)
+                                 * 但是D2:E4的每个单元格都有值,仅仅是显示为一个单元格.
+                                */
                                 throw new Exception($"工作簿{sheet.Name}的单元格{cellPosition}存在配置问题,请检查({cellPosition}是合并单元格,请取消合并,并把单元格的值给清空,然后重新合并)");
                             }
 
