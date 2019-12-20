@@ -21,6 +21,9 @@
 	Sample10-1. args.WhereFilter  和 args.HavingFilter 的使用  2.获取数据新增方法 GetDataTable() 
 	Sample11-当excel列名字重复时,GetList() 新增2个Attract: ExcelColumnIndexAttribute 和 DisplayExcelColumnNameAttribute
 	Sample12-GetList() 数据源的数据存在错误时,查看给出的消息提示, 有2个参数 args.GetList_NeedAllException 和 args.GetList_ErrorMessage_OnlyShowColomn
+	Sample13-读取使用格式刷合并的单元格(EPPLUS的4.5.3.2版本没复现出bug),读取内容返回5条,和 03的Sample01 重复了
+	Sample14-读取使用格式刷合并的单元格(EPPLUS的4.5.3.2版本没复现出bug),读取内容返回3条
+	Sample15-读取使用格式刷合并的单元格(EPPLUS的4.5.3.2版本没复现出bug),读取内容返回5条,使用参数
 
 04填充数据与数据源同步
 	Sample01-普通单元格_单行单列
