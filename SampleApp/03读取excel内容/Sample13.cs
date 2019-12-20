@@ -22,8 +22,8 @@ namespace SampleApp._03读取excel内容
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
                 //args.ScanLine = ScanLine.MergeLine;//默认的
-                //args.ScanLine = ScanLine.SingleLine; 
-                var list = EPPlusHelper.GetList(args);//输出的是看到的
+                args.ScanLine = ScanLine.SingleLine; 
+                var list = EPPlusHelper.GetList(args); 
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
                 return list;
@@ -33,13 +33,13 @@ namespace SampleApp._03读取excel内容
 
         public class ExcelModel
         {
-            public string A { get; set; }
-            public string B { get; set; }
-            public string C { get; set; }
-            public string D { get; set; }
-            public string E { get; set; }
-            public string F { get; set; }
-            public string G { get; set; }
+            public int A { get; set; }
+            public int B { get; set; }
+            public int C { get; set; }
+            public int D { get; set; }
+            public int E { get; set; }
+            public int F { get; set; }
+            public int G { get; set; }
             public override bool Equals(object obj)
             {
                 if (obj == null || !obj.GetType().Equals(this.GetType()))

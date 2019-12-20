@@ -31,13 +31,13 @@ namespace SampleApp._03读取excel内容
 
         public class ExcelModel
         {
-            public string A { get; set; }
-            public string B { get; set; }
-            public string C { get; set; }
-            public string D { get; set; }
-            public string E { get; set; }
-            public string F { get; set; }
-            public string G { get; set; }
+            public int A { get; set; }
+            public int B { get; set; }
+            public int C { get; set; }
+            public int D { get; set; }
+            public int E { get; set; }
+            public int F { get; set; }
+            public int G { get; set; }
             public override bool Equals(object obj)
             {
                 if (obj == null || !obj.GetType().Equals(this.GetType()))
