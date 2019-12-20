@@ -11,17 +11,16 @@ using SampleApp.MethodExtension;
 
 namespace SampleApp._03读取excel内容
 {
-    public class Sample02
+    public class Sample15
     {
         public static List<ExcelModel> Run()
         {
-            string filePath = @"模版\03读取excel内容\Sample02.xlsx";
+            string filePath = @"模版\03读取excel内容\Sample15.xlsx";
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
-                //args.ScanLine = ScanLine.MergeLine;//默认的
                 var list = EPPlusHelper.GetList(args);//输出的是看到的
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
@@ -29,13 +28,16 @@ namespace SampleApp._03读取excel内容
             }
         }
 
-         
+
         public class ExcelModel
         {
-            public string 序号 { get; set; }
-            public string 部门 { get; set; }
-            public string 部门负责人 { get; set; }
-            public string 部门负责人确认签字 { get; set; }
+            public string A { get; set; }
+            public string B { get; set; }
+            public string C { get; set; }
+            public string D { get; set; }
+            public string E { get; set; }
+            public string F { get; set; }
+            public string G { get; set; }
             public override bool Equals(object obj)
             {
                 if (obj == null || !obj.GetType().Equals(this.GetType()))
@@ -45,19 +47,25 @@ namespace SampleApp._03读取excel内容
 
                 ExcelModel y = (ExcelModel)obj;
 
-                return this.序号 == y.序号 &&
-                       this.部门 == y.部门 &&
-                       this.部门负责人 == y.部门负责人 &&
-                       this.部门负责人确认签字 == y.部门负责人确认签字;
+                return this.A == y.A &&
+                       this.B == y.B &&
+                       this.C == y.C &&
+                       this.D == y.D &&
+                       this.E == y.E &&
+                       this.F == y.F &&
+                       this.G == y.G;
             }
 
             //重写Equals方法必须重写GetHashCode方法，否则发生警告
             public override int GetHashCode()
             {
-                return this.序号.GetHashCode() +
-                       this.部门.GetHashCode() +
-                       this.部门负责人.GetHashCode() +
-                       this.部门负责人确认签字.GetHashCode();
+                return this.A.GetHashCode() +
+                       this.B.GetHashCode() +
+                       this.C.GetHashCode() +
+                       this.D.GetHashCode() +
+                       this.E.GetHashCode() +
+                       this.F.GetHashCode() +
+                       this.G.GetHashCode();
             }
         }
     }
