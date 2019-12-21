@@ -18,10 +18,10 @@ namespace SampleApp._03读取excel内容
     {
         public static void Run()
         {
-            Sample06.Run1<Sample06.ExcelModel>();
+            Sample06.Run<Sample06.ExcelModel>();
         }
 
-        public static List<T> Run1<T>() where T : class, new()
+        public static List<T> Run<T>() where T : class, new()
         {
             string filePath = @"模版\03读取excel内容\Sample06.xlsx";
             var wsName = "Sheet1";

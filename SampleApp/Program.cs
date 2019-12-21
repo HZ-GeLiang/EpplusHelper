@@ -43,8 +43,8 @@ namespace SampleApp
             //SampleApp._03读取excel内容.Sample03.Run();
             //SampleApp._03读取excel内容.Sample04.Run();
             //SampleApp._03读取excel内容.Sample05.Run();
-            SampleApp._03读取excel内容.Sample06.Run();
-            //SampleApp._03读取excel内容.Sample07.Run();
+            //SampleApp._03读取excel内容.Sample06.Run();
+            SampleApp._03读取excel内容.Sample07.Run();
             //SampleApp._03读取excel内容.Sample08.Run();
             //SampleApp._03读取excel内容.Sample09.Run();
             //SampleApp._03读取excel内容.Sample10.Run();

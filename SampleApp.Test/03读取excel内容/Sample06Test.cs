@@ -19,7 +19,7 @@ namespace SampleApp.Test._03读取excel内容
         [TestMethod]
         public void TestMethod1()
         {
-            var excelList = Sample06.Run1<Sample06.ExcelModel>();
+            var excelList = Sample06.Run<Sample06.ExcelModel>();
             var resultList = excelList.GetEmpty().ToList();
             resultList.Add(new Sample06.ExcelModel { 序号 = 1, 部门 = "互娱-棋牌", 部门Id = 100, 预算部门 = "互娱-棋牌", 预算部门负责人 = "张三", 部门负责人 = "赵六", 部门负责人确认签字 = "娃娃" });
             resultList.Add(new Sample06.ExcelModel { 序号 = 2, 部门 = "互娱-运维", 部门Id = 1002, 预算部门 = "互娱-运维", 预算部门负责人 = "李四", 部门负责人 = "赵六", 部门负责人确认签字 = "菲菲" });
@@ -30,10 +30,10 @@ namespace SampleApp.Test._03读取excel内容
         [TestMethod]
         public void 修改Attribute_设置1个异常()
         {
-            Assert.ThrowsException<ArgumentException>(() => Sample06.Run1<Sample06.ExcelModel2>());
+            Assert.ThrowsException<ArgumentException>(() => Sample06.Run<Sample06.ExcelModel2>());
             try
             {
-                Sample06.Run1<Sample06.ExcelModel2>();
+                Sample06.Run<Sample06.ExcelModel2>();
             }
             catch (Exception ex)
             {
@@ -45,10 +45,10 @@ namespace SampleApp.Test._03读取excel内容
         [TestMethod]
         public void 修改Attribute_设置2个异常()
         {
-            Assert.ThrowsException<ArgumentException>(() => Sample06.Run1<Sample06.ExcelModel3>());
+            Assert.ThrowsException<ArgumentException>(() => Sample06.Run<Sample06.ExcelModel3>());
             try
             {
-                Sample06.Run1<Sample06.ExcelModel3>();
+                Sample06.Run<Sample06.ExcelModel3>();
             }
             catch (Exception ex)
             {
