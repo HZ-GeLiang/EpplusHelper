@@ -17,7 +17,7 @@ namespace SampleApp._03读取excel内容
     {
         public static List<ExcelModel> Run()
         {
-            string filePath = @"模版\03读取excel内容\Sample01.xlsx";
+            string filePath = @"模版\03读取excel内容\Sample04.xlsx";
             var wsName = "合并行读取";
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
@@ -30,7 +30,7 @@ namespace SampleApp._03读取excel内容
                 AddSourceWay2_TryAdd_CreateDataTable(propModel, source);
                 AddSourceWay3_AddRange_ByFunction(propModel, source);
                 args.KVSource.Add(nameof(propModel.部门), source);
-                
+
                 var list = EPPlusHelper.GetList(args);
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
@@ -51,11 +51,11 @@ namespace SampleApp._03读取excel内容
             dt.Columns.Add("Id");
             dt.Columns.Add("Name");
 
-            var dr3 = dt.NewRow();
-            dr3["Id"] = 6;
-            dr3["Name"] = "事业6部";
+            var dr = dt.NewRow();
+            dr["Id"] = 6;
+            dr["Name"] = "事业6部";
 
-            dt.Rows.Add(dr3);
+            dt.Rows.Add(dr);
 
             #endregion
 
@@ -121,8 +121,8 @@ namespace SampleApp._03读取excel内容
             dr1["Name"] = "事业1部";
             dr2["Id"] = 2;
             dr2["Name"] = "事业2部";
-            dr2["Id"] = 3;
-            dr2["Name"] = "事业4部";
+            dr3["Id"] = 3;
+            dr3["Name"] = "事业3部";
             dt.Rows.Add(dr1);
             dt.Rows.Add(dr2);
             dt.Rows.Add(dr3);
@@ -228,7 +228,8 @@ namespace SampleApp._03读取excel内容
                 ExcelModel y = (ExcelModel)obj;
 
                 return this.序号 == y.序号 &&
-                       this.部门 == y.部门 &&
+                       this.部门.Key == y.部门.Key &&
+                       this.部门.Value == y.部门.Value &&
                        this.部门负责人 == y.部门负责人 &&
                        this.部门负责人确认签字 == y.部门负责人确认签字;
             }
@@ -237,7 +238,9 @@ namespace SampleApp._03读取excel内容
             public override int GetHashCode()
             {
                 return this.序号.GetHashCode() +
-                       this.部门.GetHashCode() +
+                       this.部门.Key.GetHashCode() +
+                       this.部门.Value.GetHashCode() +
+                       this.部门.HasValue.GetHashCode() +
                        this.部门负责人.GetHashCode() +
                        this.部门负责人确认签字.GetHashCode();
             }

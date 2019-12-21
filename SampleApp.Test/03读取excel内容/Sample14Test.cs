@@ -19,8 +19,15 @@ namespace SampleApp.Test._03读取excel内容
         public void TestMethod1()
         {
 
-            Assert.ThrowsException<System.Exception>(() => Sample14.Run(), "数据的起始列有合并行的必须确保当前行的数据都是合并行");
-
+            Assert.ThrowsException<System.Exception>(() => Sample14.Run());
+            try
+            {
+                Sample14.Run();
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual(ex.Message, $@"数据的起始列有合并行的必须确保当前行的数据都是合并行");
+            }
 
         }
     }
