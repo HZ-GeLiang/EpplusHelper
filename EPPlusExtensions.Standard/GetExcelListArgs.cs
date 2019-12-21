@@ -22,7 +22,7 @@ namespace EPPlusExtensions
         /// <summary>
         /// excel模板数据从哪列结束,可以理解成标题行的结束列
         /// </summary>
-        public int DataColEnd { get; set; } = EPPlusConfig.MaxCol07;
+        internal int DataColEnd { get; set; } = EPPlusConfig.MaxCol07;
 
         public ExcelWorksheet ws { get; set; }
 
@@ -38,18 +38,18 @@ namespace EPPlusExtensions
 
 #if DEBUG
 
-        /// <summary>
-        /// 数据的结尾行,在调用GetList()后自动赋值
-        /// </summary>
-        public int? DataRowEnd { get; set; }
+        ///// <summary>
+        ///// 数据的结尾行,在调用GetList()后自动赋值
+        ///// </summary>
+        //internal int? DataRowEnd { get; set; }
 
-        /// <summary>
-        /// 数据有多少行,在调用GetList()后自动赋值
-        /// </summary>
-        public int? DataRowCount { get; set; }
+        ///// <summary>
+        ///// 数据有多少行,在调用GetList()后自动赋值
+        ///// </summary>
+        //internal int? DataRowCount { get; set; }
 
 #endif
-        
+
 
         /// <summary>
         /// 被遍历的单元格内容不为空时的起始字符必须是该字符,然后忽略该字符

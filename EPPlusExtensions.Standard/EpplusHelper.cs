@@ -1187,64 +1187,66 @@ namespace EPPlusExtensions
         /// <summary>
         /// 从Excel 中获得符合C# 类属性定义的列名集合
         /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="row">列名在Excel的第几行</param>
-        /// <param name="colStart"></param>
-        /// <param name="colEnd"></param>
-        /// <param name="POCO_Property_AutoReame_WhenRepeat">当属性重复时自动重命名</param>
-        /// <param name="renameFirtNameWhenRepeat">当属性重复时需要重命名第一个属性的名字</param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="args"></param>
         /// <returns></returns>
-        private static List<ExcelCellInfo> GetExcelColumnOfModel(ExcelWorksheet ws, int row, int colStart, int? colEnd, bool POCO_Property_AutoReame_WhenRepeat = false, bool renameFirtNameWhenRepeat = true)
+        private static List<ExcelCellInfo> GetExcelColumnOfModel<T>(GetExcelListArgs<T> args) where T : class
         {
             List<string> colNameList = null;
             Dictionary<string, int> nameRepeatCounter = null;
-            if (POCO_Property_AutoReame_WhenRepeat)
+            if (args.POCO_Property_AutoRename_WhenRepeat)
             {
                 colNameList = new List<string>();
                 nameRepeatCounter = new Dictionary<string, int>();
             }
-            if (colEnd == null) colEnd = EPPlusConfig.MaxCol07;
+
             var list = new List<ExcelCellInfo>();
-            int col = colStart;
-            while (col < colEnd)
+            int col = args.DataColStart;
+            int DataColEndActual = 0;
+            while (col < args.DataColEnd)
             {
-                int step;
                 ExcelAddress ea;
-                if (EPPlusHelper.IsMergeCell(ws, row, col, out var mergeCellAddress))
+                int newDataColEndActual;
+                var isMergeCell = EPPlusHelper.IsMergeCell(args.ws, args.DataTitleRow, col, out var mergeCellAddress);
+                if (isMergeCell)
                 {
                     ea = new ExcelAddress(mergeCellAddress);
-                    step = ea.Columns;
+                    newDataColEndActual = col + new ExcelCellRange(mergeCellAddress).IntervalCol;
+                    col += ea.Columns;
                 }
                 else
                 {
-                    ea = new ExcelAddress(row, col, row, col);
-                    step = 1;
+                    ea = new ExcelAddress(args.DataTitleRow, col, args.DataTitleRow, col);
+                    newDataColEndActual = col;
+                    col += 1;
                 }
-                var colName = ws.Cells[ea.Start.Row, ea.Start.Column].Text;
 
+
+                var colName = EPPlusHelper.GetMergeCellText(args.ws, ea.Start.Row, ea.Start.Column);
                 if (string.IsNullOrEmpty(colName)) break;
                 colName = ExtractName(colName);
                 if (string.IsNullOrEmpty(colName)) break;
-                if (POCO_Property_AutoReame_WhenRepeat)
+
+                DataColEndActual = newDataColEndActual;
+
+                if (args.POCO_Property_AutoRename_WhenRepeat)
                 {
-                    AutoRename(colNameList, nameRepeatCounter, colName, renameFirtNameWhenRepeat);
+                    AutoRename(colNameList, nameRepeatCounter, colName, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
                 }
                 list.Add(new ExcelCellInfo()
                 {
-                    WorkSheet = ws,
+                    WorkSheet = args.ws,
                     ExcelAddress = ea,
                     Value = colName,
                 });
-
-                col += step;
-
             }
-            if (POCO_Property_AutoReame_WhenRepeat)
+
+            args.DataColEnd = DataColEndActual;
+            if (args.POCO_Property_AutoRename_WhenRepeat)
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    var item = list[i];
-                    item.Value = colNameList[i];
+                    list[i].Value = colNameList[i];
                 }
             }
 
@@ -1923,19 +1925,17 @@ namespace EPPlusExtensions
                 throw new ArgumentException($@"数据起始行的标题行值'{rowIndex_DataName}'错误,值应该大于0");
             }
 
-            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, args.DataColStart, args.DataColEnd, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
+            var colNameList = GetExcelColumnOfModel<T>(args);
             if (colNameList.Count == 0)
             {
                 throw new Exception("未读取到单元格标题");
             }
 
-            #region 对ScanLine.MergeLine进行模版验证
-            //todo:对ScanLine.MergeLine进行模版验证
+            #region 对ScanLine.MergeLine进行模版验证 
             if (args.ScanLine == ScanLine.MergeLine)
             {
                 SetSheetCellsValueFromA1(ws);
                 object[,] arr = ws.Cells.Value as object[,];
-
 
                 for (int i = 0; i < arr.GetLength(0);) //遍历行,这里 i++ 没有写
                 {
@@ -1947,16 +1947,16 @@ namespace EPPlusExtensions
                     }
 
                     //如果数据的第一列的合并单元格,必须确保这一行的所有列都是合并单元格
-                    if (EPPlusHelper.IsMergeCell(ws, row: rowNo, col: args.DataColStart, out mergeCellAddress))
-                    {
-                        i += new ExcelAddress(mergeCellAddress).Rows;//按第一列合并的行数进行step的增加
-                    }
-                    else
+                    if (!EPPlusHelper.IsMergeCell(ws, row: rowNo, col: args.DataColStart, out mergeCellAddress))
                     {
                         i++;
                         continue;
-
                     }
+                    else
+                    {
+                        i += new ExcelAddress(mergeCellAddress).Rows; //按第一列合并的行数进行step的增加
+                    }
+
 
                     for (int j = 0; j < arr.GetLength(1); j++) //遍历列
                     {
@@ -1965,21 +1965,10 @@ namespace EPPlusExtensions
                         {
                             continue;
                         }
-                        if (ws.Cells[rowNo, colNo].Merge)
+                        if (!EPPlusHelper.IsMergeCell(ws, row: rowNo, col: colNo))
                         {
-                            throw new Exception("数据起始列的合并行的必须确保当前行的数据都是合并行");//参考 示例 03.14
+                            throw new Exception("数据的起始列有合并行的必须确保当前行的数据都是合并行");//参考 示例 03.14
                         }
-                    }
-                }
-
-                //数据的第一行第一列是合并单元格
-                if (EPPlusHelper.IsMergeCell(ws, row: rowIndex, col: args.DataColStart, out mergeCellAddress))
-                {
-                    var ea = new ExcelAddress(mergeCellAddress);
-                    if (ea.Rows > 1)
-                    {
-                        //参考03的sample14,只会读取3行.因为A列是多行合并单元格,但实际要5行
-
                     }
                 }
             }
@@ -2522,7 +2511,7 @@ namespace EPPlusExtensions
             }
 
 #if DEBUG
-            args.DataRowCount = debugvar_whileCount;
+            //args.DataRowCount = debugvar_whileCount - 1;
 #endif
 
             var keyWithExceptionMessageStart = "无效的单元格:";
@@ -2660,7 +2649,7 @@ namespace EPPlusExtensions
                 throw new ArgumentException($@"数据起始行的标题行值'{rowIndex_DataName}'错误,值应该大于0");
             }
 
-            var colNameList = GetExcelColumnOfModel(ws, rowIndex_DataName, args.DataColStart, args.DataColEnd, args.POCO_Property_AutoRename_WhenRepeat, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
+            var colNameList = GetExcelColumnOfModel(args);
             if (colNameList.Count == 0)
             {
                 throw new Exception("未读取到单元格标题");
@@ -3480,12 +3469,18 @@ namespace EPPlusExtensions
             }
         }
 
+        public static bool IsMergeCell(ExcelWorksheet ws, int row, int col)
+        {
+            return IsMergeCell(ws, row, col, out var mergeCellAddress);
+        }
+
         /// <summary>
         /// 是不是合并单元格
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="row"></param>
         /// <param name="col"></param>
+        /// <param name="mergeCellAddress"></param>
         /// <returns></returns>
         public static bool IsMergeCell(ExcelWorksheet ws, int row, int col, out string mergeCellAddress)
         {
@@ -3494,7 +3489,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 获得合并单元格的值 
+        /// 获得合并单元格的值,如果不是合并单元格, 返回单元格的值
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="row"></param>
