@@ -56,3 +56,10 @@ config.Body[1].Option.CustomSetValue = (customValue) =>
         customValue.Cell.Value = customValue.Value.ToString().Substring(0, 40);
     }
 };
+
+
+=====================
+字段变更
+GetExcelListArgs
+    RowIndex_Data => DataRowStart
+    RowIndex_DataName => DataTitleRow

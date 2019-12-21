@@ -18,12 +18,9 @@ namespace SampleApp.Test._03读取excel内容
         [TestMethod]
         public void TestMethod1()
         {
-            var excelList = Sample14.Run();
-            var resultList = excelList.GetEmpty().ToList();
-            resultList.Add(new Sample14.ExcelModel { A = 1, B = 1, C = 3, D = 4, E = 4, F = 6, G = 7 });
-            resultList.Add(new Sample14.ExcelModel { A = 4, B = 5, C = 6, D = 7, E = 8, F = 9, G = 10 });
-            resultList.Add(new Sample14.ExcelModel { A = 5, B = 6, C = 7, D = 8, E = 9, F = 10, G = 11 });
-            CollectionAssert.AreEqual(excelList, resultList);
+
+            Assert.ThrowsException<System.Exception>(() => Sample14.Run(), "数据的起始列有合并行的必须确保当前行的数据都是合并行");
+
 
         }
     }

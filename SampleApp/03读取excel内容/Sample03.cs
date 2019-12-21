@@ -21,8 +21,8 @@ namespace SampleApp._03读取excel内容
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
-                var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 10);
-                args.RowIndex_DataName = 1;//指定标题行
+                var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 12);
+                args.DataTitleRow = 3;//指定标题行
                 var list = EPPlusHelper.GetList(args);//输出的是看到的
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
