@@ -22,10 +22,10 @@ namespace SampleApp._03读取excel内容
             dataSource.Add("事业2部", 2);
             dataSource.Add("事业3部", null);
 
-            return Run1(dataSource);
+            return Run(dataSource);
         }
 
-        public static List<ExcelModel> Run1(Dictionary<string, long?> dataSource)
+        public static List<ExcelModel> Run(Dictionary<string, long?> dataSource)
         {
             string filePath = @"模版\03读取excel内容\Sample05.xlsx";
             var wsName = 1;
