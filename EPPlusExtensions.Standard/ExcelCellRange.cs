@@ -65,7 +65,11 @@ namespace EPPlusExtensions
         public ExcelCellRange(string r1c1, ExcelWorksheet ws)
         {
             var ecp = new ExcelCellPoint(r1c1);
-            var ea = new ExcelAddress(ws.MergedCells[ecp.Row, ecp.Col]);
+            if (!EPPlusHelper.IsMergeCell(ws, ecp.Row, ecp.Col, out var mergeCellAddress))
+            {
+                throw new Exception($@"r1c1:{r1c1}不是合并单元格");
+            }
+            var ea = new ExcelAddress(mergeCellAddress);
 
             Init(ea.Address,
                 out string Range,

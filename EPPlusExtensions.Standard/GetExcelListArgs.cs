@@ -15,26 +15,41 @@ namespace EPPlusExtensions
     public class GetExcelListArgs<T> where T : class
     {
         /// <summary>
-        /// excel模板数据从哪列开始
+        /// excel模板数据从哪列开始,可以理解成标题行的开始列
         /// </summary>
         public int DataColStart { get; set; } = 1;
 
         /// <summary>
-        /// excel模板数据从哪列结束
+        /// excel模板数据从哪列结束,可以理解成标题行的结束列
         /// </summary>
-        public int? DataColEnd { get; set; } = EPPlusConfig.MaxCol07;
+        public int DataColEnd { get; set; } = EPPlusConfig.MaxCol07;
 
         public ExcelWorksheet ws { get; set; }
 
         /// <summary>
-        /// 数据起始行(不含列名)
+        /// 数据的标题行,自带方法提供的默认值是1 即:RowIndex_Data -1
         /// </summary>
-        public int RowIndex_Data { get; set; } // = 2;
+        public int DataTitleRow { get; set; }
 
         /// <summary>
-        /// 数据起始行的标题行(不含列名)
+        /// 数据的起始行,自带方法提供的默认值是2
         /// </summary>
-        public int RowIndex_DataName { get; set; } // RowIndex_Data - 1
+        public int DataRowStart { get; set; }
+
+#if DEBUG
+
+        /// <summary>
+        /// 数据的结尾行,在调用GetList()后自动赋值
+        /// </summary>
+        public int? DataRowEnd { get; set; }
+
+        /// <summary>
+        /// 数据有多少行,在调用GetList()后自动赋值
+        /// </summary>
+        public int? DataRowCount { get; set; }
+
+#endif
+        
 
         /// <summary>
         /// 被遍历的单元格内容不为空时的起始字符必须是该字符,然后忽略该字符
@@ -130,7 +145,6 @@ namespace EPPlusExtensions
         /// </summary>
         ToDBC = 8,
     }
-
 
     public enum ScanLine
     {
