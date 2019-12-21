@@ -1026,17 +1026,18 @@ namespace EPPlusExtensions
                                               //获得当前行,哪些单独单元格+合并单元格
             while (true)
             {
-                if (worksheet.MergedCells[lineNo, leftAddressCol] == null)
+                if (EPPlusHelper.IsMergeCell(worksheet, row: lineNo, col: leftAddressCol, out var mergeCellAddress))
                 {
-                    var cell = new ExcelCellPoint(new ExcelCellPoint(lineNo, leftAddressCol).R1C1);
+                    var cell = new ExcelCellRange(mergeCellAddress);
                     allCell.Add(cell);
-                    leftAddressCol++;
+                    leftAddressCol = cell.End.Col + 1;
                 }
                 else
                 {
-                    var cell = new ExcelCellRange(new ExcelCellPoint(lineNo, leftAddressCol).R1C1, worksheet);
+                    var cellAddress = new ExcelCellPoint(lineNo, leftAddressCol).R1C1;
+                    var cell = new ExcelCellPoint(cellAddress);
                     allCell.Add(cell);
-                    leftAddressCol = cell.End.Col + 1;
+                    leftAddressCol++;
                 }
 
                 if (leftAddressCol > rightAddressCol)
@@ -1209,9 +1210,9 @@ namespace EPPlusExtensions
             {
                 int step;
                 ExcelAddress ea;
-                if (ws.Cells[row, col].Merge)
+                if (EPPlusHelper.IsMergeCell(ws, row, col, out var mergeCellAddress))
                 {
-                    ea = new ExcelAddress(ws.MergedCells[row, col]);
+                    ea = new ExcelAddress(mergeCellAddress);
                     step = ea.Columns;
                 }
                 else
