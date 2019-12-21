@@ -1843,13 +1843,13 @@ namespace EPPlusExtensions
 
         public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class
         {
-            return new GetExcelListArgs<T>()
+            return new GetExcelListArgs<T>
             {
                 ws = ws,
                 RowIndex_Data = rowIndex,
+                RowIndex_DataName = rowIndex - 1,
                 EveryCellPrefix = "",
                 EveryCellReplaceList = null,
-                RowIndex_DataName = rowIndex - 1,
                 UseEveryCellReplace = true,
                 HavingFilter = null,
                 WhereFilter = null,
@@ -1926,6 +1926,47 @@ namespace EPPlusExtensions
             {
                 throw new Exception("未读取到单元格标题");
             }
+
+            #region 对ScanLine.MergeLine进行模版验证
+            //todo:对ScanLine.MergeLine进行模版验证
+            if (args.ScanLine == ScanLine.MergeLine)
+            {
+                SetSheetCellsValueFromA1(ws);
+                object[,] arr = ws.Cells.Value as object[,];
+                for (int i = 0; i < arr.GetLength(0); i++) //遍历行
+                {
+                    var rowNo = i + 1;
+                    if (rowNo < rowIndex)
+                    {
+                        continue;
+                    }
+
+                    for (int j = 0; j < arr.GetLength(1); j++) //遍历列
+                    {
+                        var colNo = j + 1;
+                        if (colNo < args.DataColStart || colNo > args.DataColEnd)
+                        {
+                            continue;
+                        }
+
+                    }
+                }
+
+
+                string range = ws.MergedCells[rowIndex, args.DataColStart];
+                var aa = ws.Cells.Value;
+                if (range != null)//数据的第一行第一列是合并单元格
+                {
+                    var ea = new ExcelAddress(range);
+                    if (ea.Rows > 1)
+                    {
+                        //参考03的sample14,只会读取3行.因为A列是多行合并单元格,但实际要5行
+
+                    }
+                }
+            }
+            #endregion
+
             var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
 
             Type type = typeof(T);
@@ -2175,30 +2216,12 @@ namespace EPPlusExtensions
             var cache_PropertyInfo = new Dictionary<string, PropertyInfo>();
             foreach (var excelCellInfo in colNameList)
             {
-                //int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
-                //if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
-                //{
-                //    continue;
-                //}
-                //string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
-                //if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
+                if (!GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
+                {
+                    continue;
+                }
 
-                var propName = GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out bool needContinue);
-                if (needContinue) continue;
-
-                //if (!cache_PropertyInfo.ContainsKey(propName))
-                //{
-                //    var pInfo2 = type.GetProperty(propName);
-                //    if (pInfo2 == null) //防御式编程判断
-                //    {
-                //        throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
-                //    }
-                //    cache_PropertyInfo.Add(propName, pInfo2);
-                //}
-
-                //PropertyInfo pInfo = cache_PropertyInfo[propName];
-
-                PropertyInfo pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
+                var pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
 
                 #region 初始化Attr要处理相关的数据
                 dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>());//这里new 的Dict 的key 代表的是Attribute的FullName
@@ -2251,22 +2274,6 @@ namespace EPPlusExtensions
 #endif
             Func<object[], object> DeletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
 
-            #region MyRegion
-            if (dynamicCalcStep && args.ScanLine == ScanLine.MergeLine && row == rowIndex) // 这个if目前为止肯定成立,可以不写
-            {
-                string range = ws.MergedCells[row, 1];
-                if (range != null)//数据的第一行第一列是合并单元格
-                {
-                    var ea = new ExcelAddress(range);
-                    if (ea.Rows > 1)
-                    {
-                        //参考03的sample14,只会读取3行.因为A列是多行合并单元格,但实际要5行
-
-                    }
-                }
-            }
-            #endregion
-
             while (true)//异常或者出现空行,触发break;
             {
 #if DEBUG
@@ -2282,30 +2289,12 @@ namespace EPPlusExtensions
 
                 foreach (var excelCellInfo in colNameList)
                 {
-                    //int excelCellInfo_ColIndex = dictExcelAddressCol[excelCellInfo.ExcelAddress];
-                    //if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null)//不存在,跳过
-                    //{
-                    //    continue;
-                    //}
-                    //string propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
-                    //if (string.IsNullOrEmpty(propName)) continue;//理论上,这种情况不存在,即使存在了,也要跳过
+                    if (!GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
+                    {
+                        continue;
+                    }
 
-                    var propName = GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out bool needContinue);
-                    if (needContinue) continue;
-
-                    //if (!cache_PropertyInfo.ContainsKey(propName))
-                    //{
-                    //    var pInfo2 = type.GetProperty(propName);
-                    //    if (pInfo2 == null)//防御式编程判断
-                    //    {
-                    //        throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
-                    //    }
-                    //    cache_PropertyInfo.Add(propName, pInfo2);
-                    //}
-
-                    //PropertyInfo pInfo = cache_PropertyInfo[propName];
-
-                    PropertyInfo pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
+                    var pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
 #if DEBUG
@@ -2476,7 +2465,8 @@ namespace EPPlusExtensions
                 if (dynamicCalcStep)
                 {
                     //while里面动态计算
-                    string rangeCell = ws.MergedCells[row, 1];
+
+                    string rangeCell = ws.MergedCells[row, args.DataColStart];
                     if (rangeCell == null)//不是合并单元格
                     {
                         row += 1;
@@ -2617,19 +2607,26 @@ namespace EPPlusExtensions
         }
 
 
-        private static string GetPropName<T>(ExcelAddress ExcelAddress, Dictionary<ExcelAddress, int> dictExcelAddressCol,
-            Dictionary<int, string> dictExcelColumnIndexToModelPropName_All, out bool needContinue) where T : class, new()
+        /// <summary>
+        /// 获得属性名
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ExcelAddress"></param>
+        /// <param name="dictExcelAddressCol"></param>
+        /// <param name="dictExcelColumnIndexToModelPropName_All"></param>
+        /// <param name="propName"></param>
+        /// <returns>是否get到了PropName</returns>
+        private static bool GetPropName<T>(ExcelAddress ExcelAddress, Dictionary<ExcelAddress, int> dictExcelAddressCol,
+            Dictionary<int, string> dictExcelColumnIndexToModelPropName_All, out string propName) where T : class, new()
         {
-            var propName = "";
             int excelCellInfo_ColIndex = dictExcelAddressCol[ExcelAddress];
             if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null) //不存在,跳过
             {
-                needContinue = true;
-                return propName;
+                propName = null;
+                return false;
             }
             propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
-            needContinue = string.IsNullOrEmpty(propName);
-            return propName;
+            return !string.IsNullOrEmpty(propName);
         }
 
         public static DataTable GetDataTable(GetExcelListArgs<DataRow> args)
@@ -3990,6 +3987,7 @@ namespace EPPlusExtensions
         }
 
         #region 获得单元格
+
         /// <summary>
         /// 根据值获的excel中对应的单元格
         /// </summary>
@@ -3999,9 +3997,7 @@ namespace EPPlusExtensions
         public static List<ExcelCellInfo> GetCellsBy(ExcelWorksheet ws, string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
-            object[,] cellsValue = ws.Cells.Value as object[,];
-            if (cellsValue == null) throw new ArgumentNullException();
-            return GetCellsBy(ws, cellsValue, a => a != null && a.ToString() == value);
+            return GetCellsBy(ws, ws.Cells.Value as object[,], a => a != null && a.ToString() == value);
         }
 
         /// <summary>
