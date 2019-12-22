@@ -4144,18 +4144,17 @@ namespace EPPlusExtensions
             }
             catch (Exception e)
             {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("程序报错:");
+                StringBuilder sb = new StringBuilder("程序报错:");
                 if (e.Message != null && e.Message.Length > 0)
                 {
-                    sb.AppendLine($@"Message:{e.Message}");
+                    sb.Append($@"Message:{e.Message}");
                 }
                 if (e.InnerException != null && e.InnerException.Message != null && e.InnerException.Message.Length > 0)
                 {
-                    sb.AppendLine($@"InnerExceptionMessage:{e.InnerException.Message}");
+                    sb.Append($@"InnerExceptionMessage:{e.InnerException.Message}");
                 }
-
-                return sb.ToString();
+                var txt = sb.ToString();
+                return txt;
             }
         }
 
