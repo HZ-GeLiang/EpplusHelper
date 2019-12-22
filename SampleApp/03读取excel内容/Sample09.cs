@@ -21,8 +21,22 @@ namespace SampleApp._03读取excel内容
             {
                 var ws = item.WsName;
                 Console.WriteLine($@"****{ws}-测试ing****");
-                ReadLine(ws, out Exception ex);
-                Console.WriteLine(ex?.Message == item.ErrMsgShouldBe ? $@"****{ws}-测试通过****" : $@"****{ws}-测试不通过****{ex?.Message }");
+                try
+                {
+                    Run(ws);
+                    Console.WriteLine($@"****{ws}-测试通过****");
+                }
+                catch (Exception ex)
+                {
+                    if (ex?.Message == item.ErrMsgShouldBe)
+                    {
+                        Console.WriteLine($@"****{ws}-测试通过****");
+                    }
+                    else
+                    {
+                        Console.WriteLine($@"****{ws}-测试不通过****{ex?.Message }");
+                    }
+                }
             }
         }
 
@@ -35,27 +49,18 @@ namespace SampleApp._03读取excel内容
             new TestCase {WsName = "neq2", ErrMsgShouldBe = "模版多提供了model属性中不存在的列:A1(c),B1(d)!模版少提供了model属性中定义的列:'a','b'!"},
         };
 
-        static List<ExcelModel> ReadLine(string wsName, out Exception ex)
+        public static List<ExcelModel> Run(string wsName)
         {
-            ex = null;
-            List<ExcelModel> list = null;
-            try
+            string filePath = @"模版\03读取excel内容\Sample09.xlsx";
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
-                string filePath = @"模版\03读取excel内容\Sample09.xlsx";
-                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var excelPackage = new ExcelPackage(fs))
-                {
-                    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
-                    list = EPPlusHelper.GetList<ExcelModel>(ws, 2);
-                    ObjectDumper.Write(list);
-                    Console.WriteLine($@"{wsName}读取完毕");
-                }
+                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
+                var list = EPPlusHelper.GetList<ExcelModel>(ws, 2);
+                ObjectDumper.Write(list);
+                Console.WriteLine($@"{wsName}读取完毕");
+                return list;
             }
-            catch (Exception e)
-            {
-                ex = e;
-            }
-            return list;
         }
 
         public class ExcelModel

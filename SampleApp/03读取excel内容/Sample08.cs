@@ -8,9 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EPPlusExtensions;
 using EPPlusExtensions.Attributes;
-using OfficeOpenXml;
-using SampleApp._01填充数据;
-using SampleApp.MethodExtension;
+using OfficeOpenXml; 
 
 namespace SampleApp._03读取excel内容
 {
@@ -26,12 +24,13 @@ namespace SampleApp._03读取excel内容
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
                 args.POCO_Property_AutoRename_WhenRepeat = true;
                 args.POCO_Property_AutoRenameFirtName_WhenRepeat = false;
-                var list = EPPlusHelper.GetList<ExcelModel>(args);
+                var list = EPPlusHelper.GetList(args);
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
                 return list;
             }
         }
+
         public class ExcelModel
         {
             public string 名字 { get; set; }
