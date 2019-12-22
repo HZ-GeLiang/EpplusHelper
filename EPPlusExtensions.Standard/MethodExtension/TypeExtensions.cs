@@ -8,7 +8,7 @@ namespace EPPlusExtensions
 {
     internal static class TypeExtensions
     {
-
+        private static Dictionary<string, bool> _cache = new Dictionary<string, bool>();
         //代码来自https://www.cnblogs.com/walterlv/p/10236419.html#NET__8
         /// <summary>
         /// 判断指定的类型 <paramref name="type"/> 是否是指定泛型类型的子类型，或实现了指定泛型接口。
@@ -22,19 +22,45 @@ namespace EPPlusExtensions
             if (type == null) throw new ArgumentNullException(nameof(type));
             if (generic == null) throw new ArgumentNullException(nameof(generic));
 
+            if (_cache == null)
+            {
+                _cache = new Dictionary<string, bool>();
+            }
+            if (_cache.Keys.Count > 1000)
+            {
+                _cache.Clear();
+            }
+
+            //var key =$@"{type.Assembly}_{type.AssemblyQualifiedName}|{generic.Assembly}_{generic.AssemblyQualifiedName}";
+            var key = $@"{type.GetHashCode()}|{generic.GetHashCode()}";
+
+            if (_cache.ContainsKey(key))
+            {
+                return _cache[key];
+            }
+
             // 测试接口。
             var isTheRawGenericType = type.GetInterfaces().Any(IsTheRawGenericType);
-            if (isTheRawGenericType) return true;
+            if (isTheRawGenericType)
+            {
+                _cache[key] = true;
+                return true;
+            }
 
             // 测试类型。
             while (type != null && type != typeof(object))
             {
                 isTheRawGenericType = IsTheRawGenericType(type);
-                if (isTheRawGenericType) return true;
+                if (isTheRawGenericType)
+                {
+                    _cache[key] = true;
+                    return true;
+                }
                 type = type.BaseType;
             }
 
             // 没有找到任何匹配的接口或类型。
+            _cache[key] = false;
             return false;
 
             // 测试某个类型是否是指定的原始接口。
