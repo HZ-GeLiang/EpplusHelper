@@ -64,6 +64,11 @@
     <Compile Include="01填充数据\Sample04Test.cs" />
     <Compile Include="01填充数据\Sample05Test.cs" />
     <Compile Include="02填充图片\Sample01Test.cs" />
+    <Compile Include="03读取excel内容\Sample12Test.cs" />
+    <Compile Include="03读取excel内容\Sample11Test.cs" />
+    <Compile Include="03读取excel内容\Sample10Test.cs" />
+    <Compile Include="03读取excel内容\Sample09Test.cs" />
+    <Compile Include="03读取excel内容\Sample08Test.cs" />
     <Compile Include="03读取excel内容\Sample07Test.cs" />
     <Compile Include="03读取excel内容\Sample06Test.cs" />
     <Compile Include="03读取excel内容\Sample05Test.cs" />

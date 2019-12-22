@@ -31,16 +31,16 @@ namespace SampleApp._03读取excel内容
 
         public class ExcelModel
         {
-            public string 序号 { get; set; }
+            public int 序号 { get; set; }
             public string 姓名 { get; set; }
 
             [ExcelColumnIndex(3)]
             [DisplayExcelColumnName("请假次数")]
-            public string JanuaryStatistics { get; set; }
+            public int JanuaryStatistics { get; set; }
 
             [ExcelColumnIndex(4)]
             [DisplayExcelColumnName("请假次数")]
-            public string FebruaryStatistics { get; set; }
+            public int FebruaryStatistics { get; set; }
 
             public override bool Equals(object obj)
             {
