@@ -2300,7 +2300,7 @@ namespace EPPlusExtensions
                 //T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转  1.2-2.1秒
                 //T model = type.CreateInstance<T>();//3秒+
                 T model = (T)deletgateCreateInstance(null); //上面的方法给拆开来 . 1.1-1.4
-
+                
                 foreach (var excelCellInfo in colNameList)
                 {
                     if (!GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
@@ -2480,10 +2480,53 @@ namespace EPPlusExtensions
                     {
                         throw new Exception("不要上传一份空的模版文件");
                     }
-                    break; //出现空行,读取模版结束
+                    var isEmptyLine = true;
+
+                    #region 修改 isEmptyLine  代码来自 lable1:遍历属性
+
+                    //上面代码(lable1:遍历属性) 对 isNoDataAllColumn 的判断逻辑有问题. 即:Excel第一列(Sequence)对应的Model是Int类型, 且Sequence忘记填写时,变量isNoDataAllColumn的值则是错误的.
+
+                    foreach (var excelCellInfo in colNameList)
+                    {
+                        if (!GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
+                        {
+                            continue;
+                        }
+
+                        var pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
+                        var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
+
+#if DEBUG
+                        string value;
+                        if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
+                        {
+                            //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
+                            value = GetMergeCellText(ws, row, col);
+                        }
+                        else
+                        {
+                            value = GetMergeCellText(ws, row, col);
+                        }
+#else
+                    string value =  GetMegerCellText(ws, row, col);
+#endif
+
+                        if (value.Length > 0)
+                        {
+                            isEmptyLine = false;
+                            break;
+                        }
+                    }
+                    
+                    #endregion
+
+                    if (isEmptyLine)
+                    {
+                        break; //出现空行,读取模版结束
+                    }
                 }
 
-                //先添加Step
+                //1.添加Step,准备读取下一行数据
                 if (dynamicCalcStep)
                 {
                     //while里面动态计算
@@ -2503,7 +2546,7 @@ namespace EPPlusExtensions
                     row += 1;
                 }
 
-                //再判断异常
+                //2.如果有异常,抛出异常,不对下一行进行读取
                 if (exception != null)
                 {
                     if (args.GetList_NeedAllException)
