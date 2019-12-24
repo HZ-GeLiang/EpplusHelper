@@ -1203,7 +1203,7 @@ namespace EPPlusExtensions
             var list = new List<ExcelCellInfo>();
             int col = args.DataColStart;
             int DataColEndActual = 0;
-            while (col < args.DataColEnd)
+            while (col <= args.DataColEnd)
             {
                 ExcelAddress ea;
                 int newDataColEndActual;
@@ -1252,6 +1252,7 @@ namespace EPPlusExtensions
 
             return list;
         }
+
         /// <summary>
         /// 提取符合c#规范的名字
         /// </summary>
@@ -2243,12 +2244,18 @@ namespace EPPlusExtensions
                 var KVSetAttrs = ReflectionHelper.GetAttributeForProperty<KVSetAttribute>(pInfo.DeclaringType, pInfo.Name);
                 if (KVSetAttrs.Length > 0)
                 {
+                    if (args.KVSource == null || args.KVSource.Count <= 0)
+                    {
+                        throw new ArgumentException($@"检测到KVSetAttribute,但是KVSource却未配置");
+                    }
                     dictPropAttrs[pInfo.Name].Add(key_KVSetAttribute, (KVSetAttribute)KVSetAttrs[0]);
                     dictKVSet.Add(pInfo.Name, new Dictionary<string, bool>());
+
                 }
 
                 #endregion
             }
+
             #endregion
 
             #region 获得 list
@@ -2404,11 +2411,19 @@ namespace EPPlusExtensions
                         if (propAttrs.ContainsKey(key_KVSetAttribute))
                         {
                             var kvsetAttr = (KVSetAttribute)propAttrs[key_KVSetAttribute];
-
-                            var have_kvsource = args.KVSource.ContainsKey(kvsetAttr.Name);
-                            if (kvsetAttr.MustInSet && !have_kvsource)
+                            var haveKvsource = args.KVSource.ContainsKey(kvsetAttr.Name);
+                            if (kvsetAttr.MustInSet && !haveKvsource)
                             {
-                                throw new ArgumentException($@"属性'{pInfo.Name}'的值:'{value}'未找到对应的集合列表", pInfo.Name);
+                                if (!string.IsNullOrEmpty(kvsetAttr.ErrorMessage) && kvsetAttr.ErrorMessage.Length > 0)
+                                {
+                                    var msg = FormatAttributeMsg(pInfo.Name, model, value, kvsetAttr.ErrorMessage, kvsetAttr.Args);
+                                    throw new ArgumentException(msg);
+                                }
+                                else
+                                {
+
+                                    throw new ArgumentException($@"属性'{pInfo.Name}'的值:'{value}'未找到对应的集合列表", pInfo.Name);
+                                }
                             }
 
                             object kvsource = args.KVSource[kvsetAttr.Name];
@@ -2511,6 +2526,7 @@ namespace EPPlusExtensions
             }
 
 #if DEBUG
+            Console.WriteLine(debugvar_whileCount);
             //args.DataRowCount = debugvar_whileCount - 1;
 #endif
 
@@ -4140,24 +4156,48 @@ namespace EPPlusExtensions
             try
             {
                 action.Invoke();
-                return null;
+                return "";
             }
             catch (Exception e)
             {
-                StringBuilder sb = new StringBuilder("程序报错:");
-                if (e.Message != null && e.Message.Length > 0)
-                {
-                    sb.Append($@"Message:{e.Message}");
-                }
-                if (e.InnerException != null && e.InnerException.Message != null && e.InnerException.Message.Length > 0)
-                {
-                    sb.Append($@"InnerExceptionMessage:{e.InnerException.Message}");
-                }
-                var txt = sb.ToString();
-                return txt;
+                return GetListErrorMsg(e);
             }
         }
 
+        /// <summary>
+        /// 获得错误消息
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="Result"></param>
+        /// <returns></returns>
+        public static string GetListErrorMsg<T>(Func<List<T>> action, out List<T> Result) where T : class, new()
+        {
+            try
+            {
+                Result = action.Invoke();
+                return "";
+            }
+            catch (Exception e)
+            {
+                Result = new List<T>();
+                return GetListErrorMsg(e);
+            }
+        }
+
+        private static string GetListErrorMsg(Exception e)
+        {
+            StringBuilder sb = new StringBuilder("程序报错:");
+            if (e.Message != null && e.Message.Length > 0)
+            {
+                sb.Append($@"Message:{e.Message}");
+            }
+            if (e.InnerException != null && e.InnerException.Message != null && e.InnerException.Message.Length > 0)
+            {
+                sb.Append($@"InnerExceptionMessage:{e.InnerException.Message}");
+            }
+            var txt = sb.ToString();
+            return txt;
+        }
         #endregion
     }
 }
