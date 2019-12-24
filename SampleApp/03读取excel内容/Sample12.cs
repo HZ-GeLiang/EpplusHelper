@@ -19,8 +19,8 @@ namespace SampleApp._03读取excel内容
         }
         public static List<T> Run<T>() where T : class, new()
         {
-            List<T> list = new List<T>();
-            var errorMsg = EPPlusHelper.GetListErrorMsg(() =>
+            //List<T> excelList = new List<T>();
+            var errorMsg = EPPlusHelper.GetListErrorMsg<T>(() =>
             {
                 string filePath = @"模版\03读取excel内容\Sample12.xlsx";
                 using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -33,11 +33,12 @@ namespace SampleApp._03读取excel内容
                                                                      //true:  => 参数名: 姓名(B列)
                                                                      //false: => 参数名: 姓名(B3,B4,B5)
 
-                    list = EPPlusHelper.GetList(args);
-                    ObjectDumper.Write(list);
+                    var excelList = EPPlusHelper.GetList(args);
+                    ObjectDumper.Write(excelList);
                     Console.WriteLine("读取完毕");
+                    return excelList;
                 }
-            });
+            }, out var list);
 
             if (errorMsg?.Length > 0)
             {
