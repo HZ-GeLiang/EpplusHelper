@@ -23,6 +23,7 @@
 	Sample12-GetList() 数据源的数据存在错误时,查看给出的消息提示, 有2个参数 args.GetList_NeedAllException 和 args.GetList_ErrorMessage_OnlyShowColomn
 	Sample13-读取使用格式刷合并的单元格(EPPLUS的4.5.3.2版本没复现出bug),读取内容返回5条,和 03的Sample01 重复了
 	Sample14-读取使用格式刷合并的单元格(EPPLUS的4.5.3.2版本没复现出bug),读取将异常, 
+	Sample15-Excel列的值是由公式计算的,查看输出结果
  
 
 04填充数据与数据源同步

@@ -101,6 +101,7 @@
     <Compile Include="01填充数据\Sample03.cs" />
     <Compile Include="01填充数据\Sample01.cs" />
     <Compile Include="02填充图片\Sample01.cs" />
+    <Compile Include="03读取excel内容\Sample15.cs" />
     <Compile Include="03读取excel内容\Sample14.cs" />
     <Compile Include="03读取excel内容\Sample13.cs" />
     <Compile Include="03读取excel内容\Sample08.cs" />
@@ -183,6 +184,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="模版\03读取excel内容\Sample14.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="模版\03读取excel内容\Sample15.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="模版\04填充数据与数据源同步\Sample01.xlsx">

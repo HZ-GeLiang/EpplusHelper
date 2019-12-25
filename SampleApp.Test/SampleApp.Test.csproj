@@ -74,6 +74,7 @@
     <Compile Include="03读取excel内容\Sample05Test.cs" />
     <Compile Include="03读取excel内容\Sample04Test.cs" />
     <Compile Include="03读取excel内容\Sample03Test.cs" />
+    <Compile Include="03读取excel内容\Sample15Test.cs" />
     <Compile Include="03读取excel内容\Sample14Test.cs" />
     <Compile Include="03读取excel内容\Sample13Test.cs" />
     <Compile Include="03读取excel内容\Sample02Test.cs" />
