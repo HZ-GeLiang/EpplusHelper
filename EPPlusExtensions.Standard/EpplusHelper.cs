@@ -1686,11 +1686,11 @@ namespace EPPlusExtensions
         /// 格式化Attribute的错误消息
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="pInfo_Name"></param>
-        /// <param name="model"></param>
-        /// <param name="value"></param>
-        /// <param name="attrErrorMessage"></param>
-        /// <param name="attrArgs"></param>
+        /// <param name="pInfo_Name">属性的名字</param>
+        /// <param name="model">Model值</param>
+        /// <param name="value">excel的值</param>
+        /// <param name="attrErrorMessage">string.fomat的值</param>
+        /// <param name="attrArgs">string.fomat中占位符的值</param>
         /// <returns></returns>
         private static string FormatAttributeMsg<T>(string pInfo_Name, T model, string value, string attrErrorMessage, string[] attrArgs) where T : class, new()
         {
@@ -2300,7 +2300,7 @@ namespace EPPlusExtensions
                 //T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转  1.2-2.1秒
                 //T model = type.CreateInstance<T>();//3秒+
                 T model = (T)deletgateCreateInstance(null); //上面的方法给拆开来 . 1.1-1.4
-                
+
                 foreach (var excelCellInfo in colNameList)
                 {
                     if (!GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
@@ -2517,7 +2517,7 @@ namespace EPPlusExtensions
                             break;
                         }
                     }
-                    
+
                     #endregion
 
                     if (isEmptyLine)
