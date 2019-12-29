@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EPPlusExtensions.Attributes
 {
-    public class UniqueAttribute : System.Attribute
+    /// <summary>
+    /// 值唯一
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public class UniqueAttribute : Attribute
     {
         public string ErrorMessage { get; private set; }
         public UniqueAttribute() { }

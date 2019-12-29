@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EPPlusExtensions.Attributes
 {
-
+    /// <summary>
+    /// 给KvSource搭配使用的.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
     public class KVSetAttribute : System.Attribute
     {
         /// <summary>

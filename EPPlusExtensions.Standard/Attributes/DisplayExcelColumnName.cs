@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EPPlusExtensions.Attributes
 {
     /// <summary>
     /// excel上的标题列
     /// </summary>
-    public class DisplayExcelColumnNameAttribute : System.Attribute
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class DisplayExcelColumnNameAttribute : Attribute
     {
         public string Name { get; private set; }
 
