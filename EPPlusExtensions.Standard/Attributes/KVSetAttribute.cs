@@ -7,7 +7,7 @@ namespace EPPlusExtensions.Attributes
     /// 给KvSource搭配使用的.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public class KVSetAttribute : System.Attribute
+    public sealed class KVSetAttribute : Attribute
     {
         /// <summary>
         /// 必须在集合中

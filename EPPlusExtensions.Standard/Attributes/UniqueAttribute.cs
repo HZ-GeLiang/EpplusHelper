@@ -6,7 +6,7 @@ namespace EPPlusExtensions.Attributes
     /// 值唯一
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public class UniqueAttribute : Attribute
+    public sealed class UniqueAttribute : Attribute
     {
         public string ErrorMessage { get; private set; }
         public UniqueAttribute() { }
