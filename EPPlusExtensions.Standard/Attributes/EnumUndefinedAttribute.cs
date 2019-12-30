@@ -6,7 +6,7 @@ namespace EPPlusExtensions.Attributes
     /// 枚举值未定义
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public class EnumUndefinedAttribute : Attribute
+    public sealed class EnumUndefinedAttribute : Attribute
     {
         public string ErrorMessage { get; private set; }
         public string[] Args { get; private set; }

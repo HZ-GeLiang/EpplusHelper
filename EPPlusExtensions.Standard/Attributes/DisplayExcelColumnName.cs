@@ -7,7 +7,7 @@ namespace EPPlusExtensions.Attributes
     /// </summary>
 
     [AttributeUsage(AttributeTargets.Property)]
-    public class DisplayExcelColumnNameAttribute : Attribute
+    public sealed class DisplayExcelColumnNameAttribute : Attribute
     {
         public string Name { get; private set; }
 
