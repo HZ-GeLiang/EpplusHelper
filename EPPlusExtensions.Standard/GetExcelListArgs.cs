@@ -161,6 +161,7 @@ namespace EPPlusExtensions
         SingleLine = 2,
     }
 
+    [Flags]
     internal enum MatchingModel
     {
         /// <summary>
