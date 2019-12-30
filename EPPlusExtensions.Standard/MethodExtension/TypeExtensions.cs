@@ -22,14 +22,10 @@ namespace EPPlusExtensions
             if (type == null) throw new ArgumentNullException(nameof(type));
             if (generic == null) throw new ArgumentNullException(nameof(generic));
 
-            if (_cache == null)
-            {
-                _cache = new Dictionary<string, bool>();
-            }
-            if (_cache.Keys.Count > 1000)
-            {
-                _cache.Clear();
-            }
+            //if (_cache.Keys.Count > 1000)
+            //{
+            //    _cache.Clear();
+            //}
 
             //var key =$@"{type.Assembly}_{type.AssemblyQualifiedName}|{generic.Assembly}_{generic.AssemblyQualifiedName}";
             var key = $@"{type.GetHashCode()}|{generic.GetHashCode()}";
