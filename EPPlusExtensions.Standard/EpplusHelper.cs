@@ -2399,15 +2399,18 @@ namespace EPPlusExtensions
                     catch (ArgumentException e)
                     {
                         exception = new ArgumentException($"无效的单元格:{new ExcelCellAddress(row, col).Address}", e);
+                        break;
                     }
                     catch (ValidationException e)
                     {
                         exception = new ArgumentException($"无效的单元格:{new ExcelCellAddress(row, col).Address}({pInfo.Name}:{e.Message})",  e);
                         //log $"无效的单元格:{new ExcelCellAddress(row, col).Address},'{model.GetType().FullName}'类型的'{pInfo.Name}'属性验证未通过:'{e.Message}'"
+                        break;
                     }
                     catch (Exception e)
                     {
                         exception = e;
+                        break;
                     }
                 }
 
