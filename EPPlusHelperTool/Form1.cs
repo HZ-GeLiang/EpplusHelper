@@ -163,11 +163,6 @@ namespace EPPlusHelperTool
 
         private void CheckTemplateConfiguration_Click(object sender, EventArgs e)
         {
-            CheckTemplateConfiguration_Function(Direction.up);
-        }
-
-        private void CheckTemplateConfiguration_Function(Direction direction)
-        {
             TryRun(() =>
             {
                 var ws1Path = this.filePath1.Text.Trim().移除路径前后引号();
@@ -177,17 +172,16 @@ namespace EPPlusHelperTool
                     MessageBox.Show("路径1不能为空");
                     return;
                 }
-
                 if (string.IsNullOrEmpty(ws2Path))
                 {
                     MessageBox.Show("路径2不能为空");
                     return;
                 }
-                //if (ws1Path == ws2Path)
-                //{
-                //    MessageBox.Show("比较文件路径一致,无法比较");
-                //    return;
-                //}
+                if (ws1Path == ws2Path)
+                {
+                    MessageBox.Show("比较文件路径一致,无法比较");
+                    return;
+                }
 
                 var ws1Index_string = this.wsNameOrIndex1.Text.Trim();
                 var ws2Index_string = this.wsNameOrIndex2.Text.Trim();
@@ -207,154 +201,58 @@ namespace EPPlusHelperTool
                     var ws2 = GetWorkSheet(excelPackage2, ws2Index_string);
                     var ws1Props = EPPlusHelper.FillExcelDefaultConfig(ws1, ws1TitleLine, ws1TitleCol).ClassPropertyList;
                     var ws2Props = EPPlusHelper.FillExcelDefaultConfig(ws2, ws2TitleLine, ws2TitleCol).ClassPropertyList;
-                    var txt = AppendCols(ws1Props, ws2Props, direction);
-                    MessageBox.Show(txt);
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        AppendCols(ws1Props, ws2Props, sb);
+                        if (sb.Length > 1)
+                        {
+                            MessageBox.Show($@"A与B比较:B未提供列:{sb.RemoveLastChar()}");
+                            return;
+                        }
+                    }
+
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        AppendCols(ws2Props, ws1Props, sb);
+
+                        if (sb.Length > 1)
+                        {
+                            MessageBox.Show($@"A与B比较:B多提供列:{sb.RemoveLastChar()}");
+                            return;
+                        }
+                    }
+
+                    MessageBox.Show("A与B比较:内容一致");
                 }
             });
         }
 
-        internal enum Direction
-        {
-            /// <summary>
-            /// 上
-            /// </summary>
-            up,
-            /// <summary>
-            /// 下
-            /// </summary>
-            down,
-            /// <summary>
-            /// 双向
-            /// </summary>
-            bothway
-        }
-
-        private static string AppendCols(List<ExcelCellInfoValue> listA, List<ExcelCellInfoValue> listB)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (ExcelCellInfoValue item in listA)
-            {
-                if (!item.IsRename)
-                {
-                    if (listB.Find(a => a.Name == item.Name) == null)
-                    {
-                        sb.Append($@"{item.Name},");
-                    }
-                }
-                else
-                {
-                    if (listB.Find(a => a.Name == item.Name && a.ExcelColNameIndex == item.ExcelColNameIndex) == null)
-                    {
-                        sb.Append($@"{item.Name},");
-                    }
-                }
-            }
-
-            sb.RemoveLastChar(',');
-            var txt = sb.ToString();
-            return txt;
-
-
-
-        }
-
-
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="listA">源</param>
-        /// <param name="listB">比较对象</param>
-        private static string AppendCols(List<ExcelCellInfoValue> listA, List<ExcelCellInfoValue> listB, Direction direction)
+        /// <param name="src">源</param>
+        /// <param name="compareObj">比较对象</param>
+        /// <param name="sb1">输出的内容</param>
+        private static void AppendCols(List<ExcelCellInfoValue> src, List<ExcelCellInfoValue> compareObj, StringBuilder sb1)
         {
-            var str1 = "";
-            var str2 = "";
-            var sb = AppendCols(listA, listB);
-            switch (direction)
+            foreach (var item in src)
             {
-                case Direction.up:
-                    if (sb.Length > 0)
-                    {
-                        str1 = $@"A与B比较:B未提供列:{sb}";
-                        str2 = "";
-                    }
-                    break;
-                case Direction.down:
-                    if (sb.Length > 0)
-                    {
-                        str1 = $@"A与B比较:A多提供列:{sb}";
-                        str2 = "";
-                    }
-                    break;
-                case Direction.bothway:
-                    if (sb.Length > 0)
-                    {
-                        str1 = $@"A与B比较:B未提供列:{sb}";
-                        str2 = $@"A与B比较:A多提供列:{sb}";
-                    }
-                    break;
-                default:
-                    str1 = "A与B比较:内容一致";
-                    str2 = "A与B比较:内容一致";
-                    break;
-            }
-
-            if (str1 != "" || str2 != "")
-            {
-                if (str1 == str2)
+                if (!item.IsRename)
                 {
-                    return str1;
+                    if (compareObj.Find(a => a.Name == item.Name) == null)
+                    {
+                        sb1.Append($@"{item.Name},");
+                    }
                 }
                 else
                 {
-                    return str1 + Environment.NewLine + str2;
+                    if (compareObj.Find(a => a.Name == item.Name && a.ExcelColNameIndex == item.ExcelColNameIndex) == null)
+                    {
+                        sb1.Append($@"{item.Name},");
+                    }
                 }
             }
 
-
-
-            sb = AppendCols(listB, listA);
-            switch (direction)
-            {
-                case Direction.up:
-                    if (sb.Length > 0)
-                    {
-                        str1 = $@"A与B比较:B多提供列:{sb}";
-                        str2 = "";
-                    }
-                    break;
-                case Direction.down:
-                    if (sb.Length > 0)
-                    {
-                        str1 = $@"A与B比较:A未提供列:{sb}";
-                        str2 = "";
-                    }
-                    break;
-                case Direction.bothway:
-                    if (sb.Length > 0)
-                    {
-                        str1 = $@"A与B比较:B多提供列:{sb}";
-                        str2 = $@"A与B比较:A未提供列:{sb}";
-                    }
-                    break;
-                default:
-                    str1 = "A与B比较:内容一致";
-                    str2 = "A与B比较:内容一致";
-                    break;
-            }
-
-            if (str1 != "" || str2 != "")
-            {
-                if (str1 == str2)
-                {
-                    return str1;
-                }
-                else
-                {
-                    return str1 + Environment.NewLine + str2;
-                }
-            }
-
-            throw new Exception("需要修改程序");
         }
 
         private void Btn_SelectExcelFile(object sender, EventArgs e)
@@ -648,16 +546,6 @@ namespace EPPlusHelperTool
             }
 
             return excelDataConfigInfo;
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            CheckTemplateConfiguration_Function(Direction.bothway);
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            CheckTemplateConfiguration_Function(Direction.down);
         }
     }
 }
