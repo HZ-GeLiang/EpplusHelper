@@ -37,8 +37,8 @@ namespace SampleApp.Test._03读取excel内容
             }
             catch (Exception ex)
             {
-                Assert.AreEqual(ex.Message, $@"无效的单元格:C2");
-                Assert.AreEqual(ex.InnerException.Message, $@"'SampleApp._03读取excel内容.Sample06+ExcelModel2'类型的'部门Id'属性验证未通过:'值必须在[101,99999]之间'");
+                Assert.AreEqual(ex.Message, $@"无效的单元格:C2(部门Id:值必须在[101,99999]之间)");
+                Assert.AreEqual(ex.InnerException.Message, $@"值必须在[101,99999]之间");
             }
         }
 
@@ -52,11 +52,11 @@ namespace SampleApp.Test._03读取excel内容
             }
             catch (Exception ex)
             {
-                Assert.AreEqual(ex.Message, $@"无效的单元格:B2");
-                Assert.AreEqual(ex.InnerException.Message, $@"'SampleApp._03读取excel内容.Sample06+ExcelModel3'类型的'部门'属性验证未通过:'部门名字长度要在9-10之间'");
+                Assert.AreEqual(ex.Message, $@"无效的单元格:B2(部门:部门名字长度要在9-10之间)");
+                Assert.AreEqual(ex.InnerException.Message, $@"部门名字长度要在9-10之间");
 
             }
-         
+
 
         }
     }

@@ -1574,7 +1574,7 @@ namespace EPPlusExtensions
         }
 
         //继承 System.ComponentModel.DataAnnotations 的那些特性们
-        private static void GetList_ValidAttribute(PropertyInfo pInfo, string value) 
+        private static void GetList_ValidAttribute(PropertyInfo pInfo, string value)
         {
             if (!pInfo.IsDefined(typeof(ValidationAttribute), true)) return;
             object[] validAttrs = pInfo.GetCustomAttributes(typeof(ValidationAttribute), true);
@@ -2231,7 +2231,7 @@ namespace EPPlusExtensions
                 //T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转  1.2-2.1秒
                 //T model = type.CreateInstance<T>();//3秒+
                 T model = (T)deletgateCreateInstance(null); //上面的方法给拆开来 . 1.1-1.4
-                
+
                 foreach (var excelCellInfo in colNameList)
                 {
                     if (!GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
@@ -2391,7 +2391,7 @@ namespace EPPlusExtensions
                     try
                     {
                         //验证特性
-                        GetList_ValidAttribute(pInfo,  value);
+                        GetList_ValidAttribute(pInfo, value);
                         //赋值, 注:遇到 KV<,> 类型的统一不处理
                         if (!pInfo.PropertyType.HasImplementedRawGeneric(typeof(KV<,>)))
                         {
@@ -2405,7 +2405,7 @@ namespace EPPlusExtensions
                     }
                     catch (ValidationException e)
                     {
-                        exception = new ArgumentException($"无效的单元格:{new ExcelCellAddress(row, col).Address}({pInfo.Name}:{e.Message})",  e);
+                        exception = new ArgumentException($"无效的单元格:{new ExcelCellAddress(row, col).Address}({pInfo.Name}:{e.Message})", e);
                         //log $"无效的单元格:{new ExcelCellAddress(row, col).Address},'{model.GetType().FullName}'类型的'{pInfo.Name}'属性验证未通过:'{e.Message}'"
                         break;
                     }
@@ -2459,7 +2459,7 @@ namespace EPPlusExtensions
                             break;
                         }
                     }
-                    
+
                     #endregion
 
                     if (isEmptyLine)
