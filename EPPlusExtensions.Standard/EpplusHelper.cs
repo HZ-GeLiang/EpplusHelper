@@ -1959,7 +1959,9 @@ namespace EPPlusExtensions
                         }
                     }
                 }
-                else
+
+                //这个If不能放在合并在上面的if中,不然03.11Test的单元测试会不通过
+                if (pInfo != null)
                 {
                     dictModelPropNameExistsExcelColumn[propName] = true;
                     dictExcelColumnIndexToModelPropName_All[excelColumnIndex] = propName;
