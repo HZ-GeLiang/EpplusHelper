@@ -43,7 +43,14 @@ namespace SampleApp.Test._03读取excel内容
 
             var dt2 = Sample10.Run();
 
-
+            if (dt2 == null)
+            {
+                Assert.Fail("dt2返回了Null");
+            }
+            if (dt.Rows.Count != dt2.Rows.Count)
+            {
+                Assert.Fail("DataTable的记录行数不一样");
+            }
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 for (int j = 0; j < dt.Columns.Count; j++)

@@ -1174,7 +1174,7 @@ namespace EPPlusExtensions
         /// <typeparam name="T"></typeparam>
         /// <param name="args"></param>
         /// <returns></returns>
-        private static List<ExcelCellInfo> GetExcelColumnOfModel<T>(GetExcelListArgs<T> args) where T : class
+        private static List<ExcelCellInfo> GetExcelColumnOfModel(GetExcelListArgs args)
         {
             List<string> colNameList = null;
             Dictionary<string, int> nameRepeatCounter = null;
@@ -1798,6 +1798,7 @@ namespace EPPlusExtensions
                 DataColStart = 1,
                 DataColEnd = EPPlusConfig.MaxCol07,
                 KVSource = new Dictionary(),
+                Model = default(T),
             };
         }
 
@@ -1856,7 +1857,7 @@ namespace EPPlusExtensions
                 throw new ArgumentException($@"数据起始行的标题行值'{args.DataTitleRow}'错误,值应该大于0");
             }
 
-            var colNameList = GetExcelColumnOfModel<T>(args);
+            var colNameList = GetExcelColumnOfModel(args);
             if (colNameList.Count == 0)
             {
                 throw new Exception("未读取到单元格标题");
@@ -2653,7 +2654,7 @@ namespace EPPlusExtensions
             return !string.IsNullOrEmpty(propName);
         }
 
-        public static DataTable GetDataTable(GetExcelListArgs<DataRow> args)
+        public static DataTable GetDataTable(GetExcelListArgs<DataRow> args) 
         {
             ExcelWorksheet ws = args.ws;
             int rowIndex = args.DataRowStart;
@@ -2686,7 +2687,7 @@ namespace EPPlusExtensions
             #endregion
 
             var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
-                ? GetExcelListArgs<DataRow>.EveryCellReplaceListDefault
+                ? GetExcelListArgs.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
 
 

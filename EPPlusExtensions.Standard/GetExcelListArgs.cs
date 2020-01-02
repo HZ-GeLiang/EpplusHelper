@@ -5,15 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EPPlusExtensions.Attributes;
+using EPPlusExtensions.Helper;
 
 namespace EPPlusExtensions
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T">T是给Filter用的</typeparam>
-    public class GetExcelListArgs<T> where T : class
+    public class GetExcelListArgs
     {
+
         /// <summary>
         /// excel模板数据从哪列开始,可以理解成标题行的开始列
         /// </summary>
@@ -77,17 +75,6 @@ namespace EPPlusExtensions
             {"\r\n", ""},
         };
 
-
-        /// <summary>
-        /// 在return数据之前执行过滤操作
-        /// </summary>
-        public Func<T, bool> HavingFilter { get; set; } = null;
-
-        /// <summary>
-        /// 检查数据,如果数据正确,添加到 返回数据 集合中
-        /// </summary>
-        public Func<T, bool> WhereFilter { get; set; } = null;
-
         /// <summary>
         /// 读取每个单元格值时做的处理
         /// </summary>
@@ -120,10 +107,68 @@ namespace EPPlusExtensions
         /// <summary>
         /// Key是属性名字,Value是该属性的类型的 KVSource&lt;TKey,Tvalue&gt;
         /// </summary>
-        public Dictionary<string, object> KVSource = new Dictionary<string, object>();
+        public EPPlusExtensions.Dictionary KVSource = new Dictionary();
 
+       
+
+        public bool AddKVSource<TKey, TValue>(string key, KvSource<TKey, TValue> value)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException($"key不能为空", nameof(key));
+            }
+            if (this.KVSource == null)
+            {
+                return false;
+            }
+            if (this.KVSource.ContainsKey(key))
+            {
+                return false;
+            }
+            this.KVSource.Add(key, value);
+            return true;
+        }
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class GetExcelListArgs<T> : GetExcelListArgs where T : class
+    {
+        //T是给Filter用的,后来也用来创建T类型的Model了
+
+        public T Model { get; set; }
+
+        /// <summary>
+        /// 在return数据之前执行过滤操作
+        /// </summary>
+        public Func<T, bool> HavingFilter { get; set; } = null;
+
+        /// <summary>
+        /// 检查数据,如果数据正确,添加到 返回数据 集合中
+        /// </summary>
+        public Func<T, bool> WhereFilter { get; set; } = null;
+
+        public bool AddKVSource<TKey, TValue>(KV<TKey, TValue> filed, KvSource<TKey, TValue> value)
+        {
+            if (filed == null) throw new ArgumentNullException(nameof(filed));
+            var defalutKey = filed.GetType().Name;
+            var attrs = ReflectionHelper.GetAttributeForProperty<KVSetAttribute>(typeof(T), defalutKey, true);
+            return attrs == null || attrs.Length != 1
+                ? this.AddKVSource(defalutKey, value)
+                : this.AddKVSource(((KVSetAttribute)attrs[0]).Name, value);
+        }
 
     }
+
+
+    public class Dictionary : System.Collections.Generic.Dictionary<string, object>
+    {
+
+    }
+
 
     [Flags]
     public enum ReadCellValueOption
