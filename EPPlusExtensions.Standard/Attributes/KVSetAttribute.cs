@@ -151,7 +151,7 @@ namespace EPPlusExtensions.Attributes
 
         public bool HasValue { get; set; } = false;
 
-        //private KV() { }
+        public KV() { } //这个不能注释.必须提供.存在的理由是方便提供一个默认的对象
 
         public KV(TKey key, TValue value) => _kv = new KeyValuePair<TKey, TValue>(key, value);
 
