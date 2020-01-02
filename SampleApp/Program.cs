@@ -41,7 +41,7 @@ namespace SampleApp
             //SampleApp._03读取excel内容.Sample01.Run();
             //SampleApp._03读取excel内容.Sample02.Run();
             //SampleApp._03读取excel内容.Sample03.Run();
-            //SampleApp._03读取excel内容.Sample04.Run();
+            SampleApp._03读取excel内容.Sample04.Run();
             //SampleApp._03读取excel内容.Sample05.Run();
             //SampleApp._03读取excel内容.Sample06.Run();
             //SampleApp._03读取excel内容.Sample07.Run();
@@ -52,7 +52,7 @@ namespace SampleApp
             //SampleApp._03读取excel内容.Sample12.Run();
             //SampleApp._03读取excel内容.Sample13.Run();
             //SampleApp._03读取excel内容.Sample14.Run();
-            SampleApp._03读取excel内容.Sample15.Run();
+            //SampleApp._03读取excel内容.Sample15.Run();
 
             //_04填充数据与数据源同步-未测试完全,部分可用,不推荐使用.
             //SampleApp._04填充数据与数据源同步.Sample01.Run();

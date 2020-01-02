@@ -151,7 +151,7 @@ namespace EPPlusExtensions.Attributes
 
         public bool HasValue { get; set; } = false;
 
-        public KV() { }
+        //private KV() { }
 
         public KV(TKey key, TValue value) => _kv = new KeyValuePair<TKey, TValue>(key, value);
 

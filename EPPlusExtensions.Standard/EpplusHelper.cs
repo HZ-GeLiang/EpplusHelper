@@ -2379,9 +2379,20 @@ namespace EPPlusExtensions
                                     throw new ArgumentException(msg, pInfo.Name);
                                 }
 
-                                var typeKVArr = pInfo.PropertyType.GetGenericArguments();
-                                var typeKV = typeof(KV<,>).MakeGenericType(typeKVArr);
-                                var modelValue = typeKV.GetConstructor(typeKVArr).Invoke(new object[] { value, kv_Value });
+                                var typeKVArgs = pInfo.PropertyType.GetGenericArguments();
+                                var typeKV = typeof(KV<,>).MakeGenericType(typeKVArgs);
+
+                                object[] invokeParameters;
+                                if (typeKVArgs[0].FullName == typeof(string).FullName)
+                                {
+                                    invokeParameters = new object[] { value, kv_Value };
+                                }
+                                else
+                                {
+                                    invokeParameters = new object[] { Convert.ChangeType(value, typeKVArgs[0]), kv_Value };
+                                }
+
+                                var modelValue = typeKV.GetConstructor(typeKVArgs).Invoke(invokeParameters);
                                 typeKV.GetProperty("HasValue").SetValue(modelValue, inKvSource);
                                 pInfo.SetValue(model, modelValue);
                             }
