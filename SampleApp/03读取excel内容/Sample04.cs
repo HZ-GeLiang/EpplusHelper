@@ -30,6 +30,7 @@ namespace SampleApp._03读取excel内容
                 AddSourceWay2_TryAdd_CreateDataTable(propModel, source);
                 AddSourceWay3_AddRange_ByFunction(propModel, source);
                 args.KVSource.Add(nameof(propModel.部门), source);
+                args.KVSource.Add(nameof(propModel.部门评分), GetSource_部门评分(propModel));
 
                 var list = EPPlusHelper.GetList(args);
                 ObjectDumper.Write(list);
@@ -37,6 +38,21 @@ namespace SampleApp._03读取excel内容
                 return list;
             }
         }
+
+        private static KvSource<long, string> GetSource_部门评分(ExcelModel propModel)
+        {
+            var sourceData = propModel.部门评分.CreateKVSourceData();
+            sourceData.Add(1, "非常不满意");
+            sourceData.Add(2, "不满意");
+            sourceData.Add(3, "一般");
+            sourceData.Add(4, "满意");
+            sourceData.Add(5, "非常满意");
+
+            var souce = propModel.部门评分.CreateKVSource();
+            souce.AddRange(sourceData);
+            return souce;
+        }
+
 
         /// <summary>
         /// 内部TryAdd,自己封装一个方法, 个人推荐用这个.代码改的少
@@ -218,6 +234,9 @@ namespace SampleApp._03读取excel内容
             public string 部门负责人 { get; set; }
             public string 部门负责人确认签字 { get; set; }
 
+            [KVSet("部门评分")]
+            public KV<long, string> 部门评分 { get; set; }
+
             public override bool Equals(object obj)
             {
                 if (obj == null || !obj.GetType().Equals(this.GetType()))
@@ -228,10 +247,12 @@ namespace SampleApp._03读取excel内容
                 ExcelModel y = (ExcelModel)obj;
 
                 return this.序号 == y.序号 &&
-                       this.部门.Key == y.部门.Key &&
-                       this.部门.Value == y.部门.Value &&
+                       this.部门?.Key == y?.部门.Key &&
+                       this.部门?.Value == y?.部门.Value &&
                        this.部门负责人 == y.部门负责人 &&
-                       this.部门负责人确认签字 == y.部门负责人确认签字;
+                       this.部门负责人确认签字 == y.部门负责人确认签字 &&
+                       this.部门评分?.Key == y.部门评分?.Key &&
+                       this.部门评分?.Value == y.部门评分?.Value;
             }
 
             //重写Equals方法必须重写GetHashCode方法，否则发生警告
@@ -242,7 +263,10 @@ namespace SampleApp._03读取excel内容
                        this.部门.Value.GetHashCode() +
                        this.部门.HasValue.GetHashCode() +
                        this.部门负责人.GetHashCode() +
-                       this.部门负责人确认签字.GetHashCode();
+                       this.部门负责人确认签字.GetHashCode() +
+                       this.部门评分.Key.GetHashCode() +
+                       this.部门评分.Value.GetHashCode() +
+                       this.部门评分.HasValue.GetHashCode();
             }
         }
     }
