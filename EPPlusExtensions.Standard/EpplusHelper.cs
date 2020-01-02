@@ -3314,7 +3314,7 @@ namespace EPPlusExtensions
                     if (cellStr.StartsWith("$tbs")) //模版摘要/汇总等信息单元格
                     {
                         //string cellConfigValue = Regex.Replace(cellStr, "^[$]tbs" + nthStr, ""); //$需要转义
-                        cellConfigValue = cellStr.RemovePrefix("$tbs").Trim();
+                        cellConfigValue = cellStr.RemovePrefix($"$tbs{nthStr}").Trim();
                         bodyConfig.Option.ConfigExtra.Add(new EPPlusConfigFixedCell { Address = cellPosition, ConfigValue = cellConfigValue });
                     }
                     else if (cellStr.StartsWith($"$tb{nthStr}$")) //模版提供了多少行,若没有配置,在调用FillData()时默认提供1行  $tb1$1
