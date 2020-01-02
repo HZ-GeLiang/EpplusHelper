@@ -109,9 +109,9 @@ namespace EPPlusExtensions
         /// </summary>
         public EPPlusExtensions.Dictionary KVSource = new Dictionary();
 
-       
 
-        public bool AddKVSource<TKey, TValue>(string key, KvSource<TKey, TValue> value)
+
+        public bool AddKVSourceByKey<TKey, TValue>(string key, KvSource<TKey, TValue> value)
         {
             if (string.IsNullOrEmpty(key))
             {
@@ -151,14 +151,12 @@ namespace EPPlusExtensions
         /// </summary>
         public Func<T, bool> WhereFilter { get; set; } = null;
 
-        public bool AddKVSource<TKey, TValue>(KV<TKey, TValue> filed, KvSource<TKey, TValue> value)
+        public bool AddKVSourceByPropName<TKey, TValue>(string propName, KvSource<TKey, TValue> value)
         {
-            if (filed == null) throw new ArgumentNullException(nameof(filed));
-            var defalutKey = filed.GetType().Name;
-            var attrs = ReflectionHelper.GetAttributeForProperty<KVSetAttribute>(typeof(T), defalutKey, true);
+            var attrs = ReflectionHelper.GetAttributeForProperty<KVSetAttribute>(typeof(T), propName, true);
             return attrs == null || attrs.Length != 1
-                ? this.AddKVSource(defalutKey, value)
-                : this.AddKVSource(((KVSetAttribute)attrs[0]).Name, value);
+                ? this.AddKVSourceByKey(propName, value)
+                : this.AddKVSourceByKey(((KVSetAttribute)attrs[0]).Name, value);
         }
 
     }

@@ -1778,29 +1778,30 @@ namespace EPPlusExtensions
 
         public static T InitGetExcelListArgsModel<T>() where T : class
         {
-            if (typeof(T).GetConstructor(new Type[] { }) == null)
+            var t_ctor = typeof(T).GetConstructor(new Type[] { });
+            if (t_ctor == null)
             {
                 return null;
             }
 
-            var model = default(T);
+            var model = t_ctor.Invoke(new object[] { });
 
             //foreach (var p in ReflectionHelper.GetProperties(typeof(T)).Where(p => p == typeof(KV<,>)))
             foreach (var p in ReflectionHelper.GetProperties(typeof(T)))
             {
-                if (p != typeof(KV<,>))
+                if (!p.PropertyType.HasImplementedRawGeneric(typeof(KV<,>)))
                 {
                     continue;
                 }
 
-                var p_ctor = p.GetType().GetConstructor(new Type[] { });
+                var p_ctor = p.PropertyType.GetConstructor(new Type[] { });
                 if (p_ctor == null)
                 {
                     continue;
                 }
                 p.SetValue(model, p_ctor.Invoke(new object[] { }));
             }
-            return model;
+            return (T)model;
         }
 
         public static GetExcelListArgs GetExcelListArgsDefault(ExcelWorksheet ws, int rowIndex)
