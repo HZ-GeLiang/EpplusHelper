@@ -1776,9 +1776,36 @@ namespace EPPlusExtensions
 
         #region GetList<T>
 
-        public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class
+        public static T InitGetExcelListArgsModel<T>() where T : class
         {
-            return new GetExcelListArgs<T>
+            if (typeof(T).GetConstructor(new Type[] { }) == null)
+            {
+                return null;
+            }
+
+            var model = default(T);
+
+            //foreach (var p in ReflectionHelper.GetProperties(typeof(T)).Where(p => p == typeof(KV<,>)))
+            foreach (var p in ReflectionHelper.GetProperties(typeof(T)))
+            {
+                if (p != typeof(KV<,>))
+                {
+                    continue;
+                }
+
+                var p_ctor = p.GetType().GetConstructor(new Type[] { });
+                if (p_ctor == null)
+                {
+                    continue;
+                }
+                p.SetValue(model, p_ctor.Invoke(new object[] { }));
+            }
+            return model;
+        }
+
+        public static GetExcelListArgs GetExcelListArgsDefault(ExcelWorksheet ws, int rowIndex)
+        {
+            var args = new GetExcelListArgs
             {
                 ws = ws,
                 DataRowStart = rowIndex,
@@ -1786,8 +1813,6 @@ namespace EPPlusExtensions
                 EveryCellPrefix = "",
                 EveryCellReplaceList = null,
                 UseEveryCellReplace = true,
-                HavingFilter = null,
-                WhereFilter = null,
                 ReadCellValueOption = ReadCellValueOption.Trim,
                 POCO_Property_AutoRename_WhenRepeat = false,
                 POCO_Property_AutoRenameFirtName_WhenRepeat = true,
@@ -1798,8 +1823,31 @@ namespace EPPlusExtensions
                 DataColStart = 1,
                 DataColEnd = EPPlusConfig.MaxCol07,
                 KVSource = new Dictionary(),
-                Model = default(T),
+
             };
+            return args;
+        }
+
+        public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class
+        {
+            var argsReturn = new GetExcelListArgs<T>
+            {
+                HavingFilter = null,
+                WhereFilter = null,
+                Model = InitGetExcelListArgsModel<T>()
+            };
+            var args = GetExcelListArgsDefault(ws, rowIndex);
+            var dict = ReflectionHelper.GetProperties(typeof(GetExcelListArgs)).ToDictionary(item => item.Name, item => item.GetValue(args));
+
+            foreach (var item in ReflectionHelper.GetProperties(typeof(GetExcelListArgs<T>)))
+            {
+                if (dict.ContainsKey(item.Name))
+                {
+                    item.SetValue(argsReturn, dict[item.Name]);
+                }
+            }
+
+            return argsReturn;
         }
 
         /// <summary>
@@ -2654,7 +2702,7 @@ namespace EPPlusExtensions
             return !string.IsNullOrEmpty(propName);
         }
 
-        public static DataTable GetDataTable(GetExcelListArgs<DataRow> args) 
+        public static DataTable GetDataTable(GetExcelListArgs<DataRow> args)
         {
             ExcelWorksheet ws = args.ws;
             int rowIndex = args.DataRowStart;
