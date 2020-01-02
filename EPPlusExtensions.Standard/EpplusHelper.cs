@@ -1797,7 +1797,7 @@ namespace EPPlusExtensions
                 GetList_ErrorMessage_OnlyShowColomn = false,
                 DataColStart = 1,
                 DataColEnd = EPPlusConfig.MaxCol07,
-                KVSource = new Dictionary<string, object>(),
+                KVSource = new Dictionary(),
             };
         }
 
@@ -2365,7 +2365,7 @@ namespace EPPlusExtensions
 
                             if (is_kvsourceType)
                             {
-                                //var kvsourceTypeTKey = kvsourceType.GenericTypeArguments[0];
+                                var kvsourceTypeTKey = kvsourceType.GenericTypeArguments[0];
                                 //var kvsourceTypeTValue = kvsourceType.GenericTypeArguments[1];
 
                                 var prop_kvsource = (IKVSource)kvsource;
@@ -2383,13 +2383,22 @@ namespace EPPlusExtensions
                                 var typeKV = typeof(KV<,>).MakeGenericType(typeKVArgs);
 
                                 object[] invokeParameters;
-                                if (typeKVArgs[0].FullName == typeof(string).FullName)
+                                //if (typeKVArgs[0].FullName == typeof(string).FullName)
+                                //{
+                                //    invokeParameters = new object[] { value, kv_Value };
+                                //}
+                                //else
+                                //{
+                                //    invokeParameters = new object[] { Convert.ChangeType(value, typeKVArgs[0]), kv_Value };
+                                //}
+                                //代码和上面的是一样的效果,这个更加方便阅读
+                                if (kvsourceTypeTKey == typeof(string))
                                 {
                                     invokeParameters = new object[] { value, kv_Value };
                                 }
                                 else
                                 {
-                                    invokeParameters = new object[] { Convert.ChangeType(value, typeKVArgs[0]), kv_Value };
+                                    invokeParameters = new object[] { Convert.ChangeType(value, kvsourceTypeTKey), kv_Value };
                                 }
 
                                 var modelValue = typeKV.GetConstructor(typeKVArgs).Invoke(invokeParameters);
