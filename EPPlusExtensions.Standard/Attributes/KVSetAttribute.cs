@@ -10,14 +10,14 @@ namespace EPPlusExtensions.Attributes
     public sealed class KVSetAttribute : Attribute
     {
         /// <summary>
-        /// 必须在集合中
-        /// </summary>
-        public bool MustInSet { get; private set; }
-
-        /// <summary>
         ///  集合名字
         /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// 必须在集合中
+        /// </summary>
+        public bool MustInSet { get; private set; }
 
         /// <summary>
         /// 自定义的错误消息
@@ -29,32 +29,18 @@ namespace EPPlusExtensions.Attributes
         /// </summary>
         public string[] Args { get; private set; }
 
-        public KVSetAttribute(string name)
-        {
-            this.Name = name;
-            this.MustInSet = true;
-            this.Args = new string[0];
-        }
+        public KVSetAttribute(string name) => InitConstructor(name, true, null, new string[0]);
 
-        public KVSetAttribute(string name, bool mustInSet)
+        public KVSetAttribute(string name, bool mustInSet) => InitConstructor(name, mustInSet, null, new string[0]);
+
+        public KVSetAttribute(string name, string errorMessage, params string[] args) => InitConstructor(name, true, errorMessage, args);
+        public KVSetAttribute(string name, bool mustInSet, string errorMessage, params string[] args) => InitConstructor(name, mustInSet, errorMessage, args);
+
+        private void InitConstructor(string name, bool mustInSet, string errorMessage, string[] args)
         {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name)); 
             this.Name = name;
             this.MustInSet = mustInSet;
-            this.Args = new string[0];
-        }
-
-        public KVSetAttribute(string name, bool mustInSet, string errorMessage, params string[] args)
-        {
-            this.Name = name;
-            this.MustInSet = mustInSet;
-            this.ErrorMessage = errorMessage;
-            this.Args = args;
-        }
-
-        public KVSetAttribute(string name, string errorMessage, params string[] args)
-        {
-            this.Name = name;
-            this.MustInSet = true;
             this.ErrorMessage = errorMessage;
             this.Args = args;
         }
