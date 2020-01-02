@@ -13,9 +13,9 @@ namespace EPPlusExtensions.Helper
             return GetAttributeForProperty<T, TAttribute>(propertyName, false);
         }
 
-        public static object[] GetAttributeForProperty<TAttribute>(Type propertyType, string propertyName)
+        public static object[] GetAttributeForProperty<TAttribute>(Type modelType, string propertyName)
         {
-            return GetAttributeForProperty<TAttribute>(propertyType, propertyName, false);
+            return GetAttributeForProperty<TAttribute>(modelType, propertyName, false);
         }
 
         public static object[] GetAttributeForProperty<T, TAttribute>(string propertyName, bool notFindReturnNull)
@@ -26,10 +26,11 @@ namespace EPPlusExtensions.Helper
         }
 
 
-        public static object[] GetAttributeForProperty<TAttribute>(Type propertyType, string propertyName, bool notFindReturnNull)
+        public static object[] GetAttributeForProperty<TAttribute>(Type modelType, string propertyName, bool notFindReturnNull)
         {
+            if (modelType == null) throw new ArgumentNullException(nameof(modelType));
             if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
-            var pi = GetProperties(propertyType);
+            var pi = GetProperties(modelType);
             return GetProperty(pi, propertyName, notFindReturnNull)?.GetCustomAttributes(typeof(TAttribute), false);
         }
 
