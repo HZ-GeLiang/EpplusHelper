@@ -107,9 +107,7 @@ namespace EPPlusExtensions
         /// <summary>
         /// Key是属性名字,Value是该属性的类型的 KVSource&lt;TKey,Tvalue&gt;
         /// </summary>
-        public EPPlusExtensions.Dictionary KVSource = new Dictionary();
-
-
+        public KVSource KVSource = new KVSource();
 
         public bool AddKVSourceByKey<TKey, TValue>(string key, KvSource<TKey, TValue> value)
         {
@@ -161,12 +159,7 @@ namespace EPPlusExtensions
 
     }
 
-
-    public class Dictionary : System.Collections.Generic.Dictionary<string, object>
-    {
-
-    }
-
+    public class KVSource : System.Collections.Generic.Dictionary<string, object> { }
 
     [Flags]
     public enum ReadCellValueOption

@@ -33,7 +33,6 @@ namespace SampleApp._03读取excel内容
                 //args.KVSource.Add(nameof(propModel.部门), source);
                 //args.KVSource.Add(nameof(propModel.部门评分), GetSource_部门评分(propModel));
 
-
                 var source = args.Model.部门.CreateKVSource();
                 AddSourceWay1_AddRange_CreateDataSource(args.Model, source);
                 AddSourceWay2_TryAdd_CreateDataTable(args.Model, source);
