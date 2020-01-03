@@ -49,16 +49,13 @@ namespace SampleApp._03读取excel内容
 
         private static KvSource<long, string> GetSource_部门评分(ExcelModel propModel)
         {
-            var sourceData = propModel.部门评分.CreateKVSourceData();
-            sourceData.Add(1, "非常不满意");
-            sourceData.Add(2, "不满意");
-            sourceData.Add(3, "一般");
-            sourceData.Add(4, "满意");
-            sourceData.Add(5, "非常满意");
-
-            var souce = propModel.部门评分.CreateKVSource();
-            souce.AddRange(sourceData);
-            return souce;
+            var source = propModel.部门评分.CreateKVSource();
+            source.Add(1, "非常不满意");
+            source.Add(2, "不满意");
+            source.Add(3, "一般");
+            source.Add(4, "满意");
+            source.Add(5, "非常满意");
+            return source;
         }
 
 
