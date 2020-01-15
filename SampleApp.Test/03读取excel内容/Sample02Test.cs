@@ -18,7 +18,7 @@ namespace SampleApp.Test._03读取excel内容
         [TestMethod]
         public void TestMethod1()
         {
-            var excelList = Sample02.Run();
+            var excelList = Sample02.Run().ToList();
             var resultList = excelList.GetEmpty().ToList();
             resultList.Add(new Sample02.ExcelModel { 序号 = "1", 部门 = "事业1部", 部门负责人 = "赵六", 部门负责人确认签字 = "娃娃" });
             resultList.Add(new Sample02.ExcelModel { 序号 = "2", 部门 = "事业2部", 部门负责人 = "赵六", 部门负责人确认签字 = "菲菲" });

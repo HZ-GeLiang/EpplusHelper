@@ -14,7 +14,7 @@ namespace SampleApp._03读取excel内容
 {
     public class Sample01
     {
-        public static List<ExcelModel> Run()
+        public static IEnumerable<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample01.xlsx";
             var wsName = "逐行读取";
