@@ -105,7 +105,7 @@ namespace EPPlusExtensions
         public bool GetList_ErrorMessage_OnlyShowColomn = false;
 
         /// <summary>
-        /// Key是属性名字,Value是该属性的类型的 KVSource&lt;TKey,Tvalue&gt;
+        /// Key是属性名字,Value是该属性的类型的 KVSource&lt;TKey,TValue&gt;
         /// </summary>
         public KVSource KVSource = new KVSource();
 
@@ -113,7 +113,7 @@ namespace EPPlusExtensions
         {
             if (string.IsNullOrEmpty(key))
             {
-                throw new ArgumentException($"key不能为空", nameof(key));
+                throw new ArgumentException("key不能为空", nameof(key));
             }
             if (this.KVSource == null)
             {

@@ -1823,8 +1823,7 @@ namespace EPPlusExtensions
                 GetList_ErrorMessage_OnlyShowColomn = false,
                 DataColStart = 1,
                 DataColEnd = EPPlusConfig.MaxCol07,
-                KVSource = new Dictionary(),
-
+                KVSource = new KVSource(),
             };
             return args;
         }
