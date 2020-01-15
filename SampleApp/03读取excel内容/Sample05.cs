@@ -15,7 +15,7 @@ namespace SampleApp._03读取excel内容
 {
     public class Sample05
     {
-        public static List<ExcelModel> Run()
+        public static IEnumerable<ExcelModel> Run()
         {
             var dataSource = new Dictionary<string, long?>();
             dataSource.Add("事业1部", 1);

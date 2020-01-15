@@ -13,7 +13,7 @@ namespace SampleApp._03读取excel内容
 {
     public class Sample15
     {
-        public static List<ExcelModel> Run()
+        public static IEnumerable<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample15.xlsx";
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
