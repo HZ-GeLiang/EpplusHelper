@@ -1892,8 +1892,7 @@ namespace EPPlusExtensions
 
         public static List<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
-            string mergeCellAddress;
-            ExcelWorksheet ws = args.ws;
+            string mergeCellAddress; 
             int rowIndex = args.DataRowStart;
             if (rowIndex <= 0)
             {
@@ -1914,8 +1913,8 @@ namespace EPPlusExtensions
             #region 对ScanLine.MergeLine进行模版验证 
             if (args.ScanLine == ScanLine.MergeLine)
             {
-                SetSheetCellsValueFromA1(ws);
-                object[,] arr = ws.Cells.Value as object[,];
+                SetSheetCellsValueFromA1(args.ws);
+                object[,] arr = args.ws.Cells.Value as object[,];
 
                 for (int i = 0; i < arr.GetLength(0);) //遍历行,这里 i++ 没有写
                 {
@@ -1927,7 +1926,7 @@ namespace EPPlusExtensions
                     }
 
                     //如果数据的第一列的合并单元格,必须确保这一行的所有列都是合并单元格
-                    if (!EPPlusHelper.IsMergeCell(ws, row: rowNo, col: args.DataColStart, out mergeCellAddress))
+                    if (!EPPlusHelper.IsMergeCell(args.ws, row: rowNo, col: args.DataColStart, out mergeCellAddress))
                     {
                         i++;
                         continue;
@@ -1945,7 +1944,7 @@ namespace EPPlusExtensions
                         {
                             continue;
                         }
-                        if (!EPPlusHelper.IsMergeCell(ws, row: rowNo, col: colNo))
+                        if (!EPPlusHelper.IsMergeCell(args.ws, row: rowNo, col: colNo))
                         {
                             throw new Exception("数据的起始列有合并行的必须确保当前行的数据都是合并行");//参考 示例 03.14
                         }
@@ -2120,13 +2119,13 @@ namespace EPPlusExtensions
                     {
                         if ((_matchingModel & MatchingModel.gt) != MatchingModel.gt) continue;
                         if (dictMatchingModelException.ContainsKey(MatchingModel.gt)) continue;
-                        dictMatchingModelException.Add(MatchingModel.gt, GetMatchingModelExceptionCase_gt(modelPropNotExistsExcelColumn, type, colNameToCellInfo, ws));
+                        dictMatchingModelException.Add(MatchingModel.gt, GetMatchingModelExceptionCase_gt(modelPropNotExistsExcelColumn, type, colNameToCellInfo, args.ws));
                     }
                     else if (matchingModelValue == MatchingModel.lt)
                     {
                         if ((_matchingModel & MatchingModel.lt) != MatchingModel.lt) continue;
                         if (dictMatchingModelException.ContainsKey(MatchingModel.lt)) continue;
-                        dictMatchingModelException.Add(MatchingModel.lt, GetMatchingModelExceptionCase_lt(excelColumnIsNotModelProp, type, colNameToCellInfo, ws));
+                        dictMatchingModelException.Add(MatchingModel.lt, GetMatchingModelExceptionCase_lt(excelColumnIsNotModelProp, type, colNameToCellInfo, args.ws));
                     }
                     else if (matchingModelValue == MatchingModel.neq)
                     {
@@ -2141,11 +2140,11 @@ namespace EPPlusExtensions
 
                         if (!dictMatchingModelException.ContainsKey(MatchingModel.gt))
                         {
-                            dictMatchingModelException.Add(MatchingModel.gt, GetMatchingModelExceptionCase_gt(modelPropNotExistsExcelColumn, type, colNameToCellInfo, ws));
+                            dictMatchingModelException.Add(MatchingModel.gt, GetMatchingModelExceptionCase_gt(modelPropNotExistsExcelColumn, type, colNameToCellInfo, args.ws));
                         }
                         if (!dictMatchingModelException.ContainsKey(MatchingModel.lt))
                         {
-                            dictMatchingModelException.Add(MatchingModel.lt, GetMatchingModelExceptionCase_lt(excelColumnIsNotModelProp, type, colNameToCellInfo, ws));
+                            dictMatchingModelException.Add(MatchingModel.lt, GetMatchingModelExceptionCase_lt(excelColumnIsNotModelProp, type, colNameToCellInfo, args.ws));
                         }
 
                         #endregion
@@ -2296,11 +2295,11 @@ namespace EPPlusExtensions
                     if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
                     {
                         //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
-                        value = GetMergeCellText(ws, row, col);
+                        value = GetMergeCellText(args.ws, row, col);
                     }
                     else
                     {
-                        value = GetMergeCellText(ws, row, col);
+                        value = GetMergeCellText(args.ws, row, col);
                     }
 #else
                     string value =  GetMegerCellText(ws, row, col);
@@ -2512,11 +2511,11 @@ namespace EPPlusExtensions
                         if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
                         {
                             //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
-                            value = GetMergeCellText(ws, row, col);
+                            value = GetMergeCellText(args.ws, row, col);
                         }
                         else
                         {
-                            value = GetMergeCellText(ws, row, col);
+                            value = GetMergeCellText(args.ws, row, col);
                         }
 #else
                     string value =  GetMegerCellText(ws, row, col);
@@ -2541,7 +2540,7 @@ namespace EPPlusExtensions
                 if (dynamicCalcStep)
                 {
                     //while里面动态计算
-                    if (EPPlusHelper.IsMergeCell(ws, row, col: args.DataColStart, out mergeCellAddress))
+                    if (EPPlusHelper.IsMergeCell(args.ws, row, col: args.DataColStart, out mergeCellAddress))
                     {
                         row += new ExcelAddress(mergeCellAddress).Rows;//按第一列合并的行数进行step的增加
                     }
