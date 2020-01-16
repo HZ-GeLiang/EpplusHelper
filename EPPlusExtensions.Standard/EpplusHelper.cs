@@ -1904,6 +1904,13 @@ namespace EPPlusExtensions
             return GetList<T>(args);
         }
 
+        private static bool DynamicCalcStep(ScanLine scanLine)
+        {
+            if (scanLine == ScanLine.SingleLine) return false;
+            if (scanLine == ScanLine.MergeLine) return true; //在代码的while中进行动态计算
+            throw new Exception("不支持的ScanLine");
+        }
+
         public static List<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
             var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值
@@ -2257,9 +2264,7 @@ namespace EPPlusExtensions
 
             #region 获得 list
 
-            var excelCellInfoNeedTrim = (args.ReadCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
-            var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
-            var excelCellInfoNeedToDBC = (args.ReadCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
+            ExcelCellInfoNeedTo(args.ReadCellValueOption, out var toTrim, out var toMergeLine, out var toDBC);
 
             var allException = args.GetList_NeedAllException ? new List<Exception>() : null;
 
@@ -2268,18 +2273,8 @@ namespace EPPlusExtensions
 #endif
             Func<object[], object> deletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
 
-            bool DynamicCalcStep()
-            {
-                if (args.ScanLine == ScanLine.SingleLine)
-                    return false;
-                else if (args.ScanLine == ScanLine.MergeLine)
-                    return true; //while里面动态计算
-                else
-                    throw new Exception("不支持的ScanLine");
-            }
-
             List<T> list = new List<T>();
-            var dynamicCalcStep = DynamicCalcStep();
+            var dynamicCalcStep = DynamicCalcStep(args.ScanLine);
             Exception exception = null;
             int row = args.DataRowStart;
 
@@ -2365,15 +2360,15 @@ namespace EPPlusExtensions
 
                         #region 对每个单元格进行处理
 
-                        if (excelCellInfoNeedTrim)
+                        if (toTrim)
                         {
                             value = value.Trim();
                         }
-                        if (excelCellInfoNeedMergeLine)
+                        if (toMergeLine)
                         {
                             value = value.MergeLines();
                         }
-                        if (excelCellInfoNeedToDBC)
+                        if (toDBC)
                         {
                             value = value.ToDBC();
                         }
@@ -2675,6 +2670,13 @@ namespace EPPlusExtensions
             return args.HavingFilter == null ? list : list.Where(item => args.HavingFilter.Invoke(item)).ToList();
         }
 
+        private static void ExcelCellInfoNeedTo(ReadCellValueOption readCellValueOption, out bool toTrim, out bool toMergeLine,
+            out bool toDBC)
+        {
+            toTrim = (readCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
+            toMergeLine = (readCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
+            toDBC = (readCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
+        }
 
         private static PropertyInfo GetPropertyInfo<T>(Dictionary<string, PropertyInfo> cache_PropertyInfo, string propName, Type type)
             where T : class, new()
@@ -2693,7 +2695,6 @@ namespace EPPlusExtensions
             PropertyInfo pInfo = cache_PropertyInfo[propName];
             return pInfo;
         }
-
 
         /// <summary>
         /// 获得属性名
@@ -2757,25 +2758,8 @@ namespace EPPlusExtensions
             #region 获得 list
 
             int row = rowIndex;
-
-            bool dynamicCalcStep;//动态计算step
-
-            switch (args.ScanLine)
-            {
-                case ScanLine.SingleLine:
-                    dynamicCalcStep = false;
-                    break;
-                case ScanLine.MergeLine:
-                    dynamicCalcStep = true; //while里面动态计算
-                    break;
-                default:
-                    throw new Exception("不支持的ScanLine");
-            }
-
-            var excelCellInfoNeedTrim = (args.ReadCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
-            var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
-            var excelCellInfoNeedToDBC = (args.ReadCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
-
+            bool dynamicCalcStep = DynamicCalcStep(args.ScanLine);
+            ExcelCellInfoNeedTo(args.ReadCellValueOption, out var toTrim, out var toMergeLine, out var toDBC);
             while (true)
             {
                 bool isNoDataAllColumn = true;//判断整行数据是否都没有数据
@@ -2829,15 +2813,15 @@ namespace EPPlusExtensions
 
                         #region 对每个单元格进行处理
 
-                        if (excelCellInfoNeedTrim)
+                        if (toTrim)
                         {
                             value = value.Trim();
                         }
-                        if (excelCellInfoNeedMergeLine)
+                        if (toMergeLine)
                         {
                             value = value.MergeLines();
                         }
-                        if (excelCellInfoNeedToDBC)
+                        if (toDBC)
                         {
                             value = value.ToDBC();
                         }
