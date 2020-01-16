@@ -1234,6 +1234,11 @@ namespace EPPlusExtensions
                 }
             }
 
+            if (list.Count == 0)
+            {
+                throw new Exception("未读取到单元格标题");
+            }
+
             return list;
         }
 
@@ -1892,68 +1897,67 @@ namespace EPPlusExtensions
 
         public static List<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
-            string mergeCellAddress; 
-            int rowIndex = args.DataRowStart;
-            if (rowIndex <= 0)
+            void CheCk()
             {
-                throw new ArgumentException($@"数据起始行值'{rowIndex}'错误,值应该大于0");
-            }
-
-            if (args.DataTitleRow <= 0)
-            {
-                throw new ArgumentException($@"数据起始行的标题行值'{args.DataTitleRow}'错误,值应该大于0");
-            }
-
-            var colNameList = GetExcelColumnOfModel(args);
-            if (colNameList.Count == 0)
-            {
-                throw new Exception("未读取到单元格标题");
-            }
-
-            #region 对ScanLine.MergeLine进行模版验证 
-            if (args.ScanLine == ScanLine.MergeLine)
-            {
-                SetSheetCellsValueFromA1(args.ws);
-                object[,] arr = args.ws.Cells.Value as object[,];
-
-                for (int i = 0; i < arr.GetLength(0);) //遍历行,这里 i++ 没有写
+                if (args.DataRowStart <= 0)
                 {
-                    var rowNo = i + 1;
-                    if (rowNo < rowIndex)
-                    {
-                        i++;
-                        continue;
-                    }
+                    throw new ArgumentException($@"数据起始行值'{args.DataRowStart}'错误,值应该大于0");
+                }
 
-                    //如果数据的第一列的合并单元格,必须确保这一行的所有列都是合并单元格
-                    if (!EPPlusHelper.IsMergeCell(args.ws, row: rowNo, col: args.DataColStart, out mergeCellAddress))
-                    {
-                        i++;
-                        continue;
-                    }
-                    else
-                    {
-                        i += new ExcelAddress(mergeCellAddress).Rows; //按第一列合并的行数进行step的增加
-                    }
+                if (args.DataTitleRow <= 0)
+                {
+                    throw new ArgumentException($@"数据起始行的标题行值'{args.DataTitleRow}'错误,值应该大于0");
+                }
 
+                #region 对ScanLine.MergeLine进行模版验证
 
-                    for (int j = 0; j < arr.GetLength(1); j++) //遍历列
+                if (args.ScanLine == ScanLine.MergeLine)
+                {
+                    SetSheetCellsValueFromA1(args.ws);
+                    object[,] arr = args.ws.Cells.Value as object[,];
+
+                    for (int i = 0; i < arr.GetLength(0);) //遍历行,这里 i++ 没有写
                     {
-                        var colNo = j + 1;
-                        if (colNo < args.DataColStart || colNo > args.DataColEnd)
+                        var rowNo = i + 1;
+                        if (rowNo < args.DataRowStart)
                         {
+                            i++;
                             continue;
                         }
-                        if (!EPPlusHelper.IsMergeCell(args.ws, row: rowNo, col: colNo))
+
+                        //如果数据的第一列的合并单元格,必须确保这一行的所有列都是合并单元格
+                        if (!EPPlusHelper.IsMergeCell(args.ws, row: rowNo, col: args.DataColStart, out var mergeCellAddress))
                         {
-                            throw new Exception("数据的起始列有合并行的必须确保当前行的数据都是合并行");//参考 示例 03.14
+                            i++;
+                            continue;
+                        }
+                        else
+                        {
+                            i += new ExcelAddress(mergeCellAddress).Rows; //按第一列合并的行数进行step的增加
+                        }
+
+
+                        for (int j = 0; j < arr.GetLength(1); j++) //遍历列
+                        {
+                            var colNo = j + 1;
+                            if (colNo < args.DataColStart || colNo > args.DataColEnd)
+                            {
+                                continue;
+                            }
+
+                            if (!EPPlusHelper.IsMergeCell(args.ws, row: rowNo, col: colNo))
+                            {
+                                throw new Exception("数据的起始列有合并行的必须确保当前行的数据都是合并行"); //参考 示例 03.14
+                            }
                         }
                     }
                 }
-            }
-            #endregion
 
-            var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
+                #endregion
+
+            }
+
+            CheCk();
 
             Type type = typeof(T);
 
@@ -1980,6 +1984,9 @@ namespace EPPlusExtensions
                 }
 
             }
+
+            var colNameList = GetExcelColumnOfModel(args);
+            var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
 
             foreach (var item in colNameList)
             {
@@ -2015,6 +2022,7 @@ namespace EPPlusExtensions
                     dictExcelColumnIndexToModelPropName_All[excelColumnIndex] = propName;
                 }
             }
+            
             #endregion
 
             #region 验证 MatchingModel.eq //args.MatchingModel
@@ -2186,7 +2194,7 @@ namespace EPPlusExtensions
             //var dictColName = colNameList.ToDictionary(item => new ExcelCellPoint(item.ExcelAddress).Col, item => item);// key是第n列
 
             var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
-                ? GetExcelListArgs<T>.EveryCellReplaceListDefault
+                ? GetExcelListArgs.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
 
             //var ctor = type.GetConstructor(new Type[] { });
@@ -2238,23 +2246,6 @@ namespace EPPlusExtensions
             #endregion
 
             #region 获得 list
-            List<T> list = new List<T>();
-            int row = rowIndex;
-            Exception exception = null;
-
-            bool dynamicCalcStep;//动态计算step
-
-            switch (args.ScanLine)
-            {
-                case ScanLine.SingleLine:
-                    dynamicCalcStep = false;
-                    break;
-                case ScanLine.MergeLine:
-                    dynamicCalcStep = true; //while里面动态计算
-                    break;
-                default:
-                    throw new Exception("不支持的ScanLine");
-            }
 
             var excelCellInfoNeedTrim = (args.ReadCellValueOption & ReadCellValueOption.Trim) == ReadCellValueOption.Trim;
             var excelCellInfoNeedMergeLine = (args.ReadCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
@@ -2266,6 +2257,21 @@ namespace EPPlusExtensions
             var debugvar_whileCount = 0;
 #endif
             Func<object[], object> deletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
+            
+            bool DynamicCalcStep()
+            {
+                if (args.ScanLine == ScanLine.SingleLine)
+                    return false;
+                else if (args.ScanLine == ScanLine.MergeLine)
+                    return true; //while里面动态计算
+                else
+                    throw new Exception("不支持的ScanLine");
+            }
+
+            List<T> list = new List<T>();
+            var dynamicCalcStep = DynamicCalcStep();
+            Exception exception = null;
+            int row = args.DataRowStart;
 
             while (true)//遍历行, 异常或者出现空行,触发break;
             {
@@ -2486,7 +2492,7 @@ namespace EPPlusExtensions
 
                 if (isNoDataAllColumn)
                 {
-                    if (row == rowIndex)//数据起始行是空行
+                    if (row == args.DataRowStart)//数据起始行是空行
                     {
                         throw new Exception("不要上传一份空的模版文件");
                     }
@@ -2540,7 +2546,7 @@ namespace EPPlusExtensions
                 if (dynamicCalcStep)
                 {
                     //while里面动态计算
-                    if (EPPlusHelper.IsMergeCell(args.ws, row, col: args.DataColStart, out mergeCellAddress))
+                    if (EPPlusHelper.IsMergeCell(args.ws, row, col: args.DataColStart, out var mergeCellAddress))
                     {
                         row += new ExcelAddress(mergeCellAddress).Rows;//按第一列合并的行数进行step的增加
                     }
@@ -2578,7 +2584,6 @@ namespace EPPlusExtensions
 
 #if DEBUG
             Console.WriteLine(debugvar_whileCount);
-            //args.DataRowCount = debugvar_whileCount - 1;//打算要添加的属性
 #endif
 
             var keyWithExceptionMessageStart = "无效的单元格:";
@@ -2651,14 +2656,15 @@ namespace EPPlusExtensions
                     }
                 }
 
-                sb.RemoveLastChar(',');
-                throw new ArgumentException(sb.ToString());
+                var argumentExceptionMsg =  sb.RemoveLastChar(',').ToString();
+                throw new ArgumentException(argumentExceptionMsg);
             }
 
             #endregion
 
             return args.HavingFilter == null ? list : list.Where(item => args.HavingFilter.Invoke(item)).ToList();
         }
+
 
         private static PropertyInfo GetPropertyInfo<T>(Dictionary<string, PropertyInfo> cache_PropertyInfo, string propName, Type type)
             where T : class, new()
