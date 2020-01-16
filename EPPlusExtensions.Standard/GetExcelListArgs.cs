@@ -22,6 +22,9 @@ namespace EPPlusExtensions
         /// </summary>
         internal int DataColEnd { get; set; } = EPPlusConfig.MaxCol07;
 
+        /// <summary>
+        /// workSheet
+        /// </summary>
         public ExcelWorksheet ws { get; set; }
 
         /// <summary>
