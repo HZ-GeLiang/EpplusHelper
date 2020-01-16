@@ -1169,9 +1169,8 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 从Excel 中获得符合C# 类属性定义的列名集合
+        /// 从Excel 中获得符合C# 类属性定义的列名集合,内部会修改DataColEnd的值
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="args"></param>
         /// <returns></returns>
         private static List<ExcelCellInfo> GetExcelColumnOfModel(GetExcelListArgs args)
@@ -1224,8 +1223,18 @@ namespace EPPlusExtensions
                     Value = colName,
                 });
             }
+            if (args.DataColEnd == EPPlusConfig.MaxCol07)//当前是恒成立,因为DataColEnd 是internal
+            {
+                args.DataColEnd = dataColEndActual;
+            }
+            else
+            {
+                if (args.DataColEnd != dataColEndActual) //当前 DataColEnd 是internal 的,不会执行到这里,这里是防止以后程序修改而写的.
+                {
+                    throw new Exception("非预期的值,请检查当前程序或使用代码.");
+                }
+            }
 
-            args.DataColEnd = dataColEndActual;
             if (args.POCO_Property_AutoRename_WhenRepeat)
             {
                 for (int i = 0; i < list.Count; i++)
@@ -1897,6 +1906,8 @@ namespace EPPlusExtensions
 
         public static List<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
+            var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值
+
             void CheCk()
             {
                 if (args.DataRowStart <= 0)
@@ -1947,7 +1958,7 @@ namespace EPPlusExtensions
 
                             if (!EPPlusHelper.IsMergeCell(args.ws, row: rowNo, col: colNo))
                             {
-                                throw new Exception("数据的起始列有合并行的必须确保当前行的数据都是合并行"); //参考 示例 03.14
+                                throw new Exception($@"检测到数据的起始列是合并行,请确保当前行的数据都是合并行.当前{new ExcelCellPoint(rowNo, colNo).R1C1}单元格不满足需求."); //参考 示例 03.14  或03.02的模版
                             }
                         }
                     }
@@ -1982,10 +1993,9 @@ namespace EPPlusExtensions
                 {
                     dictExcelColumnIndexToModelPropName_Temp.Add(((ExcelColumnIndexAttribute)propAttr_ExcelColumnIndex[0]).Index, props.Name);
                 }
-
             }
 
-            var colNameList = GetExcelColumnOfModel(args);
+            //var colNameList = GetExcelColumnOfModel(args);//提前是为了 单元测试 03.02的示例
             var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
 
             foreach (var item in colNameList)
@@ -2022,7 +2032,7 @@ namespace EPPlusExtensions
                     dictExcelColumnIndexToModelPropName_All[excelColumnIndex] = propName;
                 }
             }
-            
+
             #endregion
 
             #region 验证 MatchingModel.eq //args.MatchingModel
@@ -2257,7 +2267,7 @@ namespace EPPlusExtensions
             var debugvar_whileCount = 0;
 #endif
             Func<object[], object> deletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
-            
+
             bool DynamicCalcStep()
             {
                 if (args.ScanLine == ScanLine.SingleLine)
@@ -2656,7 +2666,7 @@ namespace EPPlusExtensions
                     }
                 }
 
-                var argumentExceptionMsg =  sb.RemoveLastChar(',').ToString();
+                var argumentExceptionMsg = sb.RemoveLastChar(',').ToString();
                 throw new ArgumentException(argumentExceptionMsg);
             }
 
