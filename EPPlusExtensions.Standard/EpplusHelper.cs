@@ -2887,7 +2887,6 @@ namespace EPPlusExtensions
 
         private static string DealMatchingModelException(MatchingModelException matchingModelException)
         {
-            //注:这里的仅针对 MatchingModel.eq
             if ((matchingModelException.MatchingModel & MatchingModel.eq) == MatchingModel.eq)
             {
                 if (matchingModelException.ListExcelCellInfoAndModelType == null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
@@ -2908,7 +2907,7 @@ namespace EPPlusExtensions
                 return sb.ToString();
 
             }
-            else if ((matchingModelException.MatchingModel & MatchingModel.gt) == MatchingModel.gt)
+            if ((matchingModelException.MatchingModel & MatchingModel.gt) == MatchingModel.gt)
             {
 
                 if (matchingModelException.ListExcelCellInfoAndModelType == null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
@@ -2928,7 +2927,7 @@ namespace EPPlusExtensions
                 sb.Append("!");
                 return sb.ToString();
             }
-            else if ((matchingModelException.MatchingModel & MatchingModel.lt) == MatchingModel.lt)
+            if ((matchingModelException.MatchingModel & MatchingModel.lt) == MatchingModel.lt)
             {
                 if (matchingModelException.ListExcelCellInfoAndModelType == null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
                 {
@@ -2948,16 +2947,7 @@ namespace EPPlusExtensions
                 return sb.ToString();
 
             }
-            else if ((matchingModelException.MatchingModel & MatchingModel.neq) == MatchingModel.neq)
-            {
-                StringBuilder sb = new StringBuilder();
-                return sb.ToString();
-            }
-            else
-            {
-                throw new Exception($@"参数{nameof(matchingModelException)},不支持的MatchingMode值");
-            }
-
+            throw new Exception($@"参数{nameof(matchingModelException)},不支持的MatchingMode值");
         }
 
         /// <summary>
@@ -4239,18 +4229,18 @@ namespace EPPlusExtensions
         /// 获得错误消息
         /// </summary>
         /// <param name="action"></param>
-        /// <param name="Result"></param>
+        /// <param name="result"></param>
         /// <returns></returns>
-        public static string GetListErrorMsg<T>(Func<List<T>> action, out List<T> Result) where T : class, new()
+        public static string GetListErrorMsg<T>(Func<List<T>> action, out List<T> result) where T : class, new()
         {
             try
             {
-                Result = action.Invoke();
+                result = action.Invoke();
                 return "";
             }
             catch (Exception e)
             {
-                Result = new List<T>();
+                result = new List<T>();
                 return GetListErrorMsg(e);
             }
         }
