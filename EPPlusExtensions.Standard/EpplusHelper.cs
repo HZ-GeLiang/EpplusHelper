@@ -367,13 +367,11 @@ namespace EPPlusExtensions
                     break;
                 }
 
-                //var cellpoint = new ExcelCellPoint(item.Key);
                 string colMapperName = item.ConfigValue;
                 object val = config.Head.ConfigItemMustExistInDataColumn
                     ? dictConfigSourceHead[item.ConfigValue].FillValue
                     : dictConfigSourceHead.ContainsKey(item.ConfigValue) ? dictConfigSourceHead[item.ConfigValue].FillValue : null;
 
-                //ExcelRange cells = worksheet.Cells[cellpoint.Row , cellpoint.Col];
                 ExcelRange cells = worksheet.Cells[item.Address];
 
                 if (config.Head.CellCustomSetValue != null)
@@ -382,9 +380,6 @@ namespace EPPlusExtensions
                 }
                 else
                 {
-                    //worksheet.Cells["A1"].Value = "名称";//直接指定单元格进行赋值
-                    //worksheet.Cells[item.Key].Value = configSource.SheetHead[item.Value];
-                    //item.Key -> D2 item.Value -> 年龄
                     SetWorksheetCellsValue(config, cells, val, colMapperName);
                 }
             }
@@ -396,7 +391,7 @@ namespace EPPlusExtensions
         /// <param name="config"></param>
         /// <param name="configSource"></param>
         /// <param name="worksheet"></param>
-        /// <returns>新增了多行</returns>
+        /// <returns>新增了多少行</returns>
         private static int FillData_Body(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
         {
             //填充body
@@ -589,7 +584,6 @@ namespace EPPlusExtensions
                                 SetWorksheetCellsValue(config, cells, val, colMapperName);
                             }
                             #endregion
-
                         }
 
                         if (config.IsReport)
@@ -992,11 +986,6 @@ namespace EPPlusExtensions
             var rangeCells = new List<ExcelCellRange>();
             foreach (var item in allCell)
             {
-                //if (item is ExcelCellRange && ((ExcelCellRange)item).IsMerge)
-                //{
-                //    rangeCells.Add(((ExcelCellRange)item));
-                //}
-
                 if (item is ExcelCellRange cellRange && cellRange.IsMerge)
                 {
                     rangeCells.Add(cellRange);
@@ -1019,8 +1008,7 @@ namespace EPPlusExtensions
             var leftAddressCol = ExcelCellPoint.R1C1Formulas(leftCol);
             var rightAddressCol = ExcelCellPoint.R1C1Formulas(rightCol);
 
-            var allCell = new List<object>(); //所有的单元格
-                                              //获得当前行,哪些单独单元格+合并单元格
+            var allCell = new List<object>();
             while (true)
             {
                 if (EPPlusHelper.IsMergeCell(worksheet, row: lineNo, col: leftAddressCol, out var mergeCellAddress))
@@ -1042,9 +1030,7 @@ namespace EPPlusExtensions
                     break;
                 }
             }
-
             return allCell;
-
 
         }
 
@@ -1110,9 +1096,15 @@ namespace EPPlusExtensions
             }
         }
 
+        /// <summary>
+        /// 填充foot
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="configSource"></param>
+        /// <param name="worksheet"></param>
+        /// <param name="sheetBodyAddRowCount"></param>
         private static void FillData_Foot(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet, int sheetBodyAddRowCount)
         {
-            //填充foot
             if (config.Foot.ConfigCellList == null || config.Foot.ConfigCellList.Count <= 0)
             {
                 return;
@@ -1258,8 +1250,7 @@ namespace EPPlusExtensions
         /// <returns></returns>
         private static string ExtractName(string colName)
         {
-            //去掉不合理的属性命名的字符串(提取合法的字符并接成一个字符串)
-            string reg = @"[_a-zA-Z\u4e00-\u9FFF][A-Za-z0-9_\u4e00-\u9FFF]*";
+            string reg = @"[_a-zA-Z\u4e00-\u9FFF][A-Za-z0-9_\u4e00-\u9FFF]*";//去掉不合理的属性命名的字符串(提取合法的字符并接成一个字符串)
             colName = RegexHelper.GetStringByReg(colName, reg).Aggregate("", (current, item) => current + item);
             return colName;
         }
@@ -1587,16 +1578,6 @@ namespace EPPlusExtensions
             throw new Exception("GetList_SetModelValue()时遇到未处理的类型!!!请完善程序");
         }
 
-        //继承 System.ComponentModel.DataAnnotations 的那些特性们
-        private static void GetList_ValidAttribute(PropertyInfo pInfo, string value)
-        {
-            if (!pInfo.IsDefined(typeof(ValidationAttribute), true)) return;
-            object[] validAttrs = pInfo.GetCustomAttributes(typeof(ValidationAttribute), true);
-            foreach (ValidationAttribute validAttr in validAttrs)
-            {
-                validAttr.Validate(value, name: null);
-            }
-        }
 
         private static void TryThrowExceptionForEnum<T>(PropertyInfo pInfo, T model, string value, Type enumType, Type pInfoType) where T : class, new()
         {
@@ -2228,7 +2209,7 @@ namespace EPPlusExtensions
             var cache_PropertyInfo = new Dictionary<string, PropertyInfo>();
             foreach (var excelCellInfo in colNameList)
             {
-                if (!GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
+                if (!GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
                 {
                     continue;
                 }
@@ -2293,7 +2274,7 @@ namespace EPPlusExtensions
 
                 foreach (var excelCellInfo in colNameList)
                 {
-                    if (!GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
+                    if (!GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
                     {
                         continue;
                     }
@@ -2469,8 +2450,16 @@ namespace EPPlusExtensions
                     }
                     try
                     {
-                        //验证特性
-                        GetList_ValidAttribute(pInfo, value);
+                        //验证继承 System.ComponentModel.DataAnnotations 的那些特性们
+                        if (pInfo.IsDefined(typeof(ValidationAttribute), true))
+                        {
+                            object[] validAttrs = pInfo.GetCustomAttributes(typeof(ValidationAttribute), true);
+                            foreach (ValidationAttribute validAttr in validAttrs)
+                            {
+                                validAttr.Validate(value, name: null);
+                            }
+                        }
+
                         //赋值, 注:遇到 KV<,> 类型的统一不处理
                         if (!pInfo.PropertyType.HasImplementedRawGeneric(typeof(KV<,>)))
                         {
@@ -2509,7 +2498,7 @@ namespace EPPlusExtensions
 
                     foreach (var excelCellInfo in colNameList)
                     {
-                        if (!GetPropName<T>(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
+                        if (!GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
                         {
                             continue;
                         }
@@ -2529,7 +2518,7 @@ namespace EPPlusExtensions
                             value = GetMergeCellText(args.ws, row, col);
                         }
 #else
-                    string value =  GetMegerCellText(ws, row, col);
+                        string value =  GetMegerCellText(ws, row, col);
 #endif
 
                         if (value.Length > 0)
@@ -2588,7 +2577,7 @@ namespace EPPlusExtensions
             }
 
 #if DEBUG
-            Console.WriteLine(debugvar_whileCount);
+            Console.WriteLine("DEBUG only --- 变量debugvar_whileCount的值:" + debugvar_whileCount);
 #endif
 
             var keyWithExceptionMessageStart = "无效的单元格:";
@@ -2699,14 +2688,13 @@ namespace EPPlusExtensions
         /// <summary>
         /// 获得属性名
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="ExcelAddress"></param>
         /// <param name="dictExcelAddressCol"></param>
         /// <param name="dictExcelColumnIndexToModelPropName_All"></param>
         /// <param name="propName"></param>
         /// <returns>是否get到了PropName</returns>
-        private static bool GetPropName<T>(ExcelAddress ExcelAddress, Dictionary<ExcelAddress, int> dictExcelAddressCol,
-            Dictionary<int, string> dictExcelColumnIndexToModelPropName_All, out string propName) where T : class, new()
+        private static bool GetPropName(ExcelAddress ExcelAddress, Dictionary<ExcelAddress, int> dictExcelAddressCol,
+            Dictionary<int, string> dictExcelColumnIndexToModelPropName_All, out string propName)
         {
             int excelCellInfo_ColIndex = dictExcelAddressCol[ExcelAddress];
             if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null) //不存在,跳过
@@ -2830,8 +2818,7 @@ namespace EPPlusExtensions
 
                     }
 
-                    //赋值
-                    dr[propName] = value;
+                    dr[propName] = value;//赋值
                 }
 
                 if (isNoDataAllColumn)
@@ -3159,7 +3146,6 @@ namespace EPPlusExtensions
         /// <param name="sheet"></param>
         public static void SetSheetCellsValueFromA1(ExcelWorksheet sheet)
         {
-            //让 sheet.Cells.Value 强制从A1单元格开始
             //遇到问题描述:创建一个excel,在C7,C8,C9,10单元格写入一些字符串, sheet.Cells.Value 是object[4,3]的数组, 但我要的是object[10,3]的数组
             var cellA1 = sheet.Cells[1, 1];
             if (!cellA1.Merge && cellA1.Value == null)
@@ -3236,7 +3222,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        /// 设置默认的配置
         /// </summary>
         /// <param name="config"></param>
         /// <param name="sheet"></param>
@@ -3362,7 +3348,6 @@ namespace EPPlusExtensions
 
                             var cells = newKey.Split(':');
 
-                            // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                             if (RegexHelper.GetFirstNumber(cells[0]) == RegexHelper.GetFirstNumber(cells[1])) //是同一行的
                             {
                                 bodyConfig.Option.ConfigLine.Add(new EPPlusConfigFixedCell { Address = cellPosition, ConfigValue = cellConfigValue });
@@ -3509,24 +3494,21 @@ namespace EPPlusExtensions
             var row = ea.Start.Row;
             var col = ea.Start.Column;
 
-            if (EPPlusHelper.IsMergeCell(ws, row: row, col: col, out var mergeCellAddress))
+            if (!EPPlusHelper.IsMergeCell(ws, row: row, col: col, out var mergeCellAddress))
             {
-                var mergeCell = new ExcelAddress(mergeCellAddress);
-                var leftCellRow = mergeCell.Start.Row;
-                var leftCellCol = mergeCell.Start.Column - 1;
-                if (EPPlusHelper.IsMergeCell(ws, row: leftCellRow, col: leftCellCol, out var leftCellAddress))
-                {
-                    ea = new ExcelAddress(leftCellAddress);
-                    return ea.Address;
-                }
-                else
-                {
-                    return new ExcelCellPoint(leftCellRow, leftCellCol).R1C1;      //左边的单元格是普通的单元格
-                }
+                return new ExcelCellPoint(row, col - 1).R1C1;
+            }
+
+            var mergeCell = new ExcelAddress(mergeCellAddress);
+            var leftCellRow = mergeCell.Start.Row;
+            var leftCellCol = mergeCell.Start.Column - 1;
+            if (EPPlusHelper.IsMergeCell(ws, row: leftCellRow, col: leftCellCol, out var leftCellAddress))
+            {
+                return new ExcelAddress(leftCellAddress).Address;
             }
             else
             {
-                return new ExcelCellPoint(row, col - 1).R1C1;
+                return new ExcelCellPoint(leftCellRow, leftCellCol).R1C1; //左边的单元格是普通的单元格
             }
         }
 
@@ -3606,7 +3588,6 @@ namespace EPPlusExtensions
         /// <param name="dict">k:r1c1, v:具体值</param>
         public static bool CheckWorkSheetCellValue(ExcelWorksheet ws, Dictionary<string, string> dict)
         {
-            //var dict = new Dictionary<string, string>() { { "A1", "序号" } };
             foreach (var key in dict.Keys)
             {
                 var cell = new ExcelCellPoint(key);
@@ -3724,7 +3705,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 返回模版的 titleLine 和  titleColumn
+        /// 返回模版的 titleLine 和 titleColumn
         /// </summary> 
         /// <param name="dataConfigInfo"></param>
         /// <param name="wsIndex"></param>
@@ -3750,6 +3731,7 @@ namespace EPPlusExtensions
                     return;
                 }
             }
+
             if (wsIndex > 0)
             {
                 var result = dataConfigInfo.Find(info => info.WorkSheetIndex == wsIndex);
