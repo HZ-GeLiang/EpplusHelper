@@ -1894,7 +1894,7 @@ namespace EPPlusExtensions
 
         public static List<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
-            var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值
+            var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值, 放在第一行还是因为 单元测试 03.02的示例
 
             void CheCk()
             {
@@ -1964,8 +1964,7 @@ namespace EPPlusExtensions
             var dictModelPropNameExistsExcelColumn = new Dictionary<string, bool>();//Model属性在Excel列中存在, key: ModelPropName
             var dictModelPropNameToExcelColumnName = new Dictionary<string, string>();//Model属性名字对应的excel的标题列名字
             var dictExcelColumnIndexToModelPropName_Temp = new Dictionary<int, string>();//Excel的列标题和Model属性名字的映射
-            var dictExcelColumnIndexToModelPropName_All = new Dictionary<int, string>();//Excel列对应的Model属性名字(所有excel列)
-
+            //初始化上面3个dict
             foreach (var props in type.GetProperties())
             {
                 dictModelPropNameExistsExcelColumn.Add(props.Name, false);
@@ -1983,9 +1982,9 @@ namespace EPPlusExtensions
                 }
             }
 
-            //var colNameList = GetExcelColumnOfModel(args);//提前是为了 单元测试 03.02的示例
+            var dictExcelColumnIndexToModelPropName_All = new Dictionary<int, string>();//Excel列对应的Model属性名字(所有excel列)
             var dictExcelAddressCol = colNameList.ToDictionary(item => item.ExcelAddress, item => new ExcelCellPoint(item.ExcelAddress).Col);
-
+            //初始化 dictExcelColumnIndexToModelPropName_All
             foreach (var item in colNameList)
             {
                 //var excelColumnIndex = new ExcelCellRange(item.ExcelAddress.ToString()).Start.Col;
@@ -1993,6 +1992,7 @@ namespace EPPlusExtensions
                 dictExcelColumnIndexToModelPropName_All.Add(excelColumnIndex, null);
                 string propName = item.Value.ToString();
                 PropertyInfo pInfo = type.GetProperty(propName);
+
                 if (pInfo == null)
                 {
                     if (dictExcelColumnIndexToModelPropName_Temp.ContainsKey(excelColumnIndex))
@@ -2214,7 +2214,7 @@ namespace EPPlusExtensions
                     continue;
                 }
 
-                var pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
+                var pInfo = GetPropertyInfo(cache_PropertyInfo, propName, type);
 
                 #region 初始化Attr要处理相关的数据
                 dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>());//这里new 的Dict 的key 代表的是Attribute的FullName
@@ -2279,7 +2279,7 @@ namespace EPPlusExtensions
                         continue;
                     }
 
-                    var pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
+                    var pInfo = GetPropertyInfo(cache_PropertyInfo, propName, type);
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
 #if DEBUG
@@ -2503,7 +2503,7 @@ namespace EPPlusExtensions
                             continue;
                         }
 
-                        var pInfo = GetPropertyInfo<T>(cache_PropertyInfo, propName, type);
+                        var pInfo = GetPropertyInfo(cache_PropertyInfo, propName, type);
                         var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
 #if DEBUG
@@ -2667,8 +2667,7 @@ namespace EPPlusExtensions
             toDBC = (readCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
         }
 
-        private static PropertyInfo GetPropertyInfo<T>(Dictionary<string, PropertyInfo> cache_PropertyInfo, string propName, Type type)
-            where T : class, new()
+        private static PropertyInfo GetPropertyInfo(Dictionary<string, PropertyInfo> cache_PropertyInfo, string propName, Type type) 
         {
             if (!cache_PropertyInfo.ContainsKey(propName))
             {
