@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
 using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
-using SampleApp._01填充数据;
-using SampleApp.MethodExtension;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace SampleApp._03读取excel内容
 {
@@ -32,7 +25,6 @@ namespace SampleApp._03读取excel内容
         }
         public static List<T> Run<T>() where T : class, new()
         {
-
             string filePath = @"模版\03读取excel内容\Sample07.xlsx";
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))

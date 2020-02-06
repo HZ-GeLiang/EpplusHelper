@@ -1,13 +1,8 @@
-﻿using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
+using OfficeOpenXml;
 using SampleApp.MethodExtension;
+using System.Collections.Generic;
+using System.IO;
 
 namespace SampleApp._05自动初始化填充配置
 {
@@ -17,7 +12,7 @@ namespace SampleApp._05自动初始化填充配置
     public class Sample03
     {
         public static bool OpenDir = true;
-        public static string filePathSave = @"模版\05自动初始化填充配置\ResultSample03.xlsx";
+        public static string FilePathSave = @"模版\05自动初始化填充配置\ResultSample03.xlsx";
         public static void Run()
         {
             string filePath = @"模版\05自动初始化填充配置\Sample03.xlsx";
@@ -36,7 +31,7 @@ namespace SampleApp._05自动初始化填充配置
                 var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, dataConfigInfo);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(filePathSave);
+                ms.Save(FilePathSave);
                 var filePathPrefix = Path.GetDirectoryName(filePath);
                 foreach (var item in defaultConfigList)
                 {

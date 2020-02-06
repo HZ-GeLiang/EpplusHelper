@@ -4,12 +4,10 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SampleApp.MethodExtension
 {
-
-    public static class DataTableExtensions
+    static class DataTableExtensions
     {
         /// <summary>
         /// 常用字符串
@@ -151,6 +149,6 @@ namespace SampleApp.MethodExtension
             return txt;
         }
 
-       
+
     }
 }

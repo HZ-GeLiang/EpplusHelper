@@ -1,21 +1,15 @@
-﻿using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
+using OfficeOpenXml;
 using SampleApp.MethodExtension;
+using System.Data;
+using System.IO;
 
 namespace SampleApp._04填充数据与数据源同步
 {
     public class Sample02
     {
         public static bool OpenDir = true;
-        public static string filePathSave = @"模版\04填充数据与数据源同步\ResultSample02.xlsx";
+        public static string FilePathSave = @"模版\04填充数据与数据源同步\ResultSample02.xlsx";
         public static void Run()
         {
             string filePath = @"模版\04填充数据与数据源同步\Sample01.xlsx";
@@ -85,7 +79,7 @@ namespace SampleApp._04填充数据与数据源同步
                 EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(filePathSave);
+                ms.Save(FilePathSave);
             }
             if (OpenDir)
             {

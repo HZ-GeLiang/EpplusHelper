@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using SampleApp.MethodExtension;
+using System.Data;
+using System.Drawing;
+using System.IO;
 
 namespace SampleApp._02填充图片
 {

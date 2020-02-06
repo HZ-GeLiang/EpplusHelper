@@ -1,14 +1,6 @@
-﻿using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SampleApp._03读取excel内容;
+using System.Linq;
 
 namespace SampleApp.Test._03读取excel内容
 {
@@ -26,7 +18,6 @@ namespace SampleApp.Test._03读取excel内容
             resultList.Add(new Sample13.ExcelModel { A = 4, B = 5, C = 6, D = 7, E = 8, F = 9, G = 10 });
             resultList.Add(new Sample13.ExcelModel { A = 5, B = 6, C = 7, D = 8, E = 9, F = 10, G = 11 });
             CollectionAssert.AreEqual(excelList, resultList);
-
         }
     }
 }

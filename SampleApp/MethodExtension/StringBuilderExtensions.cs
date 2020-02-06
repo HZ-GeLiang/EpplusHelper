@@ -2,7 +2,7 @@
 
 namespace SampleApp.MethodExtension
 {
-    internal static class StringBuilderExtensions
+    static class StringBuilderExtensions
     {
         public static StringBuilder RemoveLastChar(this StringBuilder value)
         {
