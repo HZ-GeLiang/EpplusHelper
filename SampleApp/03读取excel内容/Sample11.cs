@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
-using OfficeOpenXml;
+﻿using EPPlusExtensions;
 using EPPlusExtensions.Attributes;
+using OfficeOpenXml;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace SampleApp._03读取excel内容
 {
     public class Sample11
     {
-
         public static IEnumerable<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample11.xlsx";

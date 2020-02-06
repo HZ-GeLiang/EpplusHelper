@@ -2,7 +2,7 @@
 
 namespace SampleApp.MethodExtension
 {
-    internal static class StringExtensions
+    static class StringExtensions
     {
         public static string RemovePrefix(this string value, string prefix)
         {

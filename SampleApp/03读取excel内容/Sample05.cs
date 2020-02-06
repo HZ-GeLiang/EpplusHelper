@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
 using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
-using SampleApp._01填充数据;
-using SampleApp.MethodExtension;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace SampleApp._03读取excel内容
 {
@@ -21,7 +15,6 @@ namespace SampleApp._03读取excel内容
             dataSource.Add("事业1部", 1);
             dataSource.Add("事业2部", 2);
             dataSource.Add("事业3部", null);
-
             return Run(dataSource);
         }
 

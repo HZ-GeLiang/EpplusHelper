@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
 using OfficeOpenXml;
 using SampleApp.MethodExtension;
+using System.Data;
+using System.IO;
 
 namespace SampleApp._01填充数据
 {
     public class Sample03
     {
         public static bool OpenDir = true;
-        public static string filePathSave = @"模版\01填充数据\ResultSample03.xlsx";
+        public static string FilePathSave = @"模版\01填充数据\ResultSample03.xlsx";
         public static void Run()
         {
             string filePath = @"模版\01填充数据\Sample01.xlsx";
@@ -35,7 +30,7 @@ namespace SampleApp._01填充数据
 
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
-                ms.Save(filePathSave);
+                ms.Save(FilePathSave);
             }
             if (OpenDir)
             {

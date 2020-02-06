@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using EPPlusExtensions;
+using OfficeOpenXml;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
-using OfficeOpenXml;
-using SampleApp._01填充数据;
-using SampleApp.MethodExtension;
 
 namespace SampleApp._03读取excel内容
 {
