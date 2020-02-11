@@ -74,11 +74,25 @@ namespace SampleApp._03读取excel内容
 
             #endregion
 
-            source.AddRange(GetSource_部门(propModel, dt).Data);
+            //source.AddRange(GetSource_部门(propModel, dt).Data);
+
+            var prop = propModel.部门;
+            var keyType = prop.GetKeyType();
+            var valueType = prop.GetValueType();
+
+            var kvsource = prop.CreateKVSource();
+            foreach (DataRow item in dt.Rows)
+            {
+                var key = SafeRow(item, "Name", keyType);
+                var value = SafeRow(item, "Id", valueType);
+                kvsource.TryAdd(key, value);
+            }
+
+            source.AddRange(kvsource.Data);
         }
 
         /// <summary>
-        ///  TryAdd 自己创建 Datatable
+        ///  TryAdd 自己创建 DataTable
         /// </summary>
         /// <param name="propModel"></param>
         /// <param name="source"></param>
@@ -100,11 +114,15 @@ namespace SampleApp._03读取excel内容
 
             #endregion
 
+            var prop = propModel.部门;
+            var keyType = prop.GetKeyType();
+            var valueType = prop.GetValueType();
+
             foreach (DataRow item in dt.Rows)
             {
                 //确保类型是对的
-                var key = SafeRow(item, "Name", propModel.部门.GetKeyType());
-                var value = SafeRow(item, "Id", propModel.部门.GetValueType());
+                var key = SafeRow(item, "Name", keyType);
+                var value = SafeRow(item, "Id", valueType);
                 source.TryAdd(key, value);
             }
         }
@@ -144,8 +162,16 @@ namespace SampleApp._03读取excel内容
 
             #endregion
 
+            //var prop = propModel.部门;
+            //var keyType = prop.GetKeyType();
+            //var valueType = prop.GetValueType();
+
             foreach (DataRow item in dt.Rows)
             {
+                //var k = SafeRow(item, "Name", keyType);
+                //var v = SafeRow(item, "Id", valueType);
+                //dataSource.Add((string)k, (long)v);
+
                 dataSource.Add(item["Name"].ToString(), Convert.ToInt64(item["Id"]));
             }
 
@@ -211,11 +237,14 @@ namespace SampleApp._03读取excel内容
         static KvSource<string, long> GetSource_部门(ExcelModel propModel, DataTable dt)
         {
             var prop = propModel.部门;
-            KvSource<string, long> kvsource = prop.CreateKVSource();
+            var keyType = prop.GetKeyType();
+            var valueType = prop.GetValueType();
+
+            var kvsource = prop.CreateKVSource();
             foreach (DataRow item in dt.Rows)
             {
-                var key = SafeRow(item, "Name", propModel.部门.GetKeyType());
-                var value = SafeRow(item, "Id", propModel.部门.GetValueType());
+                var key = SafeRow(item, "Name", keyType);
+                var value = SafeRow(item, "Id", valueType);
                 kvsource.TryAdd(key, value);
             }
             return kvsource;
