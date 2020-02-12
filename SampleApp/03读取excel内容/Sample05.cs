@@ -39,7 +39,7 @@ namespace SampleApp._03读取excel内容
                 args.KVSource.Add(nameof(propModel.部门), propModel.部门.CreateKVSource().AddRange(dataSource));
                 args.KVSource.Add(nameof(propModel.部门2), propModel.部门2.CreateKVSource().AddRange(dataSource));
 
-                var list = EPPlusHelper.GetList<ExcelModel>(args);
+                var list = EPPlusHelper.GetList(args);
 
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
@@ -65,24 +65,16 @@ namespace SampleApp._03读取excel内容
                 ExcelModel y = (ExcelModel)obj;
 
                 return this.序号 == y.序号 &&
-                       this.部门.Key == y.部门.Key &&
-                       this.部门.Value == y.部门.Value &&
-                       this.部门.HasValue == y.部门.HasValue &&
-                       this.部门2.Key == y.部门2.Key &&
-                       this.部门2.Value == y.部门2.Value &&
-                       this.部门2.HasValue == y.部门2.HasValue;
+                       Helper.GetEquals_KV(this.部门, y.部门) &&
+                       Helper.GetEquals_KV(this.部门2, y.部门2);
             }
 
             //重写Equals方法必须重写GetHashCode方法，否则发生警告
             public override int GetHashCode()
             {
                 return this.序号.GetHashCode() +
-                       this.部门.Key.GetHashCode() +
-                       this.部门.Value.GetHashCode() +
-                       this.部门.HasValue.GetHashCode() +
-                       this.部门2.Key.GetHashCode() +
-                       this.部门2.Value.GetHashCode() +
-                       this.部门2.HasValue.GetHashCode();
+                       Helper.GetHashCode_KV(this.部门) +
+                       Helper.GetHashCode_KV(this.部门2);
             }
         }
     }

@@ -276,27 +276,20 @@ namespace SampleApp._03读取excel内容
                 ExcelModel y = (ExcelModel)obj;
 
                 return this.序号 == y.序号 &&
-                       this.部门?.Key == y?.部门.Key &&
-                       this.部门?.Value == y?.部门.Value &&
+                       Helper.GetEquals_KV(this.部门, y.部门) &&
                        this.部门负责人 == y.部门负责人 &&
                        this.部门负责人确认签字 == y.部门负责人确认签字 &&
-                       this.部门评分?.Key == y.部门评分?.Key &&
-                       this.部门评分?.Value == y.部门评分?.Value;
+                       Helper.GetEquals_KV(this.部门评分, y.部门评分);
             }
 
             //重写Equals方法必须重写GetHashCode方法，否则发生警告
             public override int GetHashCode()
             {
                 return this.序号.GetHashCode() +
-                       this.部门.Key.GetHashCode() +
-                       this.部门.Value.GetHashCode() +
-                       this.部门.HasValue.GetHashCode() +
-                       this.部门负责人.GetHashCode() +
-                       this.部门负责人确认签字.GetHashCode() +
-                       this.部门评分.Key.GetHashCode() +
-                       this.部门评分.Value.GetHashCode() +
-                       this.部门评分.HasValue.GetHashCode();
+                       Helper.GetHashCode_KV(this.部门) +
+                       Helper.GetHashCode_KV(this.部门评分);
             }
+
         }
     }
 }

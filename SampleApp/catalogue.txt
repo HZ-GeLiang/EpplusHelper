@@ -13,6 +13,7 @@
 	Sample02-合并行读取(默认读取方式)
 	Sample03-指定行读取:标题和数据行不连续
 	Sample04-使用了kv类型
+	Sample04_2-使用了kv类型,同时还有state信息
 	Sample05-使用了kv类型,多个属性用个数据源,但是 KVSetAttribute 的 MustInset 值不一样
 	Sample06-支持 System.ComponentModel.DataAnnotations
 	Sample07-内置 Attribute 的示例
