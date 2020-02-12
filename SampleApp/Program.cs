@@ -28,6 +28,7 @@ namespace SampleApp
     {
         static void Main(string[] args1)
         {
+
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
             //SampleApp._01填充数据.Sample01.Run();
@@ -41,7 +42,8 @@ namespace SampleApp
             //SampleApp._03读取excel内容.Sample01.Run();
             //SampleApp._03读取excel内容.Sample02.Run();
             //SampleApp._03读取excel内容.Sample03.Run();
-            SampleApp._03读取excel内容.Sample04.Run();
+            //SampleApp._03读取excel内容.Sample04.Run();
+            SampleApp._03读取excel内容.Sample04_2.Run();
             //SampleApp._03读取excel内容.Sample05.Run();
             //SampleApp._03读取excel内容.Sample06.Run();
             //SampleApp._03读取excel内容.Sample07.Run();

@@ -18,12 +18,15 @@ namespace SampleApp.Test._03读取excel内容
             dataSource.Add("事业2部", 2);
             dataSource.Add("事业3部", null);
 
-
             var excelList = Sample05.Run(dataSource);
             var resultList = excelList.GetEmpty().ToList();
-            resultList.Add(new Sample05.ExcelModel { 序号 = 1, 部门 = new KV<string, long?>("事业1部", 1) { HasValue = true }, 部门2 = new KV<string, long?>("事业1部", 1) { HasValue = true } });
-            resultList.Add(new Sample05.ExcelModel { 序号 = 2, 部门 = new KV<string, long?>("事业2部", 2) { HasValue = true }, 部门2 = new KV<string, long?>("111", null) { HasValue = false } });
-            resultList.Add(new Sample05.ExcelModel { 序号 = 3, 部门 = new KV<string, long?>("事业3部", null) { HasValue = true }, 部门2 = new KV<string, long?>("222", null) { HasValue = false } });
+            resultList.Add(new Sample05.ExcelModel { 序号 = 1, 部门 = new KV<string, long?>("事业1部", 1), 部门2 = new KV<string, long?>("事业1部", 1) });
+            resultList.Add(new Sample05.ExcelModel { 序号 = 2, 部门 = new KV<string, long?>("事业2部", 2), 部门2 = new KV<string, long?>("111") });
+            resultList.Add(new Sample05.ExcelModel { 序号 = 3, 部门 = new KV<string, long?>("事业3部", null), 部门2 = new KV<string, long?>("222") });
+
+            var index = 2;
+            var a = excelList[index];
+            var b = resultList[index];
             CollectionAssert.AreEqual(excelList, resultList);
 
         }

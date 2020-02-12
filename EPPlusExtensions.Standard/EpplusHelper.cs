@@ -2392,7 +2392,6 @@ namespace EPPlusExtensions
                                 }
                                 else
                                 {
-
                                     throw new ArgumentException($@"属性'{pInfo.Name}'的值:'{value}'未找到对应的集合列表", pInfo.Name);
                                 }
                             }
@@ -2409,9 +2408,11 @@ namespace EPPlusExtensions
                                 //var kvsourceTypeTValue = kvsourceType.GenericTypeArguments[1];
 
                                 var prop_kvsource = (IKVSource)kvsource;
-                                bool inKvSource = prop_kvsource.ContainsKey(value, out object kv_Value);
 
-                                if (!inKvSource && kvsetAttr.MustInSet)
+                                prop_kvsource.GetInfoByKey(value, out bool kv_Value_inKvSource, out object kv_Value,
+                                    out bool haveState, out object state);
+
+                                if (!kv_Value_inKvSource && kvsetAttr.MustInSet)
                                 {
                                     var msg = string.IsNullOrEmpty(kvsetAttr.ErrorMessage)
                                         ? $@"属性'{pInfo.Name}'值:'{value}'未在'{kvsetAttr.Name}'集合中出现."
@@ -2422,7 +2423,7 @@ namespace EPPlusExtensions
                                 var typeKVArgs = pInfo.PropertyType.GetGenericArguments();
                                 var typeKV = typeof(KV<,>).MakeGenericType(typeKVArgs);
 
-                                object[] invokeParameters;
+                                object[] invokeConstructorParameters;
                                 //if (typeKVArgs[0].FullName == typeof(string).FullName)
                                 //{
                                 //    invokeParameters = new object[] { value, kv_Value };
@@ -2434,15 +2435,29 @@ namespace EPPlusExtensions
                                 //代码和上面的是一样的效果,这个更加方便阅读
                                 if (kvsourceTypeTKey == typeof(string))
                                 {
-                                    invokeParameters = new object[] { value, kv_Value };
+
+                                    invokeConstructorParameters = new object[] { value, kv_Value };
                                 }
                                 else
                                 {
-                                    invokeParameters = new object[] { Convert.ChangeType(value, kvsourceTypeTKey), kv_Value };
+                                    invokeConstructorParameters = new object[] { Convert.ChangeType(value, kvsourceTypeTKey), kv_Value };
                                 }
 
-                                var modelValue = typeKV.GetConstructor(typeKVArgs).Invoke(invokeParameters);
-                                typeKV.GetProperty("HasValue").SetValue(modelValue, inKvSource);
+                                var modelValue = typeKV.GetConstructor(typeKVArgs).Invoke(invokeConstructorParameters);
+
+                                if (kv_Value == null) //上面Invoke时, 是调用2个参数的构造方法的,所以,这里要修正HasValue值
+                                {
+                                    if (!kv_Value_inKvSource)//因为默认值是true,所以,只要修改值为false的情况就可以了
+                                    {
+                                        typeKV.GetProperty("HasValue").SetValue(modelValue, false);
+                                    }
+                                }
+                                if (haveState)
+                                {
+                                    typeKV.GetProperty("HasState").SetValue(modelValue, true);
+                                    typeKV.GetField("_state", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(modelValue, state);
+                                }
+
                                 pInfo.SetValue(model, modelValue);
                             }
                         }
@@ -2667,7 +2682,7 @@ namespace EPPlusExtensions
             toDBC = (readCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
         }
 
-        private static PropertyInfo GetPropertyInfo(Dictionary<string, PropertyInfo> cache_PropertyInfo, string propName, Type type) 
+        private static PropertyInfo GetPropertyInfo(Dictionary<string, PropertyInfo> cache_PropertyInfo, string propName, Type type)
         {
             if (!cache_PropertyInfo.ContainsKey(propName))
             {
