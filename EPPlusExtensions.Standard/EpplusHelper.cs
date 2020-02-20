@@ -101,16 +101,25 @@ namespace EPPlusExtensions
             return GetExcelWorksheet(excelPackage, workName, false);
         }
 
-        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName, bool autoMappingWs)
+        public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName, bool onlyOneWorkSheetReturnThis)
         {
-            if (workName == null) throw new ArgumentNullException(nameof(workName));
-            var ws = excelPackage.Workbook.Worksheets[workName];
-            if (autoMappingWs && ws == null && excelPackage.Workbook.Worksheets.Count == 1)
+            ExcelWorksheet ws = null;
+            if (onlyOneWorkSheetReturnThis && excelPackage.Workbook.Worksheets.Count == 1)
             {
-                ws = excelPackage.Workbook.Worksheets[1];
+                var workSheetIndex = ConvertWorkSheetIndex(excelPackage, 1);
+                ws = excelPackage.Workbook.Worksheets[workSheetIndex];
             }
-            if (ws == null) throw new ArgumentException($@"当前Excel中不存在名为'{workName}'的worksheet", nameof(workName));
-            return ws;
+            if (ws != null)
+            {
+                return ws;
+            }
+            if (workName == null) throw new ArgumentNullException(nameof(workName));
+            ws = excelPackage.Workbook.Worksheets[workName];
+            if (ws != null)
+            {
+                return ws;
+            }
+            throw new ArgumentException($@"当前Excel中不存在名为'{workName}'的worksheet", nameof(workName));
         }
 
         /// <summary>
@@ -125,7 +134,8 @@ namespace EPPlusExtensions
             //    wsNameList.Add(GetExcelWorksheet(excelPackage, i).Name);
             //}
             //return wsNameList;
-            return GetExcelWorksheets(excelPackage).Select(item => item.Name).ToList();
+           var wsNameList = GetExcelWorksheets(excelPackage).Select(item => item.Name).ToList();
+           return wsNameList;
         }
 
         /// <summary>
