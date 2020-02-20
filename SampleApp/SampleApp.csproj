@@ -98,6 +98,7 @@
     <Compile Include="01填充数据\Sample03.cs" />
     <Compile Include="01填充数据\Sample01.cs" />
     <Compile Include="02填充图片\Sample01.cs" />
+    <Compile Include="03读取excel内容\Sample04_2.cs" />
     <Compile Include="03读取excel内容\Sample15.cs" />
     <Compile Include="03读取excel内容\Sample14.cs" />
     <Compile Include="03读取excel内容\Sample13.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="03读取excel内容\Sample11.cs" />
     <Compile Include="03读取excel内容\Sample12.cs" />
     <Content Include="04填充数据与数据源同步\%28未测试完全%29,不推荐用.txt" />
+    <Compile Include="Helper.cs" />
     <Compile Include="MethodExtension\DataTableExtensions.cs" />
     <Compile Include="MethodExtension\MemoryStreamExtensions.cs" />
     <Compile Include="MethodExtension\StringBuilderExtensions.cs" />
