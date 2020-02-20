@@ -31,19 +31,19 @@ namespace EPPlusHelperTool
             e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Link : DragDropEffects.None;
         }
 
-        private static ExcelWorksheet GetWorkSheet(ExcelPackage excelPackage, string ws1Index_string)
+        private static ExcelWorksheet GetWorkSheet(ExcelPackage excelPackage, string wsIndexString)
         {
             if (excelPackage.Workbook.Worksheets.Count == 1)
             {
                 return EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
             }
-            if (Int32.TryParse(ws1Index_string, out int ws1Index_int))
+            if (Int32.TryParse(wsIndexString, out int wsIndexInt))
             {
-                return EPPlusHelper.GetExcelWorksheet(excelPackage, ws1Index_int);
+                return EPPlusHelper.GetExcelWorksheet(excelPackage, wsIndexInt);
             }
-            if (EPPlusHelper.GetExcelWorksheetNames(excelPackage).Contains(ws1Index_string))
+            if (EPPlusHelper.GetExcelWorksheetNames(excelPackage).Contains(wsIndexString))
             {
-                return EPPlusHelper.GetExcelWorksheet(excelPackage, ws1Index_string);
+                return EPPlusHelper.GetExcelWorksheet(excelPackage, wsIndexString);
             }
 
             throw new ArgumentException("无法打开Excel的Worksheet");
@@ -152,9 +152,9 @@ namespace EPPlusHelperTool
                 errMsg.RemoveLastChar('、');
                 if (errMsg.Length > 0)
                 {
-                    MessageBox.Show($"下列工作簿未生成配置项:{errMsg}");
+                    MessageBox.Show($@"下列工作簿未生成配置项:{errMsg}");
                 }
-                if (!filePath.GetDirectoryName().Contains($@"\Desktop\"))
+                if (!filePath.GetDirectoryName().Contains(@"\Desktop\"))
                 {
                     WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
                 }
@@ -492,11 +492,11 @@ namespace EPPlusHelperTool
                 string filePath = filePath1.Text.Trim().移除路径前后引号();
                 if (string.IsNullOrEmpty(filePath))
                 {
-                    MessageBox.Show("路径不能为空");
+                    MessageBox.Show(@"路径不能为空");
                     return;
                 }
                 var fileDir = Path.GetDirectoryName(filePath);
-                var dataConfigInfo = new List<ExcelDataConfigInfo>() { GetExcelDataConfigInfo() };
+                var dataConfigInfo = new List<ExcelDataConfigInfo> { GetExcelDataConfigInfo() };
 
                 string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
 
@@ -521,7 +521,7 @@ namespace EPPlusHelperTool
                     //}
                     if (hasFile)
                     {
-                        MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
+                        MessageBox.Show($@"文件已经生成,在目录'{fileDir}'");
                     }
                 }
 
