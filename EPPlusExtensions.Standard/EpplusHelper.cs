@@ -134,8 +134,8 @@ namespace EPPlusExtensions
             //    wsNameList.Add(GetExcelWorksheet(excelPackage, i).Name);
             //}
             //return wsNameList;
-           var wsNameList = GetExcelWorksheets(excelPackage).Select(item => item.Name).ToList();
-           return wsNameList;
+            var wsNameList = GetExcelWorksheets(excelPackage).Select(item => item.Name).ToList();
+            return wsNameList;
         }
 
         /// <summary>
@@ -184,16 +184,14 @@ namespace EPPlusExtensions
         /// <param name="workSheetIndex">从1开始,注:每删除一个ws后,索引重新计算</param>
         public static void DeleteWorksheet(ExcelPackage excelPackage, int workSheetIndex)
         {
-            if (workSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
-
             if (excelPackage.Workbook.Worksheets.Count <= 1) //The workbook must contain at least one worksheet
             {
                 return;
             }
 
             workSheetIndex = ConvertWorkSheetIndex(excelPackage, workSheetIndex);
-
-            if (excelPackage.Workbook.Worksheets[workSheetIndex] != null)
+            var ws = excelPackage.Workbook.Worksheets[workSheetIndex];
+            if (ws != null)
             {
                 excelPackage.Workbook.Worksheets.Delete(workSheetIndex);
             }
@@ -247,12 +245,12 @@ namespace EPPlusExtensions
         public static List<string> GetWorkSheetNames(ExcelPackage excelPackage, params eWorkSheetHidden[] eWorkSheetHiddens)
         {
             var wsNames = new List<string>();
-            if (eWorkSheetHiddens == null) return wsNames;
+            if (eWorkSheetHiddens == null || eWorkSheetHiddens.Length == 0) return wsNames;
 
-            var count = excelPackage.Workbook.Worksheets.Count;
-            for (int i = 1; i <= count; i++)
+            for (int i = 1; i <= excelPackage.Workbook.Worksheets.Count; i++)
             {
-                var ws = excelPackage.Workbook.Worksheets[i];
+                var index = ConvertWorkSheetIndex(excelPackage, i);
+                var ws = excelPackage.Workbook.Worksheets[index];
                 //foreach (var eWorkSheetHidden in eWorkSheetHiddens)
                 //{
                 //    if (ws.Hidden != eWorkSheetHidden) continue;
@@ -3478,13 +3476,18 @@ namespace EPPlusExtensions
         /// <returns></returns>
         private static int ConvertWorkSheetIndex(ExcelPackage excelPackage, int workSheetIndex)
         {
-            if (!excelPackage.Compatibility.IsWorksheets1Based)
-            {
-                workSheetIndex -= 1; //从0开始的, 自己 -1;
-            }
-            return workSheetIndex;
-        }
+            //if (!excelPackage.Compatibility.IsWorksheets1Based)
+            //{
+            //    workSheetIndex -= 1; //从0开始的, 需要自己 -1;
+            //}
+            //return workSheetIndex;
 
+            //var offset = excelPackage.Compatibility.IsWorksheets1Based ? 0 : -1;
+            //return workSheetIndex + offset;
+
+            return workSheetIndex + (excelPackage.Compatibility.IsWorksheets1Based ? 0 : -1);
+        }
+        
         /// <summary>
         /// 获得精确的合并单元格地址
         /// </summary>
