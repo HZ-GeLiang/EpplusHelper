@@ -1188,6 +1188,10 @@ namespace EPPlusExtensions
             int dataColEndActual = 0;
             while (col <= args.DataColEnd)
             {
+                if (args.ws.Column(col).Hidden)
+                {
+                    throw new Exception($@"文件不允许存在隐藏列,检测{ ExcelCellPoint.R1C1FormulasReverse(col)}列是隐藏列");
+                }
                 ExcelAddress ea;
                 int newDataColEndActual;
                 var isMergeCell = EPPlusHelper.IsMergeCell(args.ws, args.DataTitleRow, col, out var mergeCellAddress);
@@ -1203,7 +1207,6 @@ namespace EPPlusExtensions
                     newDataColEndActual = col;
                     col += 1;
                 }
-
 
                 var colName = EPPlusHelper.GetMergeCellText(args.ws, ea.Start.Row, ea.Start.Column);
                 if (string.IsNullOrEmpty(colName)) break;
@@ -1972,7 +1975,7 @@ namespace EPPlusExtensions
             var dictModelPropNameExistsExcelColumn = new Dictionary<string, bool>();//Model属性在Excel列中存在, key: ModelPropName
             var dictModelPropNameToExcelColumnName = new Dictionary<string, string>();//Model属性名字对应的excel的标题列名字
             var dictExcelColumnIndexToModelPropName_Temp = new Dictionary<int, string>();//Excel的列标题和Model属性名字的映射
-            //初始化上面3个dict
+                                                                                         //初始化上面3个dict
             foreach (var props in type.GetProperties())
             {
                 dictModelPropNameExistsExcelColumn.Add(props.Name, false);
@@ -2269,6 +2272,10 @@ namespace EPPlusExtensions
 
             while (true)//遍历行, 异常或者出现空行,触发break;
             {
+                if (args.ws.Row(row).Hidden)
+                {
+                    throw new Exception($@"文件不允许存在隐藏行,行号:{row},检测到是隐藏行");
+                }
 #if DEBUG
                 debugvar_whileCount++;
 #endif
@@ -3487,7 +3494,7 @@ namespace EPPlusExtensions
 
             return workSheetIndex + (excelPackage.Compatibility.IsWorksheets1Based ? 0 : -1);
         }
-        
+
         /// <summary>
         /// 获得精确的合并单元格地址
         /// </summary>
