@@ -13,7 +13,7 @@ namespace EPPlusExtensions
     {
 
         /// <summary>
-        /// excel模板数据从哪列开始,可以理解成标题行的开始列
+        /// excel模板数据从哪列开始,可以理解成标题行的开始列,从1开始
         /// </summary>
         public int DataColStart { get; set; } = 1;
 
