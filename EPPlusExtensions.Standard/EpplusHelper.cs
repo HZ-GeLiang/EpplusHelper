@@ -1190,7 +1190,7 @@ namespace EPPlusExtensions
             {
                 if (args.ws.Column(col).Hidden)
                 {
-                    throw new Exception($@"文件不允许存在隐藏列,检测{ ExcelCellPoint.R1C1FormulasReverse(col)}列是隐藏列");
+                    throw new Exception($@"工作簿:'{args.ws.Name}'不允许存在隐藏列,检测到第{ExcelCellPoint.R1C1FormulasReverse(col)}列是隐藏列");
                 }
                 ExcelAddress ea;
                 int newDataColEndActual;
@@ -2274,7 +2274,7 @@ namespace EPPlusExtensions
             {
                 if (args.ws.Row(row).Hidden)
                 {
-                    throw new Exception($@"文件不允许存在隐藏行,行号:{row},检测到是隐藏行");
+                    throw new Exception($@"工作簿:'{args.ws.Name}'不允许存在隐藏行,检测到第{row}行是隐藏行");
                 }
 #if DEBUG
                 debugvar_whileCount++;
