@@ -547,5 +547,36 @@ namespace EPPlusHelperTool
 
             return excelDataConfigInfo;
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            TryRun(() =>
+            {
+                string filePath = filePath1.Text.Trim().移除路径前后引号();
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    MessageBox.Show("路径不能为空");
+                    return;
+                }
+                string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
+
+                var filePathNew = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_new.xlsx";
+
+                using (var ms = new MemoryStream())
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var excelPackage = new ExcelPackage(fs))
+                {
+                    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, GetExcelDataConfigInfo().WorkSheetName);
+                    for (int i = 1; i <= EPPlusConfig.MaxRow07; i++)
+                    {
+                        ws.Row(i).Hidden = false;
+                    }
+                    excelPackage.SaveAs(ms);
+                    ms.Position = 0;
+                    ms.Save(filePathNew);
+                }
+
+            });
+        }
     }
 }
