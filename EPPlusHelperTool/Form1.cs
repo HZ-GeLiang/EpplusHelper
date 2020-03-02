@@ -560,7 +560,7 @@ namespace EPPlusHelperTool
                 }
                 string fileOutDirectoryName = Path.GetDirectoryName(Path.GetFullPath(filePath));
 
-                var filePathNew = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_new.xlsx";
+                var filePathNew = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_DisplayAllRows.xlsx";
 
                 using (var ms = new MemoryStream())
                 using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
