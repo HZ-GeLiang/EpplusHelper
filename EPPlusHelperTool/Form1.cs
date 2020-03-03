@@ -305,9 +305,34 @@ namespace EPPlusHelperTool
                 using (var excelPackage = new ExcelPackage(fs))
                 {
                     SetDataSourceForDGV(excelPackage, callerName, this);
-                    if ((callerName == "filePath1" || callerName == "BtnAnalyze1") && (EPPlusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0))
+                    if ((callerName == "filePath1" || callerName == "BtnAnalyze1"))
                     {
-                        MessageBox.Show("检测到当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
+                        if (EPPlusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0)
+                        {
+                            MessageBox.Show("检测到当前Excel含有隐藏工作簿,建议删除所有隐藏工作簿");
+                        }
+
+                        foreach (var ws in EPPlusHelper.GetExcelWorksheets(excelPackage))
+                        {
+                            var HaveHiddenRow = EPPlusHelper.HaveHiddenRow(ws, 1, EPPlusConfig.MaxRow07);
+                            var HaveHiddenColumn = EPPlusHelper.HaveHiddenColumn(ws, 1, EPPlusConfig.MaxCol07);
+
+                            if (HaveHiddenRow && HaveHiddenColumn)
+                            {
+                                MessageBox.Show($"检测到Sheet页'{ws.Name}'含有隐藏行和隐藏列");
+                            }
+                            else
+                            {
+                                if (HaveHiddenRow)
+                                {
+                                    MessageBox.Show($"检测到Sheet页'{ws.Name}'含有隐藏行");
+                                }
+                                if (HaveHiddenColumn)
+                                {
+                                    MessageBox.Show($"检测到Sheet页'{ws.Name}'含有隐藏列");
+                                }
+                            }
+                        }
                     }
 
                 }
@@ -316,8 +341,8 @@ namespace EPPlusHelperTool
 
         private static void SetDataSourceForDGV(ExcelPackage excelPackage, string callerName, Form1 form1)
         {
-            DataGridView control = null;
-            var block = 0;
+            DataGridView control;
+            int block;
 
             if (callerName == "filePath1" || callerName == "BtnAnalyze1")
             {
@@ -333,7 +358,6 @@ namespace EPPlusHelperTool
             {
                 return;
             }
-            //StringBuilder names = new StringBuilder();
             control.Rows.Clear();
             var i = 0;
             foreach (var ws in EPPlusHelper.GetExcelWorksheets(excelPackage))
@@ -357,13 +381,8 @@ namespace EPPlusHelperTool
                     form1.TitleLine2.Text = control.Rows[index].Cells[2].Value.ToString();
                     form1.TitleCol2.Text = control.Rows[index].Cells[3].Value.ToString();
                 }
-
                 i++;
-                //names.Append($"{ws.Name},");
             }
-
-            //var msg = $"一共有{count}个工作簿,分别是:{names.RemoveLastChar(',')}";
-            //MessageBox.Show(msg);
         }
 
         private void DelHiddenWs_Click(object sender, EventArgs e)
@@ -548,7 +567,8 @@ namespace EPPlusHelperTool
             return excelDataConfigInfo;
         }
 
-        private void button2_Click(object sender, EventArgs e)
+
+        private void diaplayRowAndColumn_Click(object sender, EventArgs e)
         {
             TryRun(() =>
             {
@@ -566,10 +586,10 @@ namespace EPPlusHelperTool
                 using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (var excelPackage = new ExcelPackage(fs))
                 {
-                    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, GetExcelDataConfigInfo().WorkSheetName);
-                    for (int i = 1; i <= EPPlusConfig.MaxRow07; i++)
+                    foreach (var ws in EPPlusHelper.GetExcelWorksheets(excelPackage))
                     {
-                        ws.Row(i).Hidden = false;
+                        EPPlusHelper.EachHiddenRow(ws, 1, EPPlusConfig.MaxRow07, a => a.Hidden = false);
+                        EPPlusHelper.EachHiddenColumn(ws, 1, EPPlusConfig.MaxCol07, a => a.Hidden = false);
                     }
                     excelPackage.SaveAs(ms);
                     ms.Position = 0;
