@@ -77,7 +77,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.CreateDataTable = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.diaplayRowAndColumn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgv2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgv1)).BeginInit();
             this.panel2.SuspendLayout();
@@ -538,22 +538,22 @@
             this.CreateDataTable.UseVisualStyleBackColor = true;
             this.CreateDataTable.Click += new System.EventHandler(this.CreateDataTable_Click);
             // 
-            // button2
+            // diaplayRowAndColumn
             // 
-            this.button2.Location = new System.Drawing.Point(519, 196);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(95, 42);
-            this.button2.TabIndex = 36;
-            this.button2.Text = "显示所有行";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.diaplayRowAndColumn.Location = new System.Drawing.Point(516, 160);
+            this.diaplayRowAndColumn.Name = "diaplayRowAndColumn";
+            this.diaplayRowAndColumn.Size = new System.Drawing.Size(98, 25);
+            this.diaplayRowAndColumn.TabIndex = 36;
+            this.diaplayRowAndColumn.Text = "显示所有行和列";
+            this.diaplayRowAndColumn.UseVisualStyleBackColor = true;
+            this.diaplayRowAndColumn.Click += new System.EventHandler(this.diaplayRowAndColumn_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(619, 555);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.diaplayRowAndColumn);
             this.Controls.Add(this.CreateDataTable);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.label2);
@@ -640,7 +640,7 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Button CreateDataTable;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button diaplayRowAndColumn;
     }
 }
 
