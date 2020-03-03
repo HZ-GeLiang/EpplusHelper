@@ -4259,6 +4259,90 @@ namespace EPPlusExtensions
             var txt = sb.ToString();
             return txt;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <param name="rowStartIndex">从1开始</param>
+        /// <param name="rowEndIndex">最大值:EPPlusConfig.MaxRow07</param>
+        /// <param name="action">一般用于修改Hidden状态</param>
+        /// <returns></returns>
+        public static void EachHiddenRow(ExcelWorksheet ws, int rowStartIndex, int rowEndIndex, Action<ExcelRow> action)
+        {
+            if (action == null) return;
+            if (rowEndIndex > EPPlusConfig.MaxRow07)
+            {
+                rowEndIndex = EPPlusConfig.MaxRow07;
+            }
+            for (int rowIndex = rowStartIndex; rowIndex <= rowEndIndex; rowIndex++)
+            {
+                if (ws.Row(rowIndex).Hidden)
+                {
+                    action.Invoke(ws.Row(rowIndex));
+                }
+            }
+        }
+
+        public static bool HaveHiddenRow(ExcelWorksheet ws, int rowStartIndex, int rowEndIndex)
+        {
+            if (rowEndIndex > EPPlusConfig.MaxRow07)
+            {
+                rowEndIndex = EPPlusConfig.MaxRow07;
+            }
+            for (int rowIndex = rowStartIndex; rowIndex <= rowEndIndex; rowIndex++)
+            {
+                if (ws.Row(rowIndex).Hidden)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <param name="columnStartIndex">从1开始</param>
+        /// <param name="columnEndIndex">最大值:EPPlusConfig.MaxCol07</param>
+        /// <param name="action">一般用于修改Hidden状态</param>
+        /// <returns></returns>
+        public static void EachHiddenColumn(ExcelWorksheet ws, int columnStartIndex, int columnEndIndex, Action<ExcelRow> action)
+        {
+            if (action == null) return;
+            if (columnEndIndex > EPPlusConfig.MaxCol07)
+            {
+                columnEndIndex = EPPlusConfig.MaxCol07;
+            }
+            for (int columnIndex = columnStartIndex; columnIndex <= columnEndIndex; columnIndex++)
+            {
+                if (ws.Column(columnIndex).Hidden)
+                {
+                    action.Invoke(ws.Row(columnIndex));
+                }
+            }
+
+        }
+
+        public static bool HaveHiddenColumn(ExcelWorksheet ws, int columnStartIndex, int columnEndIndex)
+        {
+            if (columnEndIndex > EPPlusConfig.MaxCol07)
+            {
+                columnEndIndex = EPPlusConfig.MaxCol07;
+            }
+            for (int columnIndex = columnStartIndex; columnIndex <= columnEndIndex; columnIndex++)
+            {
+                if (ws.Column(columnIndex).Hidden)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
         #endregion
     }
 }
