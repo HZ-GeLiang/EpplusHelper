@@ -314,20 +314,20 @@ namespace EPPlusHelperTool
 
                         foreach (var ws in EPPlusHelper.GetExcelWorksheets(excelPackage))
                         {
-                            var HaveHiddenRow = EPPlusHelper.HaveHiddenRow(ws, 1, EPPlusConfig.MaxRow07);
-                            var HaveHiddenColumn = EPPlusHelper.HaveHiddenColumn(ws, 1, EPPlusConfig.MaxCol07);
+                            var haveHiddenRow = EPPlusHelper.HaveHiddenRow(ws);
+                            var haveHiddenColumn = EPPlusHelper.HaveHiddenColumn(ws);
 
-                            if (HaveHiddenRow && HaveHiddenColumn)
+                            if (haveHiddenRow && haveHiddenColumn)
                             {
                                 MessageBox.Show($"检测到Sheet页'{ws.Name}'含有隐藏行和隐藏列");
                             }
                             else
                             {
-                                if (HaveHiddenRow)
+                                if (haveHiddenRow)
                                 {
                                     MessageBox.Show($"检测到Sheet页'{ws.Name}'含有隐藏行");
                                 }
-                                if (HaveHiddenColumn)
+                                if (haveHiddenColumn)
                                 {
                                     MessageBox.Show($"检测到Sheet页'{ws.Name}'含有隐藏列");
                                 }

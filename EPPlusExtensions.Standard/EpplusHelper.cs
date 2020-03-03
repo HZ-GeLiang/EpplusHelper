@@ -4284,7 +4284,7 @@ namespace EPPlusExtensions
             }
         }
 
-        public static bool HaveHiddenRow(ExcelWorksheet ws, int rowStartIndex, int rowEndIndex)
+        public static bool HaveHiddenRow(ExcelWorksheet ws, int rowStartIndex = 1, int rowEndIndex = EPPlusConfig.MaxRow07)
         {
             if (rowEndIndex > EPPlusConfig.MaxRow07)
             {
@@ -4323,10 +4323,9 @@ namespace EPPlusExtensions
                     action.Invoke(ws.Row(columnIndex));
                 }
             }
-
         }
 
-        public static bool HaveHiddenColumn(ExcelWorksheet ws, int columnStartIndex, int columnEndIndex)
+        public static bool HaveHiddenColumn(ExcelWorksheet ws, int columnStartIndex = 1, int columnEndIndex = EPPlusConfig.MaxCol07)
         {
             if (columnEndIndex > EPPlusConfig.MaxCol07)
             {
@@ -4341,8 +4340,7 @@ namespace EPPlusExtensions
             }
             return false;
         }
-
-
+        
         #endregion
     }
 }
