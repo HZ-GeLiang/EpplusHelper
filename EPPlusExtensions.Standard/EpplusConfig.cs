@@ -13,8 +13,14 @@ namespace EPPlusExtensions
         #region Excel的最大行与列 
 
         //excel 2007 和 excel 2010 工作表最大有 2^20=1048576行,2^14=16384列
-        public static readonly int MaxRow07 = ExcelPackage.MaxRows;// 1048576;
-        public static readonly int MaxCol07 = ExcelPackage.MaxColumns;// 16384;
+        /// <summary>
+        /// Maximum number of rows in a worksheet (1048576)
+        /// </summary>
+        public const int MaxRow07 = 1048576;// 和内置的常量值一样 ExcelPackage.MaxRows;
+        /// <summary>
+        /// Maximum number of columns in a worksheet (16384)
+        /// </summary>
+        public const int MaxCol07 = 16384; // 和内置的常量值一样 ExcelPackage.MaxColumns;
 
         //excel 2003 工作表最大有 2^16=65536行,2^8=256列
         //public static readonly int MaxRow03 = 65536;
