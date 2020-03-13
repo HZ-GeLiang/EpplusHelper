@@ -8,82 +8,57 @@ namespace EPPlusExtensions
     /// </summary>
     public struct ExcelCellRange
     {
-        private static void Init(string r1c1,
-            out string Range,
-            out ExcelCellPoint Start,
-            out ExcelCellPoint End,
-            out int IntervalRow,
-            out int IntervalCol,
-            out bool IsMerge)
-        {
-            Range = r1c1;
-            var cellPoints = r1c1.Split(':');
-
-            switch (cellPoints.Length)
-            {
-                case 1:
-                    Start = new ExcelCellPoint(cellPoints[0].Trim());
-                    End = default(ExcelCellPoint);
-                    IntervalCol = 0;
-                    IntervalRow = 0;
-                    IsMerge = false;
-                    break;
-                case 2:
-                    Start = new ExcelCellPoint(cellPoints[0].Trim());
-                    End = new ExcelCellPoint(cellPoints[1].Trim());
-                    IntervalCol = End.Col - Start.Col;
-                    IntervalRow = End.Row - Start.Row;
-                    IsMerge = true;
-                    break;
-                default:
-                    throw new Exception("程序的配置有问题");
-            }
-        }
-
+   
         /// <summary>
         /// 
         /// </summary>
         /// <param name="r1c1">地址</param>
-        public ExcelCellRange(string r1c1)
+        public ExcelCellRange(string r1c1) : this(r1c1, null)
         {
-            Init(r1c1,
-                out string Range,
-                out ExcelCellPoint Start,
-                out ExcelCellPoint End,
-                out int IntervalRow,
-                out int IntervalCol,
-                out bool IsMerge);
 
-            this.Range = Range;
-            this.Start = Start;
-            this.End = End;
-            this.IntervalRow = IntervalRow;
-            this.IntervalCol = IntervalCol;
-            this.IsMerge = IsMerge;
         }
 
         public ExcelCellRange(string r1c1, ExcelWorksheet ws)
         {
-            var ecp = new ExcelCellPoint(r1c1);
-            if (!EPPlusHelper.IsMergeCell(ws, ecp.Row, ecp.Col, out var mergeCellAddress))
+            string _r1c1;
+            if (ws != null)
             {
-                throw new Exception($@"r1c1:{r1c1}不是合并单元格");
+                var ecp = new ExcelCellPoint(r1c1);
+                if (!EPPlusHelper.IsMergeCell(ws, ecp.Row, ecp.Col, out var mergeCellAddress))
+                {
+                    throw new Exception($@"r1c1:{r1c1}不是合并单元格");
+                }
+                var ea = new ExcelAddress(mergeCellAddress);
+                _r1c1 = ea.Address;
             }
-            var ea = new ExcelAddress(mergeCellAddress);
+            else
+            {
+                _r1c1 = r1c1;
+            }
 
-            Init(ea.Address,
-                out string Range,
-                out ExcelCellPoint Start,
-                out ExcelCellPoint End,
-                out int IntervalRow,
-                out int IntervalCol,
-                out bool IsMerge);
-            this.Range = Range;
-            this.Start = Start;
-            this.End = End;
-            this.IntervalRow = IntervalRow;
-            this.IntervalCol = IntervalCol;
-            this.IsMerge = IsMerge;
+            this.Range = _r1c1;
+            var cellPoints = _r1c1.Split(':');
+
+            if (cellPoints.Length == 1)
+            {
+                this.Start = new ExcelCellPoint(cellPoints[0].Trim());
+                this.End = default(ExcelCellPoint);
+                this.IntervalCol = 0;
+                this.IntervalRow = 0;
+                this.IsMerge = false;
+            }
+            else if (cellPoints.Length == 2)
+            {
+                this.Start = new ExcelCellPoint(cellPoints[0].Trim());
+                this.End = new ExcelCellPoint(cellPoints[1].Trim());
+                this.IntervalCol = End.Col - Start.Col;
+                this.IntervalRow = End.Row - Start.Row;
+                this.IsMerge = true;
+            }
+            else
+            {
+                throw new Exception("程序的配置有问题");
+            }
         }
 
         /// <summary>

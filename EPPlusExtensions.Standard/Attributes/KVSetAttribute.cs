@@ -29,14 +29,19 @@ namespace EPPlusExtensions.Attributes
         /// </summary>
         public string[] Args { get; private set; }
 
-        public KVSetAttribute(string name) => InitConstructor(name, true, null, new string[0]);
+        public KVSetAttribute(string name)
+            : this(name, true, null, new string[0])
+        { }
 
-        public KVSetAttribute(string name, bool mustInSet) => InitConstructor(name, mustInSet, null, new string[0]);
+        public KVSetAttribute(string name, bool mustInSet)
+            : this(name, mustInSet, null, new string[0])
+        { }
 
-        public KVSetAttribute(string name, string errorMessage, params string[] args) => InitConstructor(name, true, errorMessage, args);
-        public KVSetAttribute(string name, bool mustInSet, string errorMessage, params string[] args) => InitConstructor(name, mustInSet, errorMessage, args);
+        public KVSetAttribute(string name, string errorMessage, params string[] args)
+            : this(name, true, errorMessage, args)
+        { }
 
-        private void InitConstructor(string name, bool mustInSet, string errorMessage, string[] args)
+        public KVSetAttribute(string name, bool mustInSet, string errorMessage, params string[] args)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
             this.Name = name;
