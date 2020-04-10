@@ -429,39 +429,7 @@ namespace EPPlusHelperTool
                 MessageBox.Show("程序报错:" + e.Message);
             }
         }
-
-        private void dgv_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            DataGridView dgv = (DataGridView)sender;
-            if (dgv.Rows.Count <= 0) return;
-
-            if (e.RowIndex == -1)
-            {
-                return;//不知道-1 是标格的title 
-            }
-            var row = dgv.Rows[e.RowIndex];
-            var txt = row.Cells[e.ColumnIndex].Value.ToString();
-
-            if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
-            {
-                if (((System.Windows.Forms.Control)sender).Name == "dgv1") this.wsNameOrIndex1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.wsNameOrIndex2.Text = txt;
-            }
-            else if (e.ColumnIndex == 2)
-            {
-                if (((System.Windows.Forms.Control)sender).Name == "dgv1")
-                    this.TitleLine1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.TitleLine2.Text = txt;
-            }
-            else if (e.ColumnIndex == 3)
-            {
-                if (((System.Windows.Forms.Control)sender).Name == "dgv1")
-                    this.TitleCol1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dgv2")
-                    this.TitleCol2.Text = txt;
-            }
-        }
-
+         
         private void CreateClass_Click(object sender, EventArgs e)
         {
             TryRun(() =>
@@ -597,6 +565,38 @@ namespace EPPlusHelperTool
                 }
 
             });
+        }
+  
+        private void dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            DataGridView dgv = (DataGridView)sender;
+            if (dgv.Rows.Count <= 0) return; 
+            if (e.RowIndex == -1)
+            {
+                return;//不知道-1 是标格的title 
+            }
+            var row = dgv.Rows[e.RowIndex];
+            var txt = row.Cells[e.ColumnIndex].Value.ToString();
+
+            if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
+            {
+                if (((System.Windows.Forms.Control)sender).Name == "dgv1") this.wsNameOrIndex1.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.wsNameOrIndex2.Text = txt;
+            }
+            else if (e.ColumnIndex == 2)
+            {
+                if (((System.Windows.Forms.Control)sender).Name == "dgv1")
+                    this.TitleLine1.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.TitleLine2.Text = txt;
+            }
+            else if (e.ColumnIndex == 3)
+            {
+                if (((System.Windows.Forms.Control)sender).Name == "dgv1")
+                    this.TitleCol1.Text = txt;
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2")
+                    this.TitleCol2.Text = txt;
+            }
+
         }
     }
 }
