@@ -253,7 +253,7 @@
             this.dgv2.RowTemplate.Height = 23;
             this.dgv2.Size = new System.Drawing.Size(369, 183);
             this.dgv2.TabIndex = 25;
-            this.dgv2.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellClick);
+            this.dgv2.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellEndEdit);
             // 
             // dataGridViewTextBoxColumn4
             // 
@@ -325,7 +325,7 @@
             this.dgv1.RowTemplate.Height = 23;
             this.dgv1.Size = new System.Drawing.Size(373, 195);
             this.dgv1.TabIndex = 22;
-            this.dgv1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellClick);
+            this.dgv1.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellEndEdit);
             // 
             // Column1
             // 
