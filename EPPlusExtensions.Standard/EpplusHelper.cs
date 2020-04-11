@@ -1629,7 +1629,7 @@ namespace EPPlusExtensions
         /// <param name="attrErrorMessage"></param>
         /// <param name="attrArgs"></param>
         /// <returns></returns>
-        private static string FormatAttributeMsg<T>(string pInfo_Name, T model, string value, string attrErrorMessage, string[] attrArgs) where T : class, new()
+        public static string FormatAttributeMsg<T>(string pInfo_Name, T model, string value, string attrErrorMessage, string[] attrArgs) where T : class, new()
         {
             //拼接ErrorMessage
             var allProp = ReflectionHelper.GetProperties<T>();
@@ -1782,20 +1782,28 @@ namespace EPPlusExtensions
 
         #region GetList<T>
 
-        public static T InitGetExcelListArgsModel<T>() where T : class
+        private static List<PropertyInfo> ICustomersModelTypeList;
+
+        /// <summary>
+        /// 无法添加 ,new()约束, 因为 datarow 就是没有的
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T InitGetExcelListArgsModel<T>() where T : class/*,new()*/
         {
+            ICustomersModelTypeList = new List<PropertyInfo>();
+
             var t_ctor = typeof(T).GetConstructor(new Type[] { });
             if (t_ctor == null)
             {
-                return null;
+                return default(T);
             }
 
             var model = t_ctor.Invoke(new object[] { });
 
-            //foreach (var p in ReflectionHelper.GetProperties(typeof(T)).Where(p => p == typeof(KV<,>)))
-            foreach (var p in ReflectionHelper.GetProperties(typeof(T)))
+            foreach (PropertyInfo p in ReflectionHelper.GetProperties(typeof(T)))
             {
-                if (!p.PropertyType.HasImplementedRawGeneric(typeof(KV<,>)))
+                if (p.PropertyType.IsValueType)
                 {
                     continue;
                 }
@@ -1805,7 +1813,13 @@ namespace EPPlusExtensions
                 {
                     continue;
                 }
+
                 p.SetValue(model, p_ctor.Invoke(new object[] { }));
+
+                if (typeof(ICustomersModelType).IsAssignableFrom(p.PropertyType))
+                {
+                    ICustomersModelTypeList.Add(p);
+                }
             }
             return (T)model;
         }
@@ -1829,18 +1843,18 @@ namespace EPPlusExtensions
                 GetList_ErrorMessage_OnlyShowColomn = false,
                 DataColStart = 1,
                 DataColEnd = EPPlusConfig.MaxCol07,
-                KVSource = new KVSource(),
             };
             return args;
         }
 
         public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class
         {
+            //这3个属性的<T>版本多出来的, 其余的默认值调用GetExcelListArgsDefault(),然后用反射赋值
             var argsReturn = new GetExcelListArgs<T>
             {
                 HavingFilter = null,
                 WhereFilter = null,
-                Model = InitGetExcelListArgsModel<T>()
+                Model = InitGetExcelListArgsModel<T>(),
             };
             var args = GetExcelListArgsDefault(ws, rowIndex);
             var dict = ReflectionHelper.GetProperties(typeof(GetExcelListArgs)).ToDictionary(item => item.Name, item => item.GetValue(args));
@@ -2199,56 +2213,42 @@ namespace EPPlusExtensions
             }
 
             #endregion
-
-            //var dictColName = colNameList.ToDictionary(item => new ExcelCellPoint(item.ExcelAddress).Col, item => item);// key是第n列
-
+ 
             var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
                 ? GetExcelListArgs.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
 
-            //var ctor = type.GetConstructor(new Type[] { });
-            //if (ctor == null) throw new ArgumentException($"通过反射无法得到'{type.FullName}'的一个无构造参数的构造器.");
+             
+            #region 初始化内置Attribute 和 检查模型属性
 
-            var dictPropAttrs = new Dictionary<string, Dictionary<string, Attribute>>();//属性里包含的Attribute
+            var dictUnique = new Dictionary<string, List<string>>();//属性的 UniqueAttribute 的内置实现
+            var dictCustomerModelType = new Dictionary<PropertyInfo, ICustomersModelType>();
 
-            #region 内置的Attribute
-            var dictUnique = new Dictionary<string, Dictionary<string, bool>>();//属性的 UniqueAttribute
-            var dictKVSet = new Dictionary<string, Dictionary<string, bool>>();//属性的 KVSetAttribute
-            string key_UniqueAttribute = typeof(UniqueAttribute).FullName;
-            string key_KVSetAttribute = typeof(KVSetAttribute).FullName;
-
-            var cache_PropertyInfo = new Dictionary<string, PropertyInfo>();
             foreach (var excelCellInfo in colNameList)
             {
-                if (!GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
+                string propName = GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All);
+                if (string.IsNullOrEmpty(propName))
                 {
                     continue;
                 }
 
-                var pInfo = GetPropertyInfo(cache_PropertyInfo, propName, type);
+                var pInfo = GetPropertyInfo(propName, type);
 
                 #region 初始化Attr要处理相关的数据
-                dictPropAttrs.Add(pInfo.Name, new Dictionary<string, Attribute>());//这里new 的Dict 的key 代表的是Attribute的FullName
 
                 var uniqueAttrs = ReflectionHelper.GetAttributeForProperty<UniqueAttribute>(pInfo.DeclaringType, pInfo.Name);
                 if (uniqueAttrs.Length > 0)
                 {
-                    dictPropAttrs[pInfo.Name].Add(key_UniqueAttribute, (UniqueAttribute)uniqueAttrs[0]);
-                    dictUnique.Add(pInfo.Name, new Dictionary<string, bool>());
+                    dictUnique.Add(pInfo.Name, new List<string>());
                 }
 
-                var KVSetAttrs = ReflectionHelper.GetAttributeForProperty<KVSetAttribute>(pInfo.DeclaringType, pInfo.Name);
-                if (KVSetAttrs.Length > 0)
+                var isInList = ICustomersModelTypeList.Find(a => a == pInfo) != null;
+                if (isInList)
                 {
-                    if (args.KVSource == null || args.KVSource.Count <= 0)
-                    {
-                        throw new ArgumentException($@"检测到KVSetAttribute,但是KVSource却未配置");
-                    }
-                    dictPropAttrs[pInfo.Name].Add(key_KVSetAttribute, (KVSetAttribute)KVSetAttrs[0]);
-                    dictKVSet.Add(pInfo.Name, new Dictionary<string, bool>());
+                    ICustomersModelType p = (ICustomersModelType)pInfo.GetValue(args.Model);
 
+                    dictCustomerModelType.Add(pInfo, p);
                 }
-
                 #endregion
             }
 
@@ -2289,12 +2289,14 @@ namespace EPPlusExtensions
 
                 foreach (var excelCellInfo in colNameList)
                 {
-                    if (!GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
+                    string propName = GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol,
+                        dictExcelColumnIndexToModelPropName_All);
+                    if (string.IsNullOrEmpty(propName))
                     {
                         continue;
                     }
 
-                    var pInfo = GetPropertyInfo(cache_PropertyInfo, propName, type);
+                    var pInfo = GetPropertyInfo(propName, type);
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
 #if DEBUG
@@ -2312,10 +2314,8 @@ namespace EPPlusExtensions
                     string value =  GetMegerCellText(ws, row, col);
 #endif
 
+                    #region 全局处理值,如特性
                     bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
-
-                    var propAttrs = dictPropAttrs[pInfo.Name];//当前属性的所有特性]
-
                     if (!valueIsNullOrEmpty)
                     {
                         if (isNoDataAllColumn)
@@ -2373,111 +2373,41 @@ namespace EPPlusExtensions
 
                         #region 处理内置的Attribute
 
-                        //var propAttrs = dictPropAttrs[pInfo.Name];//当前属性的所有特性
+                        var propAttrs = pInfo.GetCustomAttributes();
 
-                        if (propAttrs.ContainsKey(key_UniqueAttribute))
+                        foreach (var item in propAttrs)
                         {
-                            #region uniqueAttr的具体实现
-                            var uniqueAttr = (UniqueAttribute)propAttrs[key_UniqueAttribute];
+                            var attrType = item.GetType();
 
-                            if (!valueIsNullOrEmpty)
+                            if (attrType == typeof(UniqueAttribute))
                             {
-                                if (!dictUnique[pInfo.Name].ContainsKey(value))
+                                var uniqueAttrInfo = item;
+                                if (uniqueAttrInfo != null)
                                 {
-                                    dictUnique[pInfo.Name].Add(value, default(bool));
-                                }
-                                else
-                                {
-                                    string exception_msg = string.IsNullOrEmpty(uniqueAttr.ErrorMessage) ? $@"属性'{pInfo.Name}'的值:'{value}'出现了重复" : uniqueAttr.ErrorMessage;
-                                    throw new ArgumentException(exception_msg, pInfo.Name);
-                                }
-                            }
-                            #endregion
-                        }
-                        if (propAttrs.ContainsKey(key_KVSetAttribute))
-                        {
-                            var kvsetAttr = (KVSetAttribute)propAttrs[key_KVSetAttribute];
-                            var haveKvsource = args.KVSource.ContainsKey(kvsetAttr.Name);
-                            if (kvsetAttr.MustInSet && !haveKvsource)
-                            {
-                                if (!string.IsNullOrEmpty(kvsetAttr.ErrorMessage) && kvsetAttr.ErrorMessage.Length > 0)
-                                {
-                                    var msg = FormatAttributeMsg(pInfo.Name, model, value, kvsetAttr.ErrorMessage, kvsetAttr.Args);
-                                    throw new ArgumentException(msg);
-                                }
-                                else
-                                {
-                                    throw new ArgumentException($@"属性'{pInfo.Name}'的值:'{value}'未找到对应的集合列表", pInfo.Name);
-                                }
-                            }
-
-                            object kvsource = args.KVSource[kvsetAttr.Name];
-                            var kvsourceType = kvsource.GetType();
-
-                            //var is_kvsourceType = kvsourceType.GetGenericTypeDefinition() == typeof(KVSource<,>);
-                            var is_kvsourceType = kvsourceType.HasImplementedRawGeneric(typeof(KvSource<,>));
-
-                            if (is_kvsourceType)
-                            {
-                                var kvsourceTypeTKey = kvsourceType.GenericTypeArguments[0];
-                                //var kvsourceTypeTValue = kvsourceType.GenericTypeArguments[1];
-
-                                var prop_kvsource = (IKVSource)kvsource;
-
-                                prop_kvsource.GetInfoByKey(value, out bool kv_Value_inKvSource, out object kv_Value,
-                                    out bool haveState, out object state);
-
-                                if (!kv_Value_inKvSource && kvsetAttr.MustInSet)
-                                {
-                                    var msg = string.IsNullOrEmpty(kvsetAttr.ErrorMessage)
-                                        ? $@"属性'{pInfo.Name}'值:'{value}'未在'{kvsetAttr.Name}'集合中出现."
-                                        : FormatAttributeMsg(pInfo.Name, model, value, kvsetAttr.ErrorMessage, kvsetAttr.Args);// string.Format(kvsetAttr.ErrorMessage, kvsetAttr.Args);
-                                    throw new ArgumentException(msg, pInfo.Name);
-                                }
-
-                                var typeKVArgs = pInfo.PropertyType.GetGenericArguments();
-                                var typeKV = typeof(KV<,>).MakeGenericType(typeKVArgs);
-
-                                object[] invokeConstructorParameters;
-                                //if (typeKVArgs[0].FullName == typeof(string).FullName)
-                                //{
-                                //    invokeParameters = new object[] { value, kv_Value };
-                                //}
-                                //else
-                                //{
-                                //    invokeParameters = new object[] { Convert.ChangeType(value, typeKVArgs[0]), kv_Value };
-                                //}
-                                //代码和上面的是一样的效果,这个更加方便阅读
-                                if (kvsourceTypeTKey == typeof(string))
-                                {
-
-                                    invokeConstructorParameters = new object[] { value, kv_Value };
-                                }
-                                else
-                                {
-                                    invokeConstructorParameters = new object[] { Convert.ChangeType(value, kvsourceTypeTKey), kv_Value };
-                                }
-
-                                var modelValue = typeKV.GetConstructor(typeKVArgs).Invoke(invokeConstructorParameters);
-
-                                if (kv_Value == null) //上面Invoke时, 是调用2个参数的构造方法的,所以,这里要修正HasValue值
-                                {
-                                    if (!kv_Value_inKvSource)//因为默认值是true,所以,只要修改值为false的情况就可以了
+                                    if (dictUnique[pInfo.Name].Contains(value))
                                     {
-                                        typeKV.GetProperty("HasValue").SetValue(modelValue, false);
+                                        string exception_msg = string.IsNullOrEmpty(((UniqueAttribute)uniqueAttrInfo).ErrorMessage)
+                                            ? $@"属性'{pInfo.Name}'的值:'{value}'出现了重复"
+                                            : ((UniqueAttribute)uniqueAttrInfo).ErrorMessage;
+                                        throw new ArgumentException(exception_msg, pInfo.Name);
                                     }
+                                    dictUnique[pInfo.Name].Add(value);
                                 }
-                                if (haveState)
+                            }
+                            if (dictCustomerModelType.ContainsKey(pInfo))
+                            {
+                                var p = dictCustomerModelType[pInfo];
+                                if (p.HasAttribute)
                                 {
-                                    typeKV.GetProperty("HasState").SetValue(modelValue, true);
-                                    typeKV.GetField("_state", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(modelValue, state);
+                                    p.RunAttribute(item, pInfo, model, value);
                                 }
-
-                                pInfo.SetValue(model, modelValue);
                             }
                         }
+
                         #endregion
                     }
+                    #endregion
+
                     try
                     {
                         //验证继承 System.ComponentModel.DataAnnotations 的那些特性们
@@ -2490,11 +2420,16 @@ namespace EPPlusExtensions
                             }
                         }
 
-                        //赋值, 注:遇到 KV<,> 类型的统一不处理
-                        if (!pInfo.PropertyType.HasImplementedRawGeneric(typeof(KV<,>)))
+
+                        if (ICustomersModelTypeList.Contains(pInfo))
+                        {
+                            dictCustomerModelType[pInfo].SetModelValue(pInfo, model, value);
+                        }
+                        else
                         {
                             GetList_SetModelValue(pInfo, model, value);
                         }
+
                     }
                     catch (ArgumentException e)
                     {
@@ -2528,12 +2463,13 @@ namespace EPPlusExtensions
 
                     foreach (var excelCellInfo in colNameList)
                     {
-                        if (!GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All, out var propName))
+                        string propName = GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All);
+                        if (string.IsNullOrEmpty(propName))
                         {
                             continue;
                         }
 
-                        var pInfo = GetPropertyInfo(cache_PropertyInfo, propName, type);
+                        var pInfo = GetPropertyInfo(propName, type);
                         var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
 #if DEBUG
@@ -2697,21 +2633,29 @@ namespace EPPlusExtensions
             toDBC = (readCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
         }
 
-        private static PropertyInfo GetPropertyInfo(Dictionary<string, PropertyInfo> cache_PropertyInfo, string propName, Type type)
+
+        private static Dictionary<Type, Dictionary<string, PropertyInfo>> _Cache_GetPropertyInfo = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
+
+        private static PropertyInfo GetPropertyInfo(string propName, Type type)
         {
+            if (!_Cache_GetPropertyInfo.ContainsKey(type))
+            {
+                _Cache_GetPropertyInfo.Add(type, new Dictionary<string, PropertyInfo>());
+            }
+
+            var cache_PropertyInfo = _Cache_GetPropertyInfo[type];
+
             if (!cache_PropertyInfo.ContainsKey(propName))
             {
-                var pInfo2 = type.GetProperty(propName);
-                if (pInfo2 == null) //防御式编程判断
+                var pInfo = type.GetProperty(propName);
+                if (pInfo == null) //防御式编程判断
                 {
                     throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
                 }
-
-                cache_PropertyInfo.Add(propName, pInfo2);
+                cache_PropertyInfo.Add(propName, pInfo);
             }
 
-            PropertyInfo pInfo = cache_PropertyInfo[propName];
-            return pInfo;
+            return cache_PropertyInfo[propName];
         }
 
         /// <summary>
@@ -2721,18 +2665,16 @@ namespace EPPlusExtensions
         /// <param name="dictExcelAddressCol"></param>
         /// <param name="dictExcelColumnIndexToModelPropName_All"></param>
         /// <param name="propName"></param>
-        /// <returns>是否get到了PropName</returns>
-        private static bool GetPropName(ExcelAddress ExcelAddress, Dictionary<ExcelAddress, int> dictExcelAddressCol,
-            Dictionary<int, string> dictExcelColumnIndexToModelPropName_All, out string propName)
+        /// <returns>PropName</returns>
+        private static string GetPropName(ExcelAddress ExcelAddress, Dictionary<ExcelAddress, int> dictExcelAddressCol,
+            Dictionary<int, string> dictExcelColumnIndexToModelPropName_All)
         {
             int excelCellInfo_ColIndex = dictExcelAddressCol[ExcelAddress];
             if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null) //不存在,跳过
             {
-                propName = null;
-                return false;
+                return null;
             }
-            propName = dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
-            return !string.IsNullOrEmpty(propName);
+            return dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
         }
 
         public static DataTable GetDataTable(GetExcelListArgs<DataRow> args)
@@ -4340,7 +4282,7 @@ namespace EPPlusExtensions
             }
             return false;
         }
-        
+
         #endregion
     }
 }

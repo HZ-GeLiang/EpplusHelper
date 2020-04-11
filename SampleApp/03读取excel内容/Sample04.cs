@@ -20,20 +20,13 @@ namespace SampleApp._03读取excel内容
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
 
-                //var propModel = new ExcelModel();
-                //var source = propModel.部门.CreateKVSource();
-                //AddSourceWay1_AddRange_CreateDataSource(propModel, source);
-                //AddSourceWay2_TryAdd_CreateDataTable(propModel, source);
-                //AddSourceWay3_AddRange_ByFunction(propModel, source);
-                //args.KVSource.Add(nameof(propModel.部门), source);
-                //args.KVSource.Add(nameof(propModel.部门评分), GetSource_部门评分(propModel));
-
                 var source = args.Model.部门.CreateKVSource();
                 AddSourceWay1_AddRange_CreateDataSource(args.Model, source);
                 AddSourceWay2_TryAdd_CreateDataTable(args.Model, source);
                 AddSourceWay3_AddRange_ByFunction(args.Model, source);
-                args.AddKVSourceByPropName(nameof(args.Model.部门), source);
-                args.AddKVSourceByPropName(nameof(args.Model.部门评分), GetSource_部门评分(args.Model));
+
+                args.Model.部门.KVSource = source;
+                args.Model.部门评分.KVSource = GetSource_部门评分(args.Model); 
                 var list = EPPlusHelper.GetList(args);
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");

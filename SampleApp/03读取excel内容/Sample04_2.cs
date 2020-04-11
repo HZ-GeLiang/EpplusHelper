@@ -19,7 +19,7 @@ namespace SampleApp._03读取excel内容
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
-                args.AddKVSourceByPropName(nameof(args.Model.部门评分), GetSource_部门评分(args.Model));
+                args.Model.部门评分.KVSource = GetSource_部门评分(args.Model);
                 var list = EPPlusHelper.GetList(args);
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
