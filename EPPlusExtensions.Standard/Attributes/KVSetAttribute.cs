@@ -318,13 +318,22 @@ namespace EPPlusExtensions.Attributes
             set { this._state = value; }
         }
 
-        //保存数据的一个变量
+        /// <summary>
+        /// 保存数据的一个变量
+        /// </summary>
         public KvSource<TKey, TValue> KVSource { get; set; }
 
         //接口部分
         public bool HasAttribute { get; set; } = true;
-        public Type AttributeType { get; set; } = typeof(KVSetAttribute);
 
+        /// <summary>
+        /// HasAttribute == true 才会调用
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="attribute"></param>
+        /// <param name="pInfo"></param>
+        /// <param name="model"></param>
+        /// <param name="value"></param>
         public void RunAttribute<T>(Attribute attribute, PropertyInfo pInfo, T model, string value) where T : class, new()
         {
             if (this.KVSource == null)
@@ -400,22 +409,7 @@ namespace EPPlusExtensions.Attributes
             //在RunAttribute已经完成了, 所以,这里是空的
         }
 
-
     }
-
-    /// <summary>
-    /// 用扩展方法原因: 1.因为当对象为Null时无法获得,2.类型推断
-    /// </summary>
-    public static class KVExtensionMethod
-    {
-        public static KvSource<TKey, TValue> CreateKVSource<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>();
-        public static Dictionary<TKey, TValue> CreateKVSourceData<TKey, TValue>(this KV<TKey, TValue> source) => new Dictionary<TKey, TValue>();
-        //public static Type GetKVSourceType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType();
-        public static Type GetKeyType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[0];
-        public static Type GetValueType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[1];
-
-    }
-
 
     public interface ICustomersModelType
     {
@@ -423,11 +417,6 @@ namespace EPPlusExtensions.Attributes
         /// 获得List<T>的时候,有没有Attribute处理
         /// </summary>
         bool HasAttribute { get; set; }
-
-        /// <summary>
-        /// 要处理的Attribute是哪个(目前只支持一个)
-        /// </summary>
-        Type AttributeType { get; set; }
 
         void RunAttribute<T>(Attribute attribute, PropertyInfo pInfo, T model, string value) where T : class, new();
         void SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new(); 
