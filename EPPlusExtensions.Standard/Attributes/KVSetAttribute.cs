@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic; 
-using System.Reflection; 
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace EPPlusExtensions.Attributes
 {
@@ -341,7 +341,7 @@ namespace EPPlusExtensions.Attributes
                 throw new ArgumentException($@"检测到KVSetAttribute,但是KVSource却未配置");
             }
 
-            var kvsetAttr = (KVSetAttribute)attribute; 
+            var kvsetAttr = (KVSetAttribute)attribute;
             var haveKvsource = this.KVSource.ContainsKey(value);
             if (kvsetAttr.MustInSet && !haveKvsource)
             {
@@ -351,57 +351,47 @@ namespace EPPlusExtensions.Attributes
                 throw new ArgumentException(errMsg, pInfo.Name);
             }
 
-            var kvsourceType = this.KVSource.GetType();
 
-            //var is_kvsourceType = kvsourceType.GetGenericTypeDefinition() == typeof(KVSource<,>);
-            var is_kvsourceType = kvsourceType.HasImplementedRawGeneric(typeof(KvSource<,>));
 
-            if (is_kvsourceType)
+            var prop_kvsource = (IKVSource)this.KVSource;
+
+            prop_kvsource.GetInfoByKey(value, out bool kv_Value_inKvSource, out object kv_Value,
+                out bool haveState, out object state);
+
+            if (!kv_Value_inKvSource && kvsetAttr.MustInSet)
             {
-                var kvsourceTypeTKey = kvsourceType.GenericTypeArguments[0];
-                //var kvsourceTypeTValue = kvsourceType.GenericTypeArguments[1];
-
-                var prop_kvsource = (IKVSource)this.KVSource;
-
-                prop_kvsource.GetInfoByKey(value, out bool kv_Value_inKvSource, out object kv_Value,
-                    out bool haveState, out object state);
-
-                if (!kv_Value_inKvSource && kvsetAttr.MustInSet)
-                {
-                    var msg = string.IsNullOrEmpty(kvsetAttr.ErrorMessage)
-                        ? $@"属性'{pInfo.Name}'值:'{value}'未在'{kvsetAttr.Name}'集合中出现."
-                        : EPPlusHelper.FormatAttributeMsg(pInfo.Name, model, value, kvsetAttr.ErrorMessage, kvsetAttr.Args);
-                    throw new ArgumentException(msg, pInfo.Name);
-                }
-
-                var typeKVArgs = pInfo.PropertyType.GetGenericArguments();
-                var typeKV = typeof(KV<,>).MakeGenericType(typeKVArgs);
-
-                object[] invokeConstructorParameters = new object[]
-                {
-                        kvsourceTypeTKey == typeof(string)
-                            ? value
-                            : Convert.ChangeType(value, kvsourceTypeTKey),
-                        kv_Value
-                };
-
-                var modelValue = typeKV.GetConstructor(typeKVArgs).Invoke(invokeConstructorParameters);
-
-                if (kv_Value == null) //上面Invoke时, 是调用2个参数的构造方法的,所以,这里要修正HasValue值
-                {
-                    if (!kv_Value_inKvSource)//因为默认值是true,所以,只要修改值为false的情况就可以了
-                    {
-                        typeKV.GetProperty("HasValue").SetValue(modelValue, false);
-                    }
-                }
-                if (haveState)
-                {
-                    typeKV.GetProperty("HasState").SetValue(modelValue, true);
-                    typeKV.GetField("_state", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(modelValue, state);
-                }
-
-                pInfo.SetValue(model, modelValue);
+                var msg = string.IsNullOrEmpty(kvsetAttr.ErrorMessage)
+                    ? $@"属性'{pInfo.Name}'值:'{value}'未在'{kvsetAttr.Name}'集合中出现."
+                    : EPPlusHelper.FormatAttributeMsg(pInfo.Name, model, value, kvsetAttr.ErrorMessage, kvsetAttr.Args);
+                throw new ArgumentException(msg, pInfo.Name);
             }
+
+            var typeKVArgs = pInfo.PropertyType.GetGenericArguments();
+            var typeKV = typeof(KV<,>).MakeGenericType(typeKVArgs);
+
+            object[] invokeConstructorParameters = new object[]
+            {
+                typeof(TKey) == typeof(string) ? value : Convert.ChangeType(value,typeof(TKey)),
+                kv_Value
+            };
+
+            var modelValue = typeKV.GetConstructor(typeKVArgs).Invoke(invokeConstructorParameters);
+
+            if (kv_Value == null) //上面Invoke时, 是调用2个参数的构造方法的,所以,这里要修正HasValue值
+            {
+                if (!kv_Value_inKvSource)//因为默认值是true,所以,只要修改值为false的情况就可以了
+                {
+                    typeKV.GetProperty("HasValue").SetValue(modelValue, false);
+                }
+            }
+            if (haveState)
+            {
+                typeKV.GetProperty("HasState").SetValue(modelValue, true);
+                typeKV.GetField("_state", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(modelValue, state);
+            }
+
+            pInfo.SetValue(model, modelValue);
+
         }
 
         public void SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
@@ -411,6 +401,19 @@ namespace EPPlusExtensions.Attributes
 
     }
 
+    /// <summary>
+    /// 用扩展方法原因: 1.因为当对象为Null时无法获得,2.类型推断
+    /// </summary>
+    public static class KVExtensionMethod
+    {
+        public static KvSource<TKey, TValue> CreateKVSource<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>();
+        public static Dictionary<TKey, TValue> CreateKVSourceData<TKey, TValue>(this KV<TKey, TValue> source) => new Dictionary<TKey, TValue>();
+        //public static Type GetKVSourceType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType();
+        public static Type GetKeyType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[0];
+        public static Type GetValueType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[1];
+    }
+
+
     public interface ICustomersModelType
     {
         /// <summary>
@@ -419,6 +422,6 @@ namespace EPPlusExtensions.Attributes
         bool HasAttribute { get; set; }
 
         void RunAttribute<T>(Attribute attribute, PropertyInfo pInfo, T model, string value) where T : class, new();
-        void SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new(); 
+        void SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new();
     }
 }
