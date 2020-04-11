@@ -105,30 +105,8 @@ namespace EPPlusExtensions
         /// <summary>
         /// 当GetList_NeedAllException 为 true 时, 错误消息只显示列信息
         /// </summary>
-        public bool GetList_ErrorMessage_OnlyShowColomn = false;
+        public bool GetList_ErrorMessage_OnlyShowColomn = false; 
 
-        /// <summary>
-        /// Key是属性名字,Value是该属性的类型的 KVSource&lt;TKey,TValue&gt;
-        /// </summary>
-        public KVSource KVSource = new KVSource();
-
-        public bool AddKVSourceByKey<TKey, TValue>(string key, KvSource<TKey, TValue> value)
-        {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException("key不能为空", nameof(key));
-            }
-            if (this.KVSource == null)
-            {
-                return false;
-            }
-            if (this.KVSource.ContainsKey(key))
-            {
-                return false;
-            }
-            this.KVSource.Add(key, value);
-            return true;
-        }
     }
 
 
@@ -151,14 +129,6 @@ namespace EPPlusExtensions
         /// 检查数据,如果数据正确,添加到 返回数据 集合中
         /// </summary>
         public Func<T, bool> WhereFilter { get; set; } = null;
-
-        public bool AddKVSourceByPropName<TKey, TValue>(string propName, KvSource<TKey, TValue> value)
-        {
-            var attrs = ReflectionHelper.GetAttributeForProperty<KVSetAttribute>(typeof(T), propName, true);
-            return attrs == null || attrs.Length != 1
-                ? this.AddKVSourceByKey(propName, value)
-                : this.AddKVSourceByKey(((KVSetAttribute)attrs[0]).Name, value);
-        }
 
     }
 

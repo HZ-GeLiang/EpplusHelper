@@ -29,15 +29,13 @@ namespace SampleApp._03读取excel内容
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
                 args.ScanLine = ScanLine.SingleLine;
 
-                var propModel = new ExcelModel();
-
                 //var dataSource = propModel.部门2.CreateKVSourceData();
                 //dataSource.Add("事业1部", 1);
                 //dataSource.Add("事业2部", 2);
                 //dataSource.Add("事业3部", null);
 
-                args.KVSource.Add(nameof(propModel.部门), propModel.部门.CreateKVSource().AddRange(dataSource));
-                args.KVSource.Add(nameof(propModel.部门2), propModel.部门2.CreateKVSource().AddRange(dataSource));
+                args.Model.部门.KVSource = args.Model.部门.CreateKVSource().AddRange(dataSource);
+                args.Model.部门2.KVSource = args.Model.部门2.CreateKVSource().AddRange(dataSource);
 
                 var list = EPPlusHelper.GetList(args);
 
