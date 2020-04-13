@@ -26,7 +26,7 @@ namespace SampleApp._03读取excel内容
                 AddSourceWay3_AddRange_ByFunction(args.Model, source);
 
                 args.Model.部门.KVSource = source;
-                args.Model.部门评分.KVSource = GetSource_部门评分(args.Model); 
+                args.Model.部门评分.KVSource = GetSource_部门评分(args.Model);
                 var list = EPPlusHelper.GetList(args);
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
@@ -248,15 +248,14 @@ namespace SampleApp._03读取excel内容
         {
 
             public string 序号 { get; set; }
-            //[KVSet("部门")] // 属性'部门'值:'事业1部'未在'部门'集合中出现
-            //[KVSet("部门", "部门在数据库中未找到")] //部门在数据库中未找到
-            [KVSet("部门", "'{0}'在数据库中未找到", "部门")]//'事业1部'在数据库中未找到
+
+            [KVSet("'{0}'在数据库中未找到", "部门")]//'事业1部'在数据库中未找到
             //[KVSet("部门", false, "'{0}'在数据库中未找到", "部门")]//'事业1部'在数据库中未找到
             public KV<string, long> 部门 { get; set; }
             public string 部门负责人 { get; set; }
             public string 部门负责人确认签字 { get; set; }
 
-            [KVSet("部门评分")]
+            [KVSet]
             public KV<long, string> 部门评分 { get; set; }
 
             public override bool Equals(object obj)

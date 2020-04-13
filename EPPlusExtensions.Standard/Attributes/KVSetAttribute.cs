@@ -11,11 +11,6 @@ namespace EPPlusExtensions.Attributes
     public sealed class KVSetAttribute : Attribute
     {
         /// <summary>
-        ///  集合名字
-        /// </summary>
-        public string Name { get; private set; }
-
-        /// <summary>
         /// 必须在集合中
         /// </summary>
         public bool MustInSet { get; private set; }
@@ -30,22 +25,19 @@ namespace EPPlusExtensions.Attributes
         /// </summary>
         public string[] Args { get; private set; }
 
-        public KVSetAttribute(string name)
-            : this(name, true, null, new string[0])
-        { }
+        public KVSetAttribute() : this(true, null, null) { }
 
-        public KVSetAttribute(string name, bool mustInSet)
-            : this(name, mustInSet, null, new string[0])
-        { }
 
-        public KVSetAttribute(string name, string errorMessage, params string[] args)
-            : this(name, true, errorMessage, args)
-        { }
+        public KVSetAttribute(bool mustInSet) : this(mustInSet, null, null) { }
 
-        public KVSetAttribute(string name, bool mustInSet, string errorMessage, params string[] args)
+        public KVSetAttribute(string errorMessage, params string[] args) : this(true, errorMessage, args) { }
+
+        private KVSetAttribute(bool mustInSet, string errorMessage, params string[] args)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-            this.Name = name;
+            if (args == null)
+            {
+                args = new string[0];
+            }
             this.MustInSet = mustInSet;
             this.ErrorMessage = errorMessage;
             this.Args = args;
@@ -324,6 +316,9 @@ namespace EPPlusExtensions.Attributes
         public KvSource<TKey, TValue> KVSource { get; set; }
 
         //接口部分
+        /// <summary>
+        /// 有对应的Attribute要搭配使用
+        /// </summary>
         public bool HasAttribute { get; set; } = true;
 
         /// <summary>
@@ -347,11 +342,9 @@ namespace EPPlusExtensions.Attributes
             {
                 var errMsg = !string.IsNullOrEmpty(kvsetAttr.ErrorMessage) && kvsetAttr.ErrorMessage.Length > 0
                       ? EPPlusHelper.FormatAttributeMsg(pInfo.Name, model, value, kvsetAttr.ErrorMessage, kvsetAttr.Args)
-                      : $@"属性'{pInfo.Name}'的值:'{value}'未找到对应的集合列表";
+                      : $@"属性'{pInfo.Name}'的值:'{value}'未在集合列表中出现";
                 throw new ArgumentException(errMsg, pInfo.Name);
             }
-
-
 
             var prop_kvsource = (IKVSource)this.KVSource;
 
@@ -361,7 +354,7 @@ namespace EPPlusExtensions.Attributes
             if (!kv_Value_inKvSource && kvsetAttr.MustInSet)
             {
                 var msg = string.IsNullOrEmpty(kvsetAttr.ErrorMessage)
-                    ? $@"属性'{pInfo.Name}'值:'{value}'未在'{kvsetAttr.Name}'集合中出现."
+                    ? $@"属性'{pInfo.Name}'的值:'{value}'未在集合中出现."
                     : EPPlusHelper.FormatAttributeMsg(pInfo.Name, model, value, kvsetAttr.ErrorMessage, kvsetAttr.Args);
                 throw new ArgumentException(msg, pInfo.Name);
             }
@@ -417,7 +410,7 @@ namespace EPPlusExtensions.Attributes
     public interface ICustomersModelType
     {
         /// <summary>
-        /// 获得List<T>的时候,有没有Attribute处理
+        /// 获得List的时候,有没有Attribute处理
         /// </summary>
         bool HasAttribute { get; set; }
 
