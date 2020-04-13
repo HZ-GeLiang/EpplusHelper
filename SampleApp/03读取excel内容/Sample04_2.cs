@@ -31,10 +31,10 @@ namespace SampleApp._03读取excel内容
         {
             var source = propModel.部门评分.CreateKVSource();
             source.Add(1, "非常不满意", "very bad");
-            source.Add(2, "不满意","bad");
-            source.Add(3, "一般","just so so");
-            source.Add(4, "满意","good");
-            source.Add(5, "非常满意","very good");
+            source.Add(2, "不满意", "bad");
+            source.Add(3, "一般", "just so so");
+            source.Add(4, "满意", "good");
+            source.Add(5, "非常满意", "very good");
             return source;
         }
 
@@ -45,7 +45,7 @@ namespace SampleApp._03读取excel内容
             public string 部门负责人 { get; set; }
             public string 部门负责人确认签字 { get; set; }
 
-            [KVSet("部门评分")]
+            [KVSet]
             public KV<long, string> 部门评分 { get; set; }
 
             public override bool Equals(object obj)
