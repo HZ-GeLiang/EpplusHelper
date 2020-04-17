@@ -4,12 +4,13 @@ using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
     public class Sample11
     {
-        public static IEnumerable<ExcelModel> Run()
+        public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample11.xlsx";
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -17,7 +18,7 @@ namespace SampleApp._03读取excel内容
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 3);
-                var list = EPPlusHelper.GetList(args);
+                var list = EPPlusHelper.GetList(args).ToList();
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
                 return list;

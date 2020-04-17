@@ -3,12 +3,13 @@ using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
     public class Sample02
     {
-        public static IEnumerable<ExcelModel> Run()
+        public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample02.xlsx";
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -17,7 +18,7 @@ namespace SampleApp._03读取excel内容
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
                 //args.ScanLine = ScanLine.MergeLine;//默认的
-                var list = EPPlusHelper.GetList(args);//输出的是看到的
+                var list = EPPlusHelper.GetList(args).ToList();//输出的是看到的
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
                 return list;

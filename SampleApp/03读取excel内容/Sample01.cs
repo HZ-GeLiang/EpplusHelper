@@ -3,12 +3,13 @@ using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
     public class Sample01
     {
-        public static IEnumerable<ExcelModel> Run()
+        public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample01.xlsx";
             var wsName = "逐行读取";
@@ -18,7 +19,7 @@ namespace SampleApp._03读取excel内容
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
                 args.ScanLine = ScanLine.SingleLine;
-                var list = EPPlusHelper.GetList(args);//excel的5,6行是合并的,用SingleLine读取,list的第4,5条数据内容是一样的
+                var list = EPPlusHelper.GetList(args).ToList();//excel的5,6行是合并的,用SingleLine读取,list的第4,5条数据内容是一样的
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
                 return list;

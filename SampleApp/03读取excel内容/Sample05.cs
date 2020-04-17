@@ -4,12 +4,13 @@ using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
     public class Sample05
     {
-        public static IEnumerable<ExcelModel> Run()
+        public static List<ExcelModel> Run()
         {
             var dataSource = new Dictionary<string, long?>();
             dataSource.Add("事业1部", 1);
@@ -37,7 +38,7 @@ namespace SampleApp._03读取excel内容
                 args.Model.部门.KVSource = args.Model.部门.CreateKVSource().AddRange(dataSource);
                 args.Model.部门2.KVSource = args.Model.部门2.CreateKVSource().AddRange(dataSource);
 
-                var list = EPPlusHelper.GetList(args);
+                var list = EPPlusHelper.GetList(args).ToList();
 
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");

@@ -3,12 +3,13 @@ using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
     public class Sample08
     {
-        public static IEnumerable<ExcelModel> Run()
+        public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample08.xlsx";
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -18,7 +19,7 @@ namespace SampleApp._03读取excel内容
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
                 args.POCO_Property_AutoRename_WhenRepeat = true;
                 args.POCO_Property_AutoRenameFirtName_WhenRepeat = false;
-                var list = EPPlusHelper.GetList(args);
+                var list = EPPlusHelper.GetList(args).ToList();
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
                 return list;

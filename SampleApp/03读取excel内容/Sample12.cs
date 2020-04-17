@@ -4,6 +4,7 @@ using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
@@ -15,37 +16,29 @@ namespace SampleApp._03读取excel内容
         }
         public static List<T> Run<T>() where T : class, new()
         {
-            //List<T> excelList = new List<T>();
-            var errorMsg = EPPlusHelper.GetListErrorMsg<T>(() =>
+            string filePath = @"模版\03读取excel内容\Sample12.xlsx";
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
-                string filePath = @"模版\03读取excel内容\Sample12.xlsx";
-                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var excelPackage = new ExcelPackage(fs))
+                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
+                var args = EPPlusHelper.GetExcelListArgsDefault<T>(ws, 3);
+                args.GetList_NeedAllException = true; //默认false
+                args.GetList_ErrorMessage_OnlyShowColomn = true; //默认false
+                //true:  => 参数名: 姓名(B列)
+                //false: => 参数名: 姓名(B3,B4,B5)
+
+                var errorMsg = EPPlusHelper.GetListErrorMsg(() => EPPlusHelper.GetList(args).ToList(), out var excelList);
+
+                if (errorMsg?.Length > 0)
                 {
-                    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
-                    var args = EPPlusHelper.GetExcelListArgsDefault<T>(ws, 3);
-                    args.GetList_NeedAllException = true; //默认false
-                    args.GetList_ErrorMessage_OnlyShowColomn = true; //默认false
-                                                                     //true:  => 参数名: 姓名(B列)
-                                                                     //false: => 参数名: 姓名(B3,B4,B5)
-
-                    var excelList = EPPlusHelper.GetList(args);
-                    ObjectDumper.Write(excelList);
-                    Console.WriteLine("读取完毕");
-                    return excelList;
+                    Console.WriteLine(errorMsg);
+                    throw new Exception(errorMsg);
                 }
-            }, out var list);
+                ObjectDumper.Write(excelList);
+                Console.WriteLine("读取完毕");
 
-            if (errorMsg?.Length > 0)
-            {
-                Console.WriteLine(errorMsg);
-                throw new Exception(errorMsg);
+                return excelList;
             }
-            else
-            {
-                return list;
-            }
-
         }
 
         public class ExcelModel
