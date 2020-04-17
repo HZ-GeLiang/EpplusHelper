@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
     public class Sample04
     {
-        public static IEnumerable<ExcelModel> Run()
+        public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample04.xlsx";
             var wsName = "合并行读取";
@@ -27,7 +28,7 @@ namespace SampleApp._03读取excel内容
 
                 args.Model.部门.KVSource = source;
                 args.Model.部门评分.KVSource = GetSource_部门评分(args.Model);
-                var list = EPPlusHelper.GetList(args);
+                var list = EPPlusHelper.GetList(args).ToList();
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
                 return list;

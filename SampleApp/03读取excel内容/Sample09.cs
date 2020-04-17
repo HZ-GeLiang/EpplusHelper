@@ -3,6 +3,7 @@ using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
@@ -52,7 +53,7 @@ namespace SampleApp._03读取excel内容
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
-                var list = EPPlusHelper.GetList<ExcelModel>(ws, 2);
+                var list = EPPlusHelper.GetList<ExcelModel>(ws, 2).ToList();
                 ObjectDumper.Write(list);
                 Console.WriteLine($@"{wsName}读取完毕");
                 return list;

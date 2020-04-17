@@ -10,7 +10,7 @@ namespace SampleApp.Test._03读取excel内容
         [TestMethod]
         public void TestMethod1()
         {
-            var excelList = Sample13.Run().ToList();
+            var excelList = Sample13.Run();
             var resultList = excelList.GetEmpty().ToList();
             resultList.Add(new Sample13.ExcelModel { A = 1, B = 1, C = 3, D = 4, E = 4, F = 6, G = 7 });
             resultList.Add(new Sample13.ExcelModel { A = 1, B = 1, C = 4, D = 4, E = 4, F = 7, G = 8 });

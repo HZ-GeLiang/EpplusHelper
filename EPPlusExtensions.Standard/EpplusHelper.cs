@@ -1877,7 +1877,7 @@ namespace EPPlusExtensions
         /// <param name="ws"></param>
         /// <param name="rowIndex">数据起始行(不含列名),从1开始</param>
         /// <returns></returns>
-        public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex) where T : class, new()
+        public static IEnumerable<T> GetList<T>(ExcelWorksheet ws, int rowIndex) where T : class, new()
         {
             var args = EPPlusHelper.GetExcelListArgsDefault<T>(ws, rowIndex);
             return EPPlusHelper.GetList<T>(args);
@@ -1892,7 +1892,7 @@ namespace EPPlusExtensions
         /// <param name="everyCellReplaceOldValue"></param>
         /// <param name="everyCellReplaceNewValue"></param>
         /// <returns></returns>
-        public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellReplaceOldValue, string everyCellReplaceNewValue) where T : class, new()
+        public static IEnumerable<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellReplaceOldValue, string everyCellReplaceNewValue) where T : class, new()
         {
             var args = GetExcelListArgsDefault<T>(ws, rowIndex);
             if (everyCellReplaceOldValue != null && everyCellReplaceNewValue != null)
@@ -1902,7 +1902,7 @@ namespace EPPlusExtensions
             return GetList<T>(args);
         }
 
-        public static List<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellPrefix, Dictionary<string, string> everyCellReplace) where T : class, new()
+        public static IEnumerable<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellPrefix, Dictionary<string, string> everyCellReplace) where T : class, new()
         {
             var args = GetExcelListArgsDefault<T>(ws, rowIndex);
             args.EveryCellPrefix = everyCellPrefix;
@@ -1917,7 +1917,7 @@ namespace EPPlusExtensions
             throw new Exception("不支持的ScanLine");
         }
 
-        public static List<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
+        public static IEnumerable<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
             var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值, 放在第一行还是因为 单元测试 03.02的示例
 
@@ -2213,12 +2213,12 @@ namespace EPPlusExtensions
             }
 
             #endregion
- 
+
             var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
                 ? GetExcelListArgs.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
 
-             
+
             #region 初始化内置Attribute 和 检查模型属性
 
             var dictUnique = new Dictionary<string, List<string>>();//属性的 UniqueAttribute 的内置实现
@@ -2265,7 +2265,7 @@ namespace EPPlusExtensions
 #endif
             Func<object[], object> deletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
 
-            List<T> list = new List<T>();
+
             var dynamicCalcStep = DynamicCalcStep(args.ScanLine);
             Exception exception = null;
             int row = args.DataRowStart;
@@ -2537,7 +2537,10 @@ namespace EPPlusExtensions
 
                 if (args.WhereFilter == null || args.WhereFilter.Invoke(model))
                 {
-                    list.Add(model);
+                    if (args.HavingFilter == null || args.HavingFilter.Invoke(model))
+                    {
+                        yield return model;
+                    }
                 }
 
             }
@@ -2622,7 +2625,6 @@ namespace EPPlusExtensions
 
             #endregion
 
-            return args.HavingFilter == null ? list : list.Where(item => args.HavingFilter.Invoke(item)).ToList();
         }
 
         private static void ExcelCellInfoNeedTo(ReadCellValueOption readCellValueOption, out bool toTrim, out bool toMergeLine,
