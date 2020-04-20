@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using EPPlusExtensions.Exceptions;
+using EPPlusExtensions.CustomModelType;
 
 namespace EPPlusExtensions
 {

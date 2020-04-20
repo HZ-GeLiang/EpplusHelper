@@ -4,6 +4,7 @@ using SampleApp._03读取excel内容;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EPPlusExtensions.CustomModelType;
 
 namespace SampleApp.Test._03读取excel内容
 {

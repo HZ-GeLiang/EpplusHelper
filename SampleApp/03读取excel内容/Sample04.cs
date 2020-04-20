@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using EPPlusExtensions.CustomModelType;
 
 namespace SampleApp._03读取excel内容
 {

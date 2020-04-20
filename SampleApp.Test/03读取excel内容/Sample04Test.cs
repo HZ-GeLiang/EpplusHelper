@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SampleApp._03读取excel内容;
 using System.Linq;
+using EPPlusExtensions.CustomModelType;
 
 namespace SampleApp.Test._03读取excel内容
 {
