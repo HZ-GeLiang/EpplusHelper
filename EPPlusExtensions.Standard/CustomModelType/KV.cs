@@ -1,72 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using EPPlusExtensions.Attributes;
 
-namespace EPPlusExtensions.Attributes
+namespace EPPlusExtensions.CustomModelType
 {
-    /// <summary>
-    /// 给KvSource搭配使用的.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public sealed class KVSetAttribute : Attribute
-    {
-        /// <summary>
-        /// 必须在集合中
-        /// </summary>
-        public bool MustInSet { get; private set; }
-
-        /// <summary>
-        /// 自定义的错误消息
-        /// </summary>
-        public string ErrorMessage { get; private set; }
-
-        /// <summary>
-        /// 错误消息的参数
-        /// </summary>
-        public string[] Args { get; private set; }
-
-        public KVSetAttribute() : this(true, null, null) { }
-
-
-        public KVSetAttribute(bool mustInSet) : this(mustInSet, null, null) { }
-
-        public KVSetAttribute(string errorMessage, params string[] args) : this(true, errorMessage, args) { }
-
-        private KVSetAttribute(bool mustInSet, string errorMessage, params string[] args)
-        {
-            if (args == null)
-            {
-                args = new string[0];
-            }
-            this.MustInSet = mustInSet;
-            this.ErrorMessage = errorMessage;
-            this.Args = args;
-        }
-
-        /// <summary>
-        /// Key是属性名字,Value是该属性的类型的 KVSource&lt;TKey,TValue&gt;
-        /// </summary>
-        public KVSource KVSource = new KVSource();
-
-        public bool AddKVSourceByKey<TKey, TValue>(string key, KvSource<TKey, TValue> value)
-        {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException("key不能为空", nameof(key));
-            }
-            if (this.KVSource == null)
-            {
-                return false;
-            }
-            if (this.KVSource.ContainsKey(key))
-            {
-                return false;
-            }
-            this.KVSource.Add(key, value);
-            return true;
-        }
-    }
-
     /// <summary>
     /// 为GetList()方法专门设计的,因为GetList中KvSource的方法调用不到,需要通过父类来调用.
     /// </summary>
@@ -240,7 +181,6 @@ namespace EPPlusExtensions.Attributes
 
     }
 
-
     /// <summary>
     /// model 的一个类型
     /// </summary>
@@ -331,11 +271,14 @@ namespace EPPlusExtensions.Attributes
         /// <param name="value"></param>
         public void RunAttribute<T>(Attribute attribute, PropertyInfo pInfo, T model, string value) where T : class, new()
         {
+            if (!(attribute is KVSetAttribute))
+            {
+                return;
+            }
             if (this.KVSource == null)
             {
                 throw new ArgumentException($@"检测到KVSetAttribute,但是KVSource却未配置");
             }
-
             var kvsetAttr = (KVSetAttribute)attribute;
             var haveKvsource = this.KVSource.ContainsKey(value);
             if (kvsetAttr.MustInSet && !haveKvsource)
@@ -406,15 +349,67 @@ namespace EPPlusExtensions.Attributes
         public static Type GetValueType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[1];
     }
 
-
-    public interface ICustomersModelType
+    /// <summary>
+    /// 给KvSource搭配使用的.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class KVSetAttribute : Attribute
     {
         /// <summary>
-        /// 获得List的时候,有没有Attribute处理
+        /// 必须在集合中
         /// </summary>
-        bool HasAttribute { get; set; }
+        public bool MustInSet { get; private set; }
 
-        void RunAttribute<T>(Attribute attribute, PropertyInfo pInfo, T model, string value) where T : class, new();
-        void SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new();
+        /// <summary>
+        /// 自定义的错误消息
+        /// </summary>
+        public string ErrorMessage { get; private set; }
+
+        /// <summary>
+        /// 错误消息的参数
+        /// </summary>
+        public string[] Args { get; private set; }
+
+        public KVSetAttribute() : this(true, null, null) { }
+
+
+        public KVSetAttribute(bool mustInSet) : this(mustInSet, null, null) { }
+
+        public KVSetAttribute(string errorMessage, params string[] args) : this(true, errorMessage, args) { }
+
+        private KVSetAttribute(bool mustInSet, string errorMessage, params string[] args)
+        {
+            if (args == null)
+            {
+                args = new string[0];
+            }
+            this.MustInSet = mustInSet;
+            this.ErrorMessage = errorMessage;
+            this.Args = args;
+        }
+
+        /// <summary>
+        /// Key是属性名字,Value是该属性的类型的 KVSource&lt;TKey,TValue&gt;
+        /// </summary>
+        public KVSource KVSource = new KVSource();
+
+        public bool AddKVSourceByKey<TKey, TValue>(string key, KvSource<TKey, TValue> value)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException("key不能为空", nameof(key));
+            }
+            if (this.KVSource == null)
+            {
+                return false;
+            }
+            if (this.KVSource.ContainsKey(key))
+            {
+                return false;
+            }
+            this.KVSource.Add(key, value);
+            return true;
+        }
     }
+
 }
