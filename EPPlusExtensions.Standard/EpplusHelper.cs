@@ -2667,7 +2667,6 @@ namespace EPPlusExtensions
         /// <param name="ExcelAddress"></param>
         /// <param name="dictExcelAddressCol"></param>
         /// <param name="dictExcelColumnIndexToModelPropName_All"></param>
-        /// <param name="propName"></param>
         /// <returns>PropName</returns>
         private static string GetPropName(ExcelAddress ExcelAddress, Dictionary<ExcelAddress, int> dictExcelAddressCol,
             Dictionary<int, string> dictExcelColumnIndexToModelPropName_All)

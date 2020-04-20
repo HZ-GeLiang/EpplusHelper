@@ -34,12 +34,12 @@ namespace SampleApp
 
             //SampleApp._02填充图片.Sample01.Run(); //我也没搞懂怎么使用,计划任务
 
-            //SampleApp._03读取excel内容.Sample01.Run();
+            SampleApp._03读取excel内容.Sample01.Run();
             //SampleApp._03读取excel内容.Sample02.Run();
             //SampleApp._03读取excel内容.Sample03.Run();
-             SampleApp._03读取excel内容.Sample04.Run();
+            //SampleApp._03读取excel内容.Sample04.Run();
             //SampleApp._03读取excel内容.Sample04_2.Run();
-           // SampleApp._03读取excel内容.Sample05.Run();
+            //SampleApp._03读取excel内容.Sample05.Run();
             //SampleApp._03读取excel内容.Sample06.Run();
             //SampleApp._03读取excel内容.Sample07.Run();
             //SampleApp._03读取excel内容.Sample08.Run();
