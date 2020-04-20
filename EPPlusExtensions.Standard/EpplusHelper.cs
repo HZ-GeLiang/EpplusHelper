@@ -2397,10 +2397,10 @@ namespace EPPlusExtensions
                             }
                             if (dictCustomerModelType.ContainsKey(pInfo))
                             {
-                                var p = dictCustomerModelType[pInfo];
-                                if (p.HasAttribute)
+                                var customerModelType = dictCustomerModelType[pInfo];
+                                if (customerModelType.HasAttribute)
                                 {
-                                    p.RunAttribute(item, pInfo, model, value);
+                                    customerModelType.RunAttribute(item, pInfo, model, value);
                                 }
                             }
                         }
