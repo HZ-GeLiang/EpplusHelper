@@ -285,7 +285,7 @@ namespace EPPlusExtensions.CustomModelType
             {
                 var errMsg = !string.IsNullOrEmpty(kvsetAttr.ErrorMessage) && kvsetAttr.ErrorMessage.Length > 0
                       ? EPPlusHelper.FormatAttributeMsg(pInfo.Name, model, value, kvsetAttr.ErrorMessage, kvsetAttr.Args)
-                      : $@"属性'{pInfo.Name}'的值:'{value}'未在集合列表中出现";
+                      : $@"属性'{pInfo.Name}'的值:'{value}'未在集合列表中出现.";
                 throw new ArgumentException(errMsg, pInfo.Name);
             }
 
