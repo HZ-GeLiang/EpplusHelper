@@ -1920,6 +1920,22 @@ namespace EPPlusExtensions
 
         public static IEnumerable<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
+            string GetValue(PropertyInfo pInfo, int row1, int col)
+            {
+                //string value;
+                //if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
+                //{
+                //    //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
+                //    value = GetMergeCellText(args.ws, row1, col);
+                //}
+                //else
+                //{
+                //    value = GetMergeCellText(args.ws, row1, col);
+                //}
+                //return value;
+                return GetMergeCellText(args.ws, row1, col);
+            }
+
             var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值, 放在第一行还是因为 单元测试 03.02的示例
 
             void CheCk()
@@ -2299,21 +2315,7 @@ namespace EPPlusExtensions
 
                     var pInfo = GetPropertyInfo(propName, type);
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
-
-#if DEBUG
-                    string value;
-                    if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
-                    {
-                        //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
-                        value = GetMergeCellText(args.ws, row, col);
-                    }
-                    else
-                    {
-                        value = GetMergeCellText(args.ws, row, col);
-                    }
-#else
-                    string value =  GetMegerCellText(ws, row, col);
-#endif
+                    var value = GetValue(pInfo, row, col);
 
                     #region 全局处理值,如特性
                     bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
@@ -2458,9 +2460,10 @@ namespace EPPlusExtensions
                     }
                     var isEmptyLine = true;
 
-                    #region 修改 isEmptyLine  代码来自 lable1:遍历属性
+                    #region 修改 isEmptyLine   
 
-                    //上面代码(lable1:遍历属性) 对 isNoDataAllColumn 的判断逻辑有问题. 即:Excel第一列(Sequence)对应的Model是Int类型, 且Sequence忘记填写时,变量isNoDataAllColumn的值则是错误的.
+                    //isNoDataAllColumn 的判断逻辑有问题.
+                    //上面代码遇到异常后就会break,对后面的列是不会判断的,所以,这里需要对所有列进行为空判断 
 
                     foreach (var excelCellInfo in colNameList)
                     {
@@ -2472,22 +2475,7 @@ namespace EPPlusExtensions
 
                         var pInfo = GetPropertyInfo(propName, type);
                         var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
-
-#if DEBUG
-                        string value;
-                        if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
-                        {
-                            //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
-                            value = GetMergeCellText(args.ws, row, col);
-                        }
-                        else
-                        {
-                            value = GetMergeCellText(args.ws, row, col);
-                        }
-#else
-                        string value =  GetMegerCellText(ws, row, col);
-#endif
-
+                        var value = GetValue(pInfo, row, col);
                         if (value.Length > 0)
                         {
                             isEmptyLine = false;
@@ -2641,6 +2629,7 @@ namespace EPPlusExtensions
 
         private static PropertyInfo GetPropertyInfo(string propName, Type type)
         {
+            if (propName == null) throw new ArgumentNullException(nameof(propName));
             if (!_Cache_GetPropertyInfo.ContainsKey(type))
             {
                 _Cache_GetPropertyInfo.Add(type, new Dictionary<string, PropertyInfo>());
