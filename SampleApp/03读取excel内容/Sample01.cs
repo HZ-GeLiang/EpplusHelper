@@ -18,7 +18,7 @@ namespace SampleApp._03读取excel内容
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
-                args.ScanLine = ScanLine.SingleLine;
+                args.ScanLine = ScanLine.SingleLine; 
                 var list = EPPlusHelper.GetList(args).ToList();//excel的5,6行是合并的,用SingleLine读取,list的第4,5条数据内容是一样的
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
@@ -28,7 +28,7 @@ namespace SampleApp._03读取excel内容
 
         public class ExcelModel
         {
-            public string 序号 { get; set; }
+            public int 序号 { get; set; }
             public string 部门 { get; set; }
             public string 部门负责人 { get; set; }
             public string 部门负责人确认签字 { get; set; }

@@ -12,9 +12,13 @@ namespace SampleApp._03读取excel内容
     {
         public static void Run()
         {
-            Run<ExcelModel2>();
+            Run(true);
         }
-        public static List<T> Run<T>() where T : class, new()
+        public static void Run(bool OnlyShowColomn)
+        {
+            Run<ExcelModel2>(OnlyShowColomn);
+        }
+        public static List<T> Run<T>(bool OnlyShowColomn) where T : class, new()
         {
             //List<T> excelList = new List<T>();
             var errorMsg = EPPlusHelper.GetListErrorMsg<T>(() =>
@@ -26,7 +30,7 @@ namespace SampleApp._03读取excel内容
                     var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
                     var args = EPPlusHelper.GetExcelListArgsDefault<T>(ws, 3);
                     args.GetList_NeedAllException = true; //默认false
-                    args.GetList_ErrorMessage_OnlyShowColomn = true; //默认false
+                    args.GetList_ErrorMessage_OnlyShowColomn = OnlyShowColomn; //默认false
                     //true:  => 参数名: 姓名(B列)
                     //false: => 参数名: 姓名(B3,B4,B5)
 
