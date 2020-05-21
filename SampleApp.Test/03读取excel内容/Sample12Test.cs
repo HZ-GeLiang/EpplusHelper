@@ -51,7 +51,8 @@ namespace SampleApp.Test._03读取excel内容
             }
             catch (Exception ex)
             {
-//                Assert.AreEqual(ex.Message, $@"程序报错:Message:无效的数字
+//                Assert.AreEqual(ex.Message, $@"程序报错:Message:
+//无效的数字
 //参数名: 姓名(B列)
 //");
                 Assert.AreEqual(ex.Message, $@"程序报错:Message:
@@ -67,7 +68,8 @@ namespace SampleApp.Test._03读取excel内容
             }
             catch (Exception ex)
             {
-//                Assert.AreEqual(ex.Message, $@"程序报错:Message:无效的数字
+//                Assert.AreEqual(ex.Message, $@"程序报错:Message:
+//无效的数字
 //参数名: 姓名(B3,B4,B5)
 //");
                 Assert.AreEqual(ex.Message, $@"程序报错:Message:
