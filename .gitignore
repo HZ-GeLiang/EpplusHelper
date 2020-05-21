@@ -70,3 +70,5 @@
 /packages
 /SampleApp.Test/bin/Debug
 /SampleApp.Test/obj/Debug
+/SampleApp.Test/bin/Release
+/SampleApp.Test/obj/Release

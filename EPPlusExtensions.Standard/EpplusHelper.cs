@@ -1920,20 +1920,20 @@ namespace EPPlusExtensions
 
         public static IEnumerable<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
-            string GetValue(PropertyInfo pInfo, int row1, int col)
+            string GetValue(PropertyInfo pInfo, int rowIndex, int colIndex)
             {
                 //string value;
                 //if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
                 //{
                 //    //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
-                //    value = GetMergeCellText(args.ws, row1, col);
+                //    value = GetMergeCellText(args.ws, rowIndex, colIndex);
                 //}
                 //else
                 //{
-                //    value = GetMergeCellText(args.ws, row1, col);
+                //    value = GetMergeCellText(args.ws, rowIndex, colIndex);
                 //}
                 //return value;
-                return GetMergeCellText(args.ws, row1, col);
+                return GetMergeCellText(args.ws, rowIndex, colIndex);
             }
 
             var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值, 放在第一行还是因为 单元测试 03.02的示例
@@ -2275,7 +2275,7 @@ namespace EPPlusExtensions
 
             ExcelCellInfoNeedTo(args.ReadCellValueOption, out var toTrim, out var toMergeLine, out var toDBC);
 
-            var allException = args.GetList_NeedAllException ? new List<Exception>() : null;
+            var allRowExceptions = args.GetList_NeedAllException ? new List<Exception>() : null;
 
 #if DEBUG
             var debugvar_whileCount = 0;
@@ -2284,7 +2284,6 @@ namespace EPPlusExtensions
 
 
             var dynamicCalcStep = DynamicCalcStep(args.ScanLine);
-            Exception exception = null;
             int row = args.DataRowStart;
 
             while (true)//遍历行, 异常或者出现空行,触发break;
@@ -2303,7 +2302,7 @@ namespace EPPlusExtensions
                 //T model = ctor.Invoke(new object[] { }) as T; //返回的是object,需要强转  1.2-2.1秒
                 //T model = type.CreateInstance<T>();//3秒+
                 T model = (T)deletgateCreateInstance(null); //上面的方法给拆开来 . 1.1-1.4
-
+                var thisRowExceptions = new List<Exception>();
                 foreach (var excelCellInfo in colNameList)
                 {
                     string propName = GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol,
@@ -2411,6 +2410,7 @@ namespace EPPlusExtensions
                     }
                     #endregion
 
+                    Exception exception = null;
                     try
                     {
                         //验证继承 System.ComponentModel.DataAnnotations 的那些特性们
@@ -2437,59 +2437,25 @@ namespace EPPlusExtensions
                     catch (ArgumentException e)
                     {
                         exception = new ArgumentException($"无效的单元格:{new ExcelCellAddress(row, col).Address}", e);
-                        break;
                     }
                     catch (ValidationException e)
                     {
                         exception = new ArgumentException($"无效的单元格:{new ExcelCellAddress(row, col).Address}({pInfo.Name}:{e.Message})", e);
-                        //log $"无效的单元格:{new ExcelCellAddress(row, col).Address},'{model.GetType().FullName}'类型的'{pInfo.Name}'属性验证未通过:'{e.Message}'"
-                        break;
                     }
                     catch (Exception e)
                     {
                         exception = e;
-                        break;
+                    }
+                    finally
+                    {
+                        if (exception != null)
+                        {
+                            thisRowExceptions.Add(exception);
+
+                        }
                     }
                 }
 
-                if (isNoDataAllColumn)
-                {
-                    if (row == args.DataRowStart)//数据起始行是空行
-                    {
-                        throw new Exception("不要上传一份空的模版文件");
-                    }
-                    var isEmptyLine = true;
-
-                    #region 修改 isEmptyLine   
-
-                    //isNoDataAllColumn 的判断逻辑有问题.
-                    //上面代码遇到异常后就会break,对后面的列是不会判断的,所以,这里需要对所有列进行为空判断 
-
-                    foreach (var excelCellInfo in colNameList)
-                    {
-                        string propName = GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All);
-                        if (string.IsNullOrEmpty(propName))
-                        {
-                            continue;
-                        }
-
-                        var pInfo = GetPropertyInfo(propName, type);
-                        var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
-                        var value = GetValue(pInfo, row, col);
-                        if (value.Length > 0)
-                        {
-                            isEmptyLine = false;
-                            break;
-                        }
-                    }
-
-                    #endregion
-
-                    if (isEmptyLine)
-                    {
-                        break; //出现空行,读取模版结束
-                    }
-                }
 
                 //1.添加Step,准备读取下一行数据
                 if (dynamicCalcStep)
@@ -2509,18 +2475,21 @@ namespace EPPlusExtensions
                     row += 1;
                 }
 
+                if (isNoDataAllColumn)
+                {
+                    break; //出现空行,无视异常,结束while(true)循环,模版读取结束
+                }
+
                 //2.如果有异常,抛出异常,不对下一行进行读取
-                if (exception != null)
+                if (thisRowExceptions.Count > 0)
                 {
                     if (args.GetList_NeedAllException)
                     {
-                        allException.Add(exception);
-                        exception = null;
-                        continue;
+                        allRowExceptions.AddRange(thisRowExceptions);
                     }
                     else
                     {
-                        throw exception;
+                        throw thisRowExceptions[0];
                     }
                 }
 
@@ -2539,12 +2508,12 @@ namespace EPPlusExtensions
 #endif
 
             var keyWithExceptionMessageStart = "无效的单元格:";
-            if (allException != null && allException.Count > 0)
+            if (allRowExceptions != null && allRowExceptions.Count > 0)
             {
                 bool allExceptionIsArgumentException = true;
                 var errGroupMsg = new Dictionary<string, List<string>>();
 
-                foreach (var ex in allException)
+                foreach (var ex in allRowExceptions)
                 {
                     if (!(ex is ArgumentException))
                     {
@@ -2569,11 +2538,12 @@ namespace EPPlusExtensions
 
                 if (!allExceptionIsArgumentException)
                 {
-                    throw new AggregateException(allException);
+                    throw new AggregateException(allRowExceptions);
                 }
 
                 StringBuilder sb = new StringBuilder();
                 StringBuilder sb2 = new StringBuilder();
+
 
                 foreach (KeyValuePair<string, List<string>> msg in errGroupMsg)
                 {
@@ -2600,15 +2570,11 @@ namespace EPPlusExtensions
                             sb2.Append(excelCellAddress).Append(",");
                         }
                     }
-
-                    sb2.RemoveLastChar(',');
-                    if (sb2.Length > 0)
-                    {
-                        sb.Append($"({sb2}),");
-                    }
+                    sb.AppendLine($"({sb2.RemoveLastChar(',')}),");
                 }
+                //var argumentExceptionMsg = sb.RemoveLastChar(Environment.NewLine).RemoveLastChar(',').AppendLine().ToString();
+                var argumentExceptionMsg = sb.Replace(",", "", sb.Length - Environment.NewLine.Length - 1, 1).ToString();//与上面等价
 
-                var argumentExceptionMsg = sb.RemoveLastChar(',').ToString();
                 throw new ArgumentException(argumentExceptionMsg);
             }
 
@@ -4180,14 +4146,16 @@ namespace EPPlusExtensions
 
         private static string GetListErrorMsg(Exception e)
         {
-            StringBuilder sb = new StringBuilder("程序报错:");
-            if (e.Message != null && e.Message.Length > 0)
+            StringBuilder sb = new StringBuilder();
+            if (e?.Message?.Length > 0)
             {
-                sb.Append($@"Message:{e.Message}");
+                sb.AppendLine("程序报错:Message:");
+                sb.Append(e.Message);
             }
-            if (e.InnerException != null && e.InnerException.Message != null && e.InnerException.Message.Length > 0)
+            if (e?.InnerException?.Message?.Length > 0)
             {
-                sb.Append($@"InnerExceptionMessage:{e.InnerException.Message}");
+                sb.AppendLine("程序报错:InnerExceptionMessage:");
+                sb.Append(e.InnerException.Message);
             }
             var txt = sb.ToString();
             return txt;
