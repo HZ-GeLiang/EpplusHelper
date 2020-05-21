@@ -17,7 +17,7 @@ namespace SampleApp.Test._03读取excel内容
             {
                 序号 = 1,
                 姓名 = "娃娃",
-                班级 = "1班",
+                班级 = "1",
                 JanuaryStatistics = 4,
                 FebruaryStatistics = 7
             });
