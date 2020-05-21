@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using SampleApp._01填充数据;
@@ -21,8 +21,16 @@ namespace SampleApp
 
     class Program
     {
-        static void Main(string[] args1)
-        { 
+        static void Main(string[] args)
+        {
+            //            var txt = $@"无效的数字
+            //参数名: 姓名(B列),
+            //无效的数字
+            //参数名: 班级(C列),
+            //";
+            //            StringBuilder sb = new StringBuilder();
+            //            sb.Append(txt);
+            //          var ccccc=   sb.Replace(",", "", sb.Length - Environment.NewLine.Length - 1, 1).ToString();//与上面等价
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
@@ -34,7 +42,7 @@ namespace SampleApp
 
             //SampleApp._02填充图片.Sample01.Run(); //我也没搞懂怎么使用,计划任务
 
-            SampleApp._03读取excel内容.Sample01.Run();
+            //SampleApp._03读取excel内容.Sample01.Run();
             //SampleApp._03读取excel内容.Sample02.Run();
             //SampleApp._03读取excel内容.Sample03.Run();
             //SampleApp._03读取excel内容.Sample04.Run();
@@ -46,7 +54,7 @@ namespace SampleApp
             //SampleApp._03读取excel内容.Sample09.Run();
             //SampleApp._03读取excel内容.Sample10.Run();
             //SampleApp._03读取excel内容.Sample11.Run();
-            //SampleApp._03读取excel内容.Sample12.Run();
+            SampleApp._03读取excel内容.Sample12.Run();
             //SampleApp._03读取excel内容.Sample13.Run();
             //SampleApp._03读取excel内容.Sample14.Run();
             //SampleApp._03读取excel内容.Sample15.Run();
@@ -69,5 +77,5 @@ namespace SampleApp
     }
 
 
- 
+
 }

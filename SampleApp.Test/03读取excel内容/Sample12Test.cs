@@ -11,11 +11,32 @@ namespace SampleApp.Test._03读取excel内容
         [TestMethod]
         public void TestMethod1()
         {
-            var excelList = Sample12.Run<Sample12.ExcelModel>(true);
+            var excelList = Sample12.Run<Sample12.ExcelModel1>(true);
             var resultList = excelList.GetEmpty().ToList();
-            resultList.Add(new Sample12.ExcelModel { 序号 = 1, 姓名 = "娃娃", JanuaryStatistics = 4, FebruaryStatistics = 7 });
-            resultList.Add(new Sample12.ExcelModel { 序号 = 2, 姓名 = "菲菲", JanuaryStatistics = 5, FebruaryStatistics = 8 });
-            resultList.Add(new Sample12.ExcelModel { 序号 = 3, 姓名 = "佩琪", JanuaryStatistics = 6, FebruaryStatistics = 9 });
+            resultList.Add(new Sample12.ExcelModel1
+            {
+                序号 = 1,
+                姓名 = "娃娃",
+                班级 = "1班",
+                JanuaryStatistics = 4,
+                FebruaryStatistics = 7
+            });
+            resultList.Add(new Sample12.ExcelModel1
+            {
+                序号 = 2,
+                姓名 = "菲菲",
+                班级 = "2班",
+                JanuaryStatistics = 5,
+                FebruaryStatistics = 8
+            });
+            resultList.Add(new Sample12.ExcelModel1
+            {
+                序号 = 3,
+                姓名 = "佩琪",
+                班级 = "2班",
+                JanuaryStatistics = 6,
+                FebruaryStatistics = 9
+            });
             CollectionAssert.AreEqual(excelList, resultList);
         }
 
@@ -30,8 +51,15 @@ namespace SampleApp.Test._03读取excel内容
             }
             catch (Exception ex)
             {
-                Assert.AreEqual(ex.Message, $@"程序报错:Message:无效的数字
-参数名: 姓名(B列)");
+//                Assert.AreEqual(ex.Message, $@"程序报错:Message:无效的数字
+//参数名: 姓名(B列)
+//");
+                Assert.AreEqual(ex.Message, $@"程序报错:Message:
+无效的数字
+参数名: 姓名(B列),
+无效的数字
+参数名: 班级(C列)
+");
             }
             try
             {
@@ -39,8 +67,15 @@ namespace SampleApp.Test._03读取excel内容
             }
             catch (Exception ex)
             {
-                Assert.AreEqual(ex.Message, $@"程序报错:Message:无效的数字
-参数名: 姓名(B3,B4,B5)");
+//                Assert.AreEqual(ex.Message, $@"程序报错:Message:无效的数字
+//参数名: 姓名(B3,B4,B5)
+//");
+                Assert.AreEqual(ex.Message, $@"程序报错:Message:
+无效的数字
+参数名: 姓名(B3,B4,B5),
+无效的数字
+参数名: 班级(C4,C5)
+");
             }
 
         }

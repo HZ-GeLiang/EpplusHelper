@@ -20,8 +20,8 @@ namespace SampleApp._03读取excel内容
         }
         public static List<T> Run<T>(bool OnlyShowColomn) where T : class, new()
         {
-            //List<T> excelList = new List<T>();
-            var errorMsg = EPPlusHelper.GetListErrorMsg<T>(() =>
+            List<T> excelList = null;
+            var errorMsg = EPPlusHelper.GetListErrorMsg(() =>
             {
                 string filePath = @"模版\03读取excel内容\Sample12.xlsx";
                 using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -30,16 +30,16 @@ namespace SampleApp._03读取excel内容
                     var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");
                     var args = EPPlusHelper.GetExcelListArgsDefault<T>(ws, 3);
                     args.GetList_NeedAllException = true; //默认false
+
                     args.GetList_ErrorMessage_OnlyShowColomn = OnlyShowColomn; //默认false
                     //true:  => 参数名: 姓名(B列)
                     //false: => 参数名: 姓名(B3,B4,B5)
 
-                    var excelList = EPPlusHelper.GetList(args).ToList();
+                    excelList = EPPlusHelper.GetList(args).ToList();
                     ObjectDumper.Write(excelList);
                     Console.WriteLine("读取完毕");
-                    return excelList;
                 }
-            }, out var list);
+            });
 
             if (errorMsg?.Length > 0)
             {
@@ -48,25 +48,28 @@ namespace SampleApp._03读取excel内容
             }
             else
             {
-                return list;
+                return excelList;
             }
 
         }
 
-
-        public class ExcelModel
+        public class ExcelModelBase
         {
             public int 序号 { get; set; }
-            public string 姓名 { get; set; }
-            //public int 姓名 { get; set; } //要效果,取消注释
-
-            [ExcelColumnIndex(3)]
-            [DisplayExcelColumnName("请假次数")]
-            public int JanuaryStatistics { get; set; }
 
             [ExcelColumnIndex(4)]
             [DisplayExcelColumnName("请假次数")]
+            public int JanuaryStatistics { get; set; }
+
+            [ExcelColumnIndex(5)]
+            [DisplayExcelColumnName("请假次数")]
             public int FebruaryStatistics { get; set; }
+        }
+
+        public class ExcelModel1 : ExcelModelBase
+        {
+            public string 姓名 { get; set; }
+            public string 班级 { get; set; }
 
             public override bool Equals(object obj)
             {
@@ -75,10 +78,11 @@ namespace SampleApp._03读取excel内容
                     return false;
                 }
 
-                ExcelModel y = (ExcelModel)obj;
+                ExcelModel1 y = (ExcelModel1)obj;
 
                 return this.序号 == y.序号 &&
                        this.姓名 == y.姓名 &&
+                       this.班级 == y.班级 &&
                        this.JanuaryStatistics == y.JanuaryStatistics &&
                        this.FebruaryStatistics == y.FebruaryStatistics;
             }
@@ -88,25 +92,19 @@ namespace SampleApp._03读取excel内容
             {
                 return this.序号.GetHashCode() +
                        this.姓名.GetHashCode() +
+                       this.班级.GetHashCode() +
                        this.JanuaryStatistics.GetHashCode() +
                        this.FebruaryStatistics.GetHashCode();
             }
         }
 
-        public class ExcelModel2
+        /// <summary>
+        /// 单元测试用的
+        /// </summary>
+        public class ExcelModel2 : ExcelModelBase
         {
-            public string 序号 { get; set; }
-            //public string 姓名 { get; set; }
-            public int 姓名 { get; set; } //要效果,取消注释
-
-            [ExcelColumnIndex(3)]
-            [DisplayExcelColumnName("请假次数")]
-            public string JanuaryStatistics { get; set; }
-
-            [ExcelColumnIndex(4)]
-            [DisplayExcelColumnName("请假次数")]
-            public string FebruaryStatistics { get; set; }
-
+            public int 姓名 { get; set; }
+            public int 班级 { get; set; }
             public override bool Equals(object obj)
             {
                 if (obj == null || !obj.GetType().Equals(this.GetType()))
@@ -118,6 +116,7 @@ namespace SampleApp._03读取excel内容
 
                 return this.序号 == y.序号 &&
                        this.姓名 == y.姓名 &&
+                       this.班级 == y.班级 &&
                        this.JanuaryStatistics == y.JanuaryStatistics &&
                        this.FebruaryStatistics == y.FebruaryStatistics;
             }
@@ -127,6 +126,7 @@ namespace SampleApp._03读取excel内容
             {
                 return this.序号.GetHashCode() +
                        this.姓名.GetHashCode() +
+                       this.班级.GetHashCode() +
                        this.JanuaryStatistics.GetHashCode() +
                        this.FebruaryStatistics.GetHashCode();
             }
