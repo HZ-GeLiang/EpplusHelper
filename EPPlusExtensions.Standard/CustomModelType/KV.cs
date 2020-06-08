@@ -8,22 +8,22 @@ using EPPlusExtensions.Attributes;
 
 namespace EPPlusExtensions.CustomModelType
 {
-    /// <summary>
-    /// 为GetList()方法专门设计的,因为GetList中KvSource的方法调用不到,需要通过父类来调用.
-    /// </summary>
-    interface IKVSource
-    {
-        //bool ContainsKey(object key);
-        void GetInfoByKey(object key, out bool haveValue, out object value, out bool haveState, out object state);
+    ///// <summary>
+    ///// 为GetList()方法专门设计的,因为GetList中KvSource的方法调用不到,需要通过父类来调用.
+    ///// </summary>
+    //interface IKVSource
+    //{
+    //    //bool ContainsKey(object key);
+    //    void GetInfoByKey(object key, out bool haveValue, out object value, out bool haveState, out object state);
 
-        //ICollection<object> Keys();
-        //ICollection<object> Values();
+    //    //ICollection<object> Keys();
+    //    //ICollection<object> Values();
 
-        //void Clear();
-        //int Count();
-    }
+    //    //void Clear();
+    //    //int Count();
+    //}
 
-    public class KvSource<TKey, TValue> : IKVSource
+    public class KvSource<TKey, TValue>/* : IKVSource*/
     {
         private readonly IDictionary<TKey, TValue> _data;
         private readonly IDictionary<TKey, object> _dataState;
@@ -289,10 +289,7 @@ namespace EPPlusExtensions.CustomModelType
                 throw new ArgumentException(errMsg, pInfo.Name);
             }
 
-            var prop_kvsource = (IKVSource)this.KVSource;
-
-            prop_kvsource.GetInfoByKey(value, out bool kv_Value_inKvSource, out object kv_Value,
-                out bool haveState, out object state);
+            this.KVSource.GetInfoByKey(value, out bool kv_Value_inKvSource, out object kv_Value, out bool haveState, out object state);
 
             if (!kv_Value_inKvSource && kvsetAttr.MustInSet)
             {
