@@ -1938,7 +1938,7 @@ namespace EPPlusExtensions
 
             var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值, 放在第一行还是因为 单元测试 03.02的示例
 
-            void CheCk()
+            void Check()
             {
                 if (args.DataRowStart <= 0)
                 {
@@ -1998,7 +1998,7 @@ namespace EPPlusExtensions
 
             }
 
-            CheCk();
+            Check();
 
             Type type = typeof(T);
 
