@@ -9,16 +9,39 @@ using System.Windows.Forms;
 using EPPlusExtensions;
 using EPPlusTool;
 using EPPlusTool.MethodExtension;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace EPPlusHelperTool
 {
     public partial class Form1 : Form
     {
+        private IConfigurationBuilder _builder;
+        private IConfigurationRoot _configurationRoot;
+
         public Form1()
         {
             InitializeComponent();
-        }
+            _builder = new ConfigurationBuilder();
+            _builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            _configurationRoot = _builder.Build();
+            this.filePath1.Text = _configurationRoot["FilePath1"];
+            this.filePath2.Text = _configurationRoot["FilePath2"];
 
+        }
+        private void SaveAppSetting()
+        {
+            FileConfigurationSource source = ((Microsoft.Extensions.Configuration.Json.JsonConfigurationProvider)
+          _configurationRoot.Providers.First()).Source;
+            var fileProvider = (Microsoft.Extensions.FileProviders.PhysicalFileProvider)source.FileProvider;
+            var appsettingPath = System.IO.Path.Combine(fileProvider.Root, source.Path);
+            var appsettingTxt = System.IO.File.ReadAllText(appsettingPath);
+            dynamic appsettingObj = JsonConvert.DeserializeObject<dynamic>(appsettingTxt);
+            appsettingObj.FilePath1 = this.filePath1.Text.Trim();
+            appsettingObj.FilePath2 = this.filePath2.Text.Trim();
+            var appsettingTxtNew = JsonConvert.SerializeObject(appsettingObj).ToString();
+            System.IO.File.WriteAllText(appsettingPath, appsettingTxtNew);
+        }
         private void TextBoxDragDrop(object sender, DragEventArgs e)
         {
             string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
@@ -59,7 +82,7 @@ namespace EPPlusHelperTool
                     MessageBox.Show("路径不能为空");
                     return;
                 }
-
+                
                 var fileDir = Path.GetDirectoryName(filePath);
 
                 var dataConfigInfo = new List<ExcelDataConfigInfo>() { GetExcelDataConfigInfo() };
@@ -98,6 +121,7 @@ namespace EPPlusHelperTool
                 //{
                 //    WinFormHelper.OpenDirectory(fileDir);
                 //}
+                SaveAppSetting();
             });
         }
 
@@ -158,6 +182,7 @@ namespace EPPlusHelperTool
                 {
                     WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
                 }
+                SaveAppSetting();
             });
         }
 
@@ -224,6 +249,7 @@ namespace EPPlusHelperTool
 
                     MessageBox.Show("A与B比较:内容一致");
                 }
+                SaveAppSetting();
             });
         }
 
@@ -336,6 +362,7 @@ namespace EPPlusHelperTool
                     }
 
                 }
+                SaveAppSetting();
             });
         }
 
@@ -415,6 +442,7 @@ namespace EPPlusHelperTool
                     MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
                     WinFormHelper.OpenDirectory(fileDir);
                 }
+                SaveAppSetting();
             });
         }
 
@@ -429,7 +457,7 @@ namespace EPPlusHelperTool
                 MessageBox.Show("程序报错:" + e.Message);
             }
         }
-         
+
         private void CreateClass_Click(object sender, EventArgs e)
         {
             TryRun(() =>
@@ -468,6 +496,7 @@ namespace EPPlusHelperTool
                     //    WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
                     //}
                 }
+                SaveAppSetting();
 
             });
         }
@@ -511,6 +540,7 @@ namespace EPPlusHelperTool
                         MessageBox.Show($@"文件已经生成,在目录'{fileDir}'");
                     }
                 }
+                SaveAppSetting();
 
             });
         }
@@ -563,14 +593,14 @@ namespace EPPlusHelperTool
                     ms.Position = 0;
                     ms.Save(filePathNew);
                 }
-
+                SaveAppSetting();
             });
         }
-  
+
         private void dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             DataGridView dgv = (DataGridView)sender;
-            if (dgv.Rows.Count <= 0) return; 
+            if (dgv.Rows.Count <= 0) return;
             if (e.RowIndex == -1)
             {
                 return;//不知道-1 是标格的title 

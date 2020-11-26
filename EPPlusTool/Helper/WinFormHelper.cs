@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace EPPlusTool
 {
-    public class WinFormHelper
+    internal class WinFormHelper
     {
 
         /// <summary>
