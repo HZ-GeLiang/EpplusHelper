@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using EPPlusExtensions.Exceptions;
 using EPPlusExtensions.CustomModelType;
+using EPPlusExtensions.MethodExtension;
 
 namespace EPPlusExtensions
 {

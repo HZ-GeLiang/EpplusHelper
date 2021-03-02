@@ -1,14 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions.MethodExtension;
 
 namespace EPPlusExtensions.Helper
 {
-    public static class ExpressionTreeExtensions
+    internal static class ExpressionTreeExtensions
     {
         /// <summary>
         /// Create object.

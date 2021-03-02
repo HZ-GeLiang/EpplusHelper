@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace EPPlusExtensions
+namespace EPPlusExtensions.Helper
 {
     internal static class RegexHelper
     {
