@@ -1,4 +1,4 @@
-﻿namespace EPPlusHelperTool
+﻿namespace EPPlusTool
 {
     partial class Form1
     {
