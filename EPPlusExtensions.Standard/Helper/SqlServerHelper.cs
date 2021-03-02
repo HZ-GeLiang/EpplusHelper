@@ -1,12 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions.MethodExtension;
 
 namespace EPPlusExtensions.Helper
 {
-    public class SqlServerHelper
+    internal class SqlServerHelper
     {
         #region 一些默认的sql语句,SqlServer 下使用
 
