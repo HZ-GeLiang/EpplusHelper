@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace EPPlusTool
+namespace EPPlusTool.MethodExtension
 {
     internal static class StringExtensions
     {

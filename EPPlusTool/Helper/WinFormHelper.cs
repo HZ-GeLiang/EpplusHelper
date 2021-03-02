@@ -1,7 +1,7 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows.Forms;
 
-namespace EPPlusTool
+namespace EPPlusTool.Helper
 {
     internal class WinFormHelper
     {
