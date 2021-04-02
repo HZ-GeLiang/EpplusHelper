@@ -1,12 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace EPPlusExtensions.MethodExtension
 {
     internal static class EnumerableExtensions
     {
-        public static IEnumerable<TSource> GetRepeatBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        public static IEnumerable<TSource> GetRepeat<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
+            if (source == null)
+            {
+                throw new ArgumentException($@"{nameof(source)} can not be null");
+            }
+
             var hashSet = new HashSet<TKey>();
             foreach (var item in source)
             {

@@ -1,4 +1,4 @@
-﻿using EPPlusExtensions.Attributes;
+using EPPlusExtensions.Attributes;
 using EPPlusExtensions.Helper;
 using OfficeOpenXml;
 using System;
@@ -3304,7 +3304,7 @@ namespace EPPlusExtensions
                 #region 验证
 
                 sb.Clear();
-                foreach (var item in bodyConfig.Value.Option.ConfigExtra.GetRepeatBy(a => new { a.ConfigValue }))
+                foreach (var item in bodyConfig.Value.Option.ConfigExtra.GetRepeat(a => new { a.ConfigValue }))
                 {
                     sb.Append($@"{item.Address}-{item.ConfigValue},");
                 }
@@ -3314,7 +3314,7 @@ namespace EPPlusExtensions
                 }
 
                 sb.Clear();
-                foreach (var item in bodyConfig.Value.Option.ConfigLine.GetRepeatBy(a => new { a.ConfigValue }))
+                foreach (var item in bodyConfig.Value.Option.ConfigLine.GetRepeat(a => new { a.ConfigValue }))
                 {
                     sb.Append($@"{item.Address}-{item.ConfigValue},");
                 }
