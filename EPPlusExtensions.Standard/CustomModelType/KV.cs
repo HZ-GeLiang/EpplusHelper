@@ -37,6 +37,10 @@ namespace EPPlusExtensions.CustomModelType
         public KvSource(IDictionary<TKey, TValue> data) => this._data = data;
 
         public IDictionary<TKey, TValue> Data => this._data;
+
+        //原本是调用 GetState()获得的,新增通过索引获取 
+        public IDictionary<TKey, object> DataState => this._dataState;
+
         public ICollection<TKey> Keys => this._data.Keys;
 
         public ICollection<TValue> Values => this._data.Values;
@@ -127,6 +131,7 @@ namespace EPPlusExtensions.CustomModelType
         public void Clear()
         {
             this._data.Clear();
+            this._dataState.Clear();
         }
 
         public bool ContainsKey(TKey key)
