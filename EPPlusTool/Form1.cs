@@ -34,13 +34,19 @@ namespace EPPlusTool
           _configurationRoot.Providers.First()).Source;
             var fileProvider = (Microsoft.Extensions.FileProviders.PhysicalFileProvider)source.FileProvider;
             var appsettingPath = System.IO.Path.Combine(fileProvider.Root, source.Path);
-            var appsettingTxt = System.IO.File.ReadAllText(appsettingPath);
-            dynamic appsettingObj = JsonConvert.DeserializeObject<dynamic>(appsettingTxt);
-            appsettingObj.FilePath1 = this.filePath1.Text.Trim();
-            appsettingObj.FilePath2 = this.filePath2.Text.Trim();
-            var appsettingTxtNew = JsonConvert.SerializeObject(appsettingObj).ToString();
-            System.IO.File.WriteAllText(appsettingPath, appsettingTxtNew);
+
+            AppSettingHelper.SetAppSettingValue(appsettingPath, "FilePath1", this.filePath1.Text.Trim());
+            AppSettingHelper.SetAppSettingValue(appsettingPath, "FilePath2", this.filePath2.Text.Trim());
+
+
+            //var appsettingTxt = System.IO.File.ReadAllText(appsettingPath);
+            //dynamic appsettingObj = JsonConvert.DeserializeObject<dynamic>(appsettingTxt);
+            //appsettingObj.FilePath1 = this.filePath1.Text.Trim();
+            //appsettingObj.FilePath2 = this.filePath2.Text.Trim();
+            //var appsettingTxtNew = JsonConvert.SerializeObject(appsettingObj).ToString();
+            //System.IO.File.WriteAllText(appsettingPath, appsettingTxtNew);
         }
+
         private void TextBoxDragDrop(object sender, DragEventArgs e)
         {
             string path = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
@@ -81,7 +87,7 @@ namespace EPPlusTool
                     MessageBox.Show("路径不能为空");
                     return;
                 }
-                
+
                 var fileDir = Path.GetDirectoryName(filePath);
 
                 var dataConfigInfo = new List<ExcelDataConfigInfo>() { GetExcelDataConfigInfo() };
