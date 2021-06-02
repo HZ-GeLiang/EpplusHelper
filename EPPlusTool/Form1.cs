@@ -496,6 +496,10 @@ namespace EPPlusTool
                     {
                         MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
                     }
+                    else
+                    {
+                        MessageBox.Show($"未发现类属性,无法生成Class.");
+                    }
                     //if (!filePath.GetDirectoryName().Contains($@"\Desktop\"))
                     //{
                     //    WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
