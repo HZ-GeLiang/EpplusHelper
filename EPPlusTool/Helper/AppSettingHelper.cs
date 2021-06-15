@@ -253,52 +253,6 @@ namespace EPPlusTool.Helper
 
         }
 
-        public static bool CanImplicityToJToken(object obj)
-        {
-            var types = new Type[]
-            {
-                typeof(JToken)
-                ,typeof(DateTimeOffset)
-                ,typeof(DateTimeOffset?)
-                ,typeof(byte)
-                ,typeof(byte?)
-                ,typeof(byte[])
-                ,typeof(sbyte)
-                ,typeof(sbyte?)
-                ,typeof(bool)
-                ,typeof(bool?)
-                ,typeof(long)
-                ,typeof(long?)
-                ,typeof(DateTime)
-                ,typeof(DateTime?)
-                ,typeof(Decimal?)
-                ,typeof(Decimal)
-                ,typeof(double?)
-                ,typeof(double)
-                ,typeof(short)
-                ,typeof(short?)
-                ,typeof(ushort)
-                ,typeof(ushort?)
-                ,typeof(int)
-                ,typeof(int?)
-                ,typeof(float)
-                ,typeof(float?)
-                ,typeof(uint)
-                ,typeof(uint?)
-                ,typeof(ulong)
-                ,typeof(ulong?)
-                ,typeof(string)
-                ,typeof(Uri)
-                ,typeof(TimeSpan)
-                ,typeof(TimeSpan?)
-                ,typeof(Guid)
-                ,typeof(Guid?)
-            };
-
-            var isContains = types.Contains(obj.GetType());
-            return isContains;
-        }
-
         public static JObject GetJObject(string physicalPath)
         {
             if (physicalPath == null)
