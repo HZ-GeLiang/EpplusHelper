@@ -58,7 +58,16 @@ namespace EPPlusTool.Helper
         public static void OpenDirectory(string fileDirectoryName)
         {
             //MessageBox.Show($"文件已经生成,在目录'{fileDirectoryName}'");
-            System.Diagnostics.Process.Start(fileDirectoryName);
+
+            //这个会发生异常:System.ComponentModel.Win32Exception:“拒绝访问。”
+            //System.Diagnostics.Process.Start(fileDirectoryName); 
+            //改用这个
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            process.StartInfo.FileName = "explorer.exe";
+            process.StartInfo.Arguments = fileDirectoryName;
+            //process.StartInfo.FileName = "iexplore.exe";   //IE浏览器，可以更换
+            //process.StartInfo.Arguments = "http://www.baidu.com";
+            process.Start();
         }
 
         /// <summary>
