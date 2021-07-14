@@ -2700,7 +2700,7 @@ namespace EPPlusExtensions
                         #region 判断每个单元格的开头
                         if (args.EveryCellPrefix?.Length > 0)
                         {
-                            var indexof = value.IndexOf(args.EveryCellPrefix);
+                            var indexof = value.IndexOf(args.EveryCellPrefix, StringComparison.Ordinal);
                             if (indexof == -1)
                             {
                                 throw new ArgumentException($"单元格值有误:当前'{new ExcelCellPoint(row, col).R1C1}'单元格的值不是'" + args.EveryCellPrefix + "'开头的");
