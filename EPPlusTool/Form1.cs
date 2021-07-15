@@ -327,7 +327,7 @@ namespace EPPlusTool
                     MessageBox.Show("路径不能为空");
                     return;
                 }
-                if (string.Compare(".xlsx", System.IO.Path.GetExtension(filePath), true) != 0)
+                if (string.Compare(".xlsx", System.IO.Path.GetExtension(filePath), StringComparison.OrdinalIgnoreCase) != 0)
                 {
                     MessageBox.Show("只支持.xlsx文件");
                     return;
@@ -427,7 +427,7 @@ namespace EPPlusTool
                     MessageBox.Show("路径不能为空");
                     return;
                 }
-                if (string.Compare(".xlsx", System.IO.Path.GetExtension(filePath), true) != 0)
+                if (string.Compare(".xlsx", System.IO.Path.GetExtension(filePath), StringComparison.OrdinalIgnoreCase) != 0)
                 {
                     MessageBox.Show("只支持.xlsx文件");
                     return;
