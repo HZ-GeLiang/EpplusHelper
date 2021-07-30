@@ -6,7 +6,7 @@
 		<NoWarn>CS1591</NoWarn>
 		<WarningLevel>4</WarningLevel>
 		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-		<!--<DocumentationFile>$(SolutionDir)ExpressionToWhereClause.Standard\ExpressionToWhereClause.Standard.xml</DocumentationFile>-->
+		<!--<DocumentationFile>$(SolutionDir)EPPlusExtensions.Standard\EPPlusExtensions.Standard.xml</DocumentationFile>-->
 		
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Authors>GeLiang</Authors>
