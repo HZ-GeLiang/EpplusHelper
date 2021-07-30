@@ -8,7 +8,8 @@
 		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
 		<!--<DocumentationFile>$(SolutionDir)EPPlusExtensions.Standard\EPPlusExtensions.Standard.xml</DocumentationFile>-->
 		
-		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Authors>GeLiang</Authors>
 		<Description>can easily work with EPPlus to generate Excel(.xlsx) and get excel data</Description>
 		<PackageProjectUrl>https://github.com/HZ-GeLiang/EpplusHelper</PackageProjectUrl>
@@ -17,7 +18,8 @@
 		<PackageTags>EPPlus, EPPlusHelper, Excel, ooxml</PackageTags>
 		<Company>GeLiang</Company>
 		<PackageReleaseNotes></PackageReleaseNotes>
-		<Version></Version>
+		<RepositoryType>GitHub</RepositoryType>
+		<Version>2.3.0</Version>
 		<LangVersion>9</LangVersion>
 	</PropertyGroup>
 
