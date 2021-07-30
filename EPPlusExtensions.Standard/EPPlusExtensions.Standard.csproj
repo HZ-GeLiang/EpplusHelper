@@ -1,42 +1,55 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0;netstandard2.1</TargetFrameworks>
-    <RootNamespace>EPPlusExtensions</RootNamespace>
-    <NoWarn>CS1591</NoWarn>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net45;netstandard2.0;netstandard2.1</TargetFrameworks>
+		<RootNamespace>EPPlusExtensions</RootNamespace>
+		<NoWarn>CS1591</NoWarn>
+		<WarningLevel>4</WarningLevel>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <DefineConstants>DEBUG;net45</DefineConstants>
-  </PropertyGroup>
+		
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<Authors>GeLiang</Authors>
+		<Description>can easily work with EPPlus to generate Excel(.xlsx) and get excel data</Description>
+		<PackageProjectUrl>https://github.com/HZ-GeLiang/EpplusHelper</PackageProjectUrl>
+		<PackageLicenseUrl>https://github.com/HZ-GeLiang/EpplusHelper/LICENSE</PackageLicenseUrl>
+		<Copyright>Copyright (c) GeLiang</Copyright>
+		<PackageTags>EPPlus, EPPlusHelper, Excel, ooxml</PackageTags>
+		<Company>GeLiang</Company>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<Version></Version>
+		<LangVersion>9</LangVersion>
+	</PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>DEBUG;netstandard20</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+		<DefineConstants>DEBUG;net45</DefineConstants>
+	</PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
-    <DefineConstants>DEBUG;netstandard21</DefineConstants>
-  </PropertyGroup>
- 
-  <ItemGroup>
-    <PackageReference Include="EPPlus" Version="4.5.3.2" />
-  </ItemGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+		<DefineConstants>DEBUG;netstandard20</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data.DataSetExtensions" />
-  </ItemGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+		<DefineConstants>DEBUG;netstandard21</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.2.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="EPPlus" Version="4.5.3.2" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.2.0" />
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
-  </ItemGroup>
- 
+	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+		<Reference Include="System.ComponentModel.DataAnnotations" />
+		<Reference Include="System.Data.DataSetExtensions" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.2.0" />
+		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.2.0" />
+		<PackageReference Include="System.Data.Common" Version="4.3.0" />
+	</ItemGroup>
+
 </Project>
