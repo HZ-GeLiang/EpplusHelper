@@ -37,8 +37,6 @@ namespace EPPlusExtensions
         /// </summary>
         public int DataRowStart { get; set; }
 
-#if DEBUG
-
         ///// <summary>
         ///// 数据的结尾行,在调用GetList()后自动赋值
         ///// </summary>
@@ -48,9 +46,6 @@ namespace EPPlusExtensions
         ///// 数据有多少行,在调用GetList()后自动赋值
         ///// </summary>
         //internal int? DataRowCount { get; set; }
-
-#endif
-
 
         /// <summary>
         /// 被遍历的单元格内容不为空时的起始字符必须是该字符,然后忽略该字符
