@@ -22,7 +22,7 @@ namespace SampleApp
 
         internal static bool GetEquals_KV<TKey, TValue>(KV<TKey, TValue> a, KV<TKey, TValue> b)
         {
-            if (a == null && b == null)
+            if (a is null && b is null)
             {
                 return true;
             }

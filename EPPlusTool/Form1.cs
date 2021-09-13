@@ -270,14 +270,14 @@ namespace EPPlusTool
             {
                 if (!item.IsRename)
                 {
-                    if (compareObj.Find(a => a.Name == item.Name) == null)
+                    if (compareObj.Find(a => a.Name == item.Name) is null)
                     {
                         sb1.Append($@"{item.Name},");
                     }
                 }
                 else
                 {
-                    if (compareObj.Find(a => a.Name == item.Name && a.ExcelColNameIndex == item.ExcelColNameIndex) == null)
+                    if (compareObj.Find(a => a.Name == item.Name && a.ExcelColNameIndex == item.ExcelColNameIndex) is null)
                     {
                         sb1.Append($@"{item.Name},");
                     }

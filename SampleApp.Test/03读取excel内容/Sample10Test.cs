@@ -34,7 +34,7 @@ namespace SampleApp.Test._03读取excel内容
 
             var dt2 = Sample10.Run();
 
-            if (dt2 == null)
+            if (dt2 is null)
             {
                 Assert.Fail("dt2返回了Null");
             }
