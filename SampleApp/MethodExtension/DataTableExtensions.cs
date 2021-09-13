@@ -65,7 +65,7 @@ namespace SampleApp.MethodExtension
         /// <returns>List &lt;T&gt;</returns>
         public static List<T> ToList<T>(this DataTable dt)
         {
-            if (dt == null || dt.Rows.Count <= 0)
+            if (dt is null || dt.Rows.Count <= 0)
             {
                 return Enumerable.Empty<T>().ToList();
             }
@@ -120,7 +120,7 @@ namespace SampleApp.MethodExtension
 
         public static string ToText(this DataTable dt, bool needTitle = true)
         {
-            if (dt == null || dt.Rows.Count <= 0) return string.Empty;
+            if (dt is null || dt.Rows.Count <= 0) return string.Empty;
 
             var sbTxt = new StringBuilder();
 
