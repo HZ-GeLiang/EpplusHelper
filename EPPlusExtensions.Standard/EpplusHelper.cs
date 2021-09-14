@@ -557,10 +557,15 @@ namespace EPPlusExtensions
                             object val = dictConfig[nth].ConfigItemMustExistInDataColumn
                                 ? row[colMapperName]
                                 : row.Table.Columns.Contains(colMapperName) ? row[colMapperName] : null;
-
+                            //#if DEBUG
+                            //                            if (!cellRange[j].IsMerge)
+                            //                            {
+                            //                                throw new Exception("填充数据时,合并单元格填充处不是合并单元格,请修改组件代码");
+                            //                            }
+                            //#endif
                             Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(
-                                !cellRange[j].IsMerge,
-                                true,
+                               (!cellRange[j].IsMerge) == true,
+                                false,
                                 "这个断言应该不会生效,如果生效,则表示: 填充数据时,合并单元格填充处不是合并单元格,请修改组件代码");
 
                             //int destRowStart = cellRange[j].Start.Row;
@@ -2197,9 +2202,16 @@ namespace EPPlusExtensions
 
                         #endregion
 
+                        //#if DEBUG
+                        //                        if ((_matchingModel & MatchingModel.eq) == MatchingModel.eq)
+                        //                        {
+                        //                            throw new Exception("断言:这里应该是不会进来的,debug下调试看看,进来是什么情况");
+                        //                        }
+                        //#endif
+
                         Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(
-                            (_matchingModel & MatchingModel.eq),
-                            MatchingModel.eq,
+                           ((_matchingModel & MatchingModel.eq) == MatchingModel.eq) == true,
+                            false,
                             "这个断言应该不会生效,如果生效,则表示:需要调试代码");
 
                     }
@@ -2287,7 +2299,7 @@ namespace EPPlusExtensions
                 {
                     throw new Exception($@"工作簿:'{args.ws.Name}'不允许存在隐藏行,检测到第{row}行是隐藏行");
                 }
- 
+
                 //判断整行数据是否都没有数据
                 bool isNoDataAllColumn = true;
 
@@ -2496,7 +2508,7 @@ namespace EPPlusExtensions
 
             }
 
- 
+
             var keyWithExceptionMessageStart = "无效的单元格:";
             if (allRowExceptions != null && allRowExceptions.Count > 0)
             {
