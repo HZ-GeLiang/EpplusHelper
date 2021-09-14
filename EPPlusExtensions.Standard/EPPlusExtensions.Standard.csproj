@@ -19,7 +19,7 @@
 		<Company>GeLiang</Company>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<RepositoryType>GitHub</RepositoryType>
-		<Version>2.3.0</Version>
+		<Version>2.3.1</Version>
 		<LangVersion>9</LangVersion>
 	</PropertyGroup>
 
@@ -57,7 +57,7 @@
 	<!--引用包-->
 
 	<ItemGroup>
-		<PackageReference Include="EPPlus" Version="4.5.3.2" />
+		<PackageReference Include="EPPlus" Version="4.5.3.3" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
