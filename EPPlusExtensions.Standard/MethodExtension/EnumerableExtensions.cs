@@ -7,7 +7,7 @@ namespace EPPlusExtensions.MethodExtension
     {
         public static IEnumerable<TSource> GetRepeat<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
-            if (source == null)
+            if (source is null)
             {
                 throw new ArgumentException($@"{nameof(source)} can not be null");
             }

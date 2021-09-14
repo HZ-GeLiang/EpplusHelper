@@ -51,7 +51,7 @@ namespace SampleApp._03读取excel内容
 
             public override bool Equals(object obj)
             {
-                if (obj == null || !obj.GetType().Equals(this.GetType()))
+                if (obj is null || !obj.GetType().Equals(this.GetType()))
                 {
                     return false;
                 }
@@ -101,7 +101,7 @@ namespace SampleApp._03读取excel内容
 
             public override bool Equals(object obj)
             {
-                if (obj == null || !obj.GetType().Equals(this.GetType()))
+                if (obj is null || !obj.GetType().Equals(this.GetType()))
                 {
                     return false;
                 }
@@ -152,7 +152,7 @@ namespace SampleApp._03读取excel内容
 
             public override bool Equals(object obj)
             {
-                if (obj == null || !obj.GetType().Equals(this.GetType()))
+                if (obj is null || !obj.GetType().Equals(this.GetType()))
                 {
                     return false;
                 }

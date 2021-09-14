@@ -178,7 +178,7 @@ namespace SampleApp._03读取excel内容
         static object SafeRow(DataRow row, string name, Type type)
         {
             object o = row[name];
-            if (o == DBNull.Value || o == null)
+            if (o == DBNull.Value || o is null)
             {
                 return null;
             }
@@ -262,7 +262,7 @@ namespace SampleApp._03读取excel内容
 
             public override bool Equals(object obj)
             {
-                if (obj == null || !obj.GetType().Equals(this.GetType()))
+                if (obj is null || !obj.GetType().Equals(this.GetType()))
                 {
                     return false;
                 }

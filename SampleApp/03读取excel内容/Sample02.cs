@@ -33,7 +33,7 @@ namespace SampleApp._03读取excel内容
             public string 部门负责人确认签字 { get; set; }
             public override bool Equals(object obj)
             {
-                if (obj == null || !obj.GetType().Equals(this.GetType()))
+                if (obj is null || !obj.GetType().Equals(this.GetType()))
                 {
                     return false;
                 }

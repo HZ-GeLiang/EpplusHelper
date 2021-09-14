@@ -66,13 +66,13 @@ namespace EPPlusExtensions
         private EPPlusConfigSourceFixedCell<TValue> GetCellAndTryAdd(string key)
         {
             if (string.IsNullOrEmpty(key)) throw new ArgumentNullException($"{nameof(key)}不能为空");
-            if (CellsInfoList == null)
+            if (CellsInfoList is null)
             {
                 CellsInfoList = new List<EPPlusConfigSourceFixedCell<TValue>>();
             }
 
             var cell = CellsInfoList.Find(a => a.ConfigValue == key);
-            if (cell == null)
+            if (cell is null)
             {
                 cell = new EPPlusConfigSourceFixedCell<TValue>() { ConfigValue = key };
                 CellsInfoList.Add(cell);
@@ -153,13 +153,13 @@ namespace EPPlusExtensions
         private EPPlusConfigSourceFixedCell GetCellAndTryAdd(string key)
         {
             if (string.IsNullOrEmpty(key)) throw new ArgumentNullException($"{nameof(key)}不能为空");
-            if (CellsInfoList == null)
+            if (CellsInfoList is null)
             {
                 CellsInfoList = new List<EPPlusConfigSourceFixedCell>();
             }
 
             var cell = CellsInfoList.Find(a => a.ConfigValue == key);
-            if (cell == null)
+            if (cell is null)
             {
                 cell = new EPPlusConfigSourceFixedCell() { ConfigValue = key };
                 CellsInfoList.Add(cell);
@@ -224,7 +224,7 @@ namespace EPPlusExtensions
         {
             return new EPPlusConfigSourceHead<TValue>()
             {
-                CellsInfoList = dt == null || dt.Rows.Count == 0
+                CellsInfoList = dt is null || dt.Rows.Count == 0
                     ? new List<EPPlusConfigSourceFixedCell<TValue>>()
                     : EPPlusConfigSourceConfigExtras<TValue>.ConvertToConfigExtraList(dt, dt.Rows[0])
             };
@@ -236,7 +236,7 @@ namespace EPPlusExtensions
         {
             return new EPPlusConfigSourceHead<TValue>()
             {
-                CellsInfoList = dict == null || dict.Count <= 0
+                CellsInfoList = dict is null || dict.Count <= 0
                     ? new List<EPPlusConfigSourceFixedCell<TValue>>()
                     : EPPlusConfigSourceConfigExtras<TValue>.ConvertToConfigExtraList(dict)
             };
@@ -256,7 +256,7 @@ namespace EPPlusExtensions
         {
             return new EPPlusConfigSourceFoot<TValue>()
             {
-                CellsInfoList = dt == null || dt.Rows.Count == 0
+                CellsInfoList = dt is null || dt.Rows.Count == 0
                     ? new List<EPPlusConfigSourceFixedCell<TValue>>()
                     : EPPlusConfigSourceConfigExtras<TValue>.ConvertToConfigExtraList(dt, dt.Rows[0])
             };
@@ -268,7 +268,7 @@ namespace EPPlusExtensions
         {
             return new EPPlusConfigSourceFoot<TValue>()
             {
-                CellsInfoList = dict == null || dict.Count <= 0
+                CellsInfoList = dict is null || dict.Count <= 0
                     ? new List<EPPlusConfigSourceFixedCell<TValue>>()
                     : EPPlusConfigSourceConfigExtras<TValue>.ConvertToConfigExtraList(dict)
             };
@@ -288,7 +288,7 @@ namespace EPPlusExtensions
         {
             return new EPPlusConfigSourceHead()
             {
-                CellsInfoList = dt == null || dt.Rows.Count == 0
+                CellsInfoList = dt is null || dt.Rows.Count == 0
                     ? new List<EPPlusConfigSourceFixedCell>()
                     : EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dt, dt.Rows[0])
             };
@@ -313,7 +313,7 @@ namespace EPPlusExtensions
         {
             return new EPPlusConfigSourceHead()
             {
-                CellsInfoList = dict == null || dict.Count <= 0
+                CellsInfoList = dict is null || dict.Count <= 0
                     ? new List<EPPlusConfigSourceFixedCell>()
                     : EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dict)
             };
@@ -335,7 +335,7 @@ namespace EPPlusExtensions
         {
             return new EPPlusConfigSourceFoot()
             {
-                CellsInfoList = dt == null || dt.Rows.Count == 0
+                CellsInfoList = dt is null || dt.Rows.Count == 0
                     ? new List<EPPlusConfigSourceFixedCell>()
                     : EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dt, dt.Rows[0])
             };
@@ -361,7 +361,7 @@ namespace EPPlusExtensions
         {
             return new EPPlusConfigSourceFoot()
             {
-                CellsInfoList = dict == null || dict.Count <= 0
+                CellsInfoList = dict is null || dict.Count <= 0
                     ? new List<EPPlusConfigSourceFixedCell>()
                     : EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dict)
             };
@@ -391,13 +391,13 @@ namespace EPPlusExtensions
             get
             {
                 if (nth < 1) throw new ArgumentOutOfRangeException($"{nameof(nth)}不能小于1");
-                if (ConfigList == null)
+                if (ConfigList is null)
                 {
                     ConfigList = new List<EPPlusConfigSourceBodyConfig>();
                 }
 
                 var bodyConfig = ConfigList.Find(a => a.Nth == nth);
-                if (bodyConfig == null)
+                if (bodyConfig is null)
                 {
                     bodyConfig = new EPPlusConfigSourceBodyConfig()
                     {

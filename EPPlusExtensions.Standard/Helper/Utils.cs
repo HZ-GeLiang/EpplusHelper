@@ -20,7 +20,7 @@ namespace EPPlusExtensions.Helper
                 return (TValue)obj;
             }
 
-            if (obj == null || obj == DBNull.Value)
+            if (obj is null || obj == DBNull.Value)
             {
                 return default(TValue);
             }

@@ -81,7 +81,7 @@ namespace EPPlusExtensions.CustomModelType
 
         public bool TryAdd(object key, object value)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key is null) throw new ArgumentNullException(nameof(key));
             if (this._data.ContainsKey((TKey)key))
             {
                 return false;
@@ -136,13 +136,13 @@ namespace EPPlusExtensions.CustomModelType
 
         public bool ContainsKey(TKey key)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key is null) throw new ArgumentNullException(nameof(key));
             return this._data.ContainsKey(key);
         }
 
         public bool ContainsKey(object key)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key is null) throw new ArgumentNullException(nameof(key));
             var tkey = (TKey)Convert.ChangeType(key, typeof(TKey));
             return this.ContainsKey(tkey);
         }
@@ -150,7 +150,7 @@ namespace EPPlusExtensions.CustomModelType
 
         public void GetInfoByKey(object key, out bool haveValue, out object value, out bool haveState, out object state)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key is null) throw new ArgumentNullException(nameof(key));
             var tkey = (TKey)Convert.ChangeType(key, typeof(TKey));
             haveValue = this._data.ContainsKey(tkey);
             value = haveValue ? this.GetValue(tkey) : (object)default(TValue);
@@ -160,13 +160,13 @@ namespace EPPlusExtensions.CustomModelType
 
         public TValue GetValue(TKey key)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key is null) throw new ArgumentNullException(nameof(key));
             return this._data[key];
         }
 
         public TValue GetValue(object key)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key is null) throw new ArgumentNullException(nameof(key));
             var tkey = (TKey)Convert.ChangeType(key, typeof(TKey));
             return this.GetValue(tkey);
         }
@@ -180,7 +180,7 @@ namespace EPPlusExtensions.CustomModelType
 
         public object GetState(TKey key)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key is null) throw new ArgumentNullException(nameof(key));
             return this._dataState[key];
         }
 
@@ -229,7 +229,7 @@ namespace EPPlusExtensions.CustomModelType
 
         public override string ToString()
         {
-            if (this._key == null)
+            if (this._key is null)
             {
                 return "";
             }
@@ -280,7 +280,7 @@ namespace EPPlusExtensions.CustomModelType
             {
                 return;
             }
-            if (this.KVSource == null)
+            if (this.KVSource is null)
             {
                 throw new ArgumentException($@"检测到KVSetAttribute,但是KVSource却未配置");
             }
@@ -315,7 +315,7 @@ namespace EPPlusExtensions.CustomModelType
 
             var modelValue = typeKV.GetConstructor(typeKVArgs).Invoke(invokeConstructorParameters);
 
-            if (kv_Value == null) //上面Invoke时, 是调用2个参数的构造方法的,所以,这里要修正HasValue值
+            if (kv_Value is null) //上面Invoke时, 是调用2个参数的构造方法的,所以,这里要修正HasValue值
             {
                 if (!kv_Value_inKvSource)//因为默认值是true,所以,只要修改值为false的情况就可以了
                 {
@@ -381,7 +381,7 @@ namespace EPPlusExtensions.CustomModelType
 
         private KVSetAttribute(bool mustInSet, string errorMessage, params string[] args)
         {
-            if (args == null)
+            if (args is null)
             {
                 args = new string[0];
             }
@@ -401,7 +401,7 @@ namespace EPPlusExtensions.CustomModelType
             {
                 throw new ArgumentException("key不能为空", nameof(key));
             }
-            if (this.KVSource == null)
+            if (this.KVSource is null)
             {
                 return false;
             }
