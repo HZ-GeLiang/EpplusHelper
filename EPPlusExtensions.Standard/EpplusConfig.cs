@@ -175,11 +175,11 @@ namespace EPPlusExtensions
         {
             get
             {
-                if (ConfigList == null) throw new Exception($"{nameof(ConfigList)}为null");
+                if (ConfigList is null) throw new Exception($"{nameof(ConfigList)}为null");
                 if (nth < 1) throw new ArgumentOutOfRangeException($"{nameof(nth)}不能小于1");
 
                 var bodyConfig = ConfigList.Find(a => a.Nth == nth);
-                if (bodyConfig == null)
+                if (bodyConfig is null)
                 {
                     bodyConfig = new EPPlusConfigBodyConfig()
                     {

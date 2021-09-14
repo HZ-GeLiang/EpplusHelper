@@ -20,7 +20,7 @@ namespace EPPlusExtensions.Helper
         public static T CreateInstance<T>(this Type type, params object[] objects)
         {
             Type[] typeArray;
-            if (objects == null || objects.Length == 0)
+            if (objects is null || objects.Length == 0)
             {
                 typeArray = new Type[0];
             }
@@ -41,9 +41,9 @@ namespace EPPlusExtensions.Helper
         public static Func<object[], object> BuildDeletgateCreateInstance(Type type, Type[] typeList)
         {
             ConstructorInfo constructor = type.GetConstructor(typeList);
-            if (constructor == null)
+            if (constructor is null)
             {
-                if (typeList == null || typeList.Length == 0)
+                if (typeList is null || typeList.Length == 0)
                 {
                     throw new Exception($@"未找到类'{type.Name}({type.FullName})'的无参数构造器.");
                 }

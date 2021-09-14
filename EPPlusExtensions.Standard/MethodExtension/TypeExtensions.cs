@@ -17,8 +17,8 @@ namespace EPPlusExtensions.MethodExtension
         //public static bool HasImplementedRawGeneric([NotNull] this Type type, [NotNull] Type generic)
         public static bool HasImplementedRawGeneric(this Type type, Type generic)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
-            if (generic == null) throw new ArgumentNullException(nameof(generic));
+            if (type is null) throw new ArgumentNullException(nameof(type));
+            if (generic is null) throw new ArgumentNullException(nameof(generic));
 
             //if (_cache.Keys.Count > 1000)
             //{

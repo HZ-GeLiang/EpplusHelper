@@ -47,7 +47,7 @@ namespace EPPlusTool.Helper
                 }
             }
 
-            if (jToken == null)
+            if (jToken is null)
             {
                 return false; //找不到对应的值
             }
@@ -255,7 +255,7 @@ namespace EPPlusTool.Helper
 
         public static JObject GetJObject(string physicalPath)
         {
-            if (physicalPath == null)
+            if (physicalPath is null)
             {
                 physicalPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "appsettings.json");
             }

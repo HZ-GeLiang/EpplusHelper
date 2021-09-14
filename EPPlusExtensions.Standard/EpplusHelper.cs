@@ -67,7 +67,7 @@ namespace EPPlusExtensions
         public static ExcelWorksheet DuplicateWorkSheetAndRename(ExcelPackage excelPackage, int copyWorkSheetIndex, string workSheetNewName)
         {
             if (copyWorkSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(copyWorkSheetIndex));
-            if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
+            if (workSheetNewName is null) throw new ArgumentNullException(nameof(workSheetNewName));
             //您为工作表或图表输入的名称无效。请确保：
             //    ·名称不多于31个字符。
             //    ·名称不包含下列任一字符:：\/？*[或]。   注意, 对于： 只有全角和半角字符, 但是这2个都不可以
@@ -115,7 +115,7 @@ namespace EPPlusExtensions
             {
                 return ws;
             }
-            if (workName == null) throw new ArgumentNullException(nameof(workName));
+            if (workName is null) throw new ArgumentNullException(nameof(workName));
             ws = excelPackage.Workbook.Worksheets[workName];
             if (ws != null)
             {
@@ -149,8 +149,8 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string destWorkSheetName, string workSheetNewName)
         {
-            if (destWorkSheetName == null) throw new ArgumentNullException(nameof(destWorkSheetName));
-            if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
+            if (destWorkSheetName is null) throw new ArgumentNullException(nameof(destWorkSheetName));
+            if (workSheetNewName is null) throw new ArgumentNullException(nameof(workSheetNewName));
             var wsMom = GetExcelWorksheet(excelPackage, destWorkSheetName);
             var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
             ws.Name = workSheetNewName;
@@ -167,7 +167,7 @@ namespace EPPlusExtensions
         /// <param name="workSheetName"></param>
         public static void DeleteWorksheet(ExcelPackage excelPackage, string workSheetName)
         {
-            if (workSheetName == null) throw new ArgumentNullException(nameof(workSheetName));
+            if (workSheetName is null) throw new ArgumentNullException(nameof(workSheetName));
 
             if (excelPackage.Workbook.Worksheets.Count <= 1) //The workbook must contain at least one worksheet
             {
@@ -228,8 +228,8 @@ namespace EPPlusExtensions
         /// <param name="eWorkSheetHiddens">获得工作簿的参数</param>
         public static void DeleteWorksheet(ExcelPackage excelPackage, List<string> workSheetNameExcludeList, params eWorkSheetHidden[] eWorkSheetHiddens)
         {
-            if (eWorkSheetHiddens == null) return;
-            if (workSheetNameExcludeList == null) workSheetNameExcludeList = new List<string>();
+            if (eWorkSheetHiddens is null) return;
+            if (workSheetNameExcludeList is null) workSheetNameExcludeList = new List<string>();
             var delWsNames = GetWorkSheetNames(excelPackage, eWorkSheetHiddens);
             foreach (var wsName in delWsNames)
             {
@@ -247,7 +247,7 @@ namespace EPPlusExtensions
         public static List<string> GetWorkSheetNames(ExcelPackage excelPackage, params eWorkSheetHidden[] eWorkSheetHiddens)
         {
             var wsNames = new List<string>();
-            if (eWorkSheetHiddens == null || eWorkSheetHiddens.Length == 0) return wsNames;
+            if (eWorkSheetHiddens is null || eWorkSheetHiddens.Length == 0) return wsNames;
 
             for (int i = 1; i <= excelPackage.Workbook.Worksheets.Count; i++)
             {
@@ -298,8 +298,8 @@ namespace EPPlusExtensions
         /// <param name="destWorkSheetName">填充数据的workSheet叫什么</param> 
         public static void FillData(ExcelPackage excelPackage, EPPlusConfig config, EPPlusConfigSource configSource, string workSheetNewName, string destWorkSheetName)
         {
-            if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
-            if (destWorkSheetName == null) throw new ArgumentNullException(nameof(destWorkSheetName));
+            if (workSheetNewName is null) throw new ArgumentNullException(nameof(workSheetNewName));
+            if (destWorkSheetName is null) throw new ArgumentNullException(nameof(destWorkSheetName));
             ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetName, workSheetNewName);
             EPPlusHelper.FillDataWorkSheetNameList.Add(workSheetNewName);
             config.WorkSheetDefault?.Invoke(worksheet);
@@ -316,7 +316,7 @@ namespace EPPlusExtensions
         /// <param name="destWorkSheetIndex">从1开始</param>
         public static void FillData(ExcelPackage excelPackage, EPPlusConfig config, EPPlusConfigSource configSource, string workSheetNewName, int destWorkSheetIndex)
         {
-            if (workSheetNewName == null) throw new ArgumentNullException(nameof(workSheetNewName));
+            if (workSheetNewName is null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(destWorkSheetIndex));
 
             ExcelWorksheet worksheet = EPPlusHelper.DuplicateWorkSheetAndRename(excelPackage, destWorkSheetIndex, workSheetNewName);
@@ -362,7 +362,7 @@ namespace EPPlusExtensions
         private static void FillData_Head(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
         {
             //填充head
-            if (config.Head.ConfigCellList == null || config.Head.ConfigCellList.Count <= 0)
+            if (config.Head.ConfigCellList is null || config.Head.ConfigCellList.Count <= 0)
             {
                 return;
             }
@@ -371,7 +371,7 @@ namespace EPPlusExtensions
 
             foreach (var item in config.Head.ConfigCellList)
             {
-                if (configSource.Head == null || configSource.Head.CellsInfoList == null ||
+                if (configSource.Head is null || configSource.Head.CellsInfoList is null ||
                     configSource.Head.CellsInfoList.Count <= 0) //excel中有配置head,但是程序中没有进行值的映射(没映射的原因之一是没有查询出数据)
                 {
                     break;
@@ -407,9 +407,9 @@ namespace EPPlusExtensions
             //填充body
             var sheetBodyAddRowCount = 0; //新增了几行 (统计sheet body 在原有的模版上新增了多少行), 需要返回的
 
-            if (config == null || configSource == null ||
-                config.Body == null || configSource.Body == null ||
-                config.Body.ConfigList == null || configSource.Body.ConfigList == null ||
+            if (config is null || configSource is null ||
+                config.Body is null || configSource.Body is null ||
+                config.Body.ConfigList is null || configSource.Body.ConfigList is null ||
                 config.Body.ConfigList.Count <= 0 || configSource.Body.ConfigList.Count <= 0)
             {
                 return sheetBodyAddRowCount;
@@ -441,7 +441,7 @@ namespace EPPlusExtensions
                 #endregion
 
                 #region When dataTable is empty
-                if (datatable == null || datatable.Rows.Count <= 0) //数据源为null或为空
+                if (datatable is null || datatable.Rows.Count <= 0) //数据源为null或为空
                 {
                     //throw new ArgumentNullException($"configSource.SheetBody[{nth.Key}]没有可读取的数据");
 
@@ -823,12 +823,12 @@ namespace EPPlusExtensions
 
                             if (j == configLineCellPoint.Count - 1) //如果一行循环到了最后一列
                             {
-                                if (dictConfigSource[nth].FillMethod == null)
+                                if (dictConfigSource[nth].FillMethod is null)
                                 {
                                     continue;
                                 }
                                 var fillMethod = dictConfigSource[nth].FillMethod;
-                                if (fillMethod == null || fillMethod.FillDataMethodOption == SheetBodyFillDataMethodOption.Default)
+                                if (fillMethod is null || fillMethod.FillDataMethodOption == SheetBodyFillDataMethodOption.Default)
                                 {
                                     continue;
                                 }
@@ -839,7 +839,7 @@ namespace EPPlusExtensions
 
                                     if (!isFillDataTitle && !isFillDataBody) continue;
 
-                                    if (fillDataColumnsStat == null)
+                                    if (fillDataColumnsStat is null)
                                     {
                                         fillDataColumnsStat = InitFillDataColumnStat(datatable, dictConfig[nth].ConfigLine, fillMethod);
                                     }
@@ -1119,7 +1119,7 @@ namespace EPPlusExtensions
         /// <param name="sheetBodyAddRowCount"></param>
         private static void FillData_Foot(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet, int sheetBodyAddRowCount)
         {
-            if (config.Foot.ConfigCellList == null || config.Foot.ConfigCellList.Count <= 0)
+            if (config.Foot.ConfigCellList is null || config.Foot.ConfigCellList.Count <= 0)
             {
                 return;
             }
@@ -1127,8 +1127,8 @@ namespace EPPlusExtensions
             var dictConfigSource = configSource.Foot.CellsInfoList.ToDictionary(a => a.ConfigValue);
             foreach (var item in config.Foot.ConfigCellList)
             {
-                if (configSource.Foot == null ||
-                    configSource.Foot.CellsInfoList == null ||
+                if (configSource.Foot is null ||
+                    configSource.Foot.CellsInfoList is null ||
                     configSource.Foot.CellsInfoList.Count == 0) //excel中有配置foot,但是程序中没有进行值的映射(没映射的原因之一是没有查询出数据)
                 {
                     break;
@@ -1308,7 +1308,7 @@ namespace EPPlusExtensions
             #endregion
             #region Boolean
             var isNullable_Boolean = pInfo_PropertyType == typeof(Boolean?);
-            if (isNullable_Boolean && (value == null || value.Length <= 0))
+            if (isNullable_Boolean && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1325,7 +1325,7 @@ namespace EPPlusExtensions
             #endregion
             #region DateTime
             var isNullable_DateTime = pInfo_PropertyType == typeof(DateTime?);
-            if (isNullable_DateTime && (value == null || value.Length <= 0))
+            if (isNullable_DateTime && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1374,7 +1374,7 @@ namespace EPPlusExtensions
             #endregion
             #region sbyte
             var isNullable_sbyte = pInfo_PropertyType == typeof(sbyte?);
-            if (isNullable_sbyte && (value == null || value.Length <= 0))
+            if (isNullable_sbyte && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1391,7 +1391,7 @@ namespace EPPlusExtensions
             #endregion
             #region byte
             var isNullable_byte = pInfo_PropertyType == typeof(byte?);
-            if (isNullable_byte && (value == null || value.Length <= 0))
+            if (isNullable_byte && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1408,7 +1408,7 @@ namespace EPPlusExtensions
             #endregion
             #region UInt16
             var isNullable_UInt16 = pInfo_PropertyType == typeof(UInt16?);
-            if (isNullable_UInt16 && (value == null || value.Length <= 0))
+            if (isNullable_UInt16 && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1425,7 +1425,7 @@ namespace EPPlusExtensions
             #endregion
             #region Int16
             var isNullable_Int16 = pInfo_PropertyType == typeof(Int16?);
-            if (isNullable_Int16 && (value == null || value.Length <= 0))
+            if (isNullable_Int16 && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1442,7 +1442,7 @@ namespace EPPlusExtensions
             #endregion
             #region UInt32
             var isNullable_UInt32 = pInfo_PropertyType == typeof(UInt32?);
-            if (isNullable_UInt32 && (value == null || value.Length <= 0))
+            if (isNullable_UInt32 && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1460,7 +1460,7 @@ namespace EPPlusExtensions
             #endregion
             #region Int32
             var isNullable_Int32 = pInfo_PropertyType == typeof(Int32?);
-            if (isNullable_Int32 && (value == null || value.Length <= 0))
+            if (isNullable_Int32 && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1478,7 +1478,7 @@ namespace EPPlusExtensions
             #endregion
             #region UInt64
             var isNullable_UInt64 = pInfo_PropertyType == typeof(UInt64?);
-            if (isNullable_UInt64 && (value == null || value.Length <= 0))
+            if (isNullable_UInt64 && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1495,7 +1495,7 @@ namespace EPPlusExtensions
             #endregion
             #region Int64
             var isNullable_Int64 = pInfo_PropertyType == typeof(Int64?);
-            if (isNullable_Int64 && (value == null || value.Length <= 0))
+            if (isNullable_Int64 && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1512,7 +1512,7 @@ namespace EPPlusExtensions
             #endregion
             #region float
             var isNullable_float = pInfo_PropertyType == typeof(float?);
-            if (isNullable_float && (value == null || value.Length <= 0))
+            if (isNullable_float && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1529,7 +1529,7 @@ namespace EPPlusExtensions
             #endregion
             #region double
             var isNullable_double = pInfo_PropertyType == typeof(double?);
-            if (isNullable_double && (value == null || value.Length <= 0))
+            if (isNullable_double && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1546,7 +1546,7 @@ namespace EPPlusExtensions
             #endregion
             #region decimal
             var isNullable_decimal = pInfo_PropertyType == typeof(decimal?);
-            if (isNullable_decimal && (value == null || value.Length <= 0))
+            if (isNullable_decimal && (value is null || value.Length <= 0))
             {
                 pInfo.SetValue(model, null);
                 return;
@@ -1566,7 +1566,7 @@ namespace EPPlusExtensions
             bool isNullable_Enum = Nullable.GetUnderlyingType(pInfo_PropertyType)?.IsEnum == true;
             if (isNullable_Enum)
             {
-                if (value == null || value.Length <= 0)
+                if (value is null || value.Length <= 0)
                 {
                     pInfo.SetValue(model, null);
                     return;
@@ -1580,7 +1580,7 @@ namespace EPPlusExtensions
             }
             if (pInfo_PropertyType.IsEnum)
             {
-                if ((value == null || value.Length <= 0))
+                if ((value is null || value.Length <= 0))
                 {
                     throw new ArgumentException($@"无效的{pInfo_PropertyType.FullName}枚举值", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 {pInfo_PropertyType}(Enum类型)"));
                 }
@@ -1610,7 +1610,7 @@ namespace EPPlusExtensions
             }
 
             var attr = (EnumUndefinedAttribute)attrs[0];
-            if (attr.Args == null || attr.Args.Length <= 0)
+            if (attr.Args is null || attr.Args.Length <= 0)
             {
                 if (string.IsNullOrEmpty(attr.ErrorMessage))
                 {
@@ -1656,7 +1656,7 @@ namespace EPPlusExtensions
                 else
                 {
                     var prop = ReflectionHelper.GetProperty(allProp, propertyName, true);
-                    if (prop == null)
+                    if (prop is null)
                     {
                         continue;
                     }
@@ -1721,7 +1721,7 @@ namespace EPPlusExtensions
             //    var colName = dt.Columns[i].ColumnName;
             //    if (!dict.ContainsKey(colName))
             //    {
-            //        dict.Add(colName, dr[i] == DBNull.Value || dr[i] == null ? "" : dr[i].ToString());
+            //        dict.Add(colName, dr[i] == DBNull.Value || dr[i] is null ? "" : dr[i].ToString());
             //    }
             //    else
             //    {
@@ -1764,7 +1764,7 @@ namespace EPPlusExtensions
             //    var colName = dt.Columns[i].ColumnName;
             //    if (!dict.ContainsKey(colName))
             //    {
-            //        dict.Add(colName, dr[i] == DBNull.Value || dr[i] == null ? "" : dr[i].ToString());
+            //        dict.Add(colName, dr[i] == DBNull.Value || dr[i] is null ? "" : dr[i].ToString());
             //    }
             //    else
             //    {
@@ -1800,7 +1800,7 @@ namespace EPPlusExtensions
             ICustomersModelTypeList = new List<PropertyInfo>();
 
             var t_ctor = typeof(T).GetConstructor(new Type[] { });
-            if (t_ctor == null)
+            if (t_ctor is null)
             {
                 return default(T);
             }
@@ -1815,7 +1815,7 @@ namespace EPPlusExtensions
                 }
 
                 var p_ctor = p.PropertyType.GetConstructor(new Type[] { });
-                if (p_ctor == null)
+                if (p_ctor is null)
                 {
                     continue;
                 }
@@ -2040,7 +2040,7 @@ namespace EPPlusExtensions
                 string propName = item.Value.ToString();
                 PropertyInfo pInfo = type.GetProperty(propName);
 
-                if (pInfo == null)
+                if (pInfo is null)
                 {
                     if (dictExcelColumnIndexToModelPropName_Temp.ContainsKey(excelColumnIndex))
                     {
@@ -2242,7 +2242,7 @@ namespace EPPlusExtensions
 
             #endregion
 
-            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
+            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList is null
                 ? GetExcelListArgs.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
 
@@ -2498,9 +2498,9 @@ namespace EPPlusExtensions
                     }
                 }
 
-                if (args.WhereFilter == null || args.WhereFilter.Invoke(model))
+                if (args.WhereFilter is null || args.WhereFilter.Invoke(model))
                 {
-                    if (args.HavingFilter == null || args.HavingFilter.Invoke(model))
+                    if (args.HavingFilter is null || args.HavingFilter.Invoke(model))
                     {
                         yield return model;
                     }
@@ -2597,7 +2597,7 @@ namespace EPPlusExtensions
 
         private static PropertyInfo GetPropertyInfo(string propName, Type type)
         {
-            if (propName == null) throw new ArgumentNullException(nameof(propName));
+            if (propName is null) throw new ArgumentNullException(nameof(propName));
             if (!_Cache_GetPropertyInfo.ContainsKey(type))
             {
                 _Cache_GetPropertyInfo.Add(type, new Dictionary<string, PropertyInfo>());
@@ -2608,7 +2608,7 @@ namespace EPPlusExtensions
             if (!cache_PropertyInfo.ContainsKey(propName))
             {
                 var pInfo = type.GetProperty(propName);
-                if (pInfo == null) //防御式编程判断
+                if (pInfo is null) //防御式编程判断
                 {
                     throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
                 }
@@ -2629,7 +2629,7 @@ namespace EPPlusExtensions
             Dictionary<int, string> dictExcelColumnIndexToModelPropName_All)
         {
             int excelCellInfo_ColIndex = dictExcelAddressCol[ExcelAddress];
-            if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] == null) //不存在,跳过
+            if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] is null) //不存在,跳过
             {
                 return null;
             }
@@ -2668,7 +2668,7 @@ namespace EPPlusExtensions
 
             #endregion
 
-            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList == null
+            var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList is null
                 ? GetExcelListArgs.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
 
@@ -2760,7 +2760,7 @@ namespace EPPlusExtensions
                     break; //出现空行,读取模版结束
                 }
                 //else
-                if (args.WhereFilter == null || args.WhereFilter.Invoke(dr))
+                if (args.WhereFilter is null || args.WhereFilter.Invoke(dr))
                 {
                     dt.Rows.Add(dr);
                 }
@@ -2783,14 +2783,14 @@ namespace EPPlusExtensions
 
             #endregion
 
-            return args.HavingFilter == null ? dt : dt.AsEnumerable().Where(item => args.HavingFilter.Invoke(item)).CopyToDataTable();
+            return args.HavingFilter is null ? dt : dt.AsEnumerable().Where(item => args.HavingFilter.Invoke(item)).CopyToDataTable();
         }
 
         private static string DealMatchingModelException(MatchingModelException matchingModelException)
         {
             if ((matchingModelException.MatchingModel & MatchingModel.eq) == MatchingModel.eq)
             {
-                if (matchingModelException.ListExcelCellInfoAndModelType == null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
+                if (matchingModelException.ListExcelCellInfoAndModelType is null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
                 {
                     return "模版没有多提供列!";
                 }
@@ -2811,7 +2811,7 @@ namespace EPPlusExtensions
             if ((matchingModelException.MatchingModel & MatchingModel.gt) == MatchingModel.gt)
             {
 
-                if (matchingModelException.ListExcelCellInfoAndModelType == null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
+                if (matchingModelException.ListExcelCellInfoAndModelType is null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
                 {
                     return "模版没有少提供列!";
                 }
@@ -2830,7 +2830,7 @@ namespace EPPlusExtensions
             }
             if ((matchingModelException.MatchingModel & MatchingModel.lt) == MatchingModel.lt)
             {
-                if (matchingModelException.ListExcelCellInfoAndModelType == null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
+                if (matchingModelException.ListExcelCellInfoAndModelType is null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
                 {
                     return "模版没有多提供列!";
                 }
@@ -2920,8 +2920,8 @@ namespace EPPlusExtensions
             Dictionary<string, bool> dictModelPropNameExistsExcelColumn,
             out List<string> modelPropNotExistsExcelColumn, out List<string> excelColumnIsNotModelProp)
         {
-            if (dictExcelColumnIndexToModelPropNameAll == null) throw new ArgumentNullException(nameof(dictExcelColumnIndexToModelPropNameAll));
-            if (dictModelPropNameExistsExcelColumn == null) throw new ArgumentNullException(nameof(dictModelPropNameExistsExcelColumn));
+            if (dictExcelColumnIndexToModelPropNameAll is null) throw new ArgumentNullException(nameof(dictExcelColumnIndexToModelPropNameAll));
+            if (dictModelPropNameExistsExcelColumn is null) throw new ArgumentNullException(nameof(dictModelPropNameExistsExcelColumn));
 
             modelPropNotExistsExcelColumn = new List<string>();//model属性不在excel列中
             excelColumnIsNotModelProp = new List<string>();//excel列不是model属性
@@ -2944,7 +2944,7 @@ namespace EPPlusExtensions
 
             foreach (var excelColumnIndex in dictExcelColumnIndexToModelPropNameAll.Keys)
             {
-                if (dictExcelColumnIndexToModelPropNameAll[excelColumnIndex] == null)
+                if (dictExcelColumnIndexToModelPropNameAll[excelColumnIndex] is null)
                 {
                     modelPropNotExistsExcelColumn.Add(dictExcelColumnIndexToExcelColName[excelColumnIndex]);
                 }
@@ -3018,7 +3018,7 @@ namespace EPPlusExtensions
         /// <exception cref="ArgumentNullException"></exception>
         public static void SetDefaultConfigFromExcel(ExcelPackage excelPackage, EPPlusConfig config, string workSheetName)
         {
-            if (workSheetName == null) throw new ArgumentNullException(nameof(workSheetName));
+            if (workSheetName is null) throw new ArgumentNullException(nameof(workSheetName));
             var worksheet = GetExcelWorksheet(excelPackage, workSheetName);
             EPPlusHelper.SetDefaultConfigFromExcel(config, worksheet);
             SetConfigBodyFromExcel_OtherPara(config, worksheet);
@@ -3078,7 +3078,7 @@ namespace EPPlusExtensions
         {
             //遇到问题描述:创建一个excel,在C7,C8,C9,10单元格写入一些字符串, sheet.Cells.Value 是object[4,3]的数组, 但我要的是object[10,3]的数组
             var cellA1 = sheet.Cells[1, 1];
-            if (!cellA1.Merge && cellA1.Value == null)
+            if (!cellA1.Merge && cellA1.Value is null)
             {
                 cellA1.Value = null;
             }
@@ -3108,7 +3108,7 @@ namespace EPPlusExtensions
         {
             EPPlusHelper.SetSheetCellsValueFromA1(ws);
             object[,] arr = ws.Cells.Value as object[,];
-            if (arr == null)
+            if (arr is null)
             {
                 throw new ArgumentNullException(nameof(arr));
             }
@@ -3118,7 +3118,7 @@ namespace EPPlusExtensions
             {
                 for (int j = 0; j < arr.GetLength(1); j++)
                 {
-                    if (arr[i, j] == null) continue;
+                    if (arr[i, j] is null) continue;
                     if (arr[i, j].ToString().Length <= 0) continue;
                     if (returnType == typeof(ExcelCellPoint))
                     {
@@ -3182,7 +3182,7 @@ namespace EPPlusExtensions
             {
                 for (int j = 0; j < arr.GetLength(1); j++)
                 {
-                    if (arr[i, j] == null) continue;
+                    if (arr[i, j] is null) continue;
 
                     string cellStr = arr[i, j].ToString().Trim();
                     if (cellStr.Length < 3) //配置至少有4个字符.所以,4个以下的都可以跳过
@@ -3260,7 +3260,7 @@ namespace EPPlusExtensions
                             //选择修复文档内容后,里面的内容是正确的(至少我测试的几个是这样的)
                             //所以,同行多列合并的单元格的key 必须是 A15 这种格式的
                             var newKey = sheetMergedCellsList.Find(a => a.Contains(cellPosition));
-                            if (newKey == null)
+                            if (newKey is null)
                             {
                                 /*描述出现null的情况(经过验证,在EPPlus的4.5.3.2中这个BUG没有了,其他版本不知道)
                                  * 有如下单元格 A2, B2, A3, B3, A4, B4 这6个单元格都有值,
@@ -3350,7 +3350,7 @@ namespace EPPlusExtensions
             {
                 for (var j = 0; j < arr.GetLength(1); j++)
                 {
-                    if (arr[i, j] == null) continue;
+                    if (arr[i, j] is null) continue;
 
                     string cellStr = arr[i, j].ToString().Trim();
                     if (!cellStr.StartsWith(startWith)) continue;
@@ -3610,14 +3610,14 @@ namespace EPPlusExtensions
             {
                 int titleLine = 1;
                 int titleColumn = 1;
-                if (dataConfigInfo == null)
+                if (dataConfigInfo is null)
                 {
                     list.Add(FillExcelDefaultConfig(ws, titleLine, titleColumn, cellCustom));
                     continue;
                 }
 
                 var configInfo = dataConfigInfo.Find(a => a.WorkSheetName == ws.Name);
-                if (configInfo == null)
+                if (configInfo is null)
                 {
                     continue;
                 }
@@ -3651,7 +3651,7 @@ namespace EPPlusExtensions
         {
             titleLine = 2;
             titleColumn = 1;
-            if (dataConfigInfo == null)
+            if (dataConfigInfo is null)
             {
                 return;
             }
@@ -3917,7 +3917,7 @@ namespace EPPlusExtensions
                 nameRepeatCounter.Add(name.Name, 0);
             }
 
-            if (nameList.Find(a => a.Name == name.Name) == null && nameRepeatCounter[name.Name] == 0)
+            if (nameList.Find(a => a.Name == name.Name) is null && nameRepeatCounter[name.Name] == 0)
             {
                 nameList.Add(name);
             }
@@ -3985,7 +3985,7 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static List<ExcelCellInfo> GetCellsBy(ExcelWorksheet ws, string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value is null) throw new ArgumentNullException(nameof(value));
             return GetCellsBy(ws, ws.Cells.Value as object[,], a => a != null && a.ToString() == value);
         }
 
@@ -3998,7 +3998,7 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static List<ExcelCellInfo> GetCellsBy(ExcelWorksheet ws, object[,] cellsValue, Predicate<object> match)
         {
-            if (cellsValue == null) throw new ArgumentNullException(nameof(cellsValue));
+            if (cellsValue is null) throw new ArgumentNullException(nameof(cellsValue));
 
             var result = new List<ExcelCellInfo>();
             for (int i = 0; i < cellsValue.GetLength(0); i++)
@@ -4173,7 +4173,7 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static void EachHiddenRow(ExcelWorksheet ws, int rowStartIndex, int rowEndIndex, Action<ExcelRow> action)
         {
-            if (action == null) return;
+            if (action is null) return;
             if (rowEndIndex > EPPlusConfig.MaxRow07)
             {
                 rowEndIndex = EPPlusConfig.MaxRow07;
@@ -4214,7 +4214,7 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static void EachHiddenColumn(ExcelWorksheet ws, int columnStartIndex, int columnEndIndex, Action<ExcelRow> action)
         {
-            if (action == null) return;
+            if (action is null) return;
             if (columnEndIndex > EPPlusConfig.MaxCol07)
             {
                 columnEndIndex = EPPlusConfig.MaxCol07;

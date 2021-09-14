@@ -52,7 +52,7 @@ public class ObjectDumper {
     }
 
     private void WriteObject(string prefix, object o) {
-        if (o == null || o is ValueType || o is string) {
+        if (o is null || o is ValueType || o is string) {
             WriteIndent();
             Write(prefix);
             WriteValue(o);
@@ -129,7 +129,7 @@ public class ObjectDumper {
     }
 
     private void WriteValue(object o) {
-        if (o == null) {
+        if (o is null) {
             Write("null");
         }
         else if (o is DateTime) {
