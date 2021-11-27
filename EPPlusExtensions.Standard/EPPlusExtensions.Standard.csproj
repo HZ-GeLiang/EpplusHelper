@@ -4,10 +4,7 @@
 		<TargetFrameworks>net45;netstandard2.0;netstandard2.1</TargetFrameworks>
 		<RootNamespace>EPPlusExtensions</RootNamespace>
 		<NoWarn>CS1591</NoWarn>
-		<WarningLevel>4</WarningLevel>
-		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-		<!--<DocumentationFile>$(SolutionDir)EPPlusExtensions.Standard\EPPlusExtensions.Standard.xml</DocumentationFile>-->
-		
+		<WarningLevel>4</WarningLevel>	
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Authors>GeLiang</Authors>
@@ -21,6 +18,12 @@
 		<RepositoryType>GitHub</RepositoryType>
 		<Version>2.3.1</Version>
 		<LangVersion>9</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(SolutionDir)' == 'Release'">
+		<!--<DocumentationFile>$(SolutionDir)$(AssemblyName)\$(AssemblyName).xml</DocumentationFile>-->
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+		<!--<DocumentationFile>$(SolutionDir)EPPlusExtensions.Standard\EPPlusExtensions.Standard.xml</DocumentationFile>-->
 	</PropertyGroup>
 
 	<!--引用包:断言-->
