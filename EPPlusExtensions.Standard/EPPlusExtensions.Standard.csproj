@@ -1,25 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net45;netstandard2.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>
+			net45;
+			netstandard2.0;
+		</TargetFrameworks>
 		<RootNamespace>EPPlusExtensions</RootNamespace>
+		<DefineConstants>DEBUG;</DefineConstants>
 		<NoWarn>CS1591</NoWarn>
 		<WarningLevel>4</WarningLevel>
-		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-		<!--<DocumentationFile>$(SolutionDir)EPPlusExtensions.Standard\EPPlusExtensions.Standard.xml</DocumentationFile>-->
-		
+		<DocumentationFile>$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Authors>GeLiang</Authors>
 		<Description>can easily work with EPPlus to generate Excel(.xlsx) and get excel data</Description>
-		<PackageProjectUrl>https://github.com/HZ-GeLiang/EpplusHelper</PackageProjectUrl>
-		<PackageLicenseUrl>https://github.com/HZ-GeLiang/EpplusHelper/LICENSE</PackageLicenseUrl>
+		<PackageProjectUrl>https://gitee.com/hzgel/EpplusHelper</PackageProjectUrl>
+		<PackageLicenseUrl>https://gitee.com/hzgel/EpplusHelper/blob/master/LICENSE</PackageLicenseUrl>
 		<Copyright>Copyright (c) GeLiang</Copyright>
 		<PackageTags>EPPlus, EPPlusHelper, Excel, ooxml</PackageTags>
 		<Company>GeLiang</Company>
 		<PackageReleaseNotes></PackageReleaseNotes>
-		<RepositoryType>GitHub</RepositoryType>
-		<Version>2.3.0</Version>
+		<RepositoryType>gitee</RepositoryType>
+		<Version>2.4.0</Version>
 		<LangVersion>9</LangVersion>
 	</PropertyGroup>
 
@@ -31,31 +33,15 @@
 		<Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
 			<HintPath>..\packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
 		</Reference>
-	 
 	</ItemGroup>
-	
+
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1' ">
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
 		<PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
 		<PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
 	</ItemGroup>
 
-
-	<!--DefineConstants-->
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
-		<DefineConstants>DEBUG;net45</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-		<DefineConstants>DEBUG;netstandard20</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
-		<DefineConstants>DEBUG;netstandard21</DefineConstants>
-	</PropertyGroup>
-
 	<!--引用包-->
-
 	<ItemGroup>
 		<PackageReference Include="EPPlus" Version="4.5.3.2" />
 	</ItemGroup>
@@ -70,9 +56,9 @@
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+	<!--<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="2.2.0" />
 		<PackageReference Include="System.Data.Common" Version="4.3.0" />
-	</ItemGroup>
+	</ItemGroup>-->
 
 </Project>
