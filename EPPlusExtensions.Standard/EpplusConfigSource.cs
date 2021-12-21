@@ -81,13 +81,11 @@ namespace EPPlusExtensions
             return cell;
         }
 
-        public static List<EPPlusConfigSourceFixedCell<TValue>> ConvertToConfigExtraList<TKey>(Dictionary<TKey, TValue> dict) 
+        public static List<EPPlusConfigSourceFixedCell<TValue>> ConvertToConfigExtraList<TKey>(Dictionary<TKey, TValue> dict)
         {
             var fixedCellsInfoList = new List<EPPlusConfigSourceFixedCell<TValue>>();
 
-#pragma warning disable 184
-            if (typeof(TKey) is string)
-#pragma warning restore 184
+            if (typeof(TKey) == typeof(string))
             {
                 foreach (var item in dict)
                 {
