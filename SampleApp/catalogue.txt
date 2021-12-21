@@ -34,5 +34,5 @@
 
 05自动初始化填充配置
 	Sample01-给定字符串,返回配置项
-	Sample02-简单使用
-	Sample03-处理多个worksheet
+	Sample02-简单使用,获得 类 和 databale, 用于读取强类型数据前的代码准备
+	Sample03-处理多个worksheet, 配置excel的配置项
