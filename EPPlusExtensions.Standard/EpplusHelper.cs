@@ -3551,7 +3551,7 @@ namespace EPPlusExtensions
         /// <param name="filePath"></param>
         /// <param name="fileOutDirectoryName"></param>
         /// <param name="dataConfigInfo"></param>
-        /// <param name="cellCustom"></param>
+        /// <param name="cellCustom">对单元格进行额外处理</param>
         /// <returns></returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
@@ -3578,7 +3578,7 @@ namespace EPPlusExtensions
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="dataConfigInfo">指定的worksheet</param>
-        /// <param name="cellCustom"></param>
+        /// <param name="cellCustom">对单元格进行额外处理</param>
         /// <returns>工作簿Name,DatTable的创建代码</returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
