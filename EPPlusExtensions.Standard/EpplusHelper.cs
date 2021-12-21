@@ -3948,10 +3948,18 @@ namespace EPPlusExtensions
         /// </summary>
         /// <param name="content"></param>
         /// <param name="outResultPrefix"></param>
+        /// <param name="alias"></param>
         /// <returns></returns>
-        public static string GetFillDefaultConfig(string content, string outResultPrefix = "$tb1")
+        public static string GetFillDefaultConfig(
+            string content,
+            string outResultPrefix = "$tb1",
+            Dictionary<string, string> alias = null)
         {
-            if (string.IsNullOrEmpty(content)) return content;
+            if (string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
+            alias ??= new Dictionary<string, string>();
             content = content.TrimEnd();
             content.RemoveLastChar('\n');//excel选择列复制出来到文本上有换行,最后一个字符的ascii 是10 \n
             content.RemoveLastChar('\r');//如果是自己敲入的回车,那么也去掉
@@ -3961,7 +3969,7 @@ namespace EPPlusExtensions
             StringBuilder sbColumn = new StringBuilder();
             foreach (var item in splits)
             {
-                var newName = ExtractName(item);
+                var newName = alias.ContainsKey(item) ? ExtractName(alias[item]) : ExtractName(item);
                 sb.Append($@"{outResultPrefix}{newName}{excel_cell_split[0]}");
                 sbColumn.AppendLine($"dt.Columns.Add(\"{newName}\");");
             }

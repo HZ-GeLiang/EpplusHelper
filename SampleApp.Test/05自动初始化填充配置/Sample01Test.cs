@@ -13,5 +13,12 @@ namespace SampleApp.Test._05自动初始化填充配置
             Assert.AreEqual(txt, result);
         }
 
+        [TestMethod]
+        public void TestMethod2()
+        {
+            var txt = SampleApp._05自动初始化填充配置.Sample01_alias.Run();
+            var result = "$tb1Index	$tb1工号	$tb1姓名	$tb1性别";
+            Assert.AreEqual(txt, result);
+        }
     }
 }
