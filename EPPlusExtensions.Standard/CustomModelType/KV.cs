@@ -329,7 +329,6 @@ namespace EPPlusExtensions.CustomModelType
             }
 
             pInfo.SetValue(model, modelValue);
-
         }
 
         public void SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
