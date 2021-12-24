@@ -18,7 +18,7 @@ namespace SampleApp._05自动初始化填充配置
             string filePath = @"模版\05自动初始化填充配置\Sample03.xlsx";
 
             using (var ms = new MemoryStream())
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var dataConfigInfo = new List<ExcelDataConfigInfo>()

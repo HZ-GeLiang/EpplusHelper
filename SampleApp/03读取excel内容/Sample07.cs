@@ -14,7 +14,7 @@ namespace SampleApp._03读取excel内容
         {
             return;//下面代码肯定异常
             string filePath = @"模版\03读取excel内容\Sample07.xlsx";
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
@@ -27,7 +27,7 @@ namespace SampleApp._03读取excel内容
         public static List<T> Run<T>() where T : class, new()
         {
             string filePath = @"模版\03读取excel内容\Sample07.xlsx";
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);

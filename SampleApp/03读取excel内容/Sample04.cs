@@ -16,7 +16,7 @@ namespace SampleApp._03读取excel内容
         {
             string filePath = @"模版\03读取excel内容\Sample04.xlsx";
             var wsName = "合并行读取";
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);

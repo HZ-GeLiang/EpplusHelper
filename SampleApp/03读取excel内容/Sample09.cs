@@ -49,7 +49,7 @@ namespace SampleApp._03读取excel内容
         public static List<ExcelModel> Run(string wsName)
         {
             string filePath = @"模版\03读取excel内容\Sample09.xlsx";
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, wsName);
