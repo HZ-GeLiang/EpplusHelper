@@ -107,7 +107,7 @@ namespace EPPlusExtensions
 
 
     /// <summary>
-    /// 
+    /// 泛型版本的 GetExcelListArgs , 会比 GetExcelListArgs 多3个参数
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class GetExcelListArgs<T> : GetExcelListArgs where T : class
