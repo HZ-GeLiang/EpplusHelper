@@ -1791,7 +1791,8 @@ namespace EPPlusExtensions
         private static List<PropertyInfo> ICustomersModelTypeList;
 
         /// <summary>
-        /// 无法添加 ,new()约束, 因为 datarow 就是没有的
+        /// 初始化参数模型
+        /// 无法添加 new() 约束, 因为 datarow 就是没有的
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -1827,6 +1828,7 @@ namespace EPPlusExtensions
                     ICustomersModelTypeList.Add(p);
                 }
             }
+
             return (T)model;
         }
 
@@ -1855,7 +1857,7 @@ namespace EPPlusExtensions
 
         public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class
         {
-            //这3个属性的<T>版本多出来的, 其余的默认值调用GetExcelListArgsDefault(),然后用反射赋值
+            //这3个属性 是 <T> 版本多出来的, 其余的默认值调用 GetExcelListArgsDefault(),然后用反射赋值
             var argsReturn = new GetExcelListArgs<T>
             {
                 HavingFilter = null,
@@ -1863,7 +1865,10 @@ namespace EPPlusExtensions
                 Model = InitGetExcelListArgsModel<T>(),
             };
             var args = GetExcelListArgsDefault(ws, rowIndex);
-            var dict = ReflectionHelper.GetProperties(typeof(GetExcelListArgs)).ToDictionary(item => item.Name, item => item.GetValue(args));
+            var dict = ReflectionHelper.GetProperties(typeof(GetExcelListArgs))
+                        .ToDictionary(item => item.Name, item => item.GetValue(args));
+
+            #region 反射赋值
 
             foreach (var item in ReflectionHelper.GetProperties(typeof(GetExcelListArgs<T>)))
             {
@@ -1871,7 +1876,8 @@ namespace EPPlusExtensions
                 {
                     item.SetValue(argsReturn, dict[item.Name]);
                 }
-            }
+            } 
+            #endregion
 
             return argsReturn;
         }
