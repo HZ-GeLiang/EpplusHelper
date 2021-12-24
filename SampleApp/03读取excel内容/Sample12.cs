@@ -24,7 +24,7 @@ namespace SampleApp._03读取excel内容
             var errorMsg = EPPlusHelper.GetListErrorMsg(() =>
             {
                 string filePath = @"模版\03读取excel内容\Sample12.xlsx";
-                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var fs = EPPlusHelper.GetFileStream(filePath))
                 using (var excelPackage = new ExcelPackage(fs))
                 {
                     var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "Sheet1");

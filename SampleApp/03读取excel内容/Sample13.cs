@@ -12,14 +12,14 @@ namespace SampleApp._03读取excel内容
         public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample13.xlsx";
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
                 var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
                 //args.ScanLine = ScanLine.MergeLine;//默认的
-                args.ScanLine = ScanLine.SingleLine; 
-                var list = EPPlusHelper.GetList(args).ToList(); 
+                args.ScanLine = ScanLine.SingleLine;
+                var list = EPPlusHelper.GetList(args).ToList();
                 ObjectDumper.Write(list);
                 Console.WriteLine("读取完毕");
                 return list;

@@ -19,7 +19,7 @@ namespace SampleApp._02填充图片
             string filePathSave = @"模版\02填充图片\ResultSample01.xlsx";
             var wsName = 1;
             using (var ms = new MemoryStream())
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var config = EPPlusHelper.GetEmptyConfig();

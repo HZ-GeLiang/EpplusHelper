@@ -15,7 +15,7 @@ namespace SampleApp._04填充数据与数据源同步
             string filePath = @"模版\04填充数据与数据源同步\Sample01.xlsx";
             var wsName = "Sheet1";
             using (var ms = new MemoryStream())
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var config = EPPlusHelper.GetEmptyConfig();

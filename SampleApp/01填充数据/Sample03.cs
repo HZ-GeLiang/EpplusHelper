@@ -15,7 +15,7 @@ namespace SampleApp._01填充数据
             string filePath = @"模版\01填充数据\Sample01.xlsx";
             var wsName = "带标题行且填充列有间隔";
             using (var ms = new MemoryStream())
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 var config = EPPlusHelper.GetEmptyConfig();
