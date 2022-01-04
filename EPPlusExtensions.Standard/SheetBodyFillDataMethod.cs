@@ -15,7 +15,7 @@ namespace EPPlusExtensions
         /// <summary>
         /// 填充数据同步方式
         /// </summary>
-        public SynchronizationDataSourceConfig SynchronizationDataSource = new SynchronizationDataSourceConfig();
+        public SynchronizationDataSourceConfig SynchronizationDataSource = new();
 
     }
 
@@ -27,7 +27,8 @@ namespace EPPlusExtensions
         Default = 1,
         /// <summary>
         /// 在约定填充的基础上,数据源 DataTable 的列如果没有被填充使用,那么将自动填充
-        /// 目前仅对单行的模版有效,且不包含样式(包括但不限于单行多列单元格)的新增
+        /// 目前仅对单行的模版有效
+        /// 新增不包含样式(包括但不限于单行多列单元格)的新增
         /// </summary>
         SynchronizationDataSource = 2
 

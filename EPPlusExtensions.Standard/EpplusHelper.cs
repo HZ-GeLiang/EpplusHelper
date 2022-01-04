@@ -239,10 +239,10 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 获得工作簿,根据第二个参数,可以用来 获得隐藏的工作簿
+        /// 获得excel有哪些工作簿名称
         /// </summary>
         /// <param name="excelPackage"></param>
-        /// <param name="eWorkSheetHiddens"></param>
+        /// <param name="eWorkSheetHiddens"> 可以用来获得隐藏的工作簿</param>
         /// <returns></returns>
         public static List<string> GetWorkSheetNames(ExcelPackage excelPackage, params eWorkSheetHidden[] eWorkSheetHiddens)
         {
@@ -337,7 +337,7 @@ namespace EPPlusExtensions
             int sheetBodyAddRowCount = 0;
             if (configSource?.Body?.ConfigList.Count > 0)
             {
-                long allDataTableRows = 0;
+                int allDataTableRows = 0;
                 foreach (var bodyInfo in configSource.Body.ConfigList)
                 {
                     allDataTableRows += bodyInfo?.Option?.DataSource?.Rows.Count ?? 0;
@@ -491,7 +491,7 @@ namespace EPPlusExtensions
                 int lastSpaceLineInterval = 0; //表示最后一空白行由多少行组成,默认为0
                 int lastSpaceLineRowNumber = 0; //表示最后一行的行号是多少
                 int tempLine = dictConfig[nth].MapperExcelTemplateLine ?? 1; //获得第N个配置中excel模版提供了多少行,默认1行
-                var hasMergeCell = dictConfig[nth].ConfigLine.Find(a => a.Address.Contains(":")) != null;
+                var hasMergeCell = dictConfig[nth].ConfigLine?.Find(a => a.Address.Contains(":")) != null;
                 Dictionary<string, FillDataColumns> fillDataColumnsStat = null;//Datatable 的列的使用情况  
 
                 //3.赋值
@@ -1686,7 +1686,7 @@ namespace EPPlusExtensions
             DeleteFillDateStartLineWhenDataSourceEmpty = false,
         };
 
-        public static EPPlusConfigSource GetEmptyConfigSource() => new EPPlusConfigSource()
+        public static EPPlusConfigSource GetEmptyConfigSource() => new ()
         {
             Head = new EPPlusConfigSourceHead(),
             Body = new EPPlusConfigSourceBody(),
@@ -1828,7 +1828,6 @@ namespace EPPlusExtensions
                     ICustomersModelTypeList.Add(p);
                 }
             }
-
             return (T)model;
         }
 
@@ -1857,7 +1856,7 @@ namespace EPPlusExtensions
 
         public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class
         {
-            //这3个属性 是 <T> 版本多出来的, 其余的默认值调用 GetExcelListArgsDefault(),然后用反射赋值
+            //这3个属性的 <T> 版本多出来的, 其余的默认值调用 GetExcelListArgsDefault(),然后用反射赋值
             var argsReturn = new GetExcelListArgs<T>
             {
                 HavingFilter = null,
@@ -2642,6 +2641,11 @@ namespace EPPlusExtensions
             return dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
         }
 
+        /// <summary>
+        /// 读取excel, 返回一个DataTable
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public static DataTable GetDataTable(GetExcelListArgs<DataRow> args)
         {
             ExcelWorksheet ws = args.ws;
@@ -2789,7 +2793,13 @@ namespace EPPlusExtensions
 
             #endregion
 
-            return args.HavingFilter is null ? dt : dt.AsEnumerable().Where(item => args.HavingFilter.Invoke(item)).CopyToDataTable();
+           var result = args.HavingFilter is null
+                ? dt
+                : dt.AsEnumerable()
+                    .Where(item => args.HavingFilter.Invoke(item))
+                    .CopyToDataTable();
+
+            return result;
         }
 
         private static string DealMatchingModelException(MatchingModelException matchingModelException)
@@ -3027,7 +3037,7 @@ namespace EPPlusExtensions
             if (workSheetName is null) throw new ArgumentNullException(nameof(workSheetName));
             var worksheet = GetExcelWorksheet(excelPackage, workSheetName);
             EPPlusHelper.SetDefaultConfigFromExcel(config, worksheet);
-            SetConfigBodyFromExcel_OtherPara(config, worksheet);
+            EPPlusHelper.SetConfigBodyFromExcel_OtherPara(config, worksheet);
         }
 
         /// <summary>
@@ -3082,8 +3092,12 @@ namespace EPPlusExtensions
         /// <param name="sheet"></param>
         public static void SetSheetCellsValueFromA1(ExcelWorksheet sheet)
         {
-            //遇到问题描述:创建一个excel,在C7,C8,C9,10单元格写入一些字符串, sheet.Cells.Value 是object[4,3]的数组, 但我要的是object[10,3]的数组
-            var cellA1 = sheet.Cells[1, 1];
+                       //这个可以解决这个问题:
+            //描述如下:创建一个excel,在C7,C8,C9,10单元格写入一些字符串,
+            //然后通过 sheet.Cells.Value 我获得是object[4,3]的数组,
+            //但我要的是object[10,3]的数组
+            //解决方法是设置单元的A1
+			   var cellA1 = sheet.Cells[1, 1];
             if (!cellA1.Merge && cellA1.Value is null)
             {
                 cellA1.Value = null;

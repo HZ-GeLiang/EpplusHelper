@@ -96,6 +96,9 @@ namespace EPPlusExtensions
             return val;
         };
 
+        /// <summary>
+        /// 设置工作簿的一些列宽,行高 等
+        /// </summary>
         public Action<ExcelWorksheet> WorkSheetDefault;
         //= worksheet =>
         //{
@@ -246,20 +249,22 @@ namespace EPPlusExtensions
         public InsertRowStyle InsertRowStyle { get; set; } = new InsertRowStyle();
 
         /// <summary>
-        /// 填充配置有的列,DataColumn必须存在
+        /// 填充配置有的列必须在DataColumn中存在
         /// </summary>
         public bool ConfigItemMustExistInDataColumn { get; set; } = true;
     }
 
+    /// <summary>
+    /// 自定义的值
+    /// </summary>
     public class CustomValue
     {
-
         /// <summary>
         /// 属性名:列名 (要填充的列,如姓名)
         /// </summary>
         public string ColName { get; set; }
         /// <summary>
-        ///属性值: 要填充的值 
+        /// 属性值: 要填充的值 
         /// </summary>
         public object Value { get; set; }
         /// <summary>
