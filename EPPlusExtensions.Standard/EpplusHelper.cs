@@ -301,8 +301,6 @@ namespace EPPlusExtensions
             if (workSheetNewName is null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetName is null) throw new ArgumentNullException(nameof(destWorkSheetName));
             ExcelWorksheet worksheet = GetExcelWorksheet(excelPackage, destWorkSheetName, workSheetNewName);
-            EPPlusHelper.FillDataWorkSheetNameList.Add(workSheetNewName);
-            config.WorkSheetDefault?.Invoke(worksheet);
             EPPlusHelper.FillData(config, configSource, worksheet);
         }
 
@@ -319,9 +317,8 @@ namespace EPPlusExtensions
             if (workSheetNewName is null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(destWorkSheetIndex));
 
-            ExcelWorksheet worksheet = EPPlusHelper.DuplicateWorkSheetAndRename(excelPackage, destWorkSheetIndex, workSheetNewName);
-            EPPlusHelper.FillDataWorkSheetNameList.Add(workSheetNewName);//往list里添加数据
-            config.WorkSheetDefault?.Invoke(worksheet);
+            ExcelWorksheet worksheet = EPPlusHelper.DuplicateWorkSheetAndRename(excelPackage, destWorkSheetIndex, workSheetNewName); 
+
             EPPlusHelper.FillData(config, configSource, worksheet);
         }
 
@@ -331,8 +328,11 @@ namespace EPPlusExtensions
         /// <param name="config"></param>
         /// <param name="configSource"></param>
         /// <param name="worksheet"></param>
-        private static void FillData(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
-        {
+        public static void FillData(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
+        { 
+            EPPlusHelper.FillDataWorkSheetNameList.Add(worksheet.Name);//往list里添加数据
+            config.WorkSheetDefault?.Invoke(worksheet);
+
             EPPlusHelper.FillData_Head(config, configSource, worksheet);
             int sheetBodyAddRowCount = 0;
             if (configSource?.Body?.ConfigList.Count > 0)
