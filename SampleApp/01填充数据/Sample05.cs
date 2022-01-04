@@ -30,6 +30,37 @@ namespace SampleApp._01填充数据
                 configSource.Body[1].Option.DataSource = GetDataTable_Body();
                 configSource.Body[1].Option.FillMethod = new SheetBodyFillDataMethod();
 
+                #region 配置公式, 以前写的代码, 这里记录一下
+
+                /*
+                //不用公式了, 直接算
+                //config.SheetBodyCellCustomSetValue.Add(1, (colName, val, cell) =>
+                //{
+                //    if (colName == "原币金额")
+                //    {
+                //        cell.Formula = (string)val;
+                //    }
+                //    else
+                //    {
+                //        cell.Value = val;
+                //    }
+                //}
+                //);
+
+                config.Body[1].Option.CustomSetValue = (customValue) =>
+                {
+                    customValue.Cell.Value = customValue.Value;
+                    if (customValue.ColName == "凭证摘要" && customValue.Value.ToString().Length > 40)
+                    {
+                        customValue.Cell.Style.Font.Color.SetColor(Color.Red); //字体颜色
+                        customValue.Cell.Value = customValue.Value.ToString().Substring(0, 40);
+                    }
+                };
+                config.Body[1].Option.ConfigItemMustExistInDataColumn = false;
+                */
+
+
+                #endregion
                 //配置项只到G列,但是H列还有公式,需要自己添加,如果不添加,在处理样式时,H列的公式将会没有
                 config.Body[1].Option.ConfigLine.Add(new EPPlusConfigFixedCell { Address = "H3" });//没办法在 SetConfigBodyFromExcel() 的 configLine中添加,需要自己写
 

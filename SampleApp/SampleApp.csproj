@@ -95,6 +95,7 @@
   <ItemGroup>
     <Content Include="CodeMigrate.txt" />
     <Compile Include="01填充数据\Sample02.cs" />
+    <Compile Include="01填充数据\Sample06.cs" />
     <Compile Include="01填充数据\Sample05.cs" />
     <Compile Include="01填充数据\Sample04.cs" />
     <Compile Include="01填充数据\Sample03.cs" />
