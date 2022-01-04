@@ -16,11 +16,11 @@ namespace EPPlusExtensions
         /// <summary>
         /// Maximum number of rows in a worksheet (1048576)
         /// </summary>
-        public const int MaxRow07 = 1048576;// 和内置的常量值一样 ExcelPackage.MaxRows;
+        public const int MaxRow07 = 1048576;// 和 epplus 内置的常量值 ExcelPackage.MaxRows 一样;
         /// <summary>
         /// Maximum number of columns in a worksheet (16384)
         /// </summary>
-        public const int MaxCol07 = 16384; // 和内置的常量值一样 ExcelPackage.MaxColumns;
+        public const int MaxCol07 = 16384; // 和 epplus 内置的常量值 ExcelPackage.MaxColumns 一样;
 
         //excel 2003 工作表最大有 2^16=65536行,2^8=256列
         //public static readonly int MaxRow03 = 65536;
