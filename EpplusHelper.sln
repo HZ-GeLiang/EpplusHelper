@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EPPlusTool", "EPPlusTool\EP
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NugetAddTest", "NugetAddTest", "{10E0830D-20D2-4383-99D9-5C4CC3495263}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core50", "Core50\Core50.csproj", "{131A5AB9-F0F0-4A45-90B7-391483F78F8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core50", "Core50\Core50.csproj", "{131A5AB9-F0F0-4A45-90B7-391483F78F8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nfx45", "nfx45\nfx45.csproj", "{2B7B5593-1744-4C16-A4D5-7965F6D40458}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,12 +43,17 @@ Global
 		{131A5AB9-F0F0-4A45-90B7-391483F78F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{131A5AB9-F0F0-4A45-90B7-391483F78F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{131A5AB9-F0F0-4A45-90B7-391483F78F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B7B5593-1744-4C16-A4D5-7965F6D40458}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B7B5593-1744-4C16-A4D5-7965F6D40458}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B7B5593-1744-4C16-A4D5-7965F6D40458}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B7B5593-1744-4C16-A4D5-7965F6D40458}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{131A5AB9-F0F0-4A45-90B7-391483F78F8D} = {10E0830D-20D2-4383-99D9-5C4CC3495263}
+		{2B7B5593-1744-4C16-A4D5-7965F6D40458} = {10E0830D-20D2-4383-99D9-5C4CC3495263}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D1884036-2D3A-419A-81FC-B9E20943ABB8}
