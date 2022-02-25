@@ -6,10 +6,22 @@ using System.Threading.Tasks;
 
 namespace nfx45
 {
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
+            //string filePath = @"C:\Users\gl\Desktop\02\637813937556790980 - 副本.xlsx";
+            //using (var fs = EPPlusHelper.GetFileStream(filePath))
+            //using (var excelPackage = new ExcelPackage(fs))
+            //{
+            //    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
+            //    var arg = EPPlusHelper.GetExcelListArgsDefault<Sheet1>(ws, 2);
+            //    arg.ScanLine = ScanLine.SingleLine;
+            //    var list = EPPlusHelper.GetList(arg).ToList();
+
+            //    Console.WriteLine("读取完毕");
+
+            //}
         }
     }
 }
