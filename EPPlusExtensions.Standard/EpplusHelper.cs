@@ -317,7 +317,7 @@ namespace EPPlusExtensions
             if (workSheetNewName is null) throw new ArgumentNullException(nameof(workSheetNewName));
             if (destWorkSheetIndex <= 0) throw new ArgumentOutOfRangeException(nameof(destWorkSheetIndex));
 
-            ExcelWorksheet worksheet = EPPlusHelper.DuplicateWorkSheetAndRename(excelPackage, destWorkSheetIndex, workSheetNewName); 
+            ExcelWorksheet worksheet = EPPlusHelper.DuplicateWorkSheetAndRename(excelPackage, destWorkSheetIndex, workSheetNewName);
 
             EPPlusHelper.FillData(config, configSource, worksheet);
         }
@@ -329,7 +329,7 @@ namespace EPPlusExtensions
         /// <param name="configSource"></param>
         /// <param name="worksheet"></param>
         public static void FillData(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
-        { 
+        {
             EPPlusHelper.FillDataWorkSheetNameList.Add(worksheet.Name);//往list里添加数据
             config.WorkSheetDefault?.Invoke(worksheet);
 
@@ -557,16 +557,13 @@ namespace EPPlusExtensions
                             object val = dictConfig[nth].ConfigItemMustExistInDataColumn
                                 ? row[colMapperName]
                                 : row.Table.Columns.Contains(colMapperName) ? row[colMapperName] : null;
-                            //#if DEBUG
-                            //                            if (!cellRange[j].IsMerge)
-                            //                            {
-                            //                                throw new Exception("填充数据时,合并单元格填充处不是合并单元格,请修改组件代码");
-                            //                            }
-                            //#endif
-                            Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(
-                               (!cellRange[j].IsMerge) == true,
-                                false,
-                                "这个断言应该不会生效,如果生效,则表示: 填充数据时,合并单元格填充处不是合并单元格,请修改组件代码");
+#if DEBUG
+                            if (!cellRange[j].IsMerge)
+                            {
+                                throw new Exception("填充数据时,合并单元格填充处不是合并单元格,请修改组件代码");
+                            }
+#endif
+
 
                             //int destRowStart = cellRange[j].Start.Row;
                             int destStartCol = cellRange[j].Start.Col;
@@ -1686,7 +1683,7 @@ namespace EPPlusExtensions
             DeleteFillDateStartLineWhenDataSourceEmpty = false,
         };
 
-        public static EPPlusConfigSource GetEmptyConfigSource() => new ()
+        public static EPPlusConfigSource GetEmptyConfigSource() => new()
         {
             Head = new EPPlusConfigSourceHead(),
             Body = new EPPlusConfigSourceBody(),
@@ -1875,7 +1872,7 @@ namespace EPPlusExtensions
                 {
                     item.SetValue(argsReturn, dict[item.Name]);
                 }
-            } 
+            }
             #endregion
 
             return argsReturn;
@@ -2207,17 +2204,12 @@ namespace EPPlusExtensions
 
                         #endregion
 
-                        //#if DEBUG
-                        //                        if ((_matchingModel & MatchingModel.eq) == MatchingModel.eq)
-                        //                        {
-                        //                            throw new Exception("断言:这里应该是不会进来的,debug下调试看看,进来是什么情况");
-                        //                        }
-                        //#endif
-
-                        Microsoft.VisualStudio.TestTools.UnitTesting.Assert.AreEqual(
-                           ((_matchingModel & MatchingModel.eq) == MatchingModel.eq) == true,
-                            false,
-                            "这个断言应该不会生效,如果生效,则表示:需要调试代码");
+#if DEBUG
+                        if ((_matchingModel & MatchingModel.eq) == MatchingModel.eq)
+                        {
+                            throw new Exception("断言:这里应该是不会进来的,debug下调试看看,进来是什么情况");
+                        }
+#endif
 
                     }
                     else
@@ -2793,11 +2785,11 @@ namespace EPPlusExtensions
 
             #endregion
 
-           var result = args.HavingFilter is null
-                ? dt
-                : dt.AsEnumerable()
-                    .Where(item => args.HavingFilter.Invoke(item))
-                    .CopyToDataTable();
+            var result = args.HavingFilter is null
+                 ? dt
+                 : dt.AsEnumerable()
+                     .Where(item => args.HavingFilter.Invoke(item))
+                     .CopyToDataTable();
 
             return result;
         }
@@ -3092,12 +3084,12 @@ namespace EPPlusExtensions
         /// <param name="sheet"></param>
         public static void SetSheetCellsValueFromA1(ExcelWorksheet sheet)
         {
-                       //这个可以解决这个问题:
+            //这个可以解决这个问题:
             //描述如下:创建一个excel,在C7,C8,C9,10单元格写入一些字符串,
             //然后通过 sheet.Cells.Value 我获得是object[4,3]的数组,
             //但我要的是object[10,3]的数组
             //解决方法是设置单元的A1
-			   var cellA1 = sheet.Cells[1, 1];
+            var cellA1 = sheet.Cells[1, 1];
             if (!cellA1.Merge && cellA1.Value is null)
             {
                 cellA1.Value = null;
