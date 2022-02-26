@@ -6,9 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-
-		<PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
-		<PackageReference Include="EPPlusHelper" Version="2.5.4" />
+	  <PackageReference Include="EPPlusHelper" Version="2.5.5" />
 	</ItemGroup>
 
 </Project>
