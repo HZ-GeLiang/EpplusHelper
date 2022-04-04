@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace EPPlusExtensions.Helper
 {
-    internal static class RegexHelper
+    internal sealed class RegexHelper
     {
         public static List<string> GetStringByReg(string source, string reg)
         {
@@ -19,7 +19,7 @@ namespace EPPlusExtensions.Helper
         {
             return Regex.Match(source, reg).Groups[0].Value;
         }
-        
+
         public static string GetFirstNumber(string source)
         {
             return Regex.Match(source, @"\d+").Groups[0].Value;
