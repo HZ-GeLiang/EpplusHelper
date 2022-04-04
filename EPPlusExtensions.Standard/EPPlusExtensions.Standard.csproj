@@ -18,7 +18,6 @@
 		<PackageId>EpplusHelper</PackageId>
 		<Description>can easily work with EPPlus to generate Excel(.xlsx) and get excel data</Description>
 		<PackageProjectUrl>https://gitee.com/hzgel/EpplusHelper</PackageProjectUrl>
-		<PackageLicenseUrl>https://gitee.com/hzgel/EpplusHelper/blob/master/LICENSE</PackageLicenseUrl>
 		<PackageTags>EPPlus, EPPlusHelper, Excel, ooxml</PackageTags>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<RepositoryType>gitee</RepositoryType>

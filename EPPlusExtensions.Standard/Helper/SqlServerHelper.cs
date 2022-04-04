@@ -7,7 +7,7 @@ using EPPlusExtensions.MethodExtension;
 
 namespace EPPlusExtensions.Helper
 {
-    internal class SqlServerHelper
+    internal sealed class SqlServerHelper
     {
         #region 一些默认的sql语句,SqlServer 下使用
 

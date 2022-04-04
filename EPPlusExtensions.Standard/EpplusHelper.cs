@@ -2285,7 +2285,7 @@ namespace EPPlusExtensions
 
             var allRowExceptions = args.GetList_NeedAllException ? new List<Exception>() : null;
 
-            Func<object[], object> deletgateCreateInstance = ExpressionTreeExtensions.BuildDeletgateCreateInstance(type, new Type[0]);
+            Func<object[], object> deletgateCreateInstance = ExpressionTreeHelper.BuildDeletgateCreateInstance(type, new Type[0]);
 
             var dynamicCalcStep = DynamicCalcStep(args.ScanLine);
             int row = args.DataRowStart;
