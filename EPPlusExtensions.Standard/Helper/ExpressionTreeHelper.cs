@@ -9,29 +9,8 @@ using EPPlusExtensions.MethodExtension;
 
 namespace EPPlusExtensions.Helper
 {
-    internal static class ExpressionTreeExtensions
+    internal sealed class ExpressionTreeHelper
     {
-        /// <summary>
-        /// Create object.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="objects"></param>
-        /// <returns></returns>
-        public static T CreateInstance<T>(this Type type, params object[] objects)
-        {
-            Type[] typeArray;
-            if (objects is null || objects.Length == 0)
-            {
-                typeArray = new Type[0];
-            }
-            else
-            {
-                typeArray = objects.Select(obj => obj.GetType()).ToArray();
-            }
-            Func<object[], object> deleObj = BuildDeletgateCreateInstance(type, typeArray);
-            return (T)deleObj(objects);
-        }
-
         /// <summary>
         /// Get a delegate object and use it to generate a entity class.
         /// </summary>
@@ -40,6 +19,19 @@ namespace EPPlusExtensions.Helper
         /// <returns></returns>
         public static Func<object[], object> BuildDeletgateCreateInstance(Type type, Type[] typeList)
         {
+            //Get an expression array.
+            Expression[] GetExpressionArray(Type[] typeList, ParameterExpression paramExp)
+            {
+                List<Expression> expList = new List<Expression>();
+                for (int i = 0; i < typeList.Length; i++)
+                {
+                    var paramObj = Expression.ArrayIndex(paramExp, Expression.Constant(i));
+                    var expObj = Expression.Convert(paramObj, typeList[i]);
+                    expList.Add(expObj);
+                }
+                return expList.ToArray();
+            }
+
             ConstructorInfo constructor = type.GetConstructor(typeList);
             if (constructor is null)
             {
@@ -67,25 +59,6 @@ namespace EPPlusExtensions.Helper
 
             Expression<Func<object[], object>> expObj = Expression.Lambda<Func<object[], object>>(newExp, paramExp);
             return expObj.Compile();
-        }
-
-        /// <summary>
-        /// Get an expression array.
-        /// </summary>
-        /// <param name="typeList"></param>
-        /// <param name="paramExp"></param>
-        /// <returns></returns>
-        private static Expression[] GetExpressionArray(Type[] typeList, ParameterExpression paramExp)
-        {
-            List<Expression> expList = new List<Expression>();
-            for (int i = 0; i < typeList.Length; i++)
-            {
-                var paramObj = Expression.ArrayIndex(paramExp, Expression.Constant(i));
-                var expObj = Expression.Convert(paramObj, typeList[i]);
-                expList.Add(expObj);
-            }
-
-            return expList.ToArray();
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EPPlusExtensions.Helper;
+using EPPlusExtensions.Utils;
 
 namespace EPPlusExtensions
 {
@@ -59,7 +59,7 @@ namespace EPPlusExtensions
             set
             {
                 var cell = GetCellAndTryAdd(key);
-                cell.FillValue = Utils.ConvertToTValue<TValue>(value);
+                cell.FillValue = ValueConvertUtil.ConvertToTValue<TValue>(value);
             }
         }
 
@@ -117,7 +117,7 @@ namespace EPPlusExtensions
                 var colName = dt.Columns[i].ColumnName;
                 if (!dict.ContainsKey(colName))
                 {
-                    dict.Add(colName, Utils.ConvertToTValue<TValue>(dr[i]));
+                    dict.Add(colName, ValueConvertUtil.ConvertToTValue<TValue>(dr[i]));
                 }
                 else
                 {
@@ -243,7 +243,7 @@ namespace EPPlusExtensions
         public new object this[string key]
         {
             get => base[key].FillValue;
-            set => base[key].FillValue = Utils.ConvertToTValue<TValue>(value);
+            set => base[key].FillValue = ValueConvertUtil.ConvertToTValue<TValue>(value);
         }
 
     }
@@ -275,7 +275,7 @@ namespace EPPlusExtensions
         public new object this[string key]
         {
             get => base[key].FillValue;
-            set => base[key].FillValue = Utils.ConvertToTValue<TValue>(value);
+            set => base[key].FillValue = ValueConvertUtil.ConvertToTValue<TValue>(value);
         }
 
     }

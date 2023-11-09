@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EPPlusExtensions;
+using OfficeOpenXml;
 
 namespace nfx45
 {
@@ -10,18 +12,20 @@ namespace nfx45
     {
         static void Main(string[] args)
         {
-            //string filePath = @"C:\Users\gl\Desktop\02\637813937556790980 - 副本.xlsx";
-            //using (var fs = EPPlusHelper.GetFileStream(filePath))
-            //using (var excelPackage = new ExcelPackage(fs))
-            //{
-            //    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
-            //    var arg = EPPlusHelper.GetExcelListArgsDefault<Sheet1>(ws, 2);
-            //    arg.ScanLine = ScanLine.SingleLine;
-            //    var list = EPPlusHelper.GetList(arg).ToList();
 
-            //    Console.WriteLine("读取完毕");
+            string filePath = @"D:\新建 Microsoft Excel 工作表.xlsx";
+            using (var fs = EPPlusHelper.GetFileStream(filePath))
+            using (var excelPackage = new ExcelPackage(fs))
+            {
+                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
+                var arg = EPPlusHelper.GetExcelListArgsDefault<Sheet1>(ws, 2);
+                arg.ScanLine = ScanLine.SingleLine;
+                var list = EPPlusHelper.GetList(arg).ToList();
 
-            //}
+                Console.WriteLine("读取完毕");
+
+            }
+
         }
     }
 }

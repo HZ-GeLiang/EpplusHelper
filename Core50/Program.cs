@@ -10,7 +10,7 @@ namespace Core50
     {
         static void Main(string[] args)
         {
-            string filePath = @"C:\Users\gl\Desktop\02\637813937556790980.xlsx";
+            string filePath = @"D:\新建 Microsoft Excel 工作表.xlsx";
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31829.152
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\SampleApp.csproj", "{D9EFFCCE-D280-42FA-A513-3127E4DF8FAA}"
 EndProject
@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NugetAddTest", "NugetAddTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core50", "Core50\Core50.csproj", "{131A5AB9-F0F0-4A45-90B7-391483F78F8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nfx45", "nfx45\nfx45.csproj", "{775ED1DA-C114-4B81-BD12-F3FF2754E664}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nfx48", "nfx45\nfx48.csproj", "{775ED1DA-C114-4B81-BD12-F3FF2754E664}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

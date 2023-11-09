@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EPPlusExtensions.Helper
+namespace EPPlusExtensions.Utils
 {
-    internal class Utils
+    internal sealed class ValueConvertUtil
     {
+        //不支持nullable类型(有需要在替换这个方法)
         public static TValue ConvertToTValue<TValue>(object obj)
         {
             if (obj is TValue)
@@ -15,14 +16,14 @@ namespace EPPlusExtensions.Helper
                 return (TValue)obj;
             }
 
-            if (typeof(TValue) == typeof(Object))
+            if (typeof(TValue) == typeof(object))
             {
                 return (TValue)obj;
             }
 
             if (obj is null || obj == DBNull.Value)
             {
-                return default(TValue);
+                return default;
             }
 
             if (obj.GetType().IsValueType)

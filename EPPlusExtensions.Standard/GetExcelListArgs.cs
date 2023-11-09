@@ -100,9 +100,7 @@ namespace EPPlusExtensions
         /// <summary>
         /// 当GetList_NeedAllException 为 true 时, 错误消息只显示列信息
         /// </summary>
-        public bool GetList_ErrorMessage_OnlyShowColomn = false; 
-
-
+        public bool GetList_ErrorMessage_OnlyShowColomn = false;
     }
 
 
@@ -128,7 +126,7 @@ namespace EPPlusExtensions
 
     }
 
-    public class KVSource : System.Collections.Generic.Dictionary<string, object> { }
+    public class KVSource : Dictionary<string, object> { }
 
     [Flags]
     public enum ReadCellValueOption

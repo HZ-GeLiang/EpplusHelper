@@ -13,37 +13,37 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<Authors>GeLiang</Authors>
+		<Company>GeLiang</Company>
+		<Copyright>Copyright (c) GeLiang</Copyright>
+		<PackageId>EpplusHelper</PackageId>
 		<Description>can easily work with EPPlus to generate Excel(.xlsx) and get excel data</Description>
 		<PackageProjectUrl>https://gitee.com/hzgel/EpplusHelper</PackageProjectUrl>
-		<PackageLicenseUrl>https://gitee.com/hzgel/EpplusHelper/blob/master/LICENSE</PackageLicenseUrl>
-		<Copyright>Copyright (c) GeLiang</Copyright>
 		<PackageTags>EPPlus, EPPlusHelper, Excel, ooxml</PackageTags>
-		<Company>GeLiang</Company>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<RepositoryType>gitee</RepositoryType>
-		<Version>2.5.1</Version>
+		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+		<Version>2.5.5</Version>
 		<LangVersion>9</LangVersion>
 	</PropertyGroup>
 
 	<!--引用包:断言-->
-	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+	<!--<ItemGroup Condition="'$(SolutionDir)|$(TargetFramework)' == 'Debug|net45'">
 		<Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
 			<HintPath>..\packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
 		</Reference>
-		<!--<Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+		<Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
 			<HintPath>..\packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
-		</Reference>-->
+		</Reference>
+	
 	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-		<!--<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />-->
+	<ItemGroup Condition="'$(SolutionDir)|$(TargetFramework)' == 'Debug|netstandard2.0'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
 		<PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
-	</ItemGroup>
+	</ItemGroup>-->
 
 	<!--引用包-->
 	<ItemGroup>
 		<PackageReference Include="EPPlus" Version="4.5.3.3" />
-
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
@@ -55,6 +55,4 @@
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 	</ItemGroup>
-
-
 </Project>
