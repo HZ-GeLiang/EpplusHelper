@@ -24,7 +24,8 @@ namespace EPPlusExtensions
         /// </summary>
         public static List<string> FillDataWorkSheetNameList = new List<string>();
 
-        public const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; //类型参考网址: http://filext.com/faq/office_mime_types.php
+        //类型参考网址: http://filext.com/faq/office_mime_types.php
+        public const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
         #region GetExcelWorksheet
 
