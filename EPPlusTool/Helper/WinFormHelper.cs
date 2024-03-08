@@ -5,6 +5,35 @@ namespace EPPlusTool.Helper
 {
     internal class WinFormHelper
     {
+        /// <summary>
+        /// 弹出一个选择目录的对话框
+        /// </summary>
+        /// <param name="selectedPath">默认路径</param>
+        /// <returns></returns>
+        public static string SelectFileDirectory(string selectedPath)
+        {
+            using (FolderBrowserDialog dialog = new FolderBrowserDialog())
+            {
+                // 设置初始目录
+                if (string.IsNullOrWhiteSpace(selectedPath) == false)
+                {
+                    dialog.SelectedPath = selectedPath;
+                }
+
+                DialogResult result = dialog.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    string selectedFolderPath = dialog.SelectedPath;
+                    //Console.WriteLine("Selected Folder: " + selectedFolderPath);
+                    return selectedFolderPath;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+        }
 
         /// <summary>
         /// 弹出一个选择文件的对话框
