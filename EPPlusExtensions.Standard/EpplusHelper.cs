@@ -1604,25 +1604,28 @@ namespace EPPlusExtensions
                 return;
             }
             var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
-            if (attrs.Length <= 0)
+            if (attrs.Length == 1)
             {
-                return;
-            }
-
-            var attr = (EnumUndefinedAttribute)attrs[0];
-            if (attr.Args is null || attr.Args.Length <= 0)
-            {
-                if (string.IsNullOrEmpty(attr.ErrorMessage))
+                //使用自定义消息
+                var attr = (EnumUndefinedAttribute)attrs[0];
+                if (attr.Args is null || attr.Args.Length <= 0)
                 {
-                    throw new ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                    if (string.IsNullOrEmpty(attr.ErrorMessage))
+                    {
+                        throw new ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                    }
+
+                    throw new ArgumentException(attr.ErrorMessage);
                 }
 
-                throw new ArgumentException(attr.ErrorMessage);
+                var message = FormatAttributeMsg(pInfo.Name, model, value, attr.ErrorMessage, attr.Args);
+                throw new ArgumentException(message);
             }
-
-            var message = FormatAttributeMsg(pInfo.Name, model, value, attr.ErrorMessage, attr.Args);
-            throw new ArgumentException(message);
-
+            else
+            {
+                //使用枚举类型内置的消息: 未找到请求的值“xxx”。
+                //throw new ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+            }
         }
 
         /// <summary>
@@ -2456,11 +2459,9 @@ namespace EPPlusExtensions
                         if (exception != null)
                         {
                             thisRowExceptions.Add(exception);
-
                         }
                     }
                 }
-
 
                 //1.添加Step,准备读取下一行数据
                 if (dynamicCalcStep)
@@ -2505,9 +2506,7 @@ namespace EPPlusExtensions
                         yield return model;
                     }
                 }
-
             }
-
 
             var keyWithExceptionMessageStart = "无效的单元格:";
             if (allRowExceptions != null && allRowExceptions.Count > 0)
@@ -3520,6 +3519,11 @@ namespace EPPlusExtensions
 
                 //}
                 return cell.Text;//有的单元格通过cell.Text取值会发生异常,但cell.Value却是有值的
+
+                //例如，如果你在单元格中输入日期"2024-04-14"并将其格式化为日期格式，
+                //Excel将会在"Text"中显示"2024-04-14"，但在"Value"中存储对应的序列号（如45396）。
+                //详见示例07
+
             }
             catch (NullReferenceException)
             {

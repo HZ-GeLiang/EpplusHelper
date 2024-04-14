@@ -12,18 +12,31 @@ namespace SampleApp._03读取excel内容
     {
         public static void Run()
         {
-            return;//下面代码肯定异常
-            string filePath = @"模版\03读取excel内容\Sample07.xlsx";
-            using (var fs = EPPlusHelper.GetFileStream(filePath))
-            using (var excelPackage = new ExcelPackage(fs))
+            //return;//下面代码肯定异常
+
+            try
             {
-                var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
-                var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
-                var list = EPPlusHelper.GetList(args);
-                ObjectDumper.Write(list);
-                Console.WriteLine("读取完毕");
+                string filePath = @"模版\03读取excel内容\Sample07.xlsx";
+                using (var fs = EPPlusHelper.GetFileStream(filePath))
+                using (var excelPackage = new ExcelPackage(fs))
+                {
+                    var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, 1);
+                    var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel>(ws, 2);
+                    //var args = EPPlusHelper.GetExcelListArgsDefault<ExcelModel2>(ws, 2);
+                    var list = EPPlusHelper.GetList(args);
+                    ObjectDumper.Write(list);
+                    Console.WriteLine("读取完毕");
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.InnerException.Message);
+                Console.ReadKey();
+            }
+
         }
+
         public static List<T> Run<T>() where T : class, new()
         {
             string filePath = @"模版\03读取excel内容\Sample07.xlsx";
@@ -42,7 +55,7 @@ namespace SampleApp._03读取excel内容
             public int 序号 { get; set; }
             //[Unique()]
             public string 名字 { get; set; }
-            // [EnumUndefined("{0}的性别'{1}'填写不正确", "名字", "性别")]
+            //[EnumUndefined("{0}的性别填写不正确:'{1}'", "名字", "性别")]
             public Gender? 性别 { get; set; }
             public DateTime? 出生日期 { get; set; }
             public string 身份证号码 { get; set; }
@@ -82,7 +95,7 @@ namespace SampleApp._03读取excel内容
             public int 序号 { get; set; }
             //[Unique()]
             public string 名字 { get; set; }
-            [EnumUndefined("{0}的性别'{1}'填写不正确", "名字", "性别")]
+            [EnumUndefined("{0}的性别填写不正确:'{1}'", "名字", "性别")]
             public Gender? 性别 { get; set; }
             public DateTime? 出生日期 { get; set; }
             public string 身份证号码 { get; set; }
