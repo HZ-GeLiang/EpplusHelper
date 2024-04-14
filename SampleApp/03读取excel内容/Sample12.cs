@@ -45,6 +45,21 @@ namespace SampleApp._03读取excel内容
             {
                 Console.WriteLine(errorMsg);
                 throw new Exception(errorMsg);
+
+                /*
+args.GetList_NeedAllException = true;
+程序报错:Message:
+无效的数字
+参数名: 姓名(B列),
+无效的数字
+参数名: 班级(C列)
+
+args.GetList_NeedAllException = false; 
+程序报错:Message:
+无效的单元格:B3程序报错:InnerExceptionMessage:
+无效的数字
+参数名: 姓名
+                 */
             }
             else
             {
