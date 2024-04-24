@@ -9,6 +9,7 @@ namespace SampleApp._03读取excel内容
 {
     public class Sample13
     {
+        //逐行读取
         public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample13.xlsx";

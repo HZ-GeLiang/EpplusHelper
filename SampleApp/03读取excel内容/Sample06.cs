@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
+    
     public class Sample06
     {
         public static void Run()
@@ -15,6 +16,8 @@ namespace SampleApp._03读取excel内容
             Sample06.Run<Sample06.ExcelModel>();
         }
 
+
+        //数据实体验证
         public static List<T> Run<T>() where T : class, new()
         {
             string filePath = @"模版\03读取excel内容\Sample06.xlsx";

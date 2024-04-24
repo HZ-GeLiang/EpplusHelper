@@ -12,6 +12,7 @@ namespace SampleApp._03读取excel内容
     /// </summary>
     public class Sample09
     {
+        //提交的Excel文件模版验证
         public static void Run()
         {
             foreach (var item in TestCaseList)

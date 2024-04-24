@@ -9,8 +9,10 @@ namespace SampleApp._03读取excel内容
 {
     public class Sample02
     {
+        //合并行读取
         public static List<ExcelModel> Run()
         {
+
             string filePath = @"模版\03读取excel内容\Sample02.xlsx";
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))

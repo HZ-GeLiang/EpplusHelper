@@ -9,6 +9,7 @@ namespace SampleApp._03读取excel内容
 {
     public class Sample14
     {
+        //异常检测提示:起始行不能是合并行, 限制场景: 忘记了...
         public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample14.xlsx";

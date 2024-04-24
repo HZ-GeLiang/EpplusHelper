@@ -18,6 +18,8 @@ namespace SampleApp._03读取excel内容
         {
             Run<ExcelModel2>(OnlyShowColomn);
         }
+
+        //数据读取: 显示所有错误
         public static List<T> Run<T>(bool OnlyShowColomn) where T : class, new()
         {
             List<T> excelList = null;

@@ -10,6 +10,7 @@ namespace SampleApp._03读取excel内容
 {
     public class Sample11
     {
+        //列名重复: 指定实体属性
         public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample11.xlsx";

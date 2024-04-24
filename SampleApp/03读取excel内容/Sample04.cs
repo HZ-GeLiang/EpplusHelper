@@ -12,6 +12,7 @@ namespace SampleApp._03读取excel内容
 {
     public class Sample04
     {
+        //数据源中有字典数据
         public static List<ExcelModel> Run()
         {
             string filePath = @"模版\03读取excel内容\Sample04.xlsx";

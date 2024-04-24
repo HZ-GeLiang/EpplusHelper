@@ -9,6 +9,7 @@ namespace SampleApp._03读取excel内容
 {
     public class Sample10
     {
+        //数据过滤
         public static DataTable Run()
         {
             string filePath = @"模版\03读取excel内容\Sample01.xlsx";
