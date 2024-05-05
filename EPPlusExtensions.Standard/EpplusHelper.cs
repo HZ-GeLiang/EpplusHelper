@@ -3640,6 +3640,11 @@ namespace EPPlusExtensions
                 {
                     continue;
                 }
+
+                if (configInfo.TitleLine == 0 && configInfo.TitleColumn == 0)
+                {
+                    continue;
+                }
                 var address = GetMergeCellAddressPrecise(ws, row: configInfo.TitleLine, col: configInfo.TitleColumn);
                 var cellRange = new ExcelCellRange(address);
                 if (cellRange.IsMerge)
