@@ -1834,13 +1834,19 @@ namespace EPPlusExtensions
             return (T)model;
         }
 
-        public static GetExcelListArgs GetExcelListArgsDefault(ExcelWorksheet ws, int rowIndex)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <param name="rowStart"><inheritdoc cref="GetExcelListArgs.DataRowStart" path="/summary"/></param>
+        /// <returns></returns>
+        public static GetExcelListArgs GetExcelListArgsDefault(ExcelWorksheet ws, int rowStart)
         {
             var args = new GetExcelListArgs
             {
                 ws = ws,
-                DataRowStart = rowIndex,
-                DataTitleRow = rowIndex - 1,
+                DataRowStart = rowStart,
+                DataTitleRow = rowStart - 1,
                 EveryCellPrefix = "",
                 EveryCellReplaceList = null,
                 UseEveryCellReplace = true,
@@ -1857,7 +1863,14 @@ namespace EPPlusExtensions
             return args;
         }
 
-        public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowIndex) where T : class
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ws"></param>
+        /// <param name="rowStart"><inheritdoc cref="GetExcelListArgs.DataRowStart" path="/summary"/></param>
+        /// <returns></returns>
+        public static GetExcelListArgs<T> GetExcelListArgsDefault<T>(ExcelWorksheet ws, int rowStart) where T : class
         {
             //这3个属性的 <T> 版本多出来的, 其余的默认值调用 GetExcelListArgsDefault(),然后用反射赋值
             var argsReturn = new GetExcelListArgs<T>
@@ -1866,7 +1879,7 @@ namespace EPPlusExtensions
                 WhereFilter = null,
                 Model = InitGetExcelListArgsModel<T>(),
             };
-            var args = GetExcelListArgsDefault(ws, rowIndex);
+            var args = GetExcelListArgsDefault(ws, rowStart);
             var dict = ReflectionHelper.GetProperties(typeof(GetExcelListArgs))
                         .ToDictionary(item => item.Name, item => item.GetValue(args));
 
@@ -1889,11 +1902,11 @@ namespace EPPlusExtensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ws"></param>
-        /// <param name="rowIndex">数据起始行(不含列名),从1开始</param>
+        /// <param name="rowStart">数据起始行(不含列名),从1开始</param>
         /// <returns></returns>
-        public static IEnumerable<T> GetList<T>(ExcelWorksheet ws, int rowIndex) where T : class, new()
+        public static IEnumerable<T> GetList<T>(ExcelWorksheet ws, int rowStart) where T : class, new()
         {
-            var args = EPPlusHelper.GetExcelListArgsDefault<T>(ws, rowIndex);
+            var args = EPPlusHelper.GetExcelListArgsDefault<T>(ws, rowStart);
             return EPPlusHelper.GetList<T>(args);
         }
 
@@ -1902,13 +1915,13 @@ namespace EPPlusExtensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ws"></param>
-        /// <param name="rowIndex">数据起始行(不含列名),从1开始</param> 
+        /// <param name="rowStart">数据起始行(不含列名),从1开始</param> 
         /// <param name="everyCellReplaceOldValue"></param>
         /// <param name="everyCellReplaceNewValue"></param>
         /// <returns></returns>
-        public static IEnumerable<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellReplaceOldValue, string everyCellReplaceNewValue) where T : class, new()
+        public static IEnumerable<T> GetList<T>(ExcelWorksheet ws, int rowStart, string everyCellReplaceOldValue, string everyCellReplaceNewValue) where T : class, new()
         {
-            var args = GetExcelListArgsDefault<T>(ws, rowIndex);
+            var args = GetExcelListArgsDefault<T>(ws, rowStart);
             if (everyCellReplaceOldValue != null && everyCellReplaceNewValue != null)
             {
                 args.EveryCellReplaceList = new Dictionary<string, string> { { everyCellReplaceOldValue, everyCellReplaceNewValue } };
@@ -1916,9 +1929,9 @@ namespace EPPlusExtensions
             return GetList<T>(args);
         }
 
-        public static IEnumerable<T> GetList<T>(ExcelWorksheet ws, int rowIndex, string everyCellPrefix, Dictionary<string, string> everyCellReplace) where T : class, new()
+        public static IEnumerable<T> GetList<T>(ExcelWorksheet ws, int rowStart, string everyCellPrefix, Dictionary<string, string> everyCellReplace) where T : class, new()
         {
-            var args = GetExcelListArgsDefault<T>(ws, rowIndex);
+            var args = GetExcelListArgsDefault<T>(ws, rowStart);
             args.EveryCellPrefix = everyCellPrefix;
             args.EveryCellReplaceList = everyCellReplace;
             return GetList<T>(args);
@@ -1933,20 +1946,20 @@ namespace EPPlusExtensions
 
         public static IEnumerable<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
-            string GetValue(PropertyInfo pInfo, int rowIndex, int colIndex)
+            string GetValue(PropertyInfo pInfo, int rowStart, int colIndex)
             {
                 //string value;
                 //if (pInfo.PropertyType == typeof(DateTime?) || pInfo.PropertyType == typeof(DateTime))
                 //{
                 //    //todo:对于日期类型的,有时候要获取Cell.Value, 有空了修改
-                //    value = GetMergeCellText(args.ws, rowIndex, colIndex);
+                //    value = GetMergeCellText(args.ws, rowStart, colIndex);
                 //}
                 //else
                 //{
-                //    value = GetMergeCellText(args.ws, rowIndex, colIndex);
+                //    value = GetMergeCellText(args.ws, rowStart, colIndex);
                 //}
                 //return value;
-                return GetMergeCellText(args.ws, rowIndex, colIndex);
+                return GetMergeCellText(args.ws, rowStart, colIndex);
             }
 
             var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值, 放在第一行还是因为 单元测试 03.02的示例
@@ -2643,10 +2656,10 @@ namespace EPPlusExtensions
         public static DataTable GetDataTable(GetExcelListArgs<DataRow> args)
         {
             ExcelWorksheet ws = args.ws;
-            int rowIndex = args.DataRowStart;
-            if (rowIndex <= 0)
+            int rowStart = args.DataRowStart;
+            if (rowStart <= 0)
             {
-                throw new ArgumentException($@"数据起始行值'{rowIndex}'错误,值应该大于0");
+                throw new ArgumentException($@"数据起始行值'{rowStart}'错误,值应该大于0");
             }
 
             if (args.DataTitleRow <= 0)
@@ -2679,7 +2692,7 @@ namespace EPPlusExtensions
 
             #region 获得 list
 
-            int row = rowIndex;
+            int row = rowStart;
             bool dynamicCalcStep = DynamicCalcStep(args.ScanLine);
             ExcelCellInfoNeedTo(args.ReadCellValueOption, out var toTrim, out var toMergeLine, out var toDBC);
             while (true)
@@ -2757,7 +2770,7 @@ namespace EPPlusExtensions
 
                 if (isNoDataAllColumn)
                 {
-                    if (row == rowIndex)//数据起始行是空行
+                    if (row == rowStart)//数据起始行是空行
                     {
                         throw new Exception("不要上传一份空的模版文件");
                     }
@@ -4210,11 +4223,11 @@ namespace EPPlusExtensions
             {
                 rowEndIndex = EPPlusConfig.MaxRow07;
             }
-            for (int rowIndex = rowStartIndex; rowIndex <= rowEndIndex; rowIndex++)
+            for (int rowStart = rowStartIndex; rowStart <= rowEndIndex; rowStart++)
             {
-                if (ws.Row(rowIndex).Hidden)
+                if (ws.Row(rowStart).Hidden)
                 {
-                    action.Invoke(ws.Row(rowIndex));
+                    action.Invoke(ws.Row(rowStart));
                 }
             }
         }

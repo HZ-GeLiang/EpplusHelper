@@ -28,7 +28,7 @@ namespace EPPlusExtensions
         public ExcelWorksheet ws { get; set; }
 
         /// <summary>
-        /// 数据的标题行,自带方法提供的默认值是1 即:RowIndex_Data -1
+        /// 数据的标题行,自带方法提供的默认值是1
         /// </summary>
         public int DataTitleRow { get; set; }
 
