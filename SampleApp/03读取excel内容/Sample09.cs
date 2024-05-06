@@ -1,4 +1,5 @@
 ﻿using EPPlusExtensions;
+using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -65,6 +66,10 @@ namespace SampleApp._03读取excel内容
         {
             public string a { get; set; }
             public string b { get; set; }
+
+
+            [Ingore]
+            public string trest { get; set; }
 
             public override bool Equals(object obj)
             {

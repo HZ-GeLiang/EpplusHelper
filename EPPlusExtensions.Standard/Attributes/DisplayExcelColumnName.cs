@@ -3,9 +3,8 @@
 namespace EPPlusExtensions.Attributes
 {
     /// <summary>
-    /// excel上的标题列
+    /// Excel上的标题列
     /// </summary>
-
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class DisplayExcelColumnNameAttribute : Attribute
     {

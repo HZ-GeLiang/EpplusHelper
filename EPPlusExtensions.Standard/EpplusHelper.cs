@@ -2029,24 +2029,30 @@ namespace EPPlusExtensions
             Type type = typeof(T);
 
             #region 获得字典
+            //1.初始化3个dict
             var dictModelPropNameExistsExcelColumn = new Dictionary<string, bool>();//Model属性在Excel列中存在, key: ModelPropName
             var dictModelPropNameToExcelColumnName = new Dictionary<string, string>();//Model属性名字对应的excel的标题列名字
             var dictExcelColumnIndexToModelPropName_Temp = new Dictionary<int, string>();//Excel的列标题和Model属性名字的映射
-                                                                                         //初始化上面3个dict
-            foreach (var props in type.GetProperties())
+                                                                                       
+            foreach (var propInfo in type.GetProperties())
             {
-                dictModelPropNameExistsExcelColumn.Add(props.Name, false);
-                dictModelPropNameToExcelColumnName.Add(props.Name, null);
+                if (ReflectionHelper.GetAttributeForProperty<IngoreAttribute>(type, propInfo.Name).Any())
+                {
+                    continue;
+                }              
 
-                var propAttr_DisplayExcelColumnName = ReflectionHelper.GetAttributeForProperty<DisplayExcelColumnNameAttribute>(type, props.Name);
+                dictModelPropNameExistsExcelColumn.Add(propInfo.Name, false);
+                dictModelPropNameToExcelColumnName.Add(propInfo.Name, null);
+
+                var propAttr_DisplayExcelColumnName = ReflectionHelper.GetAttributeForProperty<DisplayExcelColumnNameAttribute>(type, propInfo.Name);
                 if (propAttr_DisplayExcelColumnName.Length > 0)
                 {
-                    dictModelPropNameToExcelColumnName[props.Name] = ((DisplayExcelColumnNameAttribute)propAttr_DisplayExcelColumnName[0]).Name;
+                    dictModelPropNameToExcelColumnName[propInfo.Name] = ((DisplayExcelColumnNameAttribute)propAttr_DisplayExcelColumnName[0]).Name;
                 }
-                var propAttr_ExcelColumnIndex = ReflectionHelper.GetAttributeForProperty<ExcelColumnIndexAttribute>(type, props.Name);
+                var propAttr_ExcelColumnIndex = ReflectionHelper.GetAttributeForProperty<ExcelColumnIndexAttribute>(type, propInfo.Name);
                 if (propAttr_ExcelColumnIndex.Length > 0)
                 {
-                    dictExcelColumnIndexToModelPropName_Temp.Add(((ExcelColumnIndexAttribute)propAttr_ExcelColumnIndex[0]).Index, props.Name);
+                    dictExcelColumnIndexToModelPropName_Temp.Add(((ExcelColumnIndexAttribute)propAttr_ExcelColumnIndex[0]).Index, propInfo.Name);
                 }
             }
 
@@ -2253,7 +2259,6 @@ namespace EPPlusExtensions
                 }
 
                 throw new Exception("验证未通过,程序有bug");
-
             }
 
             #endregion
