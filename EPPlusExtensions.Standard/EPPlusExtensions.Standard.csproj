@@ -22,7 +22,7 @@
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<RepositoryType>gitee</RepositoryType>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-		<Version>2.5.5</Version>
+		<Version>2.5.6</Version>
 		<LangVersion>9</LangVersion>
 	</PropertyGroup>
 
