@@ -1190,7 +1190,7 @@ namespace EPPlusExtensions
         /// </summary>
         /// <param name="cell">目前针对的场景是非合并单元格, 如果是合并单元格, 没测试过</param>
         /// <param name="cellValue"></param>
-        private static void SetWorksheetCellValue(ExcelRange cell, string cellValue)
+        public static void SetWorksheetCellValue(ExcelRange cell, string cellValue)
         {
             cell.Value = cellValue;
             if (string.IsNullOrWhiteSpace(cellValue) == false && cell.Value != cellValue) // 有值,但没有填充上去
@@ -1200,7 +1200,6 @@ namespace EPPlusExtensions
                     cell.RichText.Text = cellValue;
                 }
             }
-
         }
 
 
