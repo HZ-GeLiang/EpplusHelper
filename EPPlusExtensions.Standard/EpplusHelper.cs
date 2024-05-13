@@ -567,7 +567,6 @@ namespace EPPlusExtensions
                             }
 #endif
 
-
                             //int destRowStart = cellRange[j].Start.Row;
                             int destStartCol = cellRange[j].Start.Col;
                             //int destEndRow = cellRange[j].End.Row;
@@ -1155,15 +1154,27 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        /// 设置单元格的的值
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="cells">s结尾表示单元格有可能是合并单元格</param>
+        /// <param name="cells">这里用s结尾,表示单元格有可能是合并单元格</param>
         /// <param name="val">值</param>
         /// <param name="colMapperName">excel填充的列名,不想传值请使用null,用来确保填充的数据格式,譬如身份证, 那么单元格必须要是</param> 
         private static void SetWorksheetCellsValue(EPPlusConfig config, ExcelRange cells, object val, string colMapperName)
         {
-            cells.Value = config.UseFundamentals ? config.CellFormatDefault(colMapperName, val, cells) : val;
+            var cellValue = config.UseFundamentals
+                ? config.CellFormatDefault(colMapperName, val, cells)
+                : val;
+
+            if (cells.IsRichText)
+            {
+                cells.RichText.Text = cellValue?.ToString() ?? "";
+            }
+            else
+            {
+                cells.Value = cellValue;
+            }
+
             //注:排除3种值( DBNull.Value , null , "") 后 如果 cells.Value 仍然没有值,有可能是配置的单元格以 '开头.
             //譬如: '$tb1Id. 对于这种配置我程序无法检测出来(或者说我没找到检测'开头的方法)
             //下面代码有问题,当遇到日期类型的时候, 值是赋值上去的,但是 cells.value 却!= val .所以下面代码注释
@@ -1173,6 +1184,25 @@ namespace EPPlusExtensions
             //    throw new Exception($"工作簿'{cells.Worksheet.Name}'的配置列'{colMapperName}'的单元格格式有问题,程序无法将值'{val}'赋值到对应的单元 格'{cells.Address}'中.配置的单元格中可能是'开头的,请把'去掉");
             //}
         }
+
+        /// <summary>
+        /// 设置单元格的的值
+        /// </summary>
+        /// <param name="cell">目前针对的场景是非合并单元格, 如果是合并单元格, 没测试过</param>
+        /// <param name="cellValue"></param>
+        private static void SetWorksheetCellValue(ExcelRange cell, string cellValue)
+        {
+            cell.Value = cellValue;
+            if (string.IsNullOrWhiteSpace(cellValue) == false && cell.Value != cellValue) // 有值,但没有填充上去
+            {
+                if (cell.IsRichText)
+                {
+                    cell.RichText.Text = cellValue;
+                }
+            }
+
+        }
+
 
         /// <summary>
         /// 从Excel 中获得符合C# 类属性定义的列名集合,内部会修改DataColEnd的值
@@ -2033,13 +2063,13 @@ namespace EPPlusExtensions
             var dictModelPropNameExistsExcelColumn = new Dictionary<string, bool>();//Model属性在Excel列中存在, key: ModelPropName
             var dictModelPropNameToExcelColumnName = new Dictionary<string, string>();//Model属性名字对应的excel的标题列名字
             var dictExcelColumnIndexToModelPropName_Temp = new Dictionary<int, string>();//Excel的列标题和Model属性名字的映射
-                                                                                       
+
             foreach (var propInfo in type.GetProperties())
             {
                 if (ReflectionHelper.GetAttributeForProperty<IngoreAttribute>(type, propInfo.Name).Any())
                 {
                     continue;
-                }              
+                }
 
                 dictModelPropNameExistsExcelColumn.Add(propInfo.Name, false);
                 dictModelPropNameToExcelColumnName.Add(propInfo.Name, null);
@@ -3508,7 +3538,10 @@ namespace EPPlusExtensions
         public static string GetMergeCellText(ExcelWorksheet ws, int row, int col)
         {
             var isMergeCell = EPPlusHelper.IsMergeCell(ws, row, col, out var mergeCellAddress);
-            if (!isMergeCell) return GetCellText(ws, row, col);
+            if (isMergeCell == false)
+            {
+                return GetCellText(ws, row, col);
+            }
             var ea = new ExcelAddress(mergeCellAddress);
             return ws.Cells[ea.Start.Row, ea.Start.Column].Text;
         }
@@ -3541,6 +3574,17 @@ namespace EPPlusExtensions
                 //例如，如果你在单元格中输入日期"2024-04-14"并将其格式化为日期格式，
                 //Excel将会在"Text"中显示"2024-04-14"，但在"Value"中存储对应的序列号（如45396）。
                 //详见示例07
+
+
+                /*
+                我没遇到过这个场景, 这个代码先保留
+                
+                if (cell.IsRichText)
+                {
+                    //https://www.cnblogs.com/studyever/archive/2012/08/29/2661850.html
+                    return cell.RichText.Text;
+                }
+                */
 
             }
             catch (NullReferenceException)
@@ -3763,7 +3807,9 @@ namespace EPPlusExtensions
             int col = titleColumnNumber;
             while (col <= EPPlusConfig.MaxCol07)
             {
-                var excelColName = ws.Cells[titleLineNumber, col].Merge ? GetMergeCellText(ws, titleLineNumber, col) : GetCellText(ws, titleLineNumber, col);
+                var excelColName = ws.Cells[titleLineNumber, col].Merge
+                    ? GetMergeCellText(ws, titleLineNumber, col)
+                    : GetCellText(ws, titleLineNumber, col);
 
                 var destColVal = ExtractName(excelColName).Trim().MergeLines();
                 if (string.IsNullOrEmpty(destColVal))
@@ -3820,7 +3866,9 @@ namespace EPPlusExtensions
 
             for (int i = 0; i < colNameList.Count; i++)
             {
-                ws.Cells[fillBodyLine, colNameList[i].ExcelColNameIndex].Value = $@"$tb1{(colNameList[i].IsRename ? colNameList[i].NameNew : colNameList[i].Name)}";
+                ExcelRange cell = ws.Cells[fillBodyLine, colNameList[i].ExcelColNameIndex];
+                string cellValue = $"$tb1{(colNameList[i].IsRename ? colNameList[i].NameNew : colNameList[i].Name)}";
+                SetWorksheetCellValue(cell, cellValue);
                 cellCustom?.Invoke(ws.Cells[titleLineNumber + 1, i + 1]);
             }
 
