@@ -7,7 +7,8 @@
 		</TargetFrameworks>
 		<RootNamespace>EPPlusExtensions</RootNamespace>
 		<DefineConstants>DEBUG;</DefineConstants>
-		<NoWarn>CS1591</NoWarn>
+		<NoWarn>1701;1702;1591</NoWarn>
+		<WarningsAsErrors>1998</WarningsAsErrors>
 		<WarningLevel>4</WarningLevel>
 		<DocumentationFile>$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -22,7 +23,7 @@
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<RepositoryType>gitee</RepositoryType>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-		<Version>2.5.6</Version>
+		<Version>2.5.6.1</Version>
 		<LangVersion>9</LangVersion>
 	</PropertyGroup>
 
