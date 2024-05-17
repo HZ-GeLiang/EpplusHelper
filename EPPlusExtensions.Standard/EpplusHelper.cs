@@ -381,6 +381,10 @@ namespace EPPlusExtensions
             {
                 return;
             }
+            if (configSource.Head.CellsInfoList == null)// 没有数据源
+            {
+                return;
+            }
 
             var dictConfigSourceHead = configSource.Head.CellsInfoList.ToDictionary(a => a.ConfigValue);
 
