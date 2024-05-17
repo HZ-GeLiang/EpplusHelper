@@ -44,7 +44,7 @@ namespace SampleApp._01填充数据
 
                 //自动列宽
                 //worksheet.Cells["D1"].AutoFitColumns();
-                //worksheet.Column(4).AutoFit(0); 
+                //worksheet.Column(4).AutoFit(0);
 
                worksheet.Cells.Style.ShrinkToFit = true;//单元格自动适应大小  (效果是:单元格大小不变, 缩放里面的文字)
 
@@ -55,7 +55,7 @@ namespace SampleApp._01填充数据
                 worksheet.Row(1).CustomHeight = true;//自动调整行高
                 worksheet.Column(4).BestFit = true;//当Bestfit设置为true时，当用户在单元格中输入数字时，该列将变宽
 
-                
+
                 var cell = worksheet.Cells["D1"];
                 worksheet.Row(1).Height = MeasureTextHeight(cell.Value.ToString(), cell.Style.Font, 100);
 
@@ -74,11 +74,11 @@ namespace SampleApp._01填充数据
             var bitmap = new Bitmap(1, 1);
             var graphics = Graphics.FromImage(bitmap);
 
-            var pixelWidth = Convert.ToInt32(width * 7.5); //7.5 pixels per excel column width 
+            var pixelWidth = Convert.ToInt32(width * 7.5); //7.5 pixels per excel column width
             var drawingFont = new Font(font.Name, font.Size);
             var size = graphics.MeasureString(text, drawingFont, pixelWidth);
 
-            //72 DPI and 96 points per inch. Excel height in points with max of 409 per Excel requirements. 
+            //72 DPI and 96 points per inch. Excel height in points with max of 409 per Excel requirements.
             return Math.Min(Convert.ToDouble(size.Height) * 72 / 96, 409);
         }
 

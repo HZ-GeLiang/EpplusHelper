@@ -38,7 +38,7 @@ namespace EPPlusExtensions.CustomModelType
 
         public IDictionary<TKey, TValue> Data => this._data;
 
-        //原本是调用 GetState()获得的,新增通过索引获取 
+        //原本是调用 GetState()获得的,新增通过索引获取
         public IDictionary<TKey, object> DataState => this._dataState;
 
         public ICollection<TKey> Keys => this._data.Keys;

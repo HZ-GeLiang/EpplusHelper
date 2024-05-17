@@ -61,7 +61,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 根据workSheetIndex获得模版worksheet,然后复制一份并重命名成workSheetName后返回 
+        /// 根据workSheetIndex获得模版worksheet,然后复制一份并重命名成workSheetName后返回
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="copyWorkSheetIndex">从1开始</param>
@@ -144,7 +144,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 根据名字获取Worksheet,然后复制一份出来并重命名成workSheetName并返回 
+        /// 根据名字获取Worksheet,然后复制一份出来并重命名成workSheetName并返回
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="destWorkSheetName"></param>
@@ -164,7 +164,7 @@ namespace EPPlusExtensions
         #region DeleteWorksheet
 
         /// <summary>
-        ///  
+        ///
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="workSheetName"></param>
@@ -298,7 +298,7 @@ namespace EPPlusExtensions
         /// <param name="config"></param>
         /// <param name="configSource"></param>
         /// <param name="workSheetNewName">填充数据后的Worksheet叫什么.  </param>
-        /// <param name="destWorkSheetName">填充数据的workSheet叫什么</param> 
+        /// <param name="destWorkSheetName">填充数据的workSheet叫什么</param>
         public static void FillData(ExcelPackage excelPackage, EPPlusConfig config, EPPlusConfigSource configSource, string workSheetNewName, string destWorkSheetName)
         {
             if (workSheetNewName is null) throw new ArgumentNullException(nameof(workSheetNewName));
@@ -399,7 +399,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="config"></param>
         /// <param name="configSource"></param>
@@ -418,7 +418,7 @@ namespace EPPlusExtensions
                 return sheetBodyAddRowCount;
             }
 
-            int sheetBodyDeleteRowCount = 0; //sheet body 中删除了多少行(只含配置的行,对于FillData()内的删除行则不包括在内).  
+            int sheetBodyDeleteRowCount = 0; //sheet body 中删除了多少行(只含配置的行,对于FillData()内的删除行则不包括在内).
             var dictConfig = config.Body.ConfigList.ToDictionary(a => a.Nth, a => a.Option);
             var dictConfigSource = configSource.Body.ConfigList.ToDictionary(a => a.Nth, a => a.Option);
             foreach (var itemInfo in config.Body.ConfigList)
@@ -495,7 +495,7 @@ namespace EPPlusExtensions
                 int lastSpaceLineRowNumber = 0; //表示最后一行的行号是多少
                 int tempLine = dictConfig[nth].MapperExcelTemplateLine ?? 1; //获得第N个配置中excel模版提供了多少行,默认1行
                 var hasMergeCell = dictConfig[nth].ConfigLine?.Find(a => a.Address.Contains(":")) != null;
-                Dictionary<string, FillDataColumns> fillDataColumnsStat = null;//Datatable 的列的使用情况  
+                Dictionary<string, FillDataColumns> fillDataColumnsStat = null;//Datatable 的列的使用情况
 
                 //3.赋值
                 var customValue = new CustomValue
@@ -636,7 +636,7 @@ namespace EPPlusExtensions
                         dictDestRow.Add(i, destRow);
 
                         if (datatable.Rows.Count <= 1) continue; //1.数据源中的数据行数大于1才增行
-                        if (i <= tempLine - 2) continue; //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2  
+                        if (i <= tempLine - 2) continue; //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2
                         if (i == tempLine - 1) //仅剩余最后一行是空白的
                         {
                             deleteLastSpaceLine = true;
@@ -736,7 +736,7 @@ namespace EPPlusExtensions
                                 int destRow = dictDestRow[i];
 
                                 //copy 好比格式刷, 这里只格式化配置行所在的表格部分.
-                                //Copy 效率比 CopyStyleAndMergedCellFromConfigRow 慢差不多一倍(测试数据4w条,要4秒多, 用上面的是2秒多,且文件体积也要小很多 好像有50% ) 
+                                //Copy 效率比 CopyStyleAndMergedCellFromConfigRow 慢差不多一倍(测试数据4w条,要4秒多, 用上面的是2秒多,且文件体积也要小很多 好像有50% )
                                 worksheet.Cells[configLine].Copy(worksheet.Cells[$"{leftColStr}{destRow}:{rightColStr}{destRow}"]);//注: 如果rightColStr后还有单元格,请参考Sample05
 
                                 //不要用[row,col]索引器,[row,col]表示某单元格.注意:copy会把source行的除了height(觉得是一个bug)以外的全部复制一行出来
@@ -906,10 +906,10 @@ namespace EPPlusExtensions
                                             //extensionCell_body.Style.Border.Top.Style = ...
                                             //extensionCell_body.Style.Border.Bottom.Style = ...
                                             //10.对齐方式
-                                            //extensionCell_body.HorizontalAlignment = ...
-                                            //extensionCell_body.VerticalAlignment = ...
+                                            //extensionCell_body.Style.HorizontalAlignment = ...
+                                            //extensionCell_body.Style.VerticalAlignment = ...
                                             //11.设置整个sheet的背景色
-                                            //extensionCell_body.Fill.PatternType = ...
+                                            //extensionCell_body.Fill.PatternType = ... //必须设置这个 ExcelFillStyle.Solid;
                                             //extensionCell_body.Fill.BackgroundColor.SetColor(...);
 
                                             SetWorksheetCellsValue(config, extensionCell_body, row[item.ColumnName], item.ColumnName);
@@ -1159,7 +1159,7 @@ namespace EPPlusExtensions
         /// <param name="config"></param>
         /// <param name="cells">这里用s结尾,表示单元格有可能是合并单元格</param>
         /// <param name="val">值</param>
-        /// <param name="colMapperName">excel填充的列名,不想传值请使用null,用来确保填充的数据格式,譬如身份证, 那么单元格必须要是</param> 
+        /// <param name="colMapperName">excel填充的列名,不想传值请使用null,用来确保填充的数据格式,譬如身份证, 那么单元格必须要是</param>
         private static void SetWorksheetCellsValue(EPPlusConfig config, ExcelRange cells, object val, string colMapperName)
         {
             var cellValue = config.UseFundamentals
@@ -1372,7 +1372,7 @@ namespace EPPlusExtensions
                     //在百度看到
                     //excel与VBA开始点有差别:
                     //excel开始点: 1900-1-1 序号为1
-                    //vba开始点:1899-12-31 序号为1 
+                    //vba开始点:1899-12-31 序号为1
                     //原因是excel把1900-2月错误地当29天处理,所以VBA后来自己修改了这个错误,以能与excel相适应.从1900年3月1日开始,VBA与Excel的序号才开始一致.
 
 
@@ -1864,7 +1864,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="rowStart"><inheritdoc cref="GetExcelListArgs.DataRowStart" path="/summary"/></param>
@@ -1893,7 +1893,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ws"></param>
@@ -1944,7 +1944,7 @@ namespace EPPlusExtensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ws"></param>
-        /// <param name="rowStart">数据起始行(不含列名),从1开始</param> 
+        /// <param name="rowStart">数据起始行(不含列名),从1开始</param>
         /// <param name="everyCellReplaceOldValue"></param>
         /// <param name="everyCellReplaceNewValue"></param>
         /// <returns></returns>
@@ -2245,7 +2245,7 @@ namespace EPPlusExtensions
 
                         #region excel的哪些列与Model不相等
 
-                        //excel的哪些列 不在Model中定义+ model中定义了,但是excel列中却没有 
+                        //excel的哪些列 不在Model中定义+ model中定义了,但是excel列中却没有
 
                         if (!dictMatchingModelException.ContainsKey(MatchingModel.gt))
                         {
@@ -2909,9 +2909,9 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        ///  model的哪些属性是在excel中没有定义的 + model中没有定义 
+        ///  model的哪些属性是在excel中没有定义的 + model中没有定义
         /// </summary>
-        /// <param name="excelColumnIsNotModelProp"></param> 
+        /// <param name="excelColumnIsNotModelProp"></param>
         /// <param name="type"></param>
         /// <param name="colNameToCellInfo"></param>
         /// <param name="ws"></param>
@@ -2940,9 +2940,9 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// excel的哪些列是在Model中定义了却没有(即,model中缺少的列) + model中没有定义 
+        /// excel的哪些列是在Model中定义了却没有(即,model中缺少的列) + model中没有定义
         /// </summary>
-        /// <param name="modelPropNotExistsExcelColumn"></param> 
+        /// <param name="modelPropNotExistsExcelColumn"></param>
         /// <param name="type"></param>
         /// <param name="colNameToCellInfo"></param>
         /// <param name="ws"></param>
@@ -3067,7 +3067,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="config"></param>
@@ -3577,7 +3577,7 @@ namespace EPPlusExtensions
 
                 /*
                 我没遇到过这个场景, 这个代码先保留
-                
+
                 if (cell.IsRichText)
                 {
                     //https://www.cnblogs.com/studyever/archive/2012/08/29/2661850.html
@@ -3626,7 +3626,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="fileOutDirectoryName"></param>
@@ -3654,7 +3654,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="dataConfigInfo">指定的worksheet</param>
@@ -3726,7 +3726,7 @@ namespace EPPlusExtensions
 
         /// <summary>
         /// 返回模版的 titleLine 和 titleColumn
-        /// </summary> 
+        /// </summary>
         /// <param name="dataConfigInfo"></param>
         /// <param name="wsIndex"></param>
         /// <param name="wsName"></param>
@@ -4178,7 +4178,7 @@ namespace EPPlusExtensions
 
             using (var ms = new MemoryStream())
             {
-                excelPackage.SaveAs(ms); // 导入数据到流中 
+                excelPackage.SaveAs(ms); // 导入数据到流中
                 ms.Position = 0;
                 File.Delete(savePath); //删除文件。如果文件不存在,也不报错
                 ms.Save(savePath);
@@ -4261,7 +4261,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="rowStartIndex">从1开始</param>
@@ -4302,7 +4302,7 @@ namespace EPPlusExtensions
 
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ws"></param>
         /// <param name="columnStartIndex">从1开始</param>

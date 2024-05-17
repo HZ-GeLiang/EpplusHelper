@@ -12,7 +12,6 @@ namespace EPPlusExtensions.Exceptions
         internal MatchingModel MatchingModel { get; set; }
     }
 
-
     public class ExcelCellInfoAndModelType
     {
         public List<ExcelCellInfo> ExcelCellInfoList { get; set; }

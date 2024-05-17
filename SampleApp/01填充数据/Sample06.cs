@@ -69,7 +69,7 @@ namespace SampleApp._01填充数据
                 ms.Save(filePathSave);
 
 
-             
+
                // //Add the headers
                // worksheet.Cells[1, 1].Value = "ID";
 
@@ -108,7 +108,7 @@ namespace SampleApp._01填充数据
             dr["Name"] = "bob";
             dr["Sex"] = "男";
             dr["Age"] = 20;
-            dr["Height"] = 170; 
+            dr["Height"] = 170;
             dtBody.Rows.Add(dr);
 
             dr = dtBody.NewRow();

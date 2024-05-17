@@ -104,7 +104,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="dt">用来获得列名</param>
         /// <param name="dr">数据源是这个</param>
@@ -192,7 +192,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="dt">用来获得列名</param>
         /// <param name="dr">数据源是这个</param>
@@ -380,7 +380,7 @@ namespace EPPlusExtensions
         public List<EPPlusConfigSourceBodyConfig> ConfigList { get; set; } = null;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nth">第几个配置,从1开始</param>
         /// <returns></returns>

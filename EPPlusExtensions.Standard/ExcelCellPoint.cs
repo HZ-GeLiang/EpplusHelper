@@ -21,7 +21,7 @@ namespace EPPlusExtensions
         public string R1C1;
 
         ///// <summary>
-        ///// 
+        /////
         ///// </summary>
         ///// <param name="row">从1开始的整数</param>
         ///// <param name="col">只能是字母</param>
@@ -44,7 +44,7 @@ namespace EPPlusExtensions
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="row">从1开始的整数</param>
         /// <param name="col">从1开始的整数</param>
@@ -58,12 +58,12 @@ namespace EPPlusExtensions
 
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="excelAddress"></param>
         public ExcelCellPoint(OfficeOpenXml.ExcelAddress excelAddress)
         {
-            //ExcelCellPoint(excelAddress.Address); 
+            //ExcelCellPoint(excelAddress.Address);
             var r1C1 = excelAddress.Address;
             r1C1 = r1C1.Split(':')[0].Trim(); //防止传入 "A1:B3" 这种的配置格式的
             Row = Convert.ToInt32(RegexHelper.GetLastNumber(r1C1));//3
@@ -116,7 +116,7 @@ namespace EPPlusExtensions
         };
 
         /// <summary>
-        /// 譬如1->A 
+        /// 譬如1->A
         /// </summary>
         /// <param name="num">excel的第几列</param>
         /// <returns></returns>

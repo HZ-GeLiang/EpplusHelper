@@ -34,7 +34,7 @@ namespace SampleApp._03读取excel内容
             public int Sum { get; set; }
             public int CopyNum1 { get; set; }
             public int CopySum { get; set; }
-             
+
             public override bool Equals(object obj)
             {
                 if (obj is null || !obj.GetType().Equals(this.GetType()))

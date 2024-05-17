@@ -30,7 +30,7 @@ namespace EPPlusExtensions
         /// 标题列(对于合并单元格,写起始单元格的信息)
         /// </summary>
         public int TitleColumn { get; set; }
- 
+
 
     }
 }

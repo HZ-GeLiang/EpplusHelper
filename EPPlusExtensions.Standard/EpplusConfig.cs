@@ -6,11 +6,11 @@ namespace EPPlusExtensions
 {
 
     /// <summary>
-    /// 配置信息 
+    /// 配置信息
     /// </summary>
     public class EPPlusConfig
     {
-        #region Excel的最大行与列 
+        #region Excel的最大行与列
 
         //excel 2007 和 excel 2010 工作表最大有 2^20=1048576行,2^14=16384列
         /// <summary>
@@ -170,7 +170,7 @@ namespace EPPlusExtensions
 
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nth">第几个配置,从1开始</param>
         /// <returns></returns>
@@ -242,7 +242,7 @@ namespace EPPlusExtensions
         public int? MapperExcelTemplateLine { get; set; }
 
         /// <summary>
-        /// 自定义设置值  
+        /// 自定义设置值
         /// </summary>
         public Action<CustomValue> SummaryCustomSetValue { get; set; }
 
@@ -264,7 +264,7 @@ namespace EPPlusExtensions
         /// </summary>
         public string ColName { get; set; }
         /// <summary>
-        /// 属性值: 要填充的值 
+        /// 属性值: 要填充的值
         /// </summary>
         public object Value { get; set; }
         /// <summary>
