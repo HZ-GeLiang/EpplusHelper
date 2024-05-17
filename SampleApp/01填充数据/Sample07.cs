@@ -18,7 +18,7 @@ namespace SampleApp._01填充数据
         public static void Run()
         {
             string filePath = @"模版\01填充数据\Sample07.xlsx";
-            var wsName = 1;
+            //var wsName = 1;
             using (var ms = new MemoryStream())
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))

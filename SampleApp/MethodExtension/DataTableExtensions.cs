@@ -15,7 +15,7 @@ namespace SampleApp.MethodExtension
         public class CharConst
         {
             /// <summary>
-            /// HT (horizontal tab) 水平制表符 ascii 9 	
+            /// HT (horizontal tab) 水平制表符 ascii 9
             /// </summary>
             // ReSharper disable once InconsistentNaming
             public const char HT = '\t'; //"	";
@@ -39,7 +39,7 @@ namespace SampleApp.MethodExtension
         public class StringConst
         {
             /// <summary>
-            /// HT (horizontal tab) 水平制表符 ascii 9 	
+            /// HT (horizontal tab) 水平制表符 ascii 9
             /// </summary>
             // ReSharper disable once InconsistentNaming
             public const string HT = "\t";//"	";
@@ -99,6 +99,10 @@ namespace SampleApp.MethodExtension
                             }
                             catch (System.ArgumentException e)
                             {
+
+#if DEBUG
+                                Console.WriteLine(e.Message);
+#endif
                                 //数据库类型和model类型不一致
                                 if (p.PropertyType == typeof(string))
                                 {

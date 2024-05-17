@@ -3,7 +3,7 @@ using OfficeOpenXml;
 using System;
 using System.Linq;
 
-namespace Core50
+namespace Core60
 {
 
     internal class Program
@@ -18,9 +18,9 @@ namespace Core50
                 var arg = EPPlusHelper.GetExcelListArgsDefault<Sheet1>(ws, 2);
                 arg.ScanLine = ScanLine.SingleLine;
                 var list = EPPlusHelper.GetList(arg).ToList();
-         
+
                 Console.WriteLine("读取完毕");
-                
+
             }
 
             Console.WriteLine("Hello World!");

@@ -155,9 +155,16 @@ namespace EPPlusExtensions
             if (destWorkSheetName is null) throw new ArgumentNullException(nameof(destWorkSheetName));
             if (workSheetNewName is null) throw new ArgumentNullException(nameof(workSheetNewName));
             var wsMom = GetExcelWorksheet(excelPackage, destWorkSheetName);
-            var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
-            ws.Name = workSheetNewName;
-            return ws;
+            try
+            {
+                var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
+                ws.Name = workSheetNewName;
+                return ws;
+            }
+            catch (NullReferenceException ex)
+            {
+                throw new Exception($"受Epplus的限制, 无法复制'{workSheetNewName}'工作簿", ex);
+            }
         }
         #endregion
 
@@ -362,9 +369,14 @@ namespace EPPlusExtensions
 
         #region 私有方法
 
+        /// <summary>
+        /// 填充head
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="configSource"></param>
+        /// <param name="worksheet"></param>
         private static void FillData_Head(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
         {
-            //填充head
             if (config.Head.ConfigCellList is null || config.Head.ConfigCellList.Count <= 0)
             {
                 return;
