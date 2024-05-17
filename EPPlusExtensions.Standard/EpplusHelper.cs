@@ -1193,7 +1193,7 @@ namespace EPPlusExtensions
         public static void SetWorksheetCellValue(ExcelRange cell, string cellValue)
         {
             cell.Value = cellValue;
-            if (string.IsNullOrWhiteSpace(cellValue) == false && cell.Value != cellValue) // 有值,但没有填充上去
+            if (string.IsNullOrWhiteSpace(cellValue) == false && object.Equals(cellValue, cell.Value) == false) // 有值,但没有填充上去
             {
                 if (cell.IsRichText)
                 {
