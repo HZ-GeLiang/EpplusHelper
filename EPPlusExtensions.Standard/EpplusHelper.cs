@@ -3094,7 +3094,7 @@ namespace EPPlusExtensions
 
                 var allConfigInterval = config.Body[nth].Option.ConfigLine.Count; //配置共计用了多少列, 默认: 1个配置用了1列
 
-                var mergedCellsList = worksheet.MergedCells.ToList();
+                var mergedCellsList = worksheet.MergedCells.Where(a => a != null).ToList();
                 foreach (var configCellInfo in config.Body[nth].Option.ConfigLine)
                 {
                     if (worksheet.Cells[configCellInfo.Address].Merge) //item.Address  D4
@@ -3108,7 +3108,7 @@ namespace EPPlusExtensions
                     }
                     else
                     {
-                        var mergeCellAddress = mergedCellsList.Find(a => a.Contains(configCellInfo.Address));
+                        var mergeCellAddress = mergedCellsList.FirstOrDefault(a => a.Contains(configCellInfo.Address));
                         if (mergeCellAddress != null)
                         {
                             allConfigInterval += new ExcelCellRange(mergeCellAddress).IntervalCol;
