@@ -46,15 +46,13 @@ namespace SampleApp._01填充数据
                 //worksheet.Cells["D1"].AutoFitColumns();
                 //worksheet.Column(4).AutoFit(0);
 
-               worksheet.Cells.Style.ShrinkToFit = true;//单元格自动适应大小  (效果是:单元格大小不变, 缩放里面的文字)
-
+                worksheet.Cells.Style.ShrinkToFit = true;//单元格自动适应大小  (效果是:单元格大小不变, 缩放里面的文字)
 
                 worksheet.Cells["D1"].Merge = true;
                 worksheet.Cells["D1"].Style.WrapText = true;
                 //  worksheet.Row(1).Height = 355;//设置行高
                 worksheet.Row(1).CustomHeight = true;//自动调整行高
                 worksheet.Column(4).BestFit = true;//当Bestfit设置为true时，当用户在单元格中输入数字时，该列将变宽
-
 
                 var cell = worksheet.Cells["D1"];
                 worksheet.Row(1).Height = MeasureTextHeight(cell.Value.ToString(), cell.Style.Font, 100);

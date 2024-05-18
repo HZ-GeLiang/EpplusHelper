@@ -12,7 +12,7 @@ namespace SampleApp.Test._01填充数据
         {
             SampleApp._01填充数据.Sample02.OpenDir = false;
             SampleApp._01填充数据.Sample02.Run();
-            
+
             Help.GetExcelFilePath(SampleApp._01填充数据.Sample02.FilePathSave, out var runResultFilePath, out var correctResultFilePath);
 
             using (var fs1 = new FileStream(correctResultFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -23,5 +23,5 @@ namespace SampleApp.Test._01填充数据
                 Help.CompareWorkSheetCellsValue(excelPackage1, excelPackage2, 1);
             }
         }
-    } 
+    }
 }

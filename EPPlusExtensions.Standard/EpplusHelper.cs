@@ -163,6 +163,7 @@ namespace EPPlusExtensions
             }
             catch (NullReferenceException ex)
             {
+                //遇到场景记录:读取worksheet , 然后用代码创建配置信息, 然后在调用Fill时, 遇到了这个错误
                 throw new Exception($"受Epplus的限制, 无法复制'{workSheetNewName}'工作簿", ex);
             }
         }
