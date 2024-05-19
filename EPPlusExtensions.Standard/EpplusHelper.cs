@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using EPPlusExtensions.Exceptions;
 using EPPlusExtensions.CustomModelType;
 using EPPlusExtensions.MethodExtension;
+using System.Xml.Linq;
 
 namespace EPPlusExtensions
 {

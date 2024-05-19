@@ -1,3 +1,4 @@
+using EPPlusTool.Handler;
 using System;
 using System.Windows.Forms;
 
@@ -11,6 +12,8 @@ namespace EPPlusTool
         [STAThread]
         static void Main()
         {
+            GlobalExceptionHandler.Register(); // 注册全局异常过滤器
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
