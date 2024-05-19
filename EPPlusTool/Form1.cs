@@ -33,11 +33,10 @@ namespace EPPlusTool
             FileConfigurationSource source = ((Microsoft.Extensions.Configuration.Json.JsonConfigurationProvider)
           _configurationRoot.Providers.First()).Source;
             var fileProvider = (Microsoft.Extensions.FileProviders.PhysicalFileProvider)source.FileProvider;
-            var appsettingPath = System.IO.Path.Combine(fileProvider.Root, source.Path);
+            var appsettingPath = Path.Combine(fileProvider.Root, source.Path);
 
             AppSettingHelper.SetAppSettingValue(appsettingPath, "FilePath1", this.filePath1.Text.Trim());
             AppSettingHelper.SetAppSettingValue(appsettingPath, "FilePath2", this.filePath2.Text.Trim());
-
 
             //var appsettingTxt = System.IO.File.ReadAllText(appsettingPath);
             //dynamic appsettingObj = JsonConvert.DeserializeObject<dynamic>(appsettingTxt);
@@ -329,7 +328,7 @@ namespace EPPlusTool
             using (var excelPackage = new ExcelPackage(fs))
             {
                 SetDataSourceForDGV(excelPackage, callerName, this);
-                if ((callerName == "filePath1" || callerName == "BtnAnalyze1"))
+                if (callerName == "filePath1" || callerName == "BtnAnalyze1")
                 {
                     if (EPPlusHelper.GetWorkSheetNames(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden).Count > 0)
                     {
@@ -339,7 +338,7 @@ namespace EPPlusTool
                     foreach (var ws in EPPlusHelper.GetExcelWorksheets(excelPackage))
                     {
                         var haveHiddenRow = EPPlusHelper.HaveHiddenRow(ws);
-                        var haveHiddenColumn = EPPlusHelper.HaveHiddenColumn(ws);
+                        var haveHiddenColumn = EPPlusHelper.HaveHiddenColumn(ws, 1, 100);//检查太多列或造成程序卡顿, 超过100的不检查了
 
                         if (haveHiddenRow && haveHiddenColumn)
                         {
@@ -606,6 +605,20 @@ namespace EPPlusTool
                     this.TitleCol1.Text = txt;
                 else if (((System.Windows.Forms.Control)sender).Name == "dgv2")
                     this.TitleCol2.Text = txt;
+            }
+
+        }
+
+        private void dgv1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                DataGridViewCell clickedCell = dgv1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                DataGridViewRow clickedRow = clickedCell.OwningRow;
+
+                this.wsNameOrIndex1.Text = clickedRow.Cells[1].Value.ToString();
+                this.TitleLine1.Text = clickedRow.Cells[2].Value.ToString();
+                this.TitleCol1.Text = clickedRow.Cells[3].Value.ToString();
             }
 
         }
