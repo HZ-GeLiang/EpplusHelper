@@ -4356,6 +4356,7 @@ namespace EPPlusExtensions
                     return true;
                 }
             }
+
             return false;
         }
 
