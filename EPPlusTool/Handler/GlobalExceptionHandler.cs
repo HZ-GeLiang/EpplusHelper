@@ -31,32 +31,32 @@ namespace EPPlusTool.Handler
 #if DEBUG
 
 #else
-            var isUnkonwEx = true;//未知异常
-            if (exception is BizException)
-            {
-                MessageBox.Show(exception.Message + ":" + exception.InnerException.Message);
-                isUnkonwEx = false;
-            }
-            try
-            {
-                // 写入文件
-                string filePath = "exception_log.txt";
-                using (StreamWriter writer = new StreamWriter(filePath, true))
-                {
-                    writer.WriteLine(exception.Message);
-                    writer.WriteLine("StackTrace:");
-                    writer.WriteLine(exception.StackTrace);
-                    writer.WriteLine("----------------------------------------");
-                }
-            }
-            catch (global::System.Exception)
-            {
-            }
+            //var isUnkonwEx = true;//未知异常
+            //if (exception is BizException)
+            //{
+            //    MessageBox.Show(exception.Message + ":" + exception.InnerException.Message);
+            //    isUnkonwEx = false;
+            //}
+            //try
+            //{
+            //    // 写入文件
+            //    string filePath = "exception_log.txt";
+            //    using (StreamWriter writer = new StreamWriter(filePath, true))
+            //    {
+            //        writer.WriteLine(exception.Message);
+            //        writer.WriteLine("StackTrace:");
+            //        writer.WriteLine(exception.StackTrace);
+            //        writer.WriteLine("----------------------------------------");
+            //    }
+            //}
+            //catch (global::System.Exception)
+            //{
+            //}
 
-            if (isUnkonwEx)
-            {
-                MessageBox.Show($"未处理的全局异常：{exception.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            //if (isUnkonwEx)
+            //{
+            //    MessageBox.Show($"未处理的全局异常：{exception.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
 #endif
 
         }
