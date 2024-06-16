@@ -25,7 +25,7 @@
 		<PackageProjectUrl>https://gitee.com/hzgel/EpplusHelper</PackageProjectUrl>
 		<RepositoryUrl>https://gitee.com/hzgel/EpplusHelper</RepositoryUrl>
 		<PackageTags>EPPlus, EPPlusHelper, Excel, ooxml</PackageTags>
-		<PackageReleaseNotes></PackageReleaseNotes>
+		<!--<PackageReleaseNotes></PackageReleaseNotes>-->
 		<RepositoryType>gitee</RepositoryType>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
 		<Version>2.5.6.2</Version>
