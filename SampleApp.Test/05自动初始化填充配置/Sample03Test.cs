@@ -12,7 +12,7 @@ namespace SampleApp.Test._05自动初始化填充配置
         {
             SampleApp._05自动初始化填充配置.Sample03.OpenDir = false;
             SampleApp._05自动初始化填充配置.Sample03.Run();
-            
+
             Help.GetExcelFilePath(SampleApp._05自动初始化填充配置.Sample03.FilePathSave, out var runResultFilePath, out var correctResultFilePath);
 
             using (var fs1 = new FileStream(correctResultFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))

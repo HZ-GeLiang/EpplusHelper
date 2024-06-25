@@ -682,4 +682,3 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
     }
 }
-

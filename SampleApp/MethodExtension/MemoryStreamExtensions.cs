@@ -1,7 +1,7 @@
 ﻿using System.IO;
 
 namespace SampleApp.MethodExtension
-{ 
+{
     static class MemoryStreamExtensions
     {
         /// <summary>

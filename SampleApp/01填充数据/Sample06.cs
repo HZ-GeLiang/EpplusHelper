@@ -62,7 +62,7 @@ namespace SampleApp._01填充数据
                     }
                 };
 
-                EPPlusHelper.FillData( config, configSource, worksheet);
+                EPPlusHelper.FillData(config, configSource, worksheet);
                 EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
                 excelPackage.SaveAs(ms);
                 ms.Position = 0;
@@ -70,24 +70,24 @@ namespace SampleApp._01填充数据
 
 
 
-               // //Add the headers
-               // worksheet.Cells[1, 1].Value = "ID";
+                // //Add the headers
+                // worksheet.Cells[1, 1].Value = "ID";
 
-               // // set some document properties
-               //excelPackage.Workbook.Properties.Title = "1";
-               //excelPackage.Workbook.Properties.Author = "2";
-               // excelPackage.Workbook.Properties.Comments = "33";
+                // // set some document properties
+                //excelPackage.Workbook.Properties.Title = "1";
+                //excelPackage.Workbook.Properties.Author = "2";
+                // excelPackage.Workbook.Properties.Comments = "33";
 
-               // // set some extended property values
-               // excelPackage.Workbook.Properties.Company = "44.";
+                // // set some extended property values
+                // excelPackage.Workbook.Properties.Company = "44.";
 
-               // // set some custom property values
-               // excelPackage.Workbook.Properties.SetCustomPropertyValue("55", "66");
+                // // set some custom property values
+                // excelPackage.Workbook.Properties.SetCustomPropertyValue("55", "66");
 
-               // //@"模版\01填充数据\ResultSample05.xlsx";
-               // var xlFile = new FileInfo("D:/sample1.xlsx");
-               // // save our new workbook in the output directory and we are done!
-               // excelPackage.SaveAs(xlFile);
+                // //@"模版\01填充数据\ResultSample05.xlsx";
+                // var xlFile = new FileInfo("D:/sample1.xlsx");
+                // // save our new workbook in the output directory and we are done!
+                // excelPackage.SaveAs(xlFile);
 
 
                 //var ccc = xlFile.FullName;

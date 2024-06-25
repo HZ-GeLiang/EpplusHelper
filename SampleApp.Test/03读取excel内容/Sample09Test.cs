@@ -31,7 +31,7 @@ namespace SampleApp.Test._03读取excel内容
                 {
                     Assert.AreEqual(ex.Message, item.ErrMsgShouldBe);
                 }
-            } 
+            }
         }
     }
 }

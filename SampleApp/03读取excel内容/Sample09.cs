@@ -33,7 +33,7 @@ namespace SampleApp._03读取excel内容
                     }
                     else
                     {
-                        Console.WriteLine($@"****{ws}-测试不通过****{ex?.Message }");
+                        Console.WriteLine($@"****{ws}-测试不通过****{ex?.Message}");
                     }
                 }
             }

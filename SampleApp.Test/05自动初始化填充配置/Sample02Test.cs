@@ -12,7 +12,7 @@ namespace SampleApp.Test._05自动初始化填充配置
         {
             SampleApp._05自动初始化填充配置.Sample02.OpenDir = false;
             SampleApp._05自动初始化填充配置.Sample02.Run();
-            
+
             Help.GetProjectPath(out var projectBinDebugPath, out var projectPath);
             var fileSavePath = @"模版\05自动初始化填充配置\Sample02_Result.xlsx";
             var runResultFilePath = Path.Combine(projectBinDebugPath, fileSavePath);
