@@ -1,0 +1,23 @@
+<Project>
+	<PropertyGroup>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<Authors>GeLiang</Authors>
+		<!--<Company>GeLiang</Company>-->
+		<Copyright>Copyright (c) GeLiang</Copyright>
+		<PackageId>EpplusHelper</PackageId>
+		<Description>can easily work with EPPlus to generate Excel(.xlsx) and get excel data</Description>
+		<!--
+		<PackageLicenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</PackageLicenseUrl>
+		<PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>
+		-->
+		<PackageProjectUrl>https://gitee.com/hzgel/EpplusHelper</PackageProjectUrl>
+		<RepositoryUrl>https://gitee.com/hzgel/EpplusHelper</RepositoryUrl>
+		<PackageTags>EPPlus, EPPlusHelper, Excel, ooxml</PackageTags>
+		<!--<PackageReleaseNotes></PackageReleaseNotes>-->
+		<RepositoryType>gitee</RepositoryType>
+		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+		<Version>2.5.6.3</Version>
+	</PropertyGroup>
+
+</Project>

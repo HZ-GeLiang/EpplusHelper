@@ -6,31 +6,12 @@
 			netstandard2.0;
 		</TargetFrameworks>
 		<RootNamespace>EPPlusExtensions</RootNamespace>
-		<DefineConstants>DEBUG;</DefineConstants>
-		<NoWarn>1701;1702;1591</NoWarn>
-		<WarningsAsErrors>1998</WarningsAsErrors>
 		<WarningLevel>4</WarningLevel>
-		<DocumentationFile>$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<Authors>GeLiang</Authors>
-		<!--<Company>GeLiang</Company>-->
-		<Copyright>Copyright (c) GeLiang</Copyright>
-		<PackageId>EpplusHelper</PackageId>
-		<Description>can easily work with EPPlus to generate Excel(.xlsx) and get excel data</Description>
-		<!--
-		<PackageLicenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</PackageLicenseUrl>
-		<PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>
-		-->
-		<PackageProjectUrl>https://gitee.com/hzgel/EpplusHelper</PackageProjectUrl>
-		<RepositoryUrl>https://gitee.com/hzgel/EpplusHelper</RepositoryUrl>
-		<PackageTags>EPPlus, EPPlusHelper, Excel, ooxml</PackageTags>
-		<!--<PackageReleaseNotes></PackageReleaseNotes>-->
-		<RepositoryType>gitee</RepositoryType>
-		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-		<Version>2.5.6.2</Version>
+		<!--<DocumentationFile>$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>-->
 		<LangVersion>10.0</LangVersion>
 	</PropertyGroup>
+
+	<Import Project="../Directory.BuildNuget.props" />
 
 	<!--引用包:断言-->
 	<!--<ItemGroup Condition="'$(SolutionDir)|$(TargetFramework)' == 'Debug|net45'">

@@ -1,5 +1,13 @@
 <Project>
 
+	<PropertyGroup>
+		<NoWarn>1701;1702;1591</NoWarn>
+		<NoWarn>MA0051</NoWarn>
+		<WarningsAsErrors>1998</WarningsAsErrors>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DefineConstants>DEBUG;</DefineConstants>
 		<DefineConstants Condition="Exists('../_timer')==true">timer</DefineConstants>
@@ -15,6 +23,11 @@
 
 	<ItemGroup Condition="Exists('../_timer')==true">
 		<PackageReference Include="MethodTimer.Fody" Version="3.2.2" />
+	</ItemGroup>
+
+	<ItemGroup Condition="Exists('../_timer')==true">
+		<None Remove="FodyWeavers.xml" />
+		<None Remove="FodyWeavers.xsd" />
 	</ItemGroup>
 	<!--性能耗时 end-->
 
