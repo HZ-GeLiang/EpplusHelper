@@ -21,7 +21,7 @@ namespace EPPlusExtensions.Helper
         public static string GetTreeTableMaxLevelSql(string tblName, string rootItemWhere, string idFiledName = "Id", string parentIdName = "ParentId")
         {
             string sql = $@"
-with cte as( 
+with cte as(
     SELECT {idFiledName} , 1 as 'level' FROM {tblName} WHERE {rootItemWhere}
     UNION ALL
     SELECT {tblName}.{idFiledName}, cte.level+1 as 'level' from cte, {tblName} where cte.{idFiledName} = {tblName}.{parentIdName}    
@@ -65,11 +65,11 @@ SELECT ISNULL(MAX(cte.level),0) FROM  cte";
             }
 
             string sql = $@"
-with cte as( 
+with cte as(
     SELECT {sb1} , 1 as Level FROM {tblName} WHERE {rootItemWhere}
     UNION ALL
-    SELECT {sb2} , cte.Level+1 as Level from cte, {tblName}  
-        where cte.{idFiledName} = {tblName}.{parentIdName} 
+    SELECT {sb2} , cte.Level+1 as Level from cte, {tblName}
+        where cte.{idFiledName} = {tblName}.{parentIdName}
 )
 SELECT {sb1} , Level FROM  cte
 ORDER BY cte.Level";
@@ -118,13 +118,13 @@ ORDER BY cte.Level";
             }
 
             string sql = $@"
-with cte as( 
+with cte as(
     SELECT {sb1} , 1 as Level , CAST( LEFT(LTRIM({idFiledName})+'{char1}',{eachSortFieldLength}) AS VARCHAR(10)) AS 'Depth'
     FROM {tblName} WHERE {rootItemWhere}
     UNION ALL
     SELECT {sb2} , cte.Level+1 as Level , CAST(LTRIM(cte.Depth) + LEFT(LTRIM({tblName}.{idFiledName}) +'{char1}',{eachSortFieldLength})AS VARCHAR(10)) AS 'Depth' 
-    FROM cte, {tblName} 
-    where cte.{idFiledName} = {tblName}.{parentIdName} 
+    FROM cte, {tblName}
+    where cte.{idFiledName} = {tblName}.{parentIdName}
 )
 SELECT {sb1} , Level,LEFT(LTRIM(cte.Depth)+'{char2}',{reportSortFileTotallength})  AS 'sort'  FROM cte
 ORDER BY sort ,cte.Level";
