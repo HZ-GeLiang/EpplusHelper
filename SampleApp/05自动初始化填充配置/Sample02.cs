@@ -6,6 +6,7 @@ namespace SampleApp._05自动初始化填充配置
     public class Sample02
     {
         public static bool OpenDir = true;
+
         public static void Run()
         {
             string filePath = @"模版\05自动初始化填充配置\Sample02.xlsx";

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EPPlusExtensions.Attributes
+﻿namespace EPPlusExtensions.Attributes
 {
     /// <summary>
     /// 枚举值未定义
@@ -10,6 +8,7 @@ namespace EPPlusExtensions.Attributes
     {
         public string ErrorMessage { get; private set; }
         public string[] Args { get; private set; }
+
         public EnumUndefinedAttribute(string errorMessageFormat, params string[] args)
         {
             this.ErrorMessage = errorMessageFormat;

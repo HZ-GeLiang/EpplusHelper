@@ -10,6 +10,7 @@ namespace SampleApp._01填充数据
     {
         public static bool OpenDir = true;
         public static string FilePathSave = @"模版\01填充数据\ResultSample03.xlsx";
+
         public static void Run()
         {
             string filePath = @"模版\01填充数据\Sample01.xlsx";
@@ -37,7 +38,8 @@ namespace SampleApp._01填充数据
                 System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
             }
         }
-        static DataTable GetDataTable_Head()
+
+        private static DataTable GetDataTable_Head()
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Title");
@@ -46,7 +48,8 @@ namespace SampleApp._01填充数据
             dt.Rows.Add(dr);
             return dt;
         }
-        static DataTable GetDataTable_Body()
+
+        private static DataTable GetDataTable_Body()
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Name");

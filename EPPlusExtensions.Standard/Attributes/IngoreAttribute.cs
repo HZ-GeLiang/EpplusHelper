@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EPPlusExtensions.Attributes
+﻿namespace EPPlusExtensions.Attributes
 {
     /// <summary>
     /// 忽略模型的属性使用
@@ -8,6 +6,7 @@ namespace EPPlusExtensions.Attributes
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class IngoreAttribute : Attribute
     {
-        public IngoreAttribute() { }
+        public IngoreAttribute()
+        { }
     }
 }

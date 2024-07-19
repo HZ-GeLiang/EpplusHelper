@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Reflection;
 
 namespace EPPlusExtensions.Helper
@@ -25,7 +24,6 @@ namespace EPPlusExtensions.Helper
             return GetProperty(pi, propertyName, notFindReturnNull)?.GetCustomAttributes(typeof(TAttribute), false);
         }
 
-
         public static object[] GetAttributeForProperty<TAttribute>(Type modelType, string propertyName, bool notFindReturnNull)
         {
             if (modelType is null) throw new ArgumentNullException(nameof(modelType));
@@ -46,10 +44,12 @@ namespace EPPlusExtensions.Helper
         {
             return type.GetProperties();
         }
+
         public static PropertyInfo GetProperty(PropertyInfo[] properties, string propertyName)
         {
             return GetProperty(properties, propertyName, false);
         }
+
         public static PropertyInfo GetProperty(PropertyInfo[] properties, string propertyName, bool notFindReturnNull)
         {
             if (properties is null) throw new ArgumentNullException(nameof(properties));
@@ -64,6 +64,7 @@ namespace EPPlusExtensions.Helper
             }
             throw new ArgumentOutOfRangeException(nameof(propertyName));
         }
+
         public static object GetPropertyValue<T>(T model, string propertyName)
         {
             var pi = GetProperties<T>();
@@ -84,11 +85,9 @@ namespace EPPlusExtensions.Helper
                 else
                 {
                     objArr.Add(null);
-
                 }
             }
             return objArr.ToArray();
-
         }
     }
 }

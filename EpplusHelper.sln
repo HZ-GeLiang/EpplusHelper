@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NugetAddTest", "NugetAddTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nfx48", "nfx45\nfx48.csproj", "{775ED1DA-C114-4B81-BD12-F3FF2754E664}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core60", "Core60\Core60.csproj", "{88E59B6C-3904-4BFE-ABBF-A8B7D56BE392}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core60", "Core60\Core60.csproj", "{88E59B6C-3904-4BFE-ABBF-A8B7D56BE392}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

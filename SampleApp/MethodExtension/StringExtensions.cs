@@ -2,7 +2,7 @@
 
 namespace SampleApp.MethodExtension
 {
-    static class StringExtensions
+    internal static class StringExtensions
     {
         public static string RemovePrefix(this string value, string prefix)
         {
@@ -22,13 +22,11 @@ namespace SampleApp.MethodExtension
             return src.Replace("\r", "").Replace("\n", "").Replace("\r\n", "");
         }
 
-
         public static string RemoveLastChar(this string value, char c)
         {
             return value is null || value.Length <= 0
                 ? value
                 : (value[value.Length - 1] == c ? value.Remove(value.Length - 1, 1) : value);
         }
-
     }
 }

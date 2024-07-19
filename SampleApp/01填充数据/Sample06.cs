@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
 using OfficeOpenXml;
 using SampleApp.MethodExtension;
+using System.Data;
+using System.IO;
 
 namespace SampleApp._01填充数据
 {
@@ -16,6 +10,7 @@ namespace SampleApp._01填充数据
     {
         public static bool OpenDir = true;
         public static string filePathSave = @"模版\01填充数据\ResultSample06.xlsx";
+
         public static void Run()
         {
             using (var ms = new MemoryStream())
@@ -68,8 +63,6 @@ namespace SampleApp._01填充数据
                 ms.Position = 0;
                 ms.Save(filePathSave);
 
-
-
                 // //Add the headers
                 // worksheet.Cells[1, 1].Value = "ID";
 
@@ -89,12 +82,11 @@ namespace SampleApp._01填充数据
                 // // save our new workbook in the output directory and we are done!
                 // excelPackage.SaveAs(xlFile);
 
-
                 //var ccc = xlFile.FullName;
             }
         }
 
-        static DataTable GetDataTable()
+        private static DataTable GetDataTable()
         {
             var dtBody = new DataTable();
             dtBody.Columns.Add("Id");

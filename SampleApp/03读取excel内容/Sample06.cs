@@ -3,19 +3,16 @@ using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Linq;
 
 namespace SampleApp._03读取excel内容
 {
-
     public class Sample06
     {
         public static void Run()
         {
             Sample06.Run<Sample06.ExcelModel>();
         }
-
 
         //数据实体验证
         public static List<T> Run<T>() where T : class, new()
@@ -36,6 +33,7 @@ namespace SampleApp._03读取excel内容
         public class ExcelModel
         {
             public int 序号 { get; set; }
+
             [Required(ErrorMessage = "部门不允许为空")]
             public string 部门 { get; set; }
 
@@ -43,7 +41,6 @@ namespace SampleApp._03读取excel内容
             //public string 部门Id { get; set; }
 
             [Required(ErrorMessage = "部门Id不能为空")]
-
             [Range(100, 99999, ErrorMessage = "值必须在[101,99999]之间")]
             public long 部门Id { get; set; }
 
@@ -86,6 +83,7 @@ namespace SampleApp._03读取excel内容
         public class ExcelModel2
         {
             public int 序号 { get; set; }
+
             [Required(ErrorMessage = "部门不允许为空")]
             public string 部门 { get; set; }
 
@@ -93,7 +91,6 @@ namespace SampleApp._03读取excel内容
             //public string 部门Id { get; set; }
 
             [Required(ErrorMessage = "部门Id不能为空")]
-
             [Range(101, 99999, ErrorMessage = "值必须在[101,99999]之间")]
             public long 部门Id { get; set; }
 
@@ -136,6 +133,7 @@ namespace SampleApp._03读取excel内容
         public class ExcelModel3
         {
             public int 序号 { get; set; }
+
             [StringLength(10, ErrorMessage = "部门名字长度要在9-10之间", MinimumLength = 9)]
             [Required(ErrorMessage = "部门不允许为空")]
             public string 部门 { get; set; }
@@ -144,7 +142,6 @@ namespace SampleApp._03读取excel内容
             //public string 部门Id { get; set; }
 
             [Required(ErrorMessage = "部门Id不能为空")]
-
             [Range(101, 99999, ErrorMessage = "值必须在[101,99999]之间")]
             public long 部门Id { get; set; }
 

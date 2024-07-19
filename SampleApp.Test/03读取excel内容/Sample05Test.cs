@@ -1,10 +1,9 @@
-﻿using EPPlusExtensions.Attributes;
+﻿using EPPlusExtensions.CustomModelType;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SampleApp._03读取excel内容;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EPPlusExtensions.CustomModelType;
 
 namespace SampleApp.Test._03读取excel内容
 {
@@ -29,7 +28,6 @@ namespace SampleApp.Test._03读取excel内容
             var a = excelList[index];
             var b = resultList[index];
             CollectionAssert.AreEqual(excelList, resultList);
-
         }
 
         [TestMethod]
@@ -49,10 +47,6 @@ namespace SampleApp.Test._03读取excel内容
                 Assert.AreEqual(ex.Message, $@"'事业2部'在数据库中未找到
 参数名: 部门");
             }
-
-
         }
-
-
     }
 }

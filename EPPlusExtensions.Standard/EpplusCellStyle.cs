@@ -1,7 +1,4 @@
-﻿using OfficeOpenXml.Style;
-using System.Drawing;
-
-namespace EPPlusExtensions
+﻿namespace EPPlusExtensions
 {
     ///// <summary>
     ///// 由EPPlusHelper.SetCellStyle  EPPlusHelper.SetCellStyle推出来的

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions.Attributes;
-using EPPlusExtensions.CustomModelType;
+﻿using EPPlusExtensions.CustomModelType;
 
 namespace SampleApp
 {
-    class Helper
+    internal class Helper
     {
         internal static int GetHashCode_KV<TKey, TValue>(KV<TKey, TValue> kv)
         {

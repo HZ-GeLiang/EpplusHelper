@@ -1,20 +1,15 @@
 using EPPlusExtensions.Attributes;
+using EPPlusExtensions.CustomModelType;
+using EPPlusExtensions.Exceptions;
 using EPPlusExtensions.Helper;
+using EPPlusExtensions.MethodExtension;
 using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using EPPlusExtensions.Exceptions;
-using EPPlusExtensions.CustomModelType;
-using EPPlusExtensions.MethodExtension;
-using System.Xml.Linq;
 
 namespace EPPlusExtensions
 {
@@ -168,6 +163,7 @@ namespace EPPlusExtensions
                 throw new Exception($"受Epplus的限制, 无法复制'{workSheetNewName}'工作簿", ex);
             }
         }
+
         #endregion
 
         #region DeleteWorksheet
@@ -366,7 +362,6 @@ namespace EPPlusExtensions
             EPPlusHelper.FillData_Foot(config, configSource, worksheet, sheetBodyAddRowCount);
         }
 
-
         #endregion
 
         #region 私有方法
@@ -444,6 +439,7 @@ namespace EPPlusExtensions
                 var nth = itemInfo.Nth;//body的第N个配置
 
                 #region get dataTable
+
                 DataTable datatable;
                 if (!dictConfigSource.ContainsKey(nth)) //如果没有数据源中没有excle中配置
                 {
@@ -462,6 +458,7 @@ namespace EPPlusExtensions
                 #endregion
 
                 #region When dataTable is empty
+
                 if (datatable is null || datatable.Rows.Count <= 0) //数据源为null或为空
                 {
                     //throw new ArgumentNullException($"configSource.SheetBody[{nth.Key}]没有可读取的数据");
@@ -574,6 +571,7 @@ namespace EPPlusExtensions
                         for (int j = 0; j < dictConfig[nth].ConfigLine.Count; j++)//遍历列
                         {
                             #region 赋值
+
                             string colMapperName = dictConfig[nth].ConfigLine[j].ConfigValue;
                             object val = dictConfig[nth].ConfigItemMustExistInDataColumn
                                 ? row[colMapperName]
@@ -629,6 +627,7 @@ namespace EPPlusExtensions
                     var leftCellInfo = configLineCellPoint.First();
 
                     #region 必须在 insertRow 之前计算,否则,当前变量就是插入行后的单元格信息
+
                     var rightCellInfo = configLineCellPoint.Last();
                     var leftColStr = leftCellInfo.ColStr;
                     var rightColStr = worksheet.Cells[rightCellInfo.R1C1].Merge
@@ -727,7 +726,6 @@ namespace EPPlusExtensions
                                         {
                                             worksheet.InsertRow(rowFrom, rows, copyStylesFromRow);
                                         }
-
                                     }
                                 }
                                 else
@@ -743,6 +741,7 @@ namespace EPPlusExtensions
                     }
 
                     #region 第二遍循环:处理样式 (Height要自己单独处理)
+
                     if (needInsert)
                     {
                         if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyAll)
@@ -950,7 +949,6 @@ namespace EPPlusExtensions
                             }
 
                             #endregion
-
                         }
 
                         if (config.IsReport)
@@ -969,6 +967,7 @@ namespace EPPlusExtensions
                 }
 
                 #region FillData_Body_Summary
+
                 //填充第N个配置的一些零散的单元格的值(譬如汇总信息等)
 
                 if (dictConfigSource[nth].ConfigExtra != null)
@@ -1062,7 +1061,6 @@ namespace EPPlusExtensions
                 }
             }
             return allCell;
-
         }
 
         /// <summary>
@@ -1220,7 +1218,6 @@ namespace EPPlusExtensions
             }
         }
 
-
         /// <summary>
         /// 从Excel 中获得符合C# 类属性定义的列名集合,内部会修改DataColEnd的值
         /// </summary>
@@ -1345,6 +1342,7 @@ namespace EPPlusExtensions
         {
             var pInfo_PropertyType = pInfo.PropertyType;
             #region string
+
             if (pInfo_PropertyType == typeof(string))
             {
                 pInfo.SetValue(model, value);
@@ -1354,6 +1352,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region Boolean
+
             var isNullable_Boolean = pInfo_PropertyType == typeof(Boolean?);
             if (isNullable_Boolean && (value is null || value.Length <= 0))
             {
@@ -1371,6 +1370,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region DateTime
+
             var isNullable_DateTime = pInfo_PropertyType == typeof(DateTime?);
             if (isNullable_DateTime && (value is null || value.Length <= 0))
             {
@@ -1393,7 +1393,6 @@ namespace EPPlusExtensions
                     //vba开始点:1899-12-31 序号为1
                     //原因是excel把1900-2月错误地当29天处理,所以VBA后来自己修改了这个错误,以能与excel相适应.从1900年3月1日开始,VBA与Excel的序号才开始一致.
 
-
                     //数字转日期: //参考文章 : https://docs.microsoft.com/zh-cn/dotnet/api/system.datetime.fromoadate   该方法测试发现 DateTime.FromOADate(d)  d值必须>= -657434.999999999941792(后面还能添加数字,未测试) && d<=2958465.999999994(后面还能添加数字,没测试)
                     //但是在excel 日期最多精确到毫秒3位, 即 yyyy-MM-dd HH:mm:ss.000,对应的日期值的范围是 [1,2958465.99999999],且不能包含[60,61)
                     //Excel数值对应的日期
@@ -1413,13 +1412,13 @@ namespace EPPlusExtensions
                     {
                         throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 DateTime。{value}必须是在[1,60) 或 [61,2958465.99999999]之间的值"));
                     }
-
                 }
                 pInfo.SetValue(model, result);
                 return;
             }
             #endregion
             #region sbyte
+
             var isNullable_sbyte = pInfo_PropertyType == typeof(sbyte?);
             if (isNullable_sbyte && (value is null || value.Length <= 0))
             {
@@ -1437,6 +1436,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region byte
+
             var isNullable_byte = pInfo_PropertyType == typeof(byte?);
             if (isNullable_byte && (value is null || value.Length <= 0))
             {
@@ -1454,6 +1454,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region UInt16
+
             var isNullable_UInt16 = pInfo_PropertyType == typeof(UInt16?);
             if (isNullable_UInt16 && (value is null || value.Length <= 0))
             {
@@ -1471,6 +1472,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region Int16
+
             var isNullable_Int16 = pInfo_PropertyType == typeof(Int16?);
             if (isNullable_Int16 && (value is null || value.Length <= 0))
             {
@@ -1488,6 +1490,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region UInt32
+
             var isNullable_UInt32 = pInfo_PropertyType == typeof(UInt32?);
             if (isNullable_UInt32 && (value is null || value.Length <= 0))
             {
@@ -1506,6 +1509,7 @@ namespace EPPlusExtensions
 
             #endregion
             #region Int32
+
             var isNullable_Int32 = pInfo_PropertyType == typeof(Int32?);
             if (isNullable_Int32 && (value is null || value.Length <= 0))
             {
@@ -1524,6 +1528,7 @@ namespace EPPlusExtensions
 
             #endregion
             #region UInt64
+
             var isNullable_UInt64 = pInfo_PropertyType == typeof(UInt64?);
             if (isNullable_UInt64 && (value is null || value.Length <= 0))
             {
@@ -1541,6 +1546,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region Int64
+
             var isNullable_Int64 = pInfo_PropertyType == typeof(Int64?);
             if (isNullable_Int64 && (value is null || value.Length <= 0))
             {
@@ -1558,6 +1564,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region float
+
             var isNullable_float = pInfo_PropertyType == typeof(float?);
             if (isNullable_float && (value is null || value.Length <= 0))
             {
@@ -1575,6 +1582,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region double
+
             var isNullable_double = pInfo_PropertyType == typeof(double?);
             if (isNullable_double && (value is null || value.Length <= 0))
             {
@@ -1592,6 +1600,7 @@ namespace EPPlusExtensions
             }
             #endregion
             #region decimal
+
             var isNullable_decimal = pInfo_PropertyType == typeof(decimal?);
             if (isNullable_decimal && (value is null || value.Length <= 0))
             {
@@ -1641,7 +1650,6 @@ namespace EPPlusExtensions
 
             throw new Exception("GetList_SetModelValue()时遇到未处理的类型!!!请完善程序");
         }
-
 
         private static void TryThrowExceptionForEnum<T>(PropertyInfo pInfo, T model, string value, Type enumType, Type pInfoType) where T : class, new()
         {
@@ -1830,8 +1838,6 @@ namespace EPPlusExtensions
 
             //configSource.Foot = new EPPlusConfigSourceFoot { CellsInfoList = fixedCellsInfoList };
             configSource.Foot = new EPPlusConfigSourceFoot { CellsInfoList = EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dt, dr) };
-
-
         }
 
         #endregion
@@ -2050,7 +2056,6 @@ namespace EPPlusExtensions
                             i += new ExcelAddress(mergeCellAddress).Rows; //按第一列合并的行数进行step的增加
                         }
 
-
                         for (int j = 0; j < arr.GetLength(1); j++) //遍历列
                         {
                             var colNo = j + 1;
@@ -2068,7 +2073,6 @@ namespace EPPlusExtensions
                 }
 
                 #endregion
-
             }
 
             Check();
@@ -2076,6 +2080,7 @@ namespace EPPlusExtensions
             Type type = typeof(T);
 
             #region 获得字典
+
             //1.初始化3个dict
             var dictModelPropNameExistsExcelColumn = new Dictionary<string, bool>();//Model属性在Excel列中存在, key: ModelPropName
             var dictModelPropNameToExcelColumnName = new Dictionary<string, string>();//Model属性名字对应的excel的标题列名字
@@ -2201,7 +2206,6 @@ namespace EPPlusExtensions
                             colNameToCellInfo[excelColVaue].Add(colName);
                         }
                     }
-
                 }
 
                 foreach (MatchingModel matchingModelValue in _matchingModelValues)
@@ -2282,7 +2286,6 @@ namespace EPPlusExtensions
                             throw new Exception("断言:这里应该是不会进来的,debug下调试看看,进来是什么情况");
                         }
 #endif
-
                     }
                     else
                     {
@@ -2313,7 +2316,6 @@ namespace EPPlusExtensions
             var everyCellReplace = args.UseEveryCellReplace && args.EveryCellReplaceList is null
                 ? GetExcelListArgs.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
-
 
             #region 初始化内置Attribute 和 检查模型属性
 
@@ -2390,6 +2392,7 @@ namespace EPPlusExtensions
                     var value = GetValue(pInfo, row, col);
 
                     #region 全局处理值,如特性
+
                     bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
                     if (!valueIsNullOrEmpty)
                     {
@@ -2399,6 +2402,7 @@ namespace EPPlusExtensions
                         }
 
                         #region 判断每个单元格的开头
+
                         if (args.EveryCellPrefix?.Length > 0)
                         {
                             var indexof = value.IndexOf(args.EveryCellPrefix, StringComparison.Ordinal);
@@ -2411,6 +2415,7 @@ namespace EPPlusExtensions
                         #endregion
 
                         #region 对每个单元格进行值的替换
+
                         if (everyCellReplace != null)
                         {
                             foreach (var replaceItem in everyCellReplace)
@@ -2496,7 +2501,6 @@ namespace EPPlusExtensions
                             }
                         }
 
-
                         if (ICustomersModelTypeList.Contains(pInfo))
                         {
                             dictCustomerModelType[pInfo].SetModelValue(pInfo, model, value);
@@ -2505,7 +2509,6 @@ namespace EPPlusExtensions
                         {
                             GetList_SetModelValue(pInfo, model, value);
                         }
-
                     }
                     catch (ArgumentException e)
                     {
@@ -2610,7 +2613,6 @@ namespace EPPlusExtensions
                 StringBuilder sb = new StringBuilder();
                 StringBuilder sb2 = new StringBuilder();
 
-
                 foreach (KeyValuePair<string, List<string>> msg in errGroupMsg)
                 {
                     sb.Append(msg.Key);
@@ -2627,7 +2629,6 @@ namespace EPPlusExtensions
                         {
                             sb2.Append(col).Append("列,");
                         }
-
                     }
                     else
                     {
@@ -2645,7 +2646,6 @@ namespace EPPlusExtensions
             }
 
             #endregion
-
         }
 
         private static void ExcelCellInfoNeedTo(ReadCellValueOption readCellValueOption, out bool toTrim, out bool toMergeLine,
@@ -2655,7 +2655,6 @@ namespace EPPlusExtensions
             toMergeLine = (readCellValueOption & ReadCellValueOption.MergeLine) == ReadCellValueOption.MergeLine;
             toDBC = (readCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
         }
-
 
         private static Dictionary<Type, Dictionary<string, PropertyInfo>> _Cache_GetPropertyInfo = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
 
@@ -2741,7 +2740,6 @@ namespace EPPlusExtensions
                 ? GetExcelListArgs.EveryCellReplaceListDefault
                 : args.EveryCellReplaceList;
 
-
             #region 获得 list
 
             int row = rowStart;
@@ -2768,6 +2766,7 @@ namespace EPPlusExtensions
                         isNoDataAllColumn = false;
 
                         #region 判断每个单元格的开头
+
                         if (args.EveryCellPrefix?.Length > 0)
                         {
                             var indexof = value.IndexOf(args.EveryCellPrefix, StringComparison.Ordinal);
@@ -2780,6 +2779,7 @@ namespace EPPlusExtensions
                         #endregion
 
                         #region 对每个单元格进行值的替换
+
                         if (everyCellReplace != null)
                         {
                             foreach (var item in everyCellReplace)
@@ -2814,7 +2814,6 @@ namespace EPPlusExtensions
                         }
 
                         #endregion
-
                     }
 
                     dr[propName] = value;//赋值
@@ -2881,11 +2880,9 @@ namespace EPPlusExtensions
                 sb.RemoveLastChar(',');
                 sb.Append("!");
                 return sb.ToString();
-
             }
             if ((matchingModelException.MatchingModel & MatchingModel.gt) == MatchingModel.gt)
             {
-
                 if (matchingModelException.ListExcelCellInfoAndModelType is null || matchingModelException.ListExcelCellInfoAndModelType.Count <= 0)
                 {
                     return "模版没有少提供列!";
@@ -2921,7 +2918,6 @@ namespace EPPlusExtensions
                 sb.RemoveLastChar(',');
                 sb.Append("!");
                 return sb.ToString();
-
             }
             throw new Exception($@"参数{nameof(matchingModelException)},不支持的MatchingMode值");
         }
@@ -2967,7 +2963,6 @@ namespace EPPlusExtensions
         /// <returns></returns>
         private static MatchingModelException GetMatchingModelExceptionCase_gt(List<string> modelPropNotExistsExcelColumn, Type type, Dictionary<string, List<ExcelCellInfo>> colNameToCellInfo, ExcelWorksheet ws)
         {
-
             if (modelPropNotExistsExcelColumn.Count <= 0)
             {
                 return new MatchingModelException { MatchingModel = MatchingModel.eq, ListExcelCellInfoAndModelType = null };
@@ -2986,7 +2981,6 @@ namespace EPPlusExtensions
             }
 
             return new MatchingModelException { MatchingModel = MatchingModel.gt, ListExcelCellInfoAndModelType = listExcelCellInfoAndModelType };
-
         }
 
         private static MatchingModel GetMatchingModel(
@@ -3015,7 +3009,6 @@ namespace EPPlusExtensions
             {
                 return MatchingModel.neq | MatchingModel.lt;
             }
-
 
             foreach (var excelColumnIndex in dictExcelColumnIndexToModelPropNameAll.Keys)
             {
@@ -3122,7 +3115,6 @@ namespace EPPlusExtensions
 
                         configCellInfo.FullAddress = addressPrecise;
                         configCellInfo.IsMergeCell = true;
-
                     }
                     else
                     {
@@ -3212,7 +3204,6 @@ namespace EPPlusExtensions
                     }
 
                     throw new ArgumentOutOfRangeException(nameof(returnType), $@"不支持的参数{nameof(returnType)}类型:{returnType}");
-
                 }
             }
 
@@ -3227,7 +3218,6 @@ namespace EPPlusExtensions
             }
 
             throw new ArgumentOutOfRangeException(nameof(returnType), $@"不支持的参数{nameof(returnType)}类型:{returnType}");
-
         }
 
         /// <summary>
@@ -3407,7 +3397,6 @@ namespace EPPlusExtensions
                 config.Body[bodyConfig.Key].Option.ConfigLine = bodyConfig.Value.Option.ConfigLine;
                 config.Body[bodyConfig.Key].Option.ConfigExtra = bodyConfig.Value.Option.ConfigExtra;
             }
-
         }
 
         /// <summary>
@@ -3584,14 +3573,12 @@ namespace EPPlusExtensions
             {
                 //if (cell.Formula?.Length > 0)//cell 是公式
                 //{
-
                 //}
                 return cell.Text;//有的单元格通过cell.Text取值会发生异常,但cell.Value却是有值的
 
                 //例如，如果你在单元格中输入日期"2024-04-14"并将其格式化为日期格式，
                 //Excel将会在"Text"中显示"2024-04-14"，但在"Value"中存储对应的序列号（如45396）。
                 //详见示例07
-
 
                 /*
                 我没遇到过这个场景, 这个代码先保留
@@ -3602,7 +3589,6 @@ namespace EPPlusExtensions
                     return cell.RichText.Text;
                 }
                 */
-
             }
             catch (NullReferenceException)
             {
@@ -3780,7 +3766,6 @@ namespace EPPlusExtensions
                     return;
                 }
             }
-
         }
 
         public static List<string> KeysTypeOfDecimal => new List<string>
@@ -3892,6 +3877,7 @@ namespace EPPlusExtensions
             #endregion
 
             #region sb_CreateClassSnippet + sb_CreateDateTableSnippet
+
             StringBuilder sb_CreateClassSnippet = new StringBuilder();
             sb_CreateClassSnippet.AppendLine($"public class {ws.Name} {{");
 
@@ -3901,7 +3887,6 @@ namespace EPPlusExtensions
             StringBuilder sbAddDr = new StringBuilder();
             StringBuilder sbColumnType = new StringBuilder();
             sbAddDr.AppendLine($@"//var dr = dt.NewRow();");
-
 
             foreach (var colName in colNameList)
             {
@@ -3949,7 +3934,6 @@ namespace EPPlusExtensions
                 {
                     sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
                 }
-
             }
             sb_CreateDateTableSnippet.Append(sbColumn);
             sb_CreateDateTableSnippet.Append(sbColumnType);
@@ -3966,7 +3950,6 @@ namespace EPPlusExtensions
                 CrateClassSnippe = sb_CreateClassSnippet.ToString(),
                 ClassPropertyList = colNameList
             };
-
         }
 
         /// <summary>
@@ -3978,7 +3961,6 @@ namespace EPPlusExtensions
         /// <param name="renameFirstNameWhenRepeat">当重名时,重命名第一个名字</param>
         private static void AutoRename(List<string> nameList, Dictionary<string, int> nameRepeatCounter, string name, bool renameFirstNameWhenRepeat)
         {
-
             if (!nameRepeatCounter.ContainsKey(name))
             {
                 nameRepeatCounter.Add(name, 0);
@@ -4134,6 +4116,7 @@ namespace EPPlusExtensions
 
             return result;
         }
+
         #endregion
 
         #region 科学计数法的cell转成文本格式的cell
@@ -4317,7 +4300,6 @@ namespace EPPlusExtensions
             }
             return false;
         }
-
 
         /// <summary>
         ///

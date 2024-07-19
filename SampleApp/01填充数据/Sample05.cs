@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
 using OfficeOpenXml;
 using SampleApp.MethodExtension;
+using System.Data;
+using System.IO;
 
 namespace SampleApp._01填充数据
 {
@@ -15,6 +10,7 @@ namespace SampleApp._01填充数据
     {
         public static bool OpenDir = true;
         public static string FilePathSave = @"模版\01填充数据\ResultSample05.xlsx";
+
         public static void Run()
         {
             string filePath = @"模版\01填充数据\Sample05.xlsx";
@@ -59,7 +55,6 @@ namespace SampleApp._01填充数据
                 config.Body[1].Option.ConfigItemMustExistInDataColumn = false;
                 */
 
-
                 #endregion
                 //配置项只到G列,但是H列还有公式,需要自己添加,如果不添加,在处理样式时,H列的公式将会没有
                 config.Body[1].Option.ConfigLine.Add(new EPPlusConfigFixedCell { Address = "H3" });//没办法在 SetConfigBodyFromExcel() 的 configLine中添加,需要自己写
@@ -75,7 +70,8 @@ namespace SampleApp._01填充数据
                 System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
             }
         }
-        static DataTable GetDataTable_Body()
+
+        private static DataTable GetDataTable_Body()
         {
             var dtBody = new DataTable();
             dtBody.Columns.Add("Name");

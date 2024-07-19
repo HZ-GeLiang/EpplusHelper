@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EPPlusExtensions
+﻿namespace EPPlusExtensions
 {
     /// <summary>
     /// 数据模板配置信息
@@ -21,16 +15,14 @@ namespace EPPlusExtensions
         /// </summary>
         public string WorkSheetName { get; set; }
 
-
         /// <summary>
         /// 标题行(对于合并单元格,写起始单元格的信息)
         /// </summary>
         public int TitleLine { get; set; }
+
         /// <summary>
         /// 标题列(对于合并单元格,写起始单元格的信息)
         /// </summary>
         public int TitleColumn { get; set; }
-
-
     }
 }

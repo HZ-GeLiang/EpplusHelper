@@ -5,9 +5,8 @@
 //Copyright (C) Microsoft Corporation.  All rights reserved.
 
 using System;
-using System.IO;
 using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 public class ObjectDumper
@@ -23,10 +22,10 @@ public class ObjectDumper
         dumper.WriteObject(null, o);
     }
 
-    TextWriter writer;
-    int pos;
-    int level;
-    int depth;
+    private TextWriter writer;
+    private int pos;
+    private int level;
+    private int depth;
 
     private ObjectDumper(int depth)
     {

@@ -22,7 +22,6 @@ namespace SampleApp.Test._04填充数据与数据源同步
             {
                 Help.CompareWorkSheetCellsValue(excelPackage1, excelPackage2, 1);
             }
-
         }
     }
 }

@@ -1,8 +1,7 @@
-﻿using EPPlusExtensions.Attributes;
+﻿using EPPlusExtensions.CustomModelType;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SampleApp._03读取excel内容;
 using System.Linq;
-using EPPlusExtensions.CustomModelType;
 
 namespace SampleApp.Test._03读取excel内容
 {
@@ -24,7 +23,6 @@ namespace SampleApp.Test._03读取excel内容
             var a = excelList[index];
             var b = resultList[index];
             CollectionAssert.AreEqual(excelList, resultList);
-
         }
     }
 }

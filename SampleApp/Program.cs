@@ -1,27 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using OfficeOpenXml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
-using SampleApp._01填充数据;
-using SampleApp.MethodExtension;
 
 namespace SampleApp
 {
-
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             //            var txt = $@"无效的数字
             //参数名: 姓名(B列),
@@ -76,7 +59,4 @@ namespace SampleApp
             Console.ReadKey();
         }
     }
-
-
-
 }

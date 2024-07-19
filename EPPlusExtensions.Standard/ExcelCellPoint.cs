@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using EPPlusExtensions.Helper;
 using System.Text;
-using EPPlusExtensions.Helper;
 
 namespace EPPlusExtensions
 {
-
     /// <summary>
     /// 普通单元格
     /// </summary>
@@ -40,7 +37,6 @@ namespace EPPlusExtensions
             ColStr = RegexHelper.GetFirstStringByReg(r1C1, "[A-Za-z]+");
             Col = ExcelCellPoint.R1C1Formulas(ColStr);//K -> 11
             R1C1 = r1C1;
-
         }
 
         /// <summary>
@@ -55,7 +51,6 @@ namespace EPPlusExtensions
             ColStr = ExcelCellPoint.R1C1FormulasReverse(col);
             R1C1 = ExcelCellPoint.R1C1FormulasReverse(col) + row;
         }
-
 
         /// <summary>
         ///
@@ -82,7 +77,6 @@ namespace EPPlusExtensions
             {'h', 08},{'i', 09},{'j', 10},{'k', 11},{'l', 12},{'m', 13},{'n', 14},
             {'o', 15},{'p', 16},{'q', 17},{'r', 18},{'s', 19},{'t', 20},{'u', 21},
             {'v', 22},{'w', 23},{'x', 24},{'y', 25},{'z', 26},
-
         };
 
         /// <summary>
@@ -156,7 +150,6 @@ namespace EPPlusExtensions
                 sb.Append(charList[i]);
             }
             return sb.ToString();
-
         }
     }
 }

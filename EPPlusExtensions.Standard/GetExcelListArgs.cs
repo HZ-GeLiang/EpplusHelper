@@ -1,17 +1,9 @@
 ﻿using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions.Attributes;
-using EPPlusExtensions.Helper;
 
 namespace EPPlusExtensions
 {
     public class GetExcelListArgs
     {
-
         /// <summary>
         /// excel模板数据从哪列开始,可以理解成标题行的开始列,从1开始
         /// </summary>
@@ -103,7 +95,6 @@ namespace EPPlusExtensions
         public bool GetList_ErrorMessage_OnlyShowColomn = false;
     }
 
-
     /// <summary>
     /// 泛型版本的 GetExcelListArgs , 会比 GetExcelListArgs 多3个参数
     /// </summary>
@@ -123,10 +114,10 @@ namespace EPPlusExtensions
         /// 检查数据,如果数据正确,添加到 返回数据 集合中
         /// </summary>
         public Func<T, bool> WhereFilter { get; set; } = null;
-
     }
 
-    public class KVSource : Dictionary<string, object> { }
+    public class KVSource : Dictionary<string, object>
+    { }
 
     [Flags]
     public enum ReadCellValueOption
@@ -135,14 +126,17 @@ namespace EPPlusExtensions
         /// 无
         /// </summary>
         None = 1,
+
         /// <summary>
         /// 去空格
         /// </summary>
         Trim = 2,
+
         /// <summary>
         /// 合并行
         /// </summary>
         MergeLine = 4,
+
         /// <summary>
         /// 转半角
         /// </summary>
@@ -154,10 +148,12 @@ namespace EPPlusExtensions
         /*
          * 适合案例:03读取excel内容 1-3
          */
+
         /// <summary>
         /// 合并行模式(默认,以眼睛看到的为准)
         /// </summary>
         MergeLine = 1,
+
         /// <summary>
         /// 逐行读取,
         /// </summary>

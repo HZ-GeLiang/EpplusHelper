@@ -10,7 +10,6 @@ namespace SampleApp.Test._03读取excel内容
         [TestMethod]
         public void TestMethod1()
         {
-
             Assert.ThrowsException<System.Exception>(() => Sample14.Run());
             try
             {

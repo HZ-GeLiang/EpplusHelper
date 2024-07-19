@@ -2,10 +2,10 @@
 
 namespace SampleApp.MethodExtension
 {
-    static class MemoryStreamExtensions
+    internal static class MemoryStreamExtensions
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="memoryStream">内存流</param>
         /// <param name="savePath">保存的路径</param>

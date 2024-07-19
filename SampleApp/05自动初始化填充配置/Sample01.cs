@@ -12,8 +12,8 @@ namespace SampleApp._05自动初始化填充配置
             Console.WriteLine(result); //"$tb1序号	$tb1工号	$tb1姓名	$tb1性别";
             return result;
         }
-
     }
+
     public class Sample01_alias
     {
         public static string Run()
@@ -26,6 +26,5 @@ namespace SampleApp._05自动初始化填充配置
             Console.WriteLine(result); //"$tb1Index	$tb1工号	$tb1姓名	$tb1性别";
             return result;
         }
-
     }
 }

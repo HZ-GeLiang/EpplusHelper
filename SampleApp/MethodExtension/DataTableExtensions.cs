@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SampleApp.MethodExtension
 {
-    static class DataTableExtensions
+    internal static class DataTableExtensions
     {
         /// <summary>
         /// 常用字符串
@@ -30,7 +30,6 @@ namespace SampleApp.MethodExtension
             /// 空格符号  ascii 160  = ((char)160).ToString()
             /// </summary>
             public const string Space160 = " ";
-
         }
 
         /// <summary>
@@ -54,9 +53,7 @@ namespace SampleApp.MethodExtension
             /// 空格符号  ascii 160  = ((char)160).ToString()
             /// </summary>
             public const string Space160 = " ";
-
         }
-
 
         /// <summary>
         /// DataTable 转成 List&lt;T&gt;若DataTable为空,不返回null(可放心使用linq)
@@ -99,7 +96,6 @@ namespace SampleApp.MethodExtension
                             }
                             catch (System.ArgumentException e)
                             {
-
 #if DEBUG
                                 Console.WriteLine(e.Message);
 #endif
@@ -114,7 +110,6 @@ namespace SampleApp.MethodExtension
                                 }
                             }
                         }
-
                     }
                 }
                 list.Add(model); //5将装好 了行数据的 实体对象 添加到 泛型集合中
@@ -152,7 +147,5 @@ namespace SampleApp.MethodExtension
             var txt = sbTxt.RemoveLastChar(Environment.NewLine).ToString();
             return txt;
         }
-
-
     }
 }

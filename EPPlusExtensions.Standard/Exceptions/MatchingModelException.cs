@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace EPPlusExtensions.Exceptions
+﻿namespace EPPlusExtensions.Exceptions
 {
-
     internal class MatchingModelException : System.Exception
     {
-        public MatchingModelException() : base() { }
-        public MatchingModelException(string message) : base(message) { }
+        public MatchingModelException() : base()
+        {
+        }
+
+        public MatchingModelException(string message) : base(message)
+        {
+        }
+
         public List<ExcelCellInfoAndModelType> ListExcelCellInfoAndModelType { get; set; }
         internal MatchingModel MatchingModel { get; set; }
     }

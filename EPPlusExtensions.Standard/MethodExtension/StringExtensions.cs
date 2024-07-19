@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EPPlusExtensions.MethodExtension
+﻿namespace EPPlusExtensions.MethodExtension
 {
     internal static class StringExtensions
     {
@@ -52,6 +50,5 @@ namespace EPPlusExtensions.MethodExtension
             }
             return new string(c);
         }
-
     }
 }

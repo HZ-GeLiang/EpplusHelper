@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -71,21 +68,18 @@ namespace EPPlusTool.Helper
 
             return true;
         }
-
     }
 
     public class AppSettingHelper
     {
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="physicalPath"></param>
         /// <param name="section">不区分大小写的(注:Newtonsoft.json 是区分的)</param>
         /// <param name="value"></param>
         public static bool SetAppSettingValue(string physicalPath, string section, object value)
         {
-
             JObject jObject = AppSettingHelperCommon.GetJObject(physicalPath);
 
             var (haveJToken, jObjectKey, jToken) = AppSettingHelperCommon.GetJTokenFlatSection(jObject, section);
@@ -123,7 +117,6 @@ namespace EPPlusTool.Helper
 
             return false;
         }
-
     }
 
     public class AppSettingHelperCommon
@@ -136,7 +129,6 @@ namespace EPPlusTool.Helper
         /// <returns></returns>
         public static (bool haveJToken, string jObjectKey, JToken jToken) GetJTokenFlatSection(JObject jObject, string section)
         {
-
             var sectionArray = section.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
 
             {
@@ -187,9 +179,8 @@ namespace EPPlusTool.Helper
             }
         }
 
-
         /// <summary>
-        /// 获得不区分大小写的key 所对应的key.  JObject的key 是区分大小写的, 
+        /// 获得不区分大小写的key 所对应的key.  JObject的key 是区分大小写的,
         /// </summary>
         /// <param name="jObject"></param>
         /// <param name="section">单个section ,不能有嵌套(a:b这种的),有嵌套就找不到</param>
@@ -204,7 +195,6 @@ namespace EPPlusTool.Helper
                     return (true, section, jTokenValue);
                 }
             }
-
 
             var dict = new Dictionary<string, string>();// key: JObject的key.Tolower()  value  JObject的key
 
@@ -250,7 +240,6 @@ namespace EPPlusTool.Helper
             //}
             //}
             return (false, section, null);
-
         }
 
         public static JObject GetJObject(string physicalPath)
@@ -270,6 +259,5 @@ namespace EPPlusTool.Helper
             string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
             System.IO.File.WriteAllText(physicalPath, output);
         }
-
     }
 }

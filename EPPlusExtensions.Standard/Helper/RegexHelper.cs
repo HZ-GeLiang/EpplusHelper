@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace EPPlusExtensions.Helper
 {
@@ -15,6 +14,7 @@ namespace EPPlusExtensions.Helper
             }
             return list;
         }
+
         public static string GetFirstStringByReg(string source, string reg)
         {
             return Regex.Match(source, reg).Groups[0].Value;
@@ -24,6 +24,7 @@ namespace EPPlusExtensions.Helper
         {
             return Regex.Match(source, @"\d+").Groups[0].Value;
         }
+
         public static string GetLastNumber(string source)
         {
             var reg = Regex.Matches(source, @"\d+");

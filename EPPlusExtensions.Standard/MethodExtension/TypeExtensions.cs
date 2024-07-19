@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace EPPlusExtensions.MethodExtension
+﻿namespace EPPlusExtensions.MethodExtension
 {
     internal static class TypeExtensions
     {
         private static Dictionary<string, bool> _cache = new Dictionary<string, bool>();
+
         //代码来自https://www.cnblogs.com/walterlv/p/10236419.html#NET__8
         /// <summary>
         /// 判断指定的类型 <paramref name="type"/> 是否是指定泛型类型的子类型，或实现了指定泛型接口。

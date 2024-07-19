@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
-
-namespace EPPlusExtensions.Cache
+﻿namespace EPPlusExtensions.Cache
 {
-
     //public class GenericCache<T>
     //{
     //    static GenericCache()
@@ -23,6 +15,4 @@ namespace EPPlusExtensions.Cache
     //        return _CachedValue;
     //    }
     //}
-
-
 }

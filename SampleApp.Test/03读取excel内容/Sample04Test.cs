@@ -1,8 +1,7 @@
-﻿using EPPlusExtensions.Attributes;
+﻿using EPPlusExtensions.CustomModelType;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SampleApp._03读取excel内容;
 using System.Linq;
-using EPPlusExtensions.CustomModelType;
 
 namespace SampleApp.Test._03读取excel内容
 {
@@ -20,7 +19,6 @@ namespace SampleApp.Test._03读取excel内容
             resultList.Add(new Sample04.ExcelModel { 序号 = "4", 部门 = new KV<string, long>("事业4部", 4), 部门负责人 = "jam", 部门负责人确认签字 = "jam", 部门评分 = new KV<long, string>(3, "一般") });
             resultList.Add(new Sample04.ExcelModel { 序号 = "6", 部门 = new KV<string, long>("事业6部", 6), 部门负责人 = "jack", 部门负责人确认签字 = "jack", 部门评分 = new KV<long, string>(3, "一般") });
             CollectionAssert.AreEqual(excelList, resultList);
-
         }
     }
 }

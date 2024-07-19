@@ -1,14 +1,11 @@
 ﻿using EPPlusExtensions;
 using OfficeOpenXml;
-using System;
-using System.Linq;
 
 namespace Core60
 {
-
     internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             string filePath = @"D:\新建 Microsoft Excel 工作表.xlsx";
             using (var fs = EPPlusHelper.GetFileStream(filePath))
@@ -20,7 +17,6 @@ namespace Core60
                 var list = EPPlusHelper.GetList(arg).ToList();
 
                 Console.WriteLine("读取完毕");
-
             }
 
             Console.WriteLine("Hello World!");

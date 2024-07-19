@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EPPlusExtensions.Utils
+﻿namespace EPPlusExtensions.Utils
 {
     internal sealed class ValueConvertUtil
     {
@@ -32,7 +26,6 @@ namespace EPPlusExtensions.Utils
             }
 
             return (TValue)Convert.ChangeType(obj, typeof(TValue));
-
         }
     }
 }

@@ -50,6 +50,5 @@ namespace SampleApp.Test._03读取excel内容
             resultList.Add(new Sample07.ExcelModel { 序号 = 5, 名字 = "张三5", 性别 = null, 出生日期 = Convert.ToDateTime("1999/9/9"), 身份证号码 = "11111111111111111", 年龄 = 19 });
             CollectionAssert.AreEqual(excelList, resultList);
         }
-
     }
 }

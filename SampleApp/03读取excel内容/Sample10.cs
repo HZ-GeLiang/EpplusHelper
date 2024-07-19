@@ -3,7 +3,6 @@ using OfficeOpenXml;
 using SampleApp.MethodExtension;
 using System;
 using System.Data;
-using System.IO;
 
 namespace SampleApp._03读取excel内容
 {

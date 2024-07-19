@@ -1,11 +1,11 @@
-﻿using System;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using SampleApp.MethodExtension;
+using System;
 using System.Data;
 using System.Drawing;
 using System.IO;
-using OfficeOpenXml.Style;
 
 namespace SampleApp._01填充数据
 {
@@ -29,6 +29,7 @@ namespace SampleApp._01填充数据
                 EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", wsName);
 
                 #region 添加密码
+
                 //var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "导出测试");
                 //ws.Protection.IsProtected = true;
                 //ws.Protection.AllowSelectLockedCells = false;
@@ -66,6 +67,7 @@ namespace SampleApp._01填充数据
                 System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
             }
         }
+
         public static double MeasureTextHeight(string text, ExcelFont font, int width)
         {
             if (string.IsNullOrEmpty(text)) return 0.0;
@@ -80,7 +82,7 @@ namespace SampleApp._01填充数据
             return Math.Min(Convert.ToDouble(size.Height) * 72 / 96, 409);
         }
 
-        static DataTable GetDataTable_Body()
+        private static DataTable GetDataTable_Body()
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Name");

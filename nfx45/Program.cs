@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
 using OfficeOpenXml;
+using System;
+using System.Linq;
 
 namespace nfx45
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-
             string filePath = @"D:\新建 Microsoft Excel 工作表.xlsx";
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
@@ -23,9 +19,7 @@ namespace nfx45
                 var list = EPPlusHelper.GetList(arg).ToList();
 
                 Console.WriteLine("读取完毕");
-
             }
-
         }
     }
 }

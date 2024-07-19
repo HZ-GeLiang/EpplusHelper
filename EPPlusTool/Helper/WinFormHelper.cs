@@ -1,6 +1,3 @@
-using System.IO;
-using System.Windows.Forms;
-
 namespace EPPlusTool.Helper
 {
     internal class WinFormHelper
@@ -89,7 +86,7 @@ namespace EPPlusTool.Helper
             //MessageBox.Show($"文件已经生成,在目录'{fileDirectoryName}'");
 
             //这个会发生异常:System.ComponentModel.Win32Exception:“拒绝访问。”
-            //System.Diagnostics.Process.Start(fileDirectoryName); 
+            //System.Diagnostics.Process.Start(fileDirectoryName);
             //改用这个
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             process.StartInfo.FileName = "explorer.exe";
@@ -122,8 +119,6 @@ namespace EPPlusTool.Helper
             {
                 OpenDirectory(openDirectory);
             }
-
         }
-
     }
 }

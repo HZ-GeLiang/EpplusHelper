@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace SampleApp.Test
 {
-    static class EnumerableExtensions
+    internal static class EnumerableExtensions
     {
         public static IEnumerable<T> GetEmpty<T>(this IEnumerable<T> enumerable)
         {

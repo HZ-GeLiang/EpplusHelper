@@ -10,6 +10,7 @@ namespace SampleApp._04填充数据与数据源同步
     {
         public static bool OpenDir = true;
         public static string FilePathSave = @"模版\04填充数据与数据源同步\ResultSample02.xlsx";
+
         public static void Run()
         {
             string filePath = @"模版\04填充数据与数据源同步\Sample01.xlsx";
@@ -87,7 +88,7 @@ namespace SampleApp._04填充数据与数据源同步
             }
         }
 
-        static DataTable GetProduct1()
+        private static DataTable GetProduct1()
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Id");
@@ -115,7 +116,8 @@ namespace SampleApp._04填充数据与数据源同步
             dt.Rows.Add(dr);
             return dt;
         }
-        static DataTable GetProduct2()
+
+        private static DataTable GetProduct2()
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Id");
@@ -137,9 +139,9 @@ namespace SampleApp._04填充数据与数据源同步
             dt.Rows.Add(dr);
             return dt;
         }
-        static DataTable GetProduct3()
-        {
 
+        private static DataTable GetProduct3()
+        {
             DataTable dt = new DataTable();
             dt.Columns.Add("Id");
             dt.Columns.Add("Name");
@@ -183,6 +185,5 @@ namespace SampleApp._04填充数据与数据源同步
             dt.Rows.Add(dr);
             return dt;
         }
-
     }
 }

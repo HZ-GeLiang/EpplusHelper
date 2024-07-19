@@ -3,7 +3,6 @@ using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace SampleApp._03读取excel内容
@@ -34,7 +33,6 @@ namespace SampleApp._03读取excel内容
                 Console.WriteLine(ex.InnerException.Message);
                 Console.ReadKey();
             }
-
         }
 
         public static List<T> Run<T>() where T : class, new()
@@ -50,13 +48,17 @@ namespace SampleApp._03读取excel内容
                 return list;
             }
         }
+
         public class ExcelModel
         {
             public int 序号 { get; set; }
+
             //[Unique()]
             public string 名字 { get; set; }
+
             //[EnumUndefined("{0}的性别填写不正确:'{1}'", "名字", "性别")]
             public Gender? 性别 { get; set; }
+
             public DateTime? 出生日期 { get; set; }
             public string 身份证号码 { get; set; }
             public int 年龄 { get; set; }
@@ -93,10 +95,13 @@ namespace SampleApp._03读取excel内容
         public class ExcelModel2
         {
             public int 序号 { get; set; }
+
             //[Unique()]
             public string 名字 { get; set; }
+
             [EnumUndefined("{0}的性别填写不正确:'{1}'", "名字", "性别")]
             public Gender? 性别 { get; set; }
+
             public DateTime? 出生日期 { get; set; }
             public string 身份证号码 { get; set; }
             public int 年龄 { get; set; }
@@ -129,6 +134,7 @@ namespace SampleApp._03读取excel内容
                        this.年龄.GetHashCode();
             }
         }
+
         public enum Gender
         {
             男 = 1,

@@ -1,12 +1,10 @@
 ﻿using EPPlusExtensions;
-using EPPlusExtensions.Attributes;
+using EPPlusExtensions.CustomModelType;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
-using EPPlusExtensions.CustomModelType;
 
 namespace SampleApp._03读取excel内容
 {
@@ -47,7 +45,6 @@ namespace SampleApp._03读取excel内容
             source.Add(5, "非常满意");
             return source;
         }
-
 
         /// <summary>
         /// 内部TryAdd,自己封装一个方法, 个人推荐用这个.代码改的少
@@ -176,7 +173,7 @@ namespace SampleApp._03读取excel内容
             source.AddRange(dataSource);
         }
 
-        static object SafeRow(DataRow row, string name, Type type)
+        private static object SafeRow(DataRow row, string name, Type type)
         {
             object o = row[name];
             if (o == DBNull.Value || o is null)
@@ -227,10 +224,9 @@ namespace SampleApp._03读取excel内容
                 }
             }
             return Convert.ChangeType(o, type);
-
         }
 
-        static KvSource<string, long> GetSource_部门(ExcelModel propModel, DataTable dt)
+        private static KvSource<string, long> GetSource_部门(ExcelModel propModel, DataTable dt)
         {
             var prop = propModel.部门;
             var keyType = prop.GetKeyType();
@@ -246,15 +242,13 @@ namespace SampleApp._03读取excel内容
             return kvsource;
         }
 
-
         public class ExcelModel
         {
-
             public string 序号 { get; set; }
 
             [KVSet("'{0}'在数据库中未找到", "部门")]//'事业1部'在数据库中未找到
-            //[KVSet("部门", false, "'{0}'在数据库中未找到", "部门")]//'事业1部'在数据库中未找到
             public KV<string, long> 部门 { get; set; }
+
             public string 部门负责人 { get; set; }
             public string 部门负责人确认签字 { get; set; }
 
@@ -284,7 +278,6 @@ namespace SampleApp._03读取excel内容
                        Helper.GetHashCode_KV(this.部门) +
                        Helper.GetHashCode_KV(this.部门评分);
             }
-
         }
     }
 }

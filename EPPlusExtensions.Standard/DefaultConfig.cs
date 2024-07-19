@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EPPlusExtensions
+﻿namespace EPPlusExtensions
 {
     public class DefaultConfig
     {
@@ -27,6 +21,5 @@ namespace EPPlusExtensions
         /// Class的属性列表
         /// </summary>
         public List<ExcelCellInfoValue> ClassPropertyList { get; set; }
-
     }
 }

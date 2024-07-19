@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EPPlusExtensions.Attributes
+﻿namespace EPPlusExtensions.Attributes
 {
     /// <summary>
     /// Excel上的标题列

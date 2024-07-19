@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EPPlusExtensions.MethodExtension;
+using System.Text;
 
 namespace EPPlusExtensions.Helper
 {
@@ -24,7 +20,7 @@ namespace EPPlusExtensions.Helper
 with cte as(
     SELECT {idFiledName} , 1 as 'level' FROM {tblName} WHERE {rootItemWhere}
     UNION ALL
-    SELECT {tblName}.{idFiledName}, cte.level+1 as 'level' from cte, {tblName} where cte.{idFiledName} = {tblName}.{parentIdName}    
+    SELECT {tblName}.{idFiledName}, cte.level+1 as 'level' from cte, {tblName} where cte.{idFiledName} = {tblName}.{parentIdName}
 )
 SELECT ISNULL(MAX(cte.level),0) FROM  cte";
             return sql;
@@ -122,14 +118,13 @@ with cte as(
     SELECT {sb1} , 1 as Level , CAST( LEFT(LTRIM({idFiledName})+'{char1}',{eachSortFieldLength}) AS VARCHAR(10)) AS 'Depth'
     FROM {tblName} WHERE {rootItemWhere}
     UNION ALL
-    SELECT {sb2} , cte.Level+1 as Level , CAST(LTRIM(cte.Depth) + LEFT(LTRIM({tblName}.{idFiledName}) +'{char1}',{eachSortFieldLength})AS VARCHAR(10)) AS 'Depth' 
+    SELECT {sb2} , cte.Level+1 as Level , CAST(LTRIM(cte.Depth) + LEFT(LTRIM({tblName}.{idFiledName}) +'{char1}',{eachSortFieldLength})AS VARCHAR(10)) AS 'Depth'
     FROM cte, {tblName}
     where cte.{idFiledName} = {tblName}.{parentIdName}
 )
 SELECT {sb1} , Level,LEFT(LTRIM(cte.Depth)+'{char2}',{reportSortFileTotallength})  AS 'sort'  FROM cte
 ORDER BY sort ,cte.Level";
             return sql;
-
         }
 
         #endregion

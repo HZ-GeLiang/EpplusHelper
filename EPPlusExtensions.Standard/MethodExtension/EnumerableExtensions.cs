@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace EPPlusExtensions.MethodExtension
+﻿namespace EPPlusExtensions.MethodExtension
 {
     internal static class EnumerableExtensions
     {
@@ -21,6 +18,5 @@ namespace EPPlusExtensions.MethodExtension
                 }
             }
         }
-
     }
 }

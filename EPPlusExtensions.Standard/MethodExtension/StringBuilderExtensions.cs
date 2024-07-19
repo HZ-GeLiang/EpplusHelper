@@ -22,6 +22,5 @@ namespace EPPlusExtensions.MethodExtension
             if (value is null) throw new System.ArgumentNullException(nameof(value));
             return value.Length <= 0 ? value : value[value.Length - 1] == c ? value.RemoveLastChar() : value;
         }
-
     }
 }

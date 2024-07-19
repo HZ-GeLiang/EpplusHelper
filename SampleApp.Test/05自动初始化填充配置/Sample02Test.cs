@@ -45,6 +45,5 @@ namespace SampleApp.Test._05自动初始化填充配置
             Assert.AreEqual(File.ReadAllText(runFilePath3), File.ReadAllText(correctResultFilePath3));
             Assert.AreEqual(File.ReadAllText(runFilePath4), File.ReadAllText(correctResultFilePath4));
         }
-
     }
 }

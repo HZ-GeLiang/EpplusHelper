@@ -54,6 +54,7 @@ namespace EPPlusExtensions.CustomModelType
         {
             this._data.Add(key, value);
         }
+
         public void Add(TKey key, TValue value, object state)
         {
             this.Add(key, value);
@@ -69,6 +70,7 @@ namespace EPPlusExtensions.CustomModelType
             this._data.Add(key, value);
             return true;
         }
+
         public bool TryAdd(TKey key, TValue value, object state)
         {
             var result = this.TryAdd(key, value);
@@ -147,7 +149,6 @@ namespace EPPlusExtensions.CustomModelType
             return this.ContainsKey(tkey);
         }
 
-
         public void GetInfoByKey(object key, out bool haveValue, out object value, out bool haveState, out object state)
         {
             if (key is null) throw new ArgumentNullException(nameof(key));
@@ -183,7 +184,6 @@ namespace EPPlusExtensions.CustomModelType
             if (key is null) throw new ArgumentNullException(nameof(key));
             return this._dataState[key];
         }
-
     }
 
     /// <summary>
@@ -201,7 +201,9 @@ namespace EPPlusExtensions.CustomModelType
         public bool HasValue { get; private set; } = false;
         public bool HasState { get; private set; } = false;
 
-        public KV() { } //这个不能注释.必须提供.存在的理由是方便提供一个默认的对象
+        //这个不能注释.必须提供.存在的理由是方便提供一个默认的对象
+        public KV()
+        { }
 
         public KV(TKey key)
         {
@@ -335,7 +337,6 @@ namespace EPPlusExtensions.CustomModelType
         {
             //在RunAttribute已经完成了, 所以,这里是空的
         }
-
     }
 
     /// <summary>
@@ -344,9 +345,12 @@ namespace EPPlusExtensions.CustomModelType
     public static class KVExtensionMethod
     {
         public static KvSource<TKey, TValue> CreateKVSource<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>();
+
         public static Dictionary<TKey, TValue> CreateKVSourceData<TKey, TValue>(this KV<TKey, TValue> source) => new Dictionary<TKey, TValue>();
+
         //public static Type GetKVSourceType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType();
         public static Type GetKeyType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[0];
+
         public static Type GetValueType<TKey, TValue>(this KV<TKey, TValue> source) => new KvSource<TKey, TValue>().GetType().GenericTypeArguments[1];
     }
 
@@ -371,12 +375,17 @@ namespace EPPlusExtensions.CustomModelType
         /// </summary>
         public string[] Args { get; private set; }
 
-        public KVSetAttribute() : this(true, null, null) { }
+        public KVSetAttribute() : this(true, null, null)
+        {
+        }
 
+        public KVSetAttribute(bool mustInSet) : this(mustInSet, null, null)
+        {
+        }
 
-        public KVSetAttribute(bool mustInSet) : this(mustInSet, null, null) { }
-
-        public KVSetAttribute(string errorMessage, params string[] args) : this(true, errorMessage, args) { }
+        public KVSetAttribute(string errorMessage, params string[] args) : this(true, errorMessage, args)
+        {
+        }
 
         private KVSetAttribute(bool mustInSet, string errorMessage, params string[] args)
         {
@@ -412,5 +421,4 @@ namespace EPPlusExtensions.CustomModelType
             return true;
         }
     }
-
 }

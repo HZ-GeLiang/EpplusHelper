@@ -3,7 +3,6 @@ using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace SampleApp._03读取excel内容
@@ -14,6 +13,7 @@ namespace SampleApp._03读取excel内容
         {
             Run(true);
         }
+
         public static void Run(bool OnlyShowColomn)
         {
             Run<ExcelModel2>(OnlyShowColomn);
@@ -67,7 +67,6 @@ args.GetList_NeedAllException = false;
             {
                 return excelList;
             }
-
         }
 
         public class ExcelModelBase
@@ -122,6 +121,7 @@ args.GetList_NeedAllException = false;
         {
             public int 姓名 { get; set; }
             public int 班级 { get; set; }
+
             public override bool Equals(object obj)
             {
                 if (obj is null || !obj.GetType().Equals(this.GetType()))

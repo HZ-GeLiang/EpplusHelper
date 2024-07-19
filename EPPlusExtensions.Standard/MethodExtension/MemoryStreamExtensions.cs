@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace EPPlusExtensions.MethodExtension
+﻿namespace EPPlusExtensions.MethodExtension
 {
     internal static class MemoryStreamExtensions
     {

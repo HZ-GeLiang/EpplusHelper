@@ -2,12 +2,13 @@
 
 namespace SampleApp.MethodExtension
 {
-    static class StringBuilderExtensions
+    internal static class StringBuilderExtensions
     {
         public static StringBuilder RemoveLastChar(this StringBuilder value)
         {
             return value is null || value.Length <= 0 ? value : value.Remove(value.Length - 1, 1);
         }
+
         public static StringBuilder RemoveLastChar(this StringBuilder value, int count)
         {
             if (value is null) throw new System.ArgumentNullException(nameof(value));
@@ -21,6 +22,7 @@ namespace SampleApp.MethodExtension
             if (value is null) throw new System.ArgumentNullException(nameof(value));
             return value.Length <= 0 ? value : value[value.Length - 1] == c ? value.RemoveLastChar() : value;
         }
+
         public static StringBuilder RemoveLastChar(this StringBuilder value, string str)
         {
             if (value is null) throw new System.ArgumentNullException(nameof(value));
@@ -44,9 +46,6 @@ namespace SampleApp.MethodExtension
                 }
             }
             return value.Replace(str, string.Empty, value.Length - str.Length, str.Length);
-
         }
-
-
     }
 }

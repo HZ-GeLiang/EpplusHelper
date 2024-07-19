@@ -1,11 +1,9 @@
-﻿using System.IO;
-
-namespace EPPlusTool.MethodExtension
+﻿namespace EPPlusTool.MethodExtension
 {
     internal static class MemoryStreamExtensions
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="memoryStream">内存流</param>
         /// <param name="savePath">保存的路径</param>

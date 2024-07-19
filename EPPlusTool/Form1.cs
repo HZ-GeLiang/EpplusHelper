@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using EPPlusExtensions;
 using EPPlusTool.Helper;
 using EPPlusTool.MethodExtension;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using OfficeOpenXml;
+using System.Text;
 
 namespace EPPlusTool
 {
@@ -26,8 +20,8 @@ namespace EPPlusTool
             _configurationRoot = _builder.Build();
             this.filePath1.Text = _configurationRoot["FilePath1"];
             this.filePath2.Text = _configurationRoot["FilePath2"];
-
         }
+
         private void SaveAppSetting()
         {
             FileConfigurationSource source = ((Microsoft.Extensions.Configuration.Json.JsonConfigurationProvider)
@@ -78,7 +72,6 @@ namespace EPPlusTool
 
         private void GenerateConfiguration_Click(object sender, EventArgs e)
         {
-
             string filePath = filePath1.Text.Trim().移除路径前后引号();
             if (string.IsNullOrEmpty(filePath))
             {
@@ -125,12 +118,10 @@ namespace EPPlusTool
             //    WinFormHelper.OpenDirectory(fileDir);
             //}
             SaveAppSetting();
-
         }
 
         private void GenerateConfigurationCode_Click(object sender, EventArgs e)
         {
-
             string filePath = filePath1.Text.Trim().移除路径前后引号();
             if (string.IsNullOrEmpty(filePath))
             {
@@ -185,7 +176,6 @@ namespace EPPlusTool
                 WinFormHelper.OpenFilePath(filePath.GetDirectoryName());
             }
             SaveAppSetting();
-
         }
 
         private void CheckTemplateConfiguration_Click(object sender, EventArgs e)
@@ -250,7 +240,6 @@ namespace EPPlusTool
                 MessageBox.Show("A与B比较:内容一致");
             }
             SaveAppSetting();
-
         }
 
         /// <summary>
@@ -278,7 +267,6 @@ namespace EPPlusTool
                     }
                 }
             }
-
         }
 
         private void Btn_SelectExcelFile(object sender, EventArgs e)
@@ -441,7 +429,6 @@ namespace EPPlusTool
 
         private void CreateClass_Click(object sender, EventArgs e)
         {
-
             string filePath = filePath1.Text.Trim().移除路径前后引号();
             if (string.IsNullOrEmpty(filePath))
             {
@@ -481,13 +468,10 @@ namespace EPPlusTool
                 //}
             }
             SaveAppSetting();
-
-
         }
 
         private void CreateDataTable_Click(object sender, EventArgs e)
         {
-
             string filePath = filePath1.Text.Trim().移除路径前后引号();
             if (string.IsNullOrEmpty(filePath))
             {
@@ -524,8 +508,6 @@ namespace EPPlusTool
                 }
             }
             SaveAppSetting();
-
-
         }
 
         private ExcelDataConfigInfo GetExcelDataConfigInfo()
@@ -547,7 +529,6 @@ namespace EPPlusTool
 
             return excelDataConfigInfo;
         }
-
 
         private void diaplayRowAndColumn_Click(object sender, EventArgs e)
         {
@@ -606,7 +587,6 @@ namespace EPPlusTool
                 else if (((System.Windows.Forms.Control)sender).Name == "dgv2")
                     this.TitleCol2.Text = txt;
             }
-
         }
 
         private void dgv1_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -620,7 +600,6 @@ namespace EPPlusTool
                 this.TitleLine1.Text = clickedRow.Cells[2].Value.ToString();
                 this.TitleCol1.Text = clickedRow.Cells[3].Value.ToString();
             }
-
         }
     }
 }

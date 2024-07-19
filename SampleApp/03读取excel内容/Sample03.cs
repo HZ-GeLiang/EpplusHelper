@@ -2,7 +2,6 @@
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace SampleApp._03读取excel内容
@@ -33,6 +32,7 @@ namespace SampleApp._03读取excel内容
             public string 部门 { get; set; }
             public string 部门负责人 { get; set; }
             public string 部门负责人确认签字 { get; set; }
+
             public override bool Equals(object obj)
             {
                 if (obj is null || !obj.GetType().Equals(this.GetType()))

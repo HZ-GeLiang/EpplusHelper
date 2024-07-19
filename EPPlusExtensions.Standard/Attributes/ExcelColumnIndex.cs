@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EPPlusExtensions.Attributes
+﻿namespace EPPlusExtensions.Attributes
 {
     /// <summary>
     /// Excel的标题列所在的列序号是多少,从1开始

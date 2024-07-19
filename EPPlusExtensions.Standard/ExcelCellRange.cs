@@ -1,5 +1,4 @@
-﻿using System;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 
 namespace EPPlusExtensions
 {
@@ -8,14 +7,12 @@ namespace EPPlusExtensions
     /// </summary>
     public struct ExcelCellRange
     {
-
         /// <summary>
         ///
         /// </summary>
         /// <param name="r1c1">地址</param>
         public ExcelCellRange(string r1c1) : this(r1c1, null)
         {
-
         }
 
         public ExcelCellRange(string r1c1, ExcelWorksheet ws)

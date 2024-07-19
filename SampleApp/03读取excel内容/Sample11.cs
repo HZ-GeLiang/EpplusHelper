@@ -3,7 +3,6 @@ using EPPlusExtensions.Attributes;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace SampleApp._03读取excel内容
@@ -63,6 +62,5 @@ namespace SampleApp._03读取excel内容
                        this.FebruaryStatistics.GetHashCode();
             }
         }
-
     }
 }

@@ -46,7 +46,6 @@ namespace SampleApp.Test._03读取excel内容
             {
                 Assert.AreEqual(ex.Message, $@"无效的单元格:B2(部门:部门名字长度要在9-10之间)");
                 Assert.AreEqual(ex.InnerException.Message, $@"部门名字长度要在9-10之间");
-
             }
         }
     }

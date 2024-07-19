@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EPPlusTool.Handler
+﻿namespace EPPlusTool.Handler
 {
     public static class GlobalExceptionHandler
     {
@@ -25,7 +23,6 @@ namespace EPPlusTool.Handler
 
         private static void HandleException(Exception exception)
         {
-
             // 在这里处理异常，例如记录日志或显示错误消息框
 
 #if DEBUG
@@ -58,7 +55,6 @@ namespace EPPlusTool.Handler
             //    MessageBox.Show($"未处理的全局异常：{exception.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             //}
 #endif
-
         }
     }
 }

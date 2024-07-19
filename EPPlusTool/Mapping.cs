@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EPPlusTool
+﻿namespace EPPlusTool
 {
-    class ExcelInfo
+    internal class ExcelInfo
     {
         public string R1C1 { get; set; }
         public int ColumnIndex { get; set; }
         public string Value { get; set; }
     }
 
-    class ModelProp
+    internal class ModelProp
     {
         public string Name { get; set; }
         public string Type { get; set; }

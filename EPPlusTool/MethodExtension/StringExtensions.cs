@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace EPPlusTool.MethodExtension
+﻿namespace EPPlusTool.MethodExtension
 {
     internal static class StringExtensions
     {
@@ -8,6 +6,7 @@ namespace EPPlusTool.MethodExtension
         {
             return Path.GetDirectoryName(移除路径前后引号(filePath));
         }
+
         public static string 移除路径前后引号(this string filePath)
         {
             return filePath != null && filePath.Length > 2 && filePath[0] == '"' && filePath[filePath.Length - 1] == '"'

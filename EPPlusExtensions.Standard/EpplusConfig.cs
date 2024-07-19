@@ -1,10 +1,7 @@
 ﻿using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
 
 namespace EPPlusExtensions
 {
-
     /// <summary>
     /// 配置信息
     /// </summary>
@@ -17,6 +14,7 @@ namespace EPPlusExtensions
         /// Maximum number of rows in a worksheet (1048576)
         /// </summary>
         public const int MaxRow07 = 1048576;// 和 epplus 内置的常量值 ExcelPackage.MaxRows 一样;
+
         /// <summary>
         /// Maximum number of columns in a worksheet (16384)
         /// </summary>
@@ -53,6 +51,7 @@ namespace EPPlusExtensions
         /// 是否使用默认(单元格格式)约定,默认true 注:settingCellFormat 若与默认的发成冲突,会把默认的 cell 格式给覆盖.
         /// </summary>
         public bool UseFundamentals = true;
+
         /// <summary>
         /// 默认的单元格格式设置,colMapperName 是配置单元格的名字 譬如 $tb1Id, 那么colMapperName值就为Id
         /// </summary>
@@ -100,6 +99,7 @@ namespace EPPlusExtensions
         /// 设置工作簿的一些列宽,行高 等
         /// </summary>
         public Action<ExcelWorksheet> WorkSheetDefault;
+
         //= worksheet =>
         //{
         //    //worksheet.DefaultColWidth = 72; //默认列宽
@@ -107,7 +107,6 @@ namespace EPPlusExtensions
         //    //worksheet.TabColor = Color.Blue; //Sheet Tab的颜色
         //    //worksheet.Cells.Style.WrapText = true; //单元格文字自动换行
         //};
-
     }
 
     /// <summary>
@@ -129,7 +128,6 @@ namespace EPPlusExtensions
         /// 填充配置有的列,DataColumn必须存在
         /// </summary>
         public bool ConfigItemMustExistInDataColumn { get; set; } = true;
-
     }
 
     /// <summary>
@@ -158,7 +156,6 @@ namespace EPPlusExtensions
         /// 完整的address,用来给记录合并单元格的
         /// </summary>
         public string FullAddress { get; set; }
-
     }
 
     public class EPPlusConfigBody
@@ -167,7 +164,6 @@ namespace EPPlusExtensions
         /// 所有的配置信息
         /// </summary>
         public List<EPPlusConfigBodyConfig> ConfigList { get; set; } = null;
-
 
         /// <summary>
         ///
@@ -198,7 +194,6 @@ namespace EPPlusExtensions
 
     public class EPPlusConfigBodyConfig
     {
-
         /// <summary>
         /// 第几个配置, 从1开始
         /// </summary>
@@ -263,10 +258,12 @@ namespace EPPlusExtensions
         /// 属性名:列名 (要填充的列,如姓名)
         /// </summary>
         public string ColName { get; set; }
+
         /// <summary>
         /// 属性值: 要填充的值
         /// </summary>
         public object Value { get; set; }
+
         /// <summary>
         /// 重所在的单元格:填充的单元格
         /// </summary>
@@ -311,15 +308,16 @@ namespace EPPlusExtensions
         /// 标题
         /// </summary>
         TitleExt = 1,
+
         /// <summary>
         /// 内容(配置的哪些)
         /// </summary>
         Content = 2,
+
         /// <summary>
         /// 内容扩展,DataTable 未配置的列)
         /// </summary>
         ContentExt = 3,
-
     }
 
     public class InsertRowStyle
@@ -330,6 +328,7 @@ namespace EPPlusExtensions
         public InsertRowStyleOperation Operation { get; set; } = InsertRowStyleOperation.CopyAll;
 
         #region 这2个是 CopyStyleAndMergedCellFromConfigRow 的配置
+
         /// <summary>
         /// 新增行时复制配置项所在行的样式(新增的行不含单元格合并) ,相同的工作簿,该选项 false 时, 生成的文件体积会减小很多
         /// </summary>
@@ -339,8 +338,8 @@ namespace EPPlusExtensions
         /// 配置行有合并单元格时,新增行也需要
         /// </summary>
         public bool NeedMergeCell { get; set; } = true;
-        #endregion
 
+        #endregion
     }
 
     public enum InsertRowStyleOperation
@@ -349,6 +348,7 @@ namespace EPPlusExtensions
         /// 复制配置行的所有样式(含合并单元格)
         /// </summary>
         CopyAll = 1,
+
         /// <summary>
         /// 复制配置行的样式,然后合并单元格(如果配置行有)
         /// </summary>

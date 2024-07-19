@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using EPPlusExtensions.Utils;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPPlusExtensions.Utils;
 
 namespace EPPlusExtensions
 {
-
     /// <summary>
     /// 配置信息的数据源
     /// </summary>
@@ -17,8 +11,8 @@ namespace EPPlusExtensions
         public EPPlusConfigSourceHead Head { get; set; } //= new EPPlusConfigSourceHead();
         public EPPlusConfigSourceBody Body { get; set; } //= new EPPlusConfigSourceBody();
         public EPPlusConfigSourceFoot Foot { get; set; } //= new EPPlusConfigSourceFoot();
-
     }
+
     public class EPPlusConfigSourceFixedCell<TValue>
     {
         /// <summary>
@@ -110,7 +104,6 @@ namespace EPPlusExtensions
         /// <param name="dr">数据源是这个</param>
         public static List<EPPlusConfigSourceFixedCell<TValue>> ConvertToConfigExtraList(DataTable dt, DataRow dr)
         {
-
             var dict = new Dictionary<string, TValue>();
             for (int i = 0; i < dr.ItemArray.Length; i++)
             {
@@ -126,10 +119,8 @@ namespace EPPlusExtensions
             }
             return ConvertToConfigExtraList<string>(dict);
         }
-
-
-
     }
+
     public class EPPlusConfigSourceConfigExtras
     {
         public List<EPPlusConfigSourceFixedCell> CellsInfoList { get; set; } = null;
@@ -165,7 +156,6 @@ namespace EPPlusExtensions
 
             return cell;
         }
-
 
         public static List<EPPlusConfigSourceFixedCell> ConvertToConfigExtraList<TKey, TValue>(Dictionary<TKey, TValue> dict)
         {
@@ -215,7 +205,6 @@ namespace EPPlusExtensions
         }
     }
 
-
     public class EPPlusConfigSourceHead<TValue> : EPPlusConfigSourceConfigExtras<TValue>
     {
         public static implicit operator EPPlusConfigSourceHead<TValue>(DataTable dt)
@@ -245,7 +234,6 @@ namespace EPPlusExtensions
             get => base[key].FillValue;
             set => base[key].FillValue = ValueConvertUtil.ConvertToTValue<TValue>(value);
         }
-
     }
 
     public class EPPlusConfigSourceFoot<TValue> : EPPlusConfigSourceConfigExtras<TValue>
@@ -277,7 +265,6 @@ namespace EPPlusExtensions
             get => base[key].FillValue;
             set => base[key].FillValue = ValueConvertUtil.ConvertToTValue<TValue>(value);
         }
-
     }
 
     public class EPPlusConfigSourceHead : EPPlusConfigSourceConfigExtras
@@ -291,20 +278,35 @@ namespace EPPlusExtensions
                     : EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dt, dt.Rows[0])
             };
         }
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, string> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, Boolean> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, DateTime> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, sbyte> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, byte> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, UInt16> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, UInt32> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, UInt64> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, Int16> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, Int32> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, Int64> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, float> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, double> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, decimal> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceHead(Dictionary<string, object> dict) => ConvertToSelf(dict);
 
         private static EPPlusConfigSourceHead ConvertToSelf<TKey, TValue>(Dictionary<TKey, TValue> dict)
@@ -340,19 +342,33 @@ namespace EPPlusExtensions
         }
 
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, string> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, Boolean> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, DateTime> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, sbyte> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, byte> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, UInt16> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, UInt32> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, UInt64> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, Int16> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, Int32> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, Int64> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, float> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, double> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, decimal> dict) => ConvertToSelf(dict);
+
         public static implicit operator EPPlusConfigSourceFoot(Dictionary<string, object> dict) => ConvertToSelf(dict);
 
         private static EPPlusConfigSourceFoot ConvertToSelf<TKey, TValue>(Dictionary<TKey, TValue> dict)
@@ -407,7 +423,6 @@ namespace EPPlusExtensions
                 return bodyConfig;
             }
         }
-
     }
 
     public class EPPlusConfigSourceBodyConfig
@@ -439,7 +454,6 @@ namespace EPPlusExtensions
         /// 固定的一些单元格 如表格的汇总栏什么的
         /// </summary>
         public EPPlusConfigSourceConfigExtra ConfigExtra { get; set; } = null;
-
     }
 
     public class EPPlusConfigSourceConfigExtra
@@ -456,6 +470,7 @@ namespace EPPlusExtensions
                 Source = EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dt, dt.Rows[0])
             };
         }
+
         public static implicit operator EPPlusConfigSourceConfigExtra(Dictionary<string, string> dict)
         {
             return new EPPlusConfigSourceConfigExtra()
@@ -463,6 +478,7 @@ namespace EPPlusExtensions
                 Source = EPPlusConfigSourceConfigExtras.ConvertToConfigExtraList(dict)
             };
         }
+
         public static implicit operator EPPlusConfigSourceConfigExtra(Dictionary<string, object> dict)
         {
             return new EPPlusConfigSourceConfigExtra()
@@ -471,5 +487,4 @@ namespace EPPlusExtensions
             };
         }
     }
-
 }

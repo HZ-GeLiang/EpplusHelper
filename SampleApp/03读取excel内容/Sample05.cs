@@ -1,11 +1,9 @@
 ﻿using EPPlusExtensions;
-using EPPlusExtensions.Attributes;
+using EPPlusExtensions.CustomModelType;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using EPPlusExtensions.CustomModelType;
 
 namespace SampleApp._03读取excel内容
 {
@@ -52,8 +50,10 @@ namespace SampleApp._03读取excel内容
         public class ExcelModel
         {
             public int 序号 { get; set; }
+
             [KVSet("'{0}'在数据库中未找到", "部门")]//'事业1部'在数据库中未找到
             public KV<string, long?> 部门 { get; set; }
+
             [KVSet(false)]
             public KV<string, long?> 部门2 { get; set; }
 

@@ -11,8 +11,9 @@ namespace SampleApp._02填充图片
     // 我也没捣鼓出来怎么添加合适
     public class Sample01
     {
-        const float STANDARD_DPI = 96;
+        private const float STANDARD_DPI = 96;
         public const int EMU_PER_PIXEL = 9525;
+
         public static void Run()
         {
             string filePath = @"模版\02填充图片\Sample01.xlsx";
@@ -34,6 +35,7 @@ namespace SampleApp._02填充图片
                 var ws = EPPlusHelper.GetExcelWorksheet(excelPackage, "导出测试");
 
                 #region 测试,没写好
+
                 MemoryStream img_ms = CaptchaGen.ImageFactory.GenerateImage("你好中国", 80, 100, 13, 5);//这个是图片的px
                 byte[] stream = img_ms.ToArray();
                 var bitmap = new Bitmap(img_ms);
@@ -73,7 +75,7 @@ namespace SampleApp._02填充图片
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }
 
-        static DataTable GetDataTable_Head()
+        private static DataTable GetDataTable_Head()
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Title");
@@ -84,7 +86,7 @@ namespace SampleApp._02填充图片
             return dt;
         }
 
-        static DataTable GetDataTable_Body()
+        private static DataTable GetDataTable_Body()
         {
             DataTable dt = new DataTable();
             dt.Columns.Add("Name");
@@ -110,8 +112,6 @@ namespace SampleApp._02填充图片
             dt.Rows.Add(dr);
 
             return dt;
-
         }
-
     }
 }

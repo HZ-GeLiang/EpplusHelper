@@ -2,7 +2,6 @@
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace SampleApp._03读取excel内容
@@ -26,7 +25,6 @@ namespace SampleApp._03读取excel内容
             }
         }
 
-
         public class ExcelModel
         {
             public int A { get; set; }
@@ -36,6 +34,7 @@ namespace SampleApp._03读取excel内容
             public int E { get; set; }
             public int F { get; set; }
             public int G { get; set; }
+
             public override bool Equals(object obj)
             {
                 if (obj is null || !obj.GetType().Equals(this.GetType()))
