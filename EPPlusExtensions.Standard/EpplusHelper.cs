@@ -7,6 +7,7 @@ using OfficeOpenXml;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -4376,9 +4377,21 @@ namespace EPPlusExtensions
         /// <param name="filePath">文件路径</param>
         public static void Save(ExcelPackage excelPackage, string filePath)
         {
-            using var ms = GetMemoryStream(excelPackage);
             //File.Delete(savePath); //删除文件。如果文件不存在,也不报错
-            ms.Save(filePath); //会自动创建目录 ,若文件已存在,会覆盖文件
+
+            var dirPath = Path.GetDirectoryName(filePath);
+            if (Directory.Exists(dirPath) == false)
+            {
+                Directory.CreateDirectory(dirPath);
+            }
+
+            using var memoryStream = GetMemoryStream(excelPackage);
+            using var file = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+
+            //byte[] bytes = new byte[memoryStream.Length];
+            //_ = memoryStream.Read(bytes, 0, (int)memoryStream.Length);
+            byte[] bytes = memoryStream.ToArray();
+            file.Write(bytes, 0, bytes.Length);
         }
     }
 }

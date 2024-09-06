@@ -122,7 +122,6 @@
     <Content Include="04填充数据与数据源同步\%28未测试完全%29,不推荐用.txt" />
     <Compile Include="Helper.cs" />
     <Compile Include="MethodExtension\DataTableExtensions.cs" />
-    <Compile Include="MethodExtension\MemoryStreamExtensions.cs" />
     <Compile Include="MethodExtension\StringBuilderExtensions.cs" />
     <Compile Include="MethodExtension\StringExtensions.cs" />
     <Compile Include="ObjectDumper.cs" />
