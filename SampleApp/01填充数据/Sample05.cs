@@ -15,7 +15,6 @@ namespace SampleApp._01填充数据
         {
             string filePath = @"模版\01填充数据\Sample05.xlsx";
             var wsName = 1;
-            using (var ms = new MemoryStream())
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
@@ -60,10 +59,11 @@ namespace SampleApp._01填充数据
                 config.Body[1].Option.ConfigLine.Add(new EPPlusConfigFixedCell { Address = "H3" });//没办法在 SetConfigBodyFromExcel() 的 configLine中添加,需要自己写
 
                 EPPlusHelper.FillData(excelPackage, config, configSource, "预算", 1);
-                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(FilePathSave);
+                EPPlusHelper.DeleteWorkSheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    ms.Save(FilePathSave);
+                }
             }
             if (OpenDir)
             {

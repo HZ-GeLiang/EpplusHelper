@@ -15,7 +15,7 @@ namespace SampleApp._01填充数据
         {
             string filePath = @"模版\01填充数据\Sample01.xlsx";
             var wsName = "带有标题行的填充";
-            using (var ms = new MemoryStream())
+
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
@@ -26,11 +26,12 @@ namespace SampleApp._01填充数据
                 configSource.Body[1].Option.DataSource = GetDataTable_Body();
                 EPPlusHelper.FillData(excelPackage, config, configSource, "导出测试", wsName);
 
-                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
+                EPPlusHelper.DeleteWorkSheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
 
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(FilePathSave);
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    ms.Save(FilePathSave);
+                }
             }
             if (OpenDir)
             {

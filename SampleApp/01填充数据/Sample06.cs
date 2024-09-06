@@ -2,18 +2,16 @@
 using OfficeOpenXml;
 using SampleApp.MethodExtension;
 using System.Data;
-using System.IO;
 
 namespace SampleApp._01填充数据
 {
     public class Sample06
     {
         public static bool OpenDir = true;
-        public static string filePathSave = @"模版\01填充数据\ResultSample06.xlsx";
+        public static string FilePathSave = @"模版\01填充数据\ResultSample06.xlsx";
 
         public static void Run()
         {
-            using (var ms = new MemoryStream())
             using (var excelPackage = new ExcelPackage())
             {
                 // Add a new worksheet to the empty workbook
@@ -58,11 +56,12 @@ namespace SampleApp._01填充数据
                 };
 
                 EPPlusHelper.FillData(config, configSource, worksheet);
-                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(filePathSave);
+                EPPlusHelper.DeleteWorkSheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
 
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    ms.Save(FilePathSave);
+                }
                 // //Add the headers
                 // worksheet.Cells[1, 1].Value = "ID";
 

@@ -12,13 +12,12 @@ namespace SampleApp._05自动初始化填充配置
     public class Sample03
     {
         public static bool OpenDir = true;
-        public static string FilePathSave = @"模版\05自动初始化填充配置\Sample03_Result.xlsx";
+        public static string filePathSave = @"模版\05自动初始化填充配置\Sample03_Result.xlsx";
 
         public static void Run()
         {
             string filePath = @"模版\05自动初始化填充配置\Sample03.xlsx";
 
-            using (var ms = new MemoryStream())
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
@@ -30,9 +29,10 @@ namespace SampleApp._05自动初始化填充配置
                 };
 
                 var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, dataConfigInfo);
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(FilePathSave);
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    ms.Save(filePathSave);
+                }
                 var filePathPrefix = Path.GetDirectoryName(filePath);
                 foreach (var item in defaultConfigList)
                 {

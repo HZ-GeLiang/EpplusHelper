@@ -15,7 +15,6 @@ namespace SampleApp._04填充数据与数据源同步
         {
             string filePath = @"模版\04填充数据与数据源同步\Sample03.xlsx";
             var wsName = "Sheet1";
-            using (var ms = new MemoryStream())
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
@@ -69,10 +68,11 @@ namespace SampleApp._04填充数据与数据源同步
                 };
 
                 EPPlusHelper.FillData(excelPackage, config, configSource, "Result", wsName);
-                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(filePathSave);
+                EPPlusHelper.DeleteWorkSheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    ms.Save(filePathSave);
+                }
             }
             if (OpenDir)
             {

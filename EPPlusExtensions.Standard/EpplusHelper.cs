@@ -286,7 +286,7 @@ namespace EPPlusExtensions
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="workSheetNameExcludeList">排除的工作簿名字列表</param>
-        public static void DeleteWorksheetAll(ExcelPackage excelPackage, List<string> workSheetNameExcludeList)
+        public static void DeleteWorkSheetAll(ExcelPackage excelPackage, List<string> workSheetNameExcludeList)
         {
             EPPlusHelper.DeleteWorksheet(excelPackage, workSheetNameExcludeList ?? new List<string>(),
                 eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden, eWorkSheetHidden.Visible);
@@ -3639,7 +3639,6 @@ namespace EPPlusExtensions
         /// <returns></returns>
         public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
-            using (var ms = new MemoryStream())
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
@@ -3648,9 +3647,11 @@ namespace EPPlusExtensions
                 var haveConfig = defaultConfigList.Find(a => a.ClassPropertyList.Count > 0) != null;
                 if (haveConfig)
                 {
-                    excelPackage.SaveAs(ms);
-                    ms.Position = 0;
-                    ms.Save($@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx");
+                    using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                    {
+                        var path = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx";
+                        ms.Save(path);
+                    }
                 }
 
                 return defaultConfigList;
@@ -4177,11 +4178,9 @@ namespace EPPlusExtensions
                 }
             }
 
-            using (var ms = new MemoryStream())
+            File.Delete(savePath); //删除文件。如果文件不存在,也不报错
+            using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
             {
-                excelPackage.SaveAs(ms); // 导入数据到流中
-                ms.Position = 0;
-                File.Delete(savePath); //删除文件。如果文件不存在,也不报错
                 ms.Save(savePath);
             }
 
@@ -4358,6 +4357,23 @@ namespace EPPlusExtensions
             FileShare share = FileShare.ReadWrite)
         {
             return new FileStream(filePath, mode, access, share);
+        }
+
+        /// <summary>
+        /// 获得内存流
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <returns></returns>
+        public static MemoryStream GetMemoryStream(ExcelPackage excelPackage)
+        {
+            var ms = new MemoryStream();
+            excelPackage.SaveAs(ms);
+            if (ms.CanSeek && ms.Position != 0)
+            {
+                ms.Position = 0;
+                //ms.Seek(0, SeekOrigin.Begin);
+            }
+            return ms;
         }
     }
 }

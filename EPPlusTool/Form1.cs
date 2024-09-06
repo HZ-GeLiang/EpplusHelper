@@ -409,20 +409,20 @@ namespace EPPlusTool
                 MessageBox.Show("只支持.xlsx文件");
                 return;
             }
-            using (var ms = new MemoryStream())
+
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
                 EPPlusHelper.DeleteWorksheet(excelPackage, eWorkSheetHidden.Hidden, eWorkSheetHidden.VeryHidden);
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-
-                var fileDir = Path.GetDirectoryName(filePath);
-                var fileName = Path.GetFileNameWithoutExtension(filePath);
-                string filePathOut = Path.Combine(fileDir, $"{fileName}_OnlyVisibleWS.xlsx");
-                ms.Save(filePathOut);
-                MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
-                WinFormHelper.OpenDirectory(fileDir);
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    var fileDir = Path.GetDirectoryName(filePath);
+                    var fileName = Path.GetFileNameWithoutExtension(filePath);
+                    string filePathOut = Path.Combine(fileDir, $"{fileName}_OnlyVisibleWS.xlsx");
+                    ms.Save(filePathOut);
+                    MessageBox.Show($"文件已经生成,在目录'{fileDir}'");
+                    WinFormHelper.OpenDirectory(fileDir);
+                }
             }
             SaveAppSetting();
         }
@@ -542,7 +542,6 @@ namespace EPPlusTool
 
             var filePathNew = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_DisplayAllRows.xlsx";
 
-            using (var ms = new MemoryStream())
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var excelPackage = new ExcelPackage(fs))
             {
@@ -551,9 +550,11 @@ namespace EPPlusTool
                     EPPlusHelper.EachHiddenRow(ws, 1, EPPlusConfig.MaxRow07, a => a.Hidden = false);
                     EPPlusHelper.EachHiddenColumn(ws, 1, EPPlusConfig.MaxCol07, a => a.Hidden = false);
                 }
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(filePathNew);
+
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    ms.Save(filePathNew);
+                }
             }
             SaveAppSetting();
         }

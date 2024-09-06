@@ -9,13 +9,12 @@ namespace SampleApp._04填充数据与数据源同步
     public class Sample02
     {
         public static bool OpenDir = true;
-        public static string FilePathSave = @"模版\04填充数据与数据源同步\ResultSample02.xlsx";
+        public static string filePathSave = @"模版\04填充数据与数据源同步\ResultSample02.xlsx";
 
         public static void Run()
         {
             string filePath = @"模版\04填充数据与数据源同步\Sample01.xlsx";
             var wsName = "Sheet2";
-            using (var ms = new MemoryStream())
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
@@ -77,10 +76,11 @@ namespace SampleApp._04填充数据与数据源同步
                 config.Body[3].Option.InsertRowStyle.Operation = InsertRowStyleOperation.CopyStyleAndMergeCell;
 
                 EPPlusHelper.FillData(excelPackage, config, configSource, "Result", wsName);
-                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(FilePathSave);
+                EPPlusHelper.DeleteWorkSheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    ms.Save(filePathSave);
+                }
             }
             if (OpenDir)
             {

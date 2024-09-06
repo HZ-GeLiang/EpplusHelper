@@ -19,7 +19,6 @@ namespace SampleApp._02填充图片
             string filePath = @"模版\02填充图片\Sample01.xlsx";
             string filePathSave = @"模版\02填充图片\ResultSample01.xlsx";
             var wsName = 1;
-            using (var ms = new MemoryStream())
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
@@ -68,9 +67,10 @@ namespace SampleApp._02填充图片
                 //ws.Row(5).Height = 50;
                 //ws.Cells["A4:A5"].AutoFitColumns(1);
 
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(filePathSave);
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    ms.Save(filePathSave);
+                }
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }

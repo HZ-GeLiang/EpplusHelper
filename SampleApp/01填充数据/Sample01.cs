@@ -18,7 +18,6 @@ namespace SampleApp._01填充数据
         {
             string filePath = @"模版\01填充数据\Sample01.xlsx";
             var wsName = "基本填充";
-            using (var ms = new MemoryStream())
             using (var fs = EPPlusHelper.GetFileStream(filePath))
             using (var excelPackage = new ExcelPackage(fs))
             {
@@ -39,7 +38,7 @@ namespace SampleApp._01填充数据
 
                 //删除的2种方式
                 //EPPlusHelper.DeleteWorksheet(excelPackage, wsName);
-                EPPlusHelper.DeleteWorksheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
+                EPPlusHelper.DeleteWorkSheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
 
                 var worksheet = EPPlusHelper.GetExcelWorksheet(excelPackage, "导出测试");
 
@@ -58,9 +57,10 @@ namespace SampleApp._01填充数据
                 var cell = worksheet.Cells["D1"];
                 worksheet.Row(1).Height = MeasureTextHeight(cell.Value.ToString(), cell.Style.Font, 100);
 
-                excelPackage.SaveAs(ms);
-                ms.Position = 0;
-                ms.Save(FilePathSave);
+                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
+                {
+                    ms.Save(FilePathSave);
+                }
             }
             if (OpenDir)
             {
