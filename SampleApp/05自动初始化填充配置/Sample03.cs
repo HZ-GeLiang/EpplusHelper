@@ -29,10 +29,8 @@ namespace SampleApp._05自动初始化填充配置
                 };
 
                 var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(excelPackage, dataConfigInfo);
-                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
-                {
-                    ms.Save(filePathSave);
-                }
+                EPPlusHelper.Save(excelPackage, filePathSave);
+
                 var filePathPrefix = Path.GetDirectoryName(filePath);
                 foreach (var item in defaultConfigList)
                 {

@@ -8,7 +8,7 @@ namespace SampleApp._01填充数据
     public class Sample07
     {
         public static bool OpenDir = true;
-        public static string FilePathSave = @"模版\01填充数据\ResultSample07.xlsx";
+        public static string filePathSave = @"模版\01填充数据\ResultSample07.xlsx";
 
         public static void Run()
         {
@@ -23,10 +23,7 @@ namespace SampleApp._01填充数据
                 ExcelRange cell = worksheet.Cells["A2"];
 
                 EPPlusHelper.SetWorksheetCellValue(cell, "设置值给富文本单元格");
-                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
-                {
-                    ms.Save(FilePathSave);
-                }
+                EPPlusHelper.Save(excelPackage, filePathSave);
             }
             if (OpenDir)
             {

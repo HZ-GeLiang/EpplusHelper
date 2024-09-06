@@ -9,4 +9,6 @@
 /*/Debug
 /*/bin
 /*/obj
-/EPPlusExtensions.Standard/Release
+/*/Release
+*/FodyWeavers.xml
+*/FodyWeavers.xsd

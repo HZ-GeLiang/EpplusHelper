@@ -3647,11 +3647,8 @@ namespace EPPlusExtensions
                 var haveConfig = defaultConfigList.Find(a => a.ClassPropertyList.Count > 0) != null;
                 if (haveConfig)
                 {
-                    using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
-                    {
-                        var path = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx";
-                        ms.Save(path);
-                    }
+                    var path = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx";
+                    EPPlusHelper.Save(excelPackage, path);
                 }
 
                 return defaultConfigList;
@@ -4178,11 +4175,7 @@ namespace EPPlusExtensions
                 }
             }
 
-            File.Delete(savePath); //删除文件。如果文件不存在,也不报错
-            using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
-            {
-                ms.Save(savePath);
-            }
+            EPPlusHelper.Save(excelPackage, savePath);
 
             return modifyCellCount > 0;
         }
@@ -4374,6 +4367,18 @@ namespace EPPlusExtensions
                 //ms.Seek(0, SeekOrigin.Begin);
             }
             return ms;
+        }
+
+        /// <summary>
+        /// 保存文件
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="filePath">文件路径</param>
+        public static void Save(ExcelPackage excelPackage, string filePath)
+        {
+            using var ms = GetMemoryStream(excelPackage);
+            //File.Delete(savePath); //删除文件。如果文件不存在,也不报错
+            ms.Save(filePath); //会自动创建目录 ,若文件已存在,会覆盖文件
         }
     }
 }

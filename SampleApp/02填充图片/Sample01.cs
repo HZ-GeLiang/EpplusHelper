@@ -67,10 +67,7 @@ namespace SampleApp._02填充图片
                 //ws.Row(5).Height = 50;
                 //ws.Cells["A4:A5"].AutoFitColumns(1);
 
-                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
-                {
-                    ms.Save(filePathSave);
-                }
+                EPPlusHelper.Save(excelPackage, filePathSave);
             }
             System.Diagnostics.Process.Start(Path.GetDirectoryName(filePath));
         }

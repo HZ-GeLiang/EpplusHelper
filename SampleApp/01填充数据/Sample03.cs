@@ -9,7 +9,7 @@ namespace SampleApp._01填充数据
     public class Sample03
     {
         public static bool OpenDir = true;
-        public static string FilePathSave = @"模版\01填充数据\ResultSample03.xlsx";
+        public static string filePathSave = @"模版\01填充数据\ResultSample03.xlsx";
 
         public static void Run()
         {
@@ -28,10 +28,7 @@ namespace SampleApp._01填充数据
 
                 EPPlusHelper.DeleteWorkSheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
 
-                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
-                {
-                    ms.Save(FilePathSave);
-                }
+                EPPlusHelper.Save(excelPackage, filePathSave);
             }
             if (OpenDir)
             {

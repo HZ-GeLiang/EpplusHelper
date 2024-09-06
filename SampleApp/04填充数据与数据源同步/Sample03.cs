@@ -69,10 +69,7 @@ namespace SampleApp._04填充数据与数据源同步
 
                 EPPlusHelper.FillData(excelPackage, config, configSource, "Result", wsName);
                 EPPlusHelper.DeleteWorkSheetAll(excelPackage, EPPlusHelper.FillDataWorkSheetNameList);
-                using (var ms = EPPlusHelper.GetMemoryStream(excelPackage))
-                {
-                    ms.Save(filePathSave);
-                }
+                EPPlusHelper.Save(excelPackage, filePathSave);
             }
             if (OpenDir)
             {

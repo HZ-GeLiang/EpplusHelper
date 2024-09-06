@@ -13,7 +13,7 @@ namespace SampleApp.Test._01填充数据
             SampleApp._01填充数据.Sample03.OpenDir = false;
             SampleApp._01填充数据.Sample03.Run();
 
-            Help.GetExcelFilePath(SampleApp._01填充数据.Sample03.FilePathSave, out var runResultFilePath, out var correctResultFilePath);
+            Help.GetExcelFilePath(SampleApp._01填充数据.Sample03.filePathSave, out var runResultFilePath, out var correctResultFilePath);
 
             using (var fs1 = new FileStream(correctResultFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var fs2 = new FileStream(runResultFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
