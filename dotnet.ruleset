@@ -1,6 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name=".Net Rules" ToolsVersion="17.0">
+<RuleSet Name=".Net Rules" Description="These rules enforces consistent code quality guidelines." ToolsVersion="17.0">
+  <Rules AnalyzerId="Meziantou.Analyzer" RuleNamespace="Meziantou.Analyzer">
+    <Rule Id="MA0026" Action="Hidden" />
+	<Rule Id="MA0134" Action="Error" />
+  </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp" RuleNamespace="Microsoft.CodeAnalysis.CSharp">
-    <Rule Id="CS1591" Action="None" />
+    <Rule Id="CS1591" Action="Info" />
+    <Rule Id="CS1701" Action="Info" />
+    <Rule Id="CS1702" Action="Info" />
+    <Rule Id="CS1998" Action="Error" />
   </Rules>
 </RuleSet>
