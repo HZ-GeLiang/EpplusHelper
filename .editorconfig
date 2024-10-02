@@ -1,0 +1,32 @@
+﻿# 如果要从更高级别的目录继承 .editorconfig 设置，请删除以下行
+root = true
+
+[*.{cs,vb}]
+tab_width = 4
+end_of_line = crlf
+indent_size = 4
+
+[*.cs]
+#Meziantou.Analyzer: https://github.com/meziantou/Meziantou.Analyzer
+MA0051.maximum_lines_per_method = 300  #每个方法建议在多少行之内
+MA0051.maximum_statements_per_method = 80 #方法名+参数的合计字符数
+MA0051.skip_local_functions = false # skip local functions when counting statements
+
+#IDE0055 详细: https://learn.microsoft.com/zh-cn/dotnet/fundamentals/code-analysis/style-rules/csharp-formatting-options
+dotnet_diagnostic.IDE0055.severity = error #格式设置规则,下面的都是
+csharp_new_line_before_open_brace = all #左大括号 { 应放在前面代码的同一行还是新行上有关
+csharp_new_line_before_else = true #将 else 语句置于新行。
+csharp_new_line_before_catch = true #将 catch 语句置于新行。
+csharp_new_line_before_finally = true #需要将 finally 语句置于右大括号后的新行。
+csharp_new_line_before_members_in_object_initializers = true #要求将对象初始值设定项的成员置于单独的行上
+csharp_new_line_before_members_in_anonymous_types = true #要求将匿名类型的成员置于单独的行上
+csharp_new_line_between_query_expression_clauses = true  #要求将查询表达式子句的元素置于单独的行上
+csharp_space_around_binary_operators = before_and_after #在二元运算符前后插入空格
+csharp_preserve_single_line_statements = false # 多行语句不允许在一行上
+csharp_preserve_single_line_blocks = true #将代码块保留在单个行上
+
+#IDE0011 详细: https://learn.microsoft.com/zh-cn/dotnet/fundamentals/code-analysis/style-rules/ide0011#csharp_prefer_braces
+dotnet_diagnostic.IDE0011.severity = error  #if 后面必须添加 {} ,方便调试和审计/调试代码时不眼花
+
+#CS0108 详细: https://learn.microsoft.com/zh-cn/dotnet/csharp/language-reference/compiler-messages/cs0108
+dotnet_diagnostic.CS0108.severity = error
