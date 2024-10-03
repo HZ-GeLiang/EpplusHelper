@@ -44,7 +44,10 @@ public class ObjectDumper
 
     private void WriteIndent()
     {
-        for (int i = 0; i < level; i++) writer.Write("  ");
+        for (int i = 0; i < level; i++)
+        {
+            writer.Write("  ");
+        }
     }
 
     private void WriteLine()
@@ -56,7 +59,10 @@ public class ObjectDumper
     private void WriteTab()
     {
         Write("  ");
-        while (pos % 8 != 0) Write(" ");
+        while (pos % 8 != 0)
+        {
+            Write(" ");
+        }
     }
 
     private void WriteObject(string prefix, object o)
@@ -131,7 +137,10 @@ public class ObjectDumper
                     }
                 }
             }
-            if (propWritten) WriteLine();
+            if (propWritten)
+            {
+                WriteLine();
+            }
             if (level < depth)
             {
                 foreach (MemberInfo m in members)

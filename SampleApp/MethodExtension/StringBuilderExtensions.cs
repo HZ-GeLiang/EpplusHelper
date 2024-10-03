@@ -11,21 +11,41 @@ namespace SampleApp.MethodExtension
 
         public static StringBuilder RemoveLastChar(this StringBuilder value, int count)
         {
-            if (value is null) throw new System.ArgumentNullException(nameof(value));
-            if (count <= 0) throw new System.ArgumentException(nameof(count));
-            if (count > value.Length) throw new System.ArgumentException(nameof(count));
+            if (value is null)
+            {
+                throw new System.ArgumentNullException(nameof(value));
+            }
+
+            if (count <= 0)
+            {
+                throw new System.ArgumentException(nameof(count));
+            }
+
+            if (count > value.Length)
+            {
+                throw new System.ArgumentException(nameof(count));
+            }
+
             return value.Remove(value.Length - count, count);
         }
 
         public static StringBuilder RemoveLastChar(this StringBuilder value, char c)
         {
-            if (value is null) throw new System.ArgumentNullException(nameof(value));
+            if (value is null)
+            {
+                throw new System.ArgumentNullException(nameof(value));
+            }
+
             return value.Length <= 0 ? value : value[value.Length - 1] == c ? value.RemoveLastChar() : value;
         }
 
         public static StringBuilder RemoveLastChar(this StringBuilder value, string str)
         {
-            if (value is null) throw new System.ArgumentNullException(nameof(value));
+            if (value is null)
+            {
+                throw new System.ArgumentNullException(nameof(value));
+            }
+
             if (str is null || str.Length <= 0)
             {
                 return value;

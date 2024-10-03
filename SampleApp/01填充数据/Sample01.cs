@@ -1,7 +1,6 @@
 ﻿using EPPlusExtensions;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
-using SampleApp.MethodExtension;
 using System;
 using System.Data;
 using System.Drawing;
@@ -67,7 +66,11 @@ namespace SampleApp._01填充数据
 
         public static double MeasureTextHeight(string text, ExcelFont font, int width)
         {
-            if (string.IsNullOrEmpty(text)) return 0.0;
+            if (string.IsNullOrEmpty(text))
+            {
+                return 0.0;
+            }
+
             var bitmap = new Bitmap(1, 1);
             var graphics = Graphics.FromImage(bitmap);
 

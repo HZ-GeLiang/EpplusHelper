@@ -119,7 +119,10 @@ namespace SampleApp.MethodExtension
 
         public static string ToText(this DataTable dt, bool needTitle = true)
         {
-            if (dt is null || dt.Rows.Count <= 0) return string.Empty;
+            if (dt is null || dt.Rows.Count <= 0)
+            {
+                return string.Empty;
+            }
 
             var sbTxt = new StringBuilder();
 

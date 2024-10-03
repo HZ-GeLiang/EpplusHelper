@@ -77,7 +77,11 @@ namespace EPPlusExtensions.CustomModelType
 
         public bool TryAdd(object key, object value)
         {
-            if (key is null) throw new ArgumentNullException(nameof(key));
+            if (key is null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             if (this._data.ContainsKey((TKey)key))
             {
                 return false;
@@ -132,20 +136,32 @@ namespace EPPlusExtensions.CustomModelType
 
         public bool ContainsKey(TKey key)
         {
-            if (key is null) throw new ArgumentNullException(nameof(key));
+            if (key is null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             return this._data.ContainsKey(key);
         }
 
         public bool ContainsKey(object key)
         {
-            if (key is null) throw new ArgumentNullException(nameof(key));
+            if (key is null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             var tkey = (TKey)Convert.ChangeType(key, typeof(TKey));
             return this.ContainsKey(tkey);
         }
 
         public void GetInfoByKey(object key, out bool haveValue, out object value, out bool haveState, out object state)
         {
-            if (key is null) throw new ArgumentNullException(nameof(key));
+            if (key is null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             var tkey = (TKey)Convert.ChangeType(key, typeof(TKey));
             haveValue = this._data.ContainsKey(tkey);
             value = haveValue ? this.GetValue(tkey) : (object)default(TValue);
@@ -155,13 +171,21 @@ namespace EPPlusExtensions.CustomModelType
 
         public TValue GetValue(TKey key)
         {
-            if (key is null) throw new ArgumentNullException(nameof(key));
+            if (key is null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             return this._data[key];
         }
 
         public TValue GetValue(object key)
         {
-            if (key is null) throw new ArgumentNullException(nameof(key));
+            if (key is null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             var tkey = (TKey)Convert.ChangeType(key, typeof(TKey));
             return this.GetValue(tkey);
         }
@@ -175,7 +199,11 @@ namespace EPPlusExtensions.CustomModelType
 
         public object GetState(TKey key)
         {
-            if (key is null) throw new ArgumentNullException(nameof(key));
+            if (key is null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             return this._dataState[key];
         }
     }

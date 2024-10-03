@@ -59,7 +59,11 @@ namespace EPPlusExtensions
 
         private EPPlusConfigSourceFixedCell<TValue> GetCellAndTryAdd(string key)
         {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException($"{nameof(key)}不能为空");
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentNullException($"{nameof(key)}不能为空");
+            }
+
             if (CellsInfoList is null)
             {
                 CellsInfoList = new List<EPPlusConfigSourceFixedCell<TValue>>();
@@ -141,7 +145,11 @@ namespace EPPlusExtensions
 
         private EPPlusConfigSourceFixedCell GetCellAndTryAdd(string key)
         {
-            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException($"{nameof(key)}不能为空");
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentNullException($"{nameof(key)}不能为空");
+            }
+
             if (CellsInfoList is null)
             {
                 CellsInfoList = new List<EPPlusConfigSourceFixedCell>();
@@ -404,7 +412,11 @@ namespace EPPlusExtensions
         {
             get
             {
-                if (nth < 1) throw new ArgumentOutOfRangeException($"{nameof(nth)}不能小于1");
+                if (nth < 1)
+                {
+                    throw new ArgumentOutOfRangeException($"{nameof(nth)}不能小于1");
+                }
+
                 if (ConfigList is null)
                 {
                     ConfigList = new List<EPPlusConfigSourceBodyConfig>();
