@@ -11,8 +11,8 @@
 		<PackageLicenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</PackageLicenseUrl>
 		<PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>
 		-->
-		<PackageProjectUrl>https://gitee.com/hzgel/EpplusHelper</PackageProjectUrl>
-		<RepositoryUrl>https://gitee.com/hzgel/EpplusHelper</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/HZ-GeLiang/EpplusHelper</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/HZ-GeLiang/EpplusHelper</RepositoryUrl>
 		<PackageTags>EPPlus, EPPlusHelper, Excel, ooxml</PackageTags>
 		<!--<PackageReleaseNotes></PackageReleaseNotes>-->
 		<RepositoryType>gitee</RepositoryType>
