@@ -15,8 +15,6 @@
 		<DefineConstants Condition="Exists('../_cancel_sql_log')==true">cancel_sql_log</DefineConstants>
 		<DefineConstants Condition="Exists('../_timer')==true">timer</DefineConstants>
 	</PropertyGroup>
-	
- 
 
 	<!--性能耗时 start-->
 	<ItemGroup Condition="Exists('../_timer')==true">
@@ -34,7 +32,7 @@
 
 	<!--分析器Analyzer start-->
 	<ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<PackageReference Include="Meziantou.Analyzer" Version="2.0.152">
+		<PackageReference Include="Meziantou.Analyzer" Version="2.0.184">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -47,6 +45,5 @@
 		</PackageReference>
 	</ItemGroup>
 	<!--分析器Analyzer end-->
- 
 
 </Project>
