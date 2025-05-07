@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="00一些方法\ExcelSheetNameValidatorTest.cs" />
     <Compile Include="01填充数据\Sample03Test.cs" />
     <Compile Include="01填充数据\Sample02Test.cs" />
     <Compile Include="01填充数据\Sample01Test.cs" />

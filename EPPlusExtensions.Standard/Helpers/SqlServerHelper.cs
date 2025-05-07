@@ -1,7 +1,7 @@
-using EPPlusExtensions.MethodExtension;
+﻿using EPPlusExtensions.ExtensionMethods;
 using System.Text;
 
-namespace EPPlusExtensions.Helper
+namespace EPPlusExtensions.Helpers
 {
     internal sealed class SqlServerHelper
     {

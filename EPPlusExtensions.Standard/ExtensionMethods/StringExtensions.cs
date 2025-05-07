@@ -1,4 +1,4 @@
-﻿namespace EPPlusExtensions.MethodExtension
+﻿namespace EPPlusExtensions.ExtensionMethods
 {
     internal static class StringExtensions
     {
@@ -36,7 +36,7 @@
         {
             return value is null || value.Length <= 0
                 ? value
-                : (value[value.Length - 1] == c ? value.Remove(value.Length - 1, 1) : value);
+                : value[value.Length - 1] == c ? value.Remove(value.Length - 1, 1) : value;
         }
 
         /// <summary>

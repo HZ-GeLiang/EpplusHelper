@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Reflection;
 
-namespace EPPlusExtensions.Helper
+namespace EPPlusExtensions.Helpers
 {
     internal sealed class ReflectionHelper
     {

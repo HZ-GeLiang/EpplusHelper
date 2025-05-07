@@ -1,13 +1,13 @@
-using EPPlusExtensions.Attributes;
+﻿using EPPlusExtensions.Attributes;
 using EPPlusExtensions.CustomModelType;
 using EPPlusExtensions.Exceptions;
-using EPPlusExtensions.Helper;
-using EPPlusExtensions.MethodExtension;
+using EPPlusExtensions.ExtensionMethods;
+using EPPlusExtensions.Helpers;
+using EPPlusExtensions.Validators;
 using OfficeOpenXml;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -97,7 +97,7 @@ namespace EPPlusExtensions
 
             var wsMom = GetExcelWorksheet(excelPackage, copyWorkSheetIndex);
             var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
-            ws.Name = workSheetNewName;
+            ws.Name = new ExcelSheetNameValidator(workSheetNewName).GetFixSheetName();
             return ws;
         }
 
@@ -112,6 +112,15 @@ namespace EPPlusExtensions
             return GetExcelWorksheet(excelPackage, workName, false);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="excelPackage"></param>
+        /// <param name="workName"></param>
+        /// <param name="onlyOneWorkSheetReturnThis"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string workName, bool onlyOneWorkSheetReturnThis)
         {
             ExcelWorksheet ws = null;
@@ -157,8 +166,8 @@ namespace EPPlusExtensions
         /// 根据名字获取Worksheet,然后复制一份出来并重命名成workSheetName并返回
         /// </summary>
         /// <param name="excelPackage"></param>
-        /// <param name="destWorkSheetName"></param>
-        /// <param name="workSheetNewName"></param>
+        /// <param name="destWorkSheetName">填充数据的workSheet叫什么</param>
+        /// <param name="workSheetNewName">填充数据后的Worksheet叫什么</param>
         /// <returns></returns>
         public static ExcelWorksheet GetExcelWorksheet(ExcelPackage excelPackage, string destWorkSheetName, string workSheetNewName)
         {
@@ -170,11 +179,12 @@ namespace EPPlusExtensions
             {
                 throw new ArgumentNullException(nameof(workSheetNewName));
             }
-            var wsMom = GetExcelWorksheet(excelPackage, destWorkSheetName);
+
+            var wsTemplate = GetExcelWorksheet(excelPackage, destWorkSheetName);
             try
             {
-                var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsMom);
-                ws.Name = workSheetNewName;
+                var ws = excelPackage.Workbook.Worksheets.Add(workSheetNewName, wsTemplate);
+                ws.Name = new ExcelSheetNameValidator(workSheetNewName).GetFixSheetName();
                 return ws;
             }
             catch (NullReferenceException ex)
@@ -340,7 +350,7 @@ namespace EPPlusExtensions
         /// <param name="excelPackage"></param>
         /// <param name="config"></param>
         /// <param name="configSource"></param>
-        /// <param name="workSheetNewName">填充数据后的Worksheet叫什么.  </param>
+        /// <param name="workSheetNewName">填充数据后的Worksheet叫什么</param>
         /// <param name="destWorkSheetName">填充数据的workSheet叫什么</param>
         public static void FillData(ExcelPackage excelPackage, EPPlusConfig config, EPPlusConfigSource configSource, string workSheetNewName, string destWorkSheetName)
         {
@@ -363,7 +373,7 @@ namespace EPPlusExtensions
         /// <param name="config"></param>
         /// <param name="configSource"></param>
         /// <param name="workSheetNewName">填充数据后的Worksheet叫什么. 若为""/null,则默认是"Sheet" +workSheetNewName </param>
-        /// <param name="destWorkSheetIndex">从1开始</param>
+        /// <param name="destWorkSheetIndex">填充数据的workSheet, 从1开始</param>
         public static void FillData(ExcelPackage excelPackage, EPPlusConfig config, EPPlusConfigSource configSource, string workSheetNewName, int destWorkSheetIndex)
         {
             if (workSheetNewName is null)
@@ -4523,6 +4533,8 @@ namespace EPPlusExtensions
 
         #endregion
 
+        #region 一些帮助方法(文件类)
+
         /// <summary>
         /// 读取一个文件,获得一个文件流
         /// </summary>
@@ -4556,6 +4568,7 @@ namespace EPPlusExtensions
             return ms;
         }
 
+
         /// <summary>
         /// 保存文件
         /// </summary>
@@ -4579,5 +4592,9 @@ namespace EPPlusExtensions
             byte[] bytes = memoryStream.ToArray();
             file.Write(bytes, 0, bytes.Length);
         }
+
+        #endregion
+
+
     }
 }

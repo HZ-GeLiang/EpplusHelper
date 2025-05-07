@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace EPPlusExtensions.MethodExtension
+namespace EPPlusExtensions.ExtensionMethods
 {
     internal static class StringBuilderExtensions
     {

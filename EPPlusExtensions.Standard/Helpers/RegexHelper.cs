@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace EPPlusExtensions.Helper
+namespace EPPlusExtensions.Helpers
 {
     internal sealed class RegexHelper
     {

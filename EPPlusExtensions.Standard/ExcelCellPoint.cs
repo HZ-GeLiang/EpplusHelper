@@ -1,4 +1,4 @@
-﻿using EPPlusExtensions.Helper;
+﻿using EPPlusExtensions.Helpers;
 using System.Text;
 
 namespace EPPlusExtensions

@@ -1,4 +1,4 @@
-﻿namespace EPPlusExtensions.MethodExtension
+﻿namespace EPPlusExtensions.ExtensionMethods
 {
     internal static class EnumerableExtensions
     {
