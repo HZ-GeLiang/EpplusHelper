@@ -117,7 +117,9 @@ namespace EPPlusExtensions
     }
 
     public class KVSource : Dictionary<string, object>
-    { }
+    {
+
+    }
 
     [Flags]
     public enum ReadCellValueOption

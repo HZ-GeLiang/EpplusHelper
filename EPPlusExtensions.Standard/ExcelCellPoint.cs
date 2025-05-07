@@ -1,4 +1,5 @@
 ﻿using EPPlusExtensions.Helpers;
+using OfficeOpenXml.FormulaParsing;
 using System.Text;
 
 namespace EPPlusExtensions
@@ -29,6 +30,7 @@ namespace EPPlusExtensions
         //    Col = R1C1Formulas(col);
         //    R1C1 = r1C1;
         //}
+
         public ExcelCellPoint(string r1C1)
         {
             //K3 = row:3, col:11

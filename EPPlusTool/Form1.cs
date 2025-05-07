@@ -1,4 +1,4 @@
-using EPPlusExtensions;
+﻿using EPPlusExtensions;
 using EPPlusTool.Helper;
 using EPPlusTool.MethodExtension;
 using Microsoft.Extensions.Configuration;
@@ -85,7 +85,7 @@ namespace EPPlusTool
 
             var defaultConfigList = EPPlusHelper.FillExcelDefaultConfig(filePath, fileDir, dataConfigInfo, cell =>
             {
-                var cellValue = EPPlusHelper.GetCellText(cell);
+                var cellValue = ExcelRangeHelper.GetCellText(cell);
 
                 foreach (var key in EPPlusHelper.KeysTypeOfDateTime.Where(item => cellValue.Contains(item)))
                 {
@@ -325,8 +325,8 @@ namespace EPPlusTool
 
                     foreach (var ws in EPPlusHelper.GetExcelWorksheets(excelPackage))
                     {
-                        var haveHiddenRow = EPPlusHelper.HaveHiddenRow(ws);
-                        var haveHiddenColumn = EPPlusHelper.HaveHiddenColumn(ws, 1, 100);//检查太多列或造成程序卡顿, 超过100的不检查了
+                        var haveHiddenRow = ExcelWorksheetHelper.HaveHiddenRow(ws);
+                        var haveHiddenColumn = ExcelWorksheetHelper.HaveHiddenColumn(ws, 1, 100);//检查太多列或造成程序卡顿, 超过100的不检查了
 
                         if (haveHiddenRow && haveHiddenColumn)
                         {
@@ -544,8 +544,8 @@ namespace EPPlusTool
             {
                 foreach (var ws in EPPlusHelper.GetExcelWorksheets(excelPackage))
                 {
-                    EPPlusHelper.EachHiddenRow(ws, 1, EPPlusConfig.MaxRow07, a => a.Hidden = false);
-                    EPPlusHelper.EachHiddenColumn(ws, 1, EPPlusConfig.MaxCol07, a => a.Hidden = false);
+                    ExcelWorksheetHelper.EachHiddenRow(ws, 1, EPPlusConfig.MaxRow07, a => a.Hidden = false);
+                    ExcelWorksheetHelper.EachHiddenColumn(ws, 1, EPPlusConfig.MaxCol07, a => a.Hidden = false);
                 }
 
                 EPPlusHelper.Save(excelPackage, filePathNew);
@@ -556,7 +556,10 @@ namespace EPPlusTool
         private void dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             DataGridView dgv = (DataGridView)sender;
-            if (dgv.Rows.Count <= 0) return;
+            if (dgv.Rows.Count <= 0)
+            {
+                return;
+            }
             if (e.RowIndex == -1)
             {
                 return;//不知道-1 是标格的title
@@ -566,21 +569,36 @@ namespace EPPlusTool
 
             if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
             {
-                if (((System.Windows.Forms.Control)sender).Name == "dgv1") this.wsNameOrIndex1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.wsNameOrIndex2.Text = txt;
+                if (((System.Windows.Forms.Control)sender).Name == "dgv1")
+                {
+                    this.wsNameOrIndex1.Text = txt;
+                }
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2")
+                {
+                    this.wsNameOrIndex2.Text = txt;
+                }
             }
             else if (e.ColumnIndex == 2)
             {
                 if (((System.Windows.Forms.Control)sender).Name == "dgv1")
+                {
                     this.TitleLine1.Text = txt;
-                else if (((System.Windows.Forms.Control)sender).Name == "dgv2") this.TitleLine2.Text = txt;
+                }
+                else if (((System.Windows.Forms.Control)sender).Name == "dgv2")
+                {
+                    this.TitleLine2.Text = txt;
+                }
             }
             else if (e.ColumnIndex == 3)
             {
                 if (((System.Windows.Forms.Control)sender).Name == "dgv1")
+                {
                     this.TitleCol1.Text = txt;
+                }
                 else if (((System.Windows.Forms.Control)sender).Name == "dgv2")
+                {
                     this.TitleCol2.Text = txt;
+                }
             }
         }
 

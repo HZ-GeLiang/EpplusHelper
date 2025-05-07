@@ -7,6 +7,11 @@ namespace EPPlusExtensions
     /// </summary>
     public class EPPlusConfig
     {
+        public EPPlusConfig()
+        {
+
+        }
+
         #region Excel的最大行与列
 
         //excel 2007 和 excel 2010 工作表最大有 2^20=1048576行,2^14=16384列

@@ -104,5 +104,34 @@ namespace EPPlusExtensions.Helpers
             }
             return objArr.ToArray();
         }
+
+
+        internal static Dictionary<Type, Dictionary<string, PropertyInfo>> _Cache_GetPropertyInfo = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
+
+        internal static PropertyInfo GetPropertyInfo(string propName, Type type)
+        {
+            if (propName is null)
+            {
+                throw new ArgumentNullException(nameof(propName));
+            }
+            if (!_Cache_GetPropertyInfo.ContainsKey(type))
+            {
+                _Cache_GetPropertyInfo.Add(type, new Dictionary<string, PropertyInfo>());
+            }
+
+            var cache_PropertyInfo = _Cache_GetPropertyInfo[type];
+
+            if (!cache_PropertyInfo.ContainsKey(propName))
+            {
+                var pInfo = type.GetProperty(propName);
+                if (pInfo is null) //防御式编程判断
+                {
+                    throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
+                }
+                cache_PropertyInfo.Add(propName, pInfo);
+            }
+
+            return cache_PropertyInfo[propName];
+        }
     }
 }

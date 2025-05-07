@@ -21,7 +21,7 @@ namespace EPPlusExtensions
             if (ws != null)
             {
                 var ecp = new ExcelCellPoint(r1c1);
-                if (!EPPlusHelper.IsMergeCell(ws, ecp.Row, ecp.Col, out var mergeCellAddress))
+                if (!ExcelWorksheetHelper.IsMergeCell(ws, ecp.Row, ecp.Col, out var mergeCellAddress))
                 {
                     throw new Exception($@"r1c1:{r1c1}不是合并单元格");
                 }

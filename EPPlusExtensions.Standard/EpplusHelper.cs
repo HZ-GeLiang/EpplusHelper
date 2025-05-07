@@ -21,10 +21,7 @@ namespace EPPlusExtensions
         /// </summary>
         public static List<string> FillDataWorkSheetNameList = new List<string>();
 
-        //类型参考网址:
-        //网址1: http://filext.com/faq/office_mime_types.php
-        //网址2: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-        public const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        public const string XlsxContentType = ContentTypes.XlsxContentType;
 
         #region GetExcelWorksheet
 
@@ -32,6 +29,7 @@ namespace EPPlusExtensions
         /// 获得当前Excel的所有工作簿
         /// </summary>
         /// <param name="excelPackage"></param>
+        /// <returns></returns>
         public static IEnumerable<ExcelWorksheet> GetExcelWorksheets(ExcelPackage excelPackage)
         {
             for (var i = 1; i <= excelPackage.Workbook.Worksheets.Count; i++)
@@ -55,7 +53,7 @@ namespace EPPlusExtensions
             {
                 throw new ArgumentOutOfRangeException(nameof(workSheetIndex));
             }
-            workSheetIndex = ConvertWorkSheetIndex(excelPackage, workSheetIndex);
+            workSheetIndex = ExcelPackageHelper.ConvertWorkSheetIndex(excelPackage, workSheetIndex);
             var ws = excelPackage.Workbook.Worksheets[workSheetIndex];
             return ws;
         }
@@ -117,7 +115,7 @@ namespace EPPlusExtensions
         /// </summary>
         /// <param name="excelPackage"></param>
         /// <param name="workName"></param>
-        /// <param name="onlyOneWorkSheetReturnThis"></param>
+        /// <param name="onlyOneWorkSheetReturnThis">用于判断是否在 Excel 文档仅有一个工作表时返回该工作表</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
@@ -126,12 +124,12 @@ namespace EPPlusExtensions
             ExcelWorksheet ws = null;
             if (onlyOneWorkSheetReturnThis && excelPackage.Workbook.Worksheets.Count == 1)
             {
-                var workSheetIndex = ConvertWorkSheetIndex(excelPackage, 1);
+                var workSheetIndex = ExcelPackageHelper.ConvertWorkSheetIndex(excelPackage, 1);
                 ws = excelPackage.Workbook.Worksheets[workSheetIndex];
-            }
-            if (ws != null)
-            {
-                return ws;
+                if (ws != null)
+                {
+                    return ws;
+                }
             }
             if (workName is null)
             {
@@ -232,7 +230,7 @@ namespace EPPlusExtensions
                 return;
             }
 
-            workSheetIndex = ConvertWorkSheetIndex(excelPackage, workSheetIndex);
+            workSheetIndex = ExcelPackageHelper.ConvertWorkSheetIndex(excelPackage, workSheetIndex);
             var ws = excelPackage.Workbook.Worksheets[workSheetIndex];
             if (ws != null)
             {
@@ -307,7 +305,7 @@ namespace EPPlusExtensions
 
             for (int i = 1; i <= excelPackage.Workbook.Worksheets.Count; i++)
             {
-                var index = ConvertWorkSheetIndex(excelPackage, i);
+                var index = ExcelPackageHelper.ConvertWorkSheetIndex(excelPackage, i);
                 var ws = excelPackage.Workbook.Worksheets[index];
                 //foreach (var eWorkSheetHidden in eWorkSheetHiddens)
                 //{
@@ -401,7 +399,7 @@ namespace EPPlusExtensions
             EPPlusHelper.FillDataWorkSheetNameList.Add(worksheet.Name);//往list里添加数据
             config.WorkSheetDefault?.Invoke(worksheet);
 
-            EPPlusHelper.FillData_Head(config, configSource, worksheet);
+            EPPlusConfigHelper.FillData_Head(config, configSource, worksheet);
             int sheetBodyAddRowCount = 0;
             if (configSource?.Body?.ConfigList.Count > 0)
             {
@@ -416,1437 +414,274 @@ namespace EPPlusExtensions
                     throw new IndexOutOfRangeException("要导出的数据行数超过excel最大行限制");
                 }
 
-                sheetBodyAddRowCount = EPPlusHelper.FillData_Body(config, configSource, worksheet);
+                sheetBodyAddRowCount = EPPlusConfigHelper.FillData_Body(config, configSource, worksheet);
             }
 
-            EPPlusHelper.FillData_Foot(config, configSource, worksheet, sheetBodyAddRowCount);
+            EPPlusConfigHelper.FillData_Foot(config, configSource, worksheet, sheetBodyAddRowCount);
         }
 
         #endregion
 
-        #region 私有方法
+        #region 填充Excel相关的帮助方法
 
         /// <summary>
-        /// 填充head
+        ///
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="configSource"></param>
-        /// <param name="worksheet"></param>
-        private static void FillData_Head(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
+        /// <param name="filePath"></param>
+        /// <param name="fileOutDirectoryName"></param>
+        /// <param name="dataConfigInfo"></param>
+        /// <param name="cellCustom">对单元格进行额外处理</param>
+        /// <returns></returns>
+        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
-            if (config.Head.ConfigCellList is null || config.Head.ConfigCellList.Count <= 0)
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var excelPackage = new ExcelPackage(fs))
             {
-                return;
-            }
-            if (configSource.Head.CellsInfoList == null)// 没有数据源
-            {
-                return;
-            }
+                var defaultConfigList = FillExcelDefaultConfig(excelPackage, dataConfigInfo, cellCustom);
 
-            var dictConfigSourceHead = configSource.Head.CellsInfoList.ToDictionary(a => a.ConfigValue);
-
-            foreach (var item in config.Head.ConfigCellList)
-            {
-                if (configSource.Head is null || configSource.Head.CellsInfoList is null ||
-                    configSource.Head.CellsInfoList.Count <= 0) //excel中有配置head,但是程序中没有进行值的映射(没映射的原因之一是没有查询出数据)
+                var haveConfig = defaultConfigList.Find(a => a.ClassPropertyList.Count > 0) != null;
+                if (haveConfig)
                 {
-                    break;
+                    var path = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx";
+                    EPPlusHelper.Save(excelPackage, path);
                 }
 
-                string colMapperName = item.ConfigValue;
-                object val = config.Head.ConfigItemMustExistInDataColumn
-                    ? dictConfigSourceHead[item.ConfigValue].FillValue
-                    : dictConfigSourceHead.ContainsKey(item.ConfigValue) ? dictConfigSourceHead[item.ConfigValue].FillValue : null;
-
-                ExcelRange cells = worksheet.Cells[item.Address];
-
-                if (config.Head.CellCustomSetValue != null)
-                {
-                    config.Head.CellCustomSetValue.Invoke(colMapperName, val, cells);
-                }
-                else
-                {
-                    SetWorksheetCellsValue(config, cells, val, colMapperName);
-                }
+                return defaultConfigList;
             }
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="configSource"></param>
-        /// <param name="worksheet"></param>
-        /// <returns>新增了多少行</returns>
-        private static int FillData_Body(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet)
+        /// <param name="excelPackage"></param>
+        /// <param name="dataConfigInfo">指定的worksheet</param>
+        /// <param name="cellCustom">对单元格进行额外处理</param>
+        /// <returns>工作簿Name,DatTable的创建代码</returns>
+        public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
         {
-            //填充body
-            var sheetBodyAddRowCount = 0; //新增了几行 (统计sheet body 在原有的模版上新增了多少行), 需要返回的
-
-            if (config is null || configSource is null ||
-                config.Body is null || configSource.Body is null ||
-                config.Body.ConfigList is null || configSource.Body.ConfigList is null ||
-                config.Body.ConfigList.Count <= 0 || configSource.Body.ConfigList.Count <= 0)
+            if (dataConfigInfo != null)
             {
-                return sheetBodyAddRowCount;
-            }
-
-            int sheetBodyDeleteRowCount = 0; //sheet body 中删除了多少行(只含配置的行,对于FillData()内的删除行则不包括在内).
-            var dictConfig = config.Body.ConfigList.ToDictionary(a => a.Nth, a => a.Option);
-            var dictConfigSource = configSource.Body.ConfigList.ToDictionary(a => a.Nth, a => a.Option);
-            foreach (var itemInfo in config.Body.ConfigList)
-            {
-                var nth = itemInfo.Nth;//body的第N个配置
-
-                #region get dataTable
-
-                DataTable datatable;
-                if (!dictConfigSource.ContainsKey(nth)) //如果没有数据源中没有excle中配置
+                foreach (var item in dataConfigInfo)
                 {
-                    //需要删除配置行(当数据源为空[无,null.rows.count=0])
-                    if (!config.DeleteFillDateStartLineWhenDataSourceEmpty)
-                    {
-                        continue; //不需要删除删除配置空行,那么直接跳过
-                    }
-                    datatable = null;
-                }
-                else
-                {
-                    datatable = dictConfigSource[nth].DataSource; //body的第N个配置的数据源
-                }
-
-                #endregion
-
-                #region When dataTable is empty
-
-                if (datatable is null || datatable.Rows.Count <= 0) //数据源为null或为空
-                {
-                    //throw new ArgumentNullException($"configSource.SheetBody[{nth.Key}]没有可读取的数据");
-
-                    if (!config.DeleteFillDateStartLineWhenDataSourceEmpty || dictConfig[nth].ConfigLine.Count <= 0)
-                    {
-                        continue; //跳过本次fillDate的循环
-                    }
-
-                    #region DeleteFillDateStartLine
-
-                    foreach (var cellConfigInfo in dictConfig[nth].ConfigLine) //只遍历一次
-                    {
-                        int driftVale = 1; //浮动值,如果是合并单元格,则取合并单元格的行数
-                        int delRow; //要删除的行号
-                        if (cellConfigInfo.Address.Contains(":")) //如果是合并单元格,修改浮动的行数
-                        {
-                            var cells = cellConfigInfo.Address.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                            if (cells.Length != 2)
-                            {
-                                throw new Exception("该合并单元格的标识有问题,不是类似于A1:A2这个格式的");
-                            }
-                            int mergeCellStartRow = Convert.ToInt32(RegexHelper.GetLastNumber(cells[0]));
-                            int mergeCellEndRow = Convert.ToInt32(RegexHelper.GetLastNumber(cells[1]));
-
-                            driftVale = mergeCellEndRow - mergeCellStartRow + 1;
-                            if (driftVale <= 0)
-                            {
-                                throw new Exception("合并单元格的合并行数小于1");
-                            }
-
-                            delRow = mergeCellStartRow + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
-                        }
-                        else //不是合并单元格
-                        {
-                            delRow = Convert.ToInt32(RegexHelper.GetLastNumber(cellConfigInfo.Address)) + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
-                        }
-
-                        if (delRow <= 0)
-                        {
-                            throw new Exception("要删除的行号不能小于0");
-                        }
-
-                        worksheet.DeleteRow(delRow, driftVale, true);
-                        sheetBodyDeleteRowCount += driftVale;
-                        break; //只要删一次即可
-                    }
-
-                    #endregion
-
-                    continue; //强制跳过本次fillDate的循环
-                }
-                #endregion
-
-                int currentLoopAddLines = 0;
-                var deleteLastSpaceLine = false; //是否删除最后一空白行(可能有多行组成的)
-                int lastSpaceLineInterval = 0; //表示最后一空白行由多少行组成,默认为0
-                int lastSpaceLineRowNumber = 0; //表示最后一行的行号是多少
-                int tempLine = dictConfig[nth].MapperExcelTemplateLine ?? 1; //获得第N个配置中excel模版提供了多少行,默认1行
-                var hasMergeCell = dictConfig[nth].ConfigLine?.Find(a => a.Address.Contains(":")) != null;
-                Dictionary<string, FillDataColumns> fillDataColumnsStat = null;//Datatable 的列的使用情况
-
-                //3.赋值
-                var customValue = new CustomValue
-                {
-                    ConfigLine = config.Body[nth].Option.ConfigLine,
-                    ConfigExtra = config.Body[nth].Option.ConfigExtra,
-                    Worksheet = worksheet,
-                };  //注: 这里没有用深拷贝,所以,在使用的时候,不要修改内部的值, 否则后果自负.
-
-                if (hasMergeCell)
-                {
-                    //注:进入这里的条件是单元格必须是多行合并的,如果是同行多列合并的单元格,最后生成的excel会有问题,打开时会提示修复(修复完成后内容是正确的(不保证,因为我测试的几个内容是正确的))
-                    List<ExcelCellRange> cellRange = dictConfig[nth].ConfigLine.Select(cellConfigInfo => new ExcelCellRange(cellConfigInfo.Address)).ToList();
-                    int maxIntervalRow = (from c in cellRange select c.IntervalRow).Max();
-                    for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
-                    {
-                        DataRow row = datatable.Rows[i];
-                        int destRow;
-
-                        if (nth == 1)
-                        {
-                            destRow = cellRange[0].Start.Row + i * (maxIntervalRow + 1) - sheetBodyDeleteRowCount;
-                        }
-                        else
-                        {
-                            destRow = currentLoopAddLines > 0
-                                ? cellRange[0].Start.Row + (tempLine - 1) * (maxIntervalRow + 1) + sheetBodyAddRowCount -
-                                  sheetBodyDeleteRowCount
-                                : cellRange[0].Start.Row + i * (maxIntervalRow + 1) + sheetBodyAddRowCount -
-                                  sheetBodyDeleteRowCount;
-                        }
-
-                        if (datatable.Rows.Count > 1) //1.数据源中的数据行数大于1才增行
-                        {
-                            //1.新增一行
-                            if (i > tempLine - 2) //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里-2
-                            {
-                                if (i == tempLine - 1) //仅剩余最后一行是空白的
-                                {
-                                    deleteLastSpaceLine = true;
-                                    lastSpaceLineInterval = maxIntervalRow + 1;
-                                }
-
-                                lastSpaceLineRowNumber = destRow + maxIntervalRow + 1; //最后一行空行的位置
-                                worksheet.InsertRow(destRow, maxIntervalRow + 1, destRow + maxIntervalRow + 1); //新增N行,注意,此时新增行的高度是有问题的
-                                                                                                                //2.复制样式(含修正)
-                                for (int j = 0; j <= maxIntervalRow; j++) //修正height
-                                {
-                                    worksheet.Row(destRow + j).Height = worksheet.Row(destRow + j + maxIntervalRow + 1).Height;
-                                }
-
-                                sheetBodyAddRowCount += maxIntervalRow + 1;
-                                currentLoopAddLines++;
-                            }
-                        }
-
-                        //3.赋值
-                        for (int j = 0; j < dictConfig[nth].ConfigLine.Count; j++)//遍历列
-                        {
-                            #region 赋值
-
-                            string colMapperName = dictConfig[nth].ConfigLine[j].ConfigValue;
-                            object val = dictConfig[nth].ConfigItemMustExistInDataColumn
-                                ? row[colMapperName]
-                                : row.Table.Columns.Contains(colMapperName) ? row[colMapperName] : null;
-#if DEBUG
-                            if (!cellRange[j].IsMerge)
-                            {
-                                throw new Exception("填充数据时,合并单元格填充处不是合并单元格,请修改组件代码");
-                            }
-#endif
-
-                            //int destRowStart = cellRange[j].Start.Row;
-                            int destStartCol = cellRange[j].Start.Col;
-                            //int destEndRow = cellRange[j].End.Row;
-                            int destEndCol = cellRange[j].End.Col;
-                            if (!worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Merge)
-                            {
-                                /*
-                                 注:假设原有的cell单元格是同行多列合并,那么上面的if判断还是会返回false.(但在worksheet.MergedCells中能发现单元格是合并的).多列合并的没试过.
-                                 后来做了限制,进入这个if语句内的单元格必须是多行合并的,对于单行多列合并的cell,后果自负
-                                 */
-                                worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Merge = true;
-                            }
-
-                            //worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol].Value = val;
-
-                            var cells = worksheet.Cells[destRow, destStartCol, destRow + maxIntervalRow, destEndCol];
-
-                            if (dictConfig[nth].CustomSetValue != null)
-                            {
-                                customValue.Area = FillArea.Content;
-                                customValue.ColName = colMapperName;
-                                customValue.Value = val;
-                                customValue.Cell = cells;
-                                dictConfig[nth].CustomSetValue.Invoke(customValue);
-                            }
-                            else
-                            {
-                                SetWorksheetCellsValue(config, cells, val, colMapperName);
-                            }
-                            #endregion
-                        }
-
-                        if (config.IsReport)
-                        {
-                            SetReport(worksheet, row, config, destRow, maxIntervalRow);
-                        }
-                    }
-                }
-                else //sheet body是常规类型的,即,没有合并单元格的(或者是同行多列的单元格)
-                {
-                    var configLineCellPoint = dictConfig[nth].ConfigLine.Select(configCell => new ExcelCellPoint(configCell.Address)).ToList(); // 将配置的值 转换成 ExcelCellPoint
-                    var leftCellInfo = configLineCellPoint.First();
-
-                    #region 必须在 insertRow 之前计算,否则,当前变量就是插入行后的单元格信息
-
-                    var rightCellInfo = configLineCellPoint.Last();
-                    var leftColStr = leftCellInfo.ColStr;
-                    var rightColStr = worksheet.Cells[rightCellInfo.R1C1].Merge
-                        ? new ExcelCellRange(rightCellInfo.R1C1, worksheet).End.ColStr
-                        : rightCellInfo.ColStr;
-                    #endregion
-
-                    #region 第一遍循环:计算要插入多少行
-
-                    var insertRows = 0;//要新增多少行
-                    var insertRowFrom = 0;//从哪行开始
-                    var dictDestRow = new Dictionary<int, int>();//数据源的第N行,对应excel填充的第N行
-                    for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
-                    {
-                        int destRow = nth == 1
-                            ? sheetBodyAddRowCount > 0
-                                ? leftCellInfo.Row + i - sheetBodyDeleteRowCount
-                                : leftCellInfo.Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount
-                            : currentLoopAddLines > 0
-                                ? leftCellInfo.Row + sheetBodyAddRowCount - sheetBodyDeleteRowCount
-                                : leftCellInfo.Row + i + sheetBodyAddRowCount - sheetBodyDeleteRowCount;
-
-                        dictDestRow.Add(i, destRow);
-
-                        if (datatable.Rows.Count <= 1)
-                        {
-                            continue; //1.数据源中的数据行数大于1才增行
-                        }
-
-                        if (i <= tempLine - 2)
-                        {
-                            continue; //i从0开始,这边要-1,然后又要留一行模版,做为复制源,所以这里要-2
-                        }
-
-                        if (i == tempLine - 1) //仅剩余最后一行是空白的
-                        {
-                            deleteLastSpaceLine = true;
-                            lastSpaceLineInterval = 1;
-                        }
-                        lastSpaceLineRowNumber = destRow + 1; //最后一行空行的位置
-                        if (insertRowFrom == 0)
-                        {
-                            insertRowFrom = destRow;
-                        }
-                        insertRows++;
-                        sheetBodyAddRowCount++;
-                        currentLoopAddLines++;
-                    }
-                    #endregion
-
-                    var needInsert = insertRows > 0 && insertRowFrom > 0;
-                    if (needInsert)
-                    {
-                        //在  InsertRowFrom 行前面插入 InsertRowCount 行.
-                        //注:
-                        //1. 新增的行的Height的默认值,需要自己修改
-                        //2. copyStylesFromRow 的行计算是在 InsertRowFrom+ InsertRowCount 后开始的那行.
-                        //3. copyStylesFromRow 不会把合并的单元格也弄过来(即,这个参数的功能不是格式刷)
-                        if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyAll)
-                        {
-                            worksheet.InsertRow(insertRowFrom, insertRows); //用这个参数创建的excel,文件体积要小,插入速度没测试
-                        }
-                        else if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyStyleAndMergeCell)
-                        {
-                            if (dictConfig[nth].InsertRowStyle.NeedCopyStyles)
-                            {
-                                //在测试中,数据量 >= EPPlusConfig.MaxRow07/2-1  时,程序会抛异常, 这个数据量值仅做参考
-                                //解决方案,分批插入, 且分批插入的 RowFrom 必须是第一次 InsertRow 的结尾行, 不然 '第三遍循环:填充数据' 会异常
-                                //同时又发现了一个bug: worksheet.InsertRow() 的第三个参数要满足 _rows + copyStylesFromRow < EPPlusConfig.MaxRow07 , 但是_copyStylesFromRow 又是 rowFrom + rows 后开始数的行数
-                                //nnd. 为了 屏蔽这个bug报错, 我后面写了if-else.  这样写的 结果就是 后面新增的行没有样式
-
-                                var insertRowsMax = (EPPlusConfig.MaxRow07 / 2 - 1) - 1;
-                                if (insertRows >= insertRowsMax)
-                                {
-                                    var insertCount = insertRows / insertRowsMax;
-                                    var mod = insertRows % insertRowsMax;
-                                    int rowFrom;
-                                    int rows;
-                                    int copyStylesFromRow;
-                                    for (int i = 0; i < insertCount; i++)
-                                    {
-                                        rowFrom = insertRowFrom + i * insertRowsMax;
-                                        rows = insertRowsMax;
-                                        copyStylesFromRow = rowFrom + rows;
-                                        //防止报错, 结果就是 后面新增的行没有样式
-                                        if (rows + copyStylesFromRow > EPPlusConfig.MaxRow07)
-                                        {
-                                            worksheet.InsertRow(rowFrom, rows);
-                                        }
-                                        else
-                                        {
-                                            worksheet.InsertRow(rowFrom, rows, copyStylesFromRow);
-                                        }
-                                    }
-                                    if (mod > 0)
-                                    {
-                                        rowFrom = insertRowFrom + insertCount * insertRowsMax;
-                                        rows = mod;
-                                        copyStylesFromRow = lastSpaceLineRowNumber;
-                                        //防止报错, 结果就是 后面新增的行没有样式
-                                        if (rows + copyStylesFromRow > EPPlusConfig.MaxRow07)
-                                        {
-                                            worksheet.InsertRow(rowFrom, rows);
-                                        }
-                                        else
-                                        {
-                                            worksheet.InsertRow(rowFrom, rows, copyStylesFromRow);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    worksheet.InsertRow(insertRowFrom, insertRows, lastSpaceLineRowNumber);
-                                }
-                            }
-                            else
-                            {
-                                worksheet.InsertRow(insertRowFrom, insertRows);
-                            }
-                        }
-                    }
-
-                    #region 第二遍循环:处理样式 (Height要自己单独处理)
-
-                    if (needInsert)
-                    {
-                        if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyAll)
-                        {
-                            var configLine = $"{leftColStr}{lastSpaceLineRowNumber}:{rightColStr}{lastSpaceLineRowNumber}";
-
-                            for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
-                            {
-                                int destRow = dictDestRow[i];
-
-                                //copy 好比格式刷, 这里只格式化配置行所在的表格部分.
-                                //Copy 效率比 CopyStyleAndMergedCellFromConfigRow 慢差不多一倍(测试数据4w条,要4秒多, 用上面的是2秒多,且文件体积也要小很多 好像有50% )
-                                worksheet.Cells[configLine].Copy(worksheet.Cells[$"{leftColStr}{destRow}:{rightColStr}{destRow}"]);//注: 如果rightColStr后还有单元格,请参考Sample05
-
-                                //不要用[row,col]索引器,[row,col]表示某单元格.注意:copy会把source行的除了height(觉得是一个bug)以外的全部复制一行出来
-                                worksheet.Row(destRow).Height = worksheet.Row(lastSpaceLineRowNumber).Height; //修正height
-                            }
-                        }
-                        else if (dictConfig[nth].InsertRowStyle.Operation == InsertRowStyleOperation.CopyStyleAndMergeCell)
-                        {
-                            var modifyInsertRowHeight = true;
-                            if (dictConfig[nth].InsertRowStyle.NeedMergeCell)
-                            {
-                                List<ExcelCellRange> rangeCells = GetMergedCellFromRow(worksheet, lastSpaceLineRowNumber, leftColStr, rightColStr);
-                                if (rangeCells != null && rangeCells.Count > 0)
-                                {
-                                    modifyInsertRowHeight = false;
-                                    for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
-                                    {
-                                        int destRow = dictDestRow[i];
-                                        foreach (var item in rangeCells)
-                                        {
-                                            worksheet.Cells[destRow, item.Start.Col, destRow, item.End.Col].Merge = true;
-                                        }
-                                        worksheet.Row(destRow).Height = worksheet.Row(lastSpaceLineRowNumber).Height; //修正height
-                                    }
-                                }
-                            }
-                            if (modifyInsertRowHeight)
-                            {
-                                for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
-                                {
-                                    int destRow = dictDestRow[i];
-                                    worksheet.Row(destRow).Height = worksheet.Row(lastSpaceLineRowNumber).Height; //修正height
-                                }
-                            }
-                        }
-                    }
-                    #endregion
-
-                    #region 第三遍循环:填充数据
-
-                    for (int i = 0; i < datatable.Rows.Count; i++) //遍历数据源,往excel中填充数据
-                    {
-                        int destRow = dictDestRow[i];
-                        DataRow row = datatable.Rows[i];
-
-                        //3.赋值.
-                        //注:遍历时变量 j 的终止条件不能是 dataTable.Rows.Count. 因为dataTable可能会包含多余的字段信息,与 配置信息列的个数不一致.
-                        for (int j = 0; j < dictConfig[nth].ConfigLine.Count; j++)
-                        {
-                            #region 赋值
-
-                            //worksheet.Cells[destRow, destCol].Value = row[j];
-                            string colMapperName = dictConfig[nth].ConfigLine[j].ConfigValue;//身份证
-
-                            if (string.IsNullOrEmpty(colMapperName))
-                            {
-                                continue;
-                            }
-
-                            //33xxxx19941111xxxx
-                            object val = dictConfig[nth].ConfigItemMustExistInDataColumn
-                                ? row[colMapperName]
-                                : row.Table.Columns.Contains(colMapperName) ? row[colMapperName] : null;
-                            int destCol = configLineCellPoint[j].Col;
-                            var cells = worksheet.Cells[destRow, destCol];
-
-                            if (dictConfig[nth].CustomSetValue != null)
-                            {
-                                customValue.Area = FillArea.Content;
-                                customValue.ColName = colMapperName;
-                                customValue.Value = val;
-                                customValue.Cell = cells;
-                                dictConfig[nth].CustomSetValue.Invoke(customValue);
-                            }
-                            else
-                            {
-                                SetWorksheetCellsValue(config, cells, val, colMapperName);
-                            }
-
-                            #endregion
-
-                            #region 同步数据源
-
-                            if (j == configLineCellPoint.Count - 1) //如果一行循环到了最后一列
-                            {
-                                if (dictConfigSource[nth].FillMethod is null)
-                                {
-                                    continue;
-                                }
-                                var fillMethod = dictConfigSource[nth].FillMethod;
-                                if (fillMethod is null || fillMethod.FillDataMethodOption == SheetBodyFillDataMethodOption.Default)
-                                {
-                                    continue;
-                                }
-                                if (fillMethod.FillDataMethodOption == SheetBodyFillDataMethodOption.SynchronizationDataSource)
-                                {
-                                    var isFillDataTitle = fillMethod.SynchronizationDataSource.NeedTitle && i == 0;
-                                    var isFillDataBody = fillMethod.SynchronizationDataSource.NeedBody;
-
-                                    if (!isFillDataTitle && !isFillDataBody)
-                                    {
-                                        continue;
-                                    }
-
-                                    if (fillDataColumnsStat is null)
-                                    {
-                                        fillDataColumnsStat = InitFillDataColumnStat(datatable, dictConfig[nth].ConfigLine, fillMethod);
-                                    }
-
-                                    if (isFillDataTitle)
-                                    {
-                                        var eachCount_Col = 0;
-                                        var lastConfigCell = dictConfig[nth].ConfigLine.Last();
-                                        var eachCount_Col_Step = lastConfigCell.IsMergeCell == true
-                                            ? new ExcelCellRange(lastConfigCell.FullAddress).IntervalCol + 1
-                                            : 1;
-
-                                        var config_firstCell_Col = new ExcelCellPoint(dictConfig[nth].ConfigLine.First().Address).Col;
-                                        var config_lastCell_col = new ExcelCellPoint(lastConfigCell.Address).Col;
-                                        var titleLine_LastCell = worksheet.Cells[destRow - 1, config_lastCell_col];//标题行的最后一列的address
-
-                                        foreach (var item in fillDataColumnsStat.Values)
-                                        {
-                                            if (item.State != FillDataColumnsState.WillUse)
-                                            {
-                                                continue;
-                                            }
-
-                                            var extensionDestCol_title_Col = config_firstCell_Col + dictConfig[nth].ConfigLineInterval + eachCount_Col;
-                                            var extensionCell_title = worksheet.Cells[destRow - 1, extensionDestCol_title_Col];
-                                            extensionCell_title.StyleID = titleLine_LastCell.StyleID;
-
-                                            if (dictConfig[nth].CustomSetValue != null)
-                                            {
-                                                customValue.Area = FillArea.TitleExt;
-                                                customValue.ColName = item.ColumnName;
-                                                customValue.Value = item.ColumnName;
-                                                customValue.Cell = extensionCell_title;
-                                                dictConfig[nth].CustomSetValue.Invoke(customValue);
-                                            }
-                                            else
-                                            {
-                                                SetWorksheetCellsValue(config, extensionCell_title, item.ColumnName, item.ColumnName);
-                                            }
-                                            eachCount_Col += eachCount_Col_Step;
-                                        }
-                                    }
-
-                                    if (isFillDataBody)
-                                    {
-                                        var eachCount_Col = 0;
-                                        var lastConfigCell = dictConfig[nth].ConfigLine.Last();
-                                        var eachCount_Col_Step = lastConfigCell.IsMergeCell == true
-                                            ? new ExcelCellRange(lastConfigCell.FullAddress).IntervalCol + 1
-                                            : 1;
-
-                                        var lastCell_IntervalCol = eachCount_Col_Step - 1;
-                                        var config_lastCell_Col = new ExcelCellPoint(lastConfigCell.Address).Col;//配置列的最后一个address
-                                        var lastCell = worksheet.Cells[destRow, config_lastCell_Col];
-
-                                        foreach (var item in fillDataColumnsStat.Values)
-                                        {
-                                            if (item.State != FillDataColumnsState.WillUse)
-                                            {
-                                                continue;
-                                            }
-
-                                            var extensionDestCol_body_Col = (configLineCellPoint[j].Col + 1) + eachCount_Col + lastCell_IntervalCol;
-                                            var extensionCell_body = worksheet.Cells[destRow, extensionDestCol_body_Col];
-                                            extensionCell_body.StyleID = lastCell.StyleID;
-
-                                            //还有好多样式没有弄
-                                            //8.设置字体
-                                            //extensionCell_body.Style.Font.xxx =..
-                                            //9.设置边框的属性
-                                            //extensionCell_body.Style.Border.Left.Style = ...
-                                            //extensionCell_body.Style.Border.Right.Style = ...
-                                            //extensionCell_body.Style.Border.Top.Style = ...
-                                            //extensionCell_body.Style.Border.Bottom.Style = ...
-                                            //10.对齐方式
-                                            //extensionCell_body.Style.HorizontalAlignment = ...
-                                            //extensionCell_body.Style.VerticalAlignment = ...
-                                            //11.设置整个sheet的背景色
-                                            //extensionCell_body.Fill.PatternType = ... //必须设置这个 ExcelFillStyle.Solid;
-                                            //extensionCell_body.Fill.BackgroundColor.SetColor(...);
-
-                                            SetWorksheetCellsValue(config, extensionCell_body, row[item.ColumnName], item.ColumnName);
-                                            if (dictConfig[nth].CustomSetValue != null)
-                                            {
-                                                customValue.Area = FillArea.ContentExt;
-                                                customValue.ColName = item.ColumnName;
-                                                customValue.Value = row[item.ColumnName];
-                                                customValue.Cell = extensionCell_body;
-                                                dictConfig[nth].CustomSetValue.Invoke(customValue);
-                                            }
-                                            else
-                                            {
-                                                SetWorksheetCellsValue(config, extensionCell_body, row[item.ColumnName], item.ColumnName);
-                                            }
-                                            eachCount_Col += eachCount_Col_Step;
-                                        }
-                                    }
-                                }
-                            }
-
-                            #endregion
-                        }
-
-                        if (config.IsReport)
-                        {
-                            SetReport(worksheet, row, config, destRow);
-                        }
-                    }
-                    #endregion
-                }
-
-                //已经修复bug:当只有一个配置时,且 deleteLastSpaceLine 为false,然后在excel筛选的时候能出来一行空白 原因是,配置行没被删除
-                if (deleteLastSpaceLine)
-                {
-                    worksheet.DeleteRow(lastSpaceLineRowNumber, lastSpaceLineInterval, true);
-                    sheetBodyAddRowCount -= lastSpaceLineInterval;
-                }
-
-                #region FillData_Body_Summary
-
-                //填充第N个配置的一些零散的单元格的值(譬如汇总信息等)
-
-                if (dictConfigSource[nth].ConfigExtra != null)
-                {
-                    var dictConfigSourceSummary = dictConfigSource[nth].ConfigExtra.Source.ToDictionary(a => a.ConfigValue);
-                    foreach (var item in dictConfig[nth].ConfigExtra)
-                    {
-                        var excelCellPoint = new ExcelCellPoint(item.Address);
-                        string colMapperName = item.ConfigValue;
-                        object val = dictConfigSourceSummary[colMapperName].FillValue;
-                        ExcelRange cells = worksheet.Cells[excelCellPoint.Row + sheetBodyAddRowCount, excelCellPoint.Col];
-
-                        if (dictConfig[nth].SummaryCustomSetValue != null)
-                        {
-                            customValue.Area = null;
-                            customValue.ColName = colMapperName;
-                            customValue.Value = val;
-                            customValue.Cell = cells;
-
-                            dictConfig[nth].SummaryCustomSetValue.Invoke(customValue);
-                        }
-                        else
-                        {
-                            SetWorksheetCellsValue(config, cells, val, colMapperName);
-                        }
-                    }
-                }
-                #endregion
-            }
-
-            return sheetBodyAddRowCount;
-        }
-
-        /// <summary>
-        /// 所有的合并单元格
-        /// </summary>
-        /// <param name="worksheet"></param>
-        /// <param name="lineNo">行号</param>
-        /// <param name="leftCol">最左边的</param>
-        /// <param name="rightCol">最右边的,如果最右边的合并单元格,取合并单元格的最右边列的地址</param>
-        /// <returns></returns>
-        private static List<ExcelCellRange> GetMergedCellFromRow(ExcelWorksheet worksheet, int lineNo, string leftCol, string rightCol)
-        {
-            var allCell = GetCellFromRow(worksheet, lineNo, leftCol, rightCol);
-
-            var rangeCells = new List<ExcelCellRange>();
-            foreach (var item in allCell)
-            {
-                if (item is ExcelCellRange cellRange && cellRange.IsMerge)
-                {
-                    rangeCells.Add(cellRange);
-                }
-            }
-
-            return rangeCells;
-        }
-
-        /// <summary>
-        /// 所有的单元格
-        /// </summary>
-        /// <param name="worksheet"></param>
-        /// <param name="lineNo">行号</param>
-        /// <param name="leftCol">最左边的</param>
-        /// <param name="rightCol">最右边的,如果最右边的合并单元格,取合并单元格的最右边列的地址</param>
-        /// <returns></returns>
-        private static List<object> GetCellFromRow(ExcelWorksheet worksheet, int lineNo, string leftCol, string rightCol)
-        {
-            var leftAddressCol = ExcelCellPoint.R1C1Formulas(leftCol);
-            var rightAddressCol = ExcelCellPoint.R1C1Formulas(rightCol);
-
-            var allCell = new List<object>();
-            while (true)
-            {
-                if (EPPlusHelper.IsMergeCell(worksheet, row: lineNo, col: leftAddressCol, out var mergeCellAddress))
-                {
-                    var cell = new ExcelCellRange(mergeCellAddress);
-                    allCell.Add(cell);
-                    leftAddressCol = cell.End.Col + 1;
-                }
-                else
-                {
-                    var cellAddress = new ExcelCellPoint(lineNo, leftAddressCol).R1C1;
-                    var cell = new ExcelCellPoint(cellAddress);
-                    allCell.Add(cell);
-                    leftAddressCol++;
-                }
-
-                if (leftAddressCol > rightAddressCol)
-                {
-                    break;
-                }
-            }
-            return allCell;
-        }
-
-        /// <summary>
-        ///  获得Database数据源的所有的列的使用状态
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <param name="configLine"></param>
-        /// <param name="fillModel"></param>
-        /// <returns></returns>
-        private static Dictionary<string, FillDataColumns> InitFillDataColumnStat(DataTable dataTable, List<EPPlusConfigFixedCell> configLine, SheetBodyFillDataMethod fillModel)
-        {
-            var fillDataColumnStat = new Dictionary<string, FillDataColumns>();
-            foreach (DataColumn column in dataTable.Columns)
-            {
-                fillDataColumnStat.Add(column.ColumnName, new FillDataColumns()
-                {
-                    ColumnName = column.ColumnName,
-                    State = FillDataColumnsState.Unchanged
-                });
-            }
-
-            foreach (var item in configLine)
-            {
-                fillDataColumnStat[item.ConfigValue].State = FillDataColumnsState.Used;
-            }
-
-            var isEmptyInclude = string.IsNullOrEmpty(fillModel.SynchronizationDataSource.Include);
-            var isEmptyExclude = string.IsNullOrEmpty(fillModel.SynchronizationDataSource.Exclude);
-            if (isEmptyInclude != isEmptyExclude) //只能有一个值有效
-            {
-                if (!isEmptyInclude)
-                {
-                    Modify_DataColumnsIsUsedStat(fillDataColumnStat, fillModel.SynchronizationDataSource.Include, true);
-                }
-
-                if (!isEmptyExclude)
-                {
-                    Modify_DataColumnsIsUsedStat(fillDataColumnStat, fillModel.SynchronizationDataSource.Exclude, false);
-                }
-            }
-
-            return fillDataColumnStat;
-        }
-
-        private static void Modify_DataColumnsIsUsedStat(Dictionary<string, FillDataColumns> fillDataColumnsStat, string columns, bool selectColumnIsWillUse)
-        {
-            var splitInclude = columns.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var key in fillDataColumnsStat.Keys)
-            {
-                if (fillDataColumnsStat[key].State == FillDataColumnsState.Unchanged)
-                {
-                    if (splitInclude.Contains(key))
-                    {
-                        fillDataColumnsStat[key].State = selectColumnIsWillUse ? FillDataColumnsState.WillUse : FillDataColumnsState.WillNotUse;
-                    }
-                    else
-                    {
-                        fillDataColumnsStat[key].State = selectColumnIsWillUse ? FillDataColumnsState.WillNotUse : FillDataColumnsState.WillUse;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 填充foot
-        /// </summary>
-        /// <param name="config"></param>
-        /// <param name="configSource"></param>
-        /// <param name="worksheet"></param>
-        /// <param name="sheetBodyAddRowCount"></param>
-        private static void FillData_Foot(EPPlusConfig config, EPPlusConfigSource configSource, ExcelWorksheet worksheet, int sheetBodyAddRowCount)
-        {
-            if (config.Foot.ConfigCellList is null || config.Foot.ConfigCellList.Count <= 0)
-            {
-                return;
-            }
-
-            var dictConfigSource = configSource.Foot.CellsInfoList.ToDictionary(a => a.ConfigValue);
-            foreach (var item in config.Foot.ConfigCellList)
-            {
-                if (configSource.Foot is null ||
-                    configSource.Foot.CellsInfoList is null ||
-                    configSource.Foot.CellsInfoList.Count == 0) //excel中有配置foot,但是程序中没有进行值的映射(没映射的原因之一是没有查询出数据)
-                {
-                    break;
-                }
-
-                //worksheet.Cells["A1"].Value = "名称";//直接指定单元格进行赋值
-                var cellPoint = new ExcelCellPoint(item.Address);
-                string colMapperName = item.ConfigValue;
-
-                object val = config.Foot.ConfigItemMustExistInDataColumn
-                    ? dictConfigSource[item.ConfigValue].FillValue
-                    : dictConfigSource.ContainsKey(item.ConfigValue) ? dictConfigSource[item.ConfigValue].FillValue : null;
-
-                ExcelRange cells = worksheet.Cells[cellPoint.Row + sheetBodyAddRowCount, cellPoint.Col];
-                if (config.Foot.CellCustomSetValue != null)
-                {
-                    config.Foot.CellCustomSetValue.Invoke(colMapperName, val, cells);
-                }
-                else
-                {
-                    SetWorksheetCellsValue(config, cells, val, colMapperName); //item.Key -> D13 , item.Value -> 总计
-                }
-            }
-        }
-
-        /// <summary>
-        /// 设置单元格的的值
-        /// </summary>
-        /// <param name="config"></param>
-        /// <param name="cells">这里用s结尾,表示单元格有可能是合并单元格</param>
-        /// <param name="val">值</param>
-        /// <param name="colMapperName">excel填充的列名,不想传值请使用null,用来确保填充的数据格式,譬如身份证, 那么单元格必须要是</param>
-        private static void SetWorksheetCellsValue(EPPlusConfig config, ExcelRange cells, object val, string colMapperName)
-        {
-            var cellValue = config.UseFundamentals
-                ? config.CellFormatDefault(colMapperName, val, cells)
-                : val;
-
-            if (cells.IsRichText)
-            {
-                cells.RichText.Text = cellValue?.ToString() ?? "";
-            }
-            else
-            {
-                cells.Value = cellValue;
-            }
-
-            //注:排除3种值( DBNull.Value , null , "") 后 如果 cells.Value 仍然没有值,有可能是配置的单元格以 '开头.
-            //譬如: '$tb1Id. 对于这种配置我程序无法检测出来(或者说我没找到检测'开头的方法)
-            //下面代码有问题,当遇到日期类型的时候, 值是赋值上去的,但是 cells.value 却!= val .所以下面代码注释
-            //if (val != DBNull.Value  && val != null && val != "" && cells.Value != val)
-            //{
-            //    //如果值没赋值上去,那么抛异常
-            //    throw new Exception($"工作簿'{cells.Worksheet.Name}'的配置列'{colMapperName}'的单元格格式有问题,程序无法将值'{val}'赋值到对应的单元 格'{cells.Address}'中.配置的单元格中可能是'开头的,请把'去掉");
-            //}
-        }
-
-        /// <summary>
-        /// 设置单元格的的值
-        /// </summary>
-        /// <param name="cell">目前针对的场景是非合并单元格, 如果是合并单元格, 没测试过</param>
-        /// <param name="cellValue"></param>
-        public static void SetWorksheetCellValue(ExcelRange cell, string cellValue)
-        {
-            cell.Value = cellValue;
-            if (string.IsNullOrWhiteSpace(cellValue) == false && object.Equals(cellValue, cell.Value) == false) // 有值,但没有填充上去
-            {
-                if (cell.IsRichText)
-                {
-                    cell.RichText.Text = cellValue;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 从Excel 中获得符合C# 类属性定义的列名集合,内部会修改DataColEnd的值
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        private static List<ExcelCellInfo> GetExcelColumnOfModel(GetExcelListArgs args)
-        {
-            List<string> colNameList = null;
-            Dictionary<string, int> nameRepeatCounter = null;
-            if (args.POCO_Property_AutoRename_WhenRepeat)
-            {
-                colNameList = new List<string>();
-                nameRepeatCounter = new Dictionary<string, int>();
-            }
-
-            var list = new List<ExcelCellInfo>();
-            int col = args.DataColStart;
-            int dataColEndActual = 0;
-            while (col <= args.DataColEnd)
-            {
-                if (args.ws.Column(col).Hidden)
-                {
-                    throw new Exception($@"工作簿:'{args.ws.Name}'不允许存在隐藏列,检测到第{ExcelCellPoint.R1C1FormulasReverse(col)}列是隐藏列");
-                }
-                ExcelAddress ea;
-                int newDataColEndActual;
-                var isMergeCell = EPPlusHelper.IsMergeCell(args.ws, args.DataTitleRow, col, out var mergeCellAddress);
-                if (isMergeCell)
-                {
-                    ea = new ExcelAddress(mergeCellAddress);
-                    newDataColEndActual = col + new ExcelCellRange(mergeCellAddress).IntervalCol;
-                    col += ea.Columns;
-                }
-                else
-                {
-                    ea = new ExcelAddress(args.DataTitleRow, col, args.DataTitleRow, col);
-                    newDataColEndActual = col;
-                    col += 1;
-                }
-
-                var colName = EPPlusHelper.GetMergeCellText(args.ws, ea.Start.Row, ea.Start.Column);
-                if (string.IsNullOrEmpty(colName))
-                {
-                    break;
-                }
-
-                colName = ExtractName(colName);
-                if (string.IsNullOrEmpty(colName))
-                {
-                    break;
-                }
-
-                dataColEndActual = newDataColEndActual;
-
-                if (args.POCO_Property_AutoRename_WhenRepeat)
-                {
-                    AutoRename(colNameList, nameRepeatCounter, colName, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
-                }
-                list.Add(new ExcelCellInfo()
-                {
-                    WorkSheet = args.ws,
-                    ExcelAddress = ea,
-                    Value = colName,
-                });
-            }
-            if (args.DataColEnd == EPPlusConfig.MaxCol07)//当前是恒成立,因为DataColEnd 是internal
-            {
-                args.DataColEnd = dataColEndActual;
-            }
-            else
-            {
-                if (args.DataColEnd != dataColEndActual) //当前 DataColEnd 是internal 的,不会执行到这里,这里是防止以后程序修改而写的.
-                {
-                    throw new Exception("非预期的值,请检查当前程序或使用代码.");
-                }
-            }
-
-            if (args.POCO_Property_AutoRename_WhenRepeat)
-            {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    list[i].Value = colNameList[i];
-                }
-            }
-
-            if (list.Count == 0)
-            {
-                throw new Exception("未读取到单元格标题");
-            }
-
-            return list;
-        }
-
-        /// <summary>
-        /// 提取符合c#规范的名字
-        /// </summary>
-        /// <param name="colName"></param>
-        /// <returns></returns>
-        private static string ExtractName(string colName)
-        {
-            string reg = @"[_a-zA-Z\u4e00-\u9FFF][A-Za-z0-9_\u4e00-\u9FFF]*";//去掉不合理的属性命名的字符串(提取合法的字符并接成一个字符串)
-            colName = RegexHelper.GetStringByReg(colName, reg).Aggregate("", (current, item) => current + item);
-            return colName;
-        }
-
-        /// <summary>
-        /// 设置报表(能折叠行的excel)格式
-        /// </summary>
-        /// <param name="worksheet"></param>
-        /// <param name="row"></param>
-        /// <param name="config"></param>
-        /// <param name="destRow"></param>
-        /// <param name="maxIntervalRow"></param>
-        private static void SetReport(ExcelWorksheet worksheet, DataRow row, EPPlusConfig config, int destRow, int maxIntervalRow = 0)
-        {
-            int level = Convert.ToInt32(row[config.Report.RowLevelColumnName]) - 1;//level是从0开始的
-            for (int i = destRow; i <= destRow + maxIntervalRow; i++)//for循环主要用于多行合并的worksheet
-            {
-                worksheet.Row(i).OutlineLevel = level;
-                worksheet.Row(i).Collapsed = config.Report.Collapsed;
-            }
-            //对于没有合并行的单元格来说完全可以用如下写法
-            //worksheet.Row(destRow).OutlineLevel = level;
-            //worksheet.Row(destRow).Collapsed = config.Report.Collapsed;
-            worksheet.OutLineSummaryBelow = config.Report.OutLineSummaryBelow;
-        }
-
-        private static void GetList_SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
-        {
-            var pInfo_PropertyType = pInfo.PropertyType;
-            #region string
-
-            if (pInfo_PropertyType == typeof(string))
-            {
-                pInfo.SetValue(model, value);
-                //pInfo.SetValue(model, ws.Cells[row, col].Text);
-                //type.GetProperty(colName)?.SetValue(model, ws.Cells[row, col].Text);
-                return;
-            }
-            #endregion
-            #region Boolean
-
-            var isNullable_Boolean = pInfo_PropertyType == typeof(Boolean?);
-            if (isNullable_Boolean && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_Boolean || pInfo_PropertyType == typeof(Boolean))
-            {
-                if (!Boolean.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的Boolean值", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Boolean。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region DateTime
-
-            var isNullable_DateTime = pInfo_PropertyType == typeof(DateTime?);
-            if (isNullable_DateTime && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_DateTime || pInfo_PropertyType == typeof(DateTime))
-            {
-                if (!DateTime.TryParse(value, out var result))
-                {
-                    if (!double.TryParse(value, out var resultDouble))
-                    {
-                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 DateTime。"));
-                    }
-                    //excel日期用数字保存的
-
-                    //在百度看到
-                    //excel与VBA开始点有差别:
-                    //excel开始点: 1900-1-1 序号为1
-                    //vba开始点:1899-12-31 序号为1
-                    //原因是excel把1900-2月错误地当29天处理,所以VBA后来自己修改了这个错误,以能与excel相适应.从1900年3月1日开始,VBA与Excel的序号才开始一致.
-
-                    //数字转日期: //参考文章 : https://docs.microsoft.com/zh-cn/dotnet/api/system.datetime.fromoadate   该方法测试发现 DateTime.FromOADate(d)  d值必须>= -657434.999999999941792(后面还能添加数字,未测试) && d<=2958465.999999994(后面还能添加数字,没测试)
-                    //但是在excel 日期最多精确到毫秒3位, 即 yyyy-MM-dd HH:mm:ss.000,对应的日期值的范围是 [1,2958465.99999999],且不能包含[60,61)
-                    //Excel数值对应的日期
-                    //0                 对应 1900-01-00 00:00:00.000   (日期不对)
-                    //1                 对应 1900-01-01 00:00:00.000
-                    //60                对应 1900-02-29 00:00:00.000   (日期不对)
-                    //2958465.99999999  对应 9999-12-31 23:59:59.999  但是  DateTime.Parse("9999-12-31 23:59:59.999").ToOADate()  2958465.9999999884
-                    if (resultDouble >= 1 && resultDouble < 60)
-                    {
-                        result = DateTime.FromOADate(resultDouble + 1);
-                    }
-                    else if (resultDouble >= 61 && resultDouble <= 2958465.99999999)
-                    {
-                        result = DateTime.FromOADate(resultDouble);
-                    }
-                    else
-                    {
-                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 DateTime。{value}必须是在[1,60) 或 [61,2958465.99999999]之间的值"));
-                    }
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region sbyte
-
-            var isNullable_sbyte = pInfo_PropertyType == typeof(sbyte?);
-            if (isNullable_sbyte && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_sbyte || pInfo_PropertyType == typeof(sbyte))
-            {
-                if (!sbyte.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 sbyte。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region byte
-
-            var isNullable_byte = pInfo_PropertyType == typeof(byte?);
-            if (isNullable_byte && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_byte || pInfo_PropertyType == typeof(byte))
-            {
-                if (!byte.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 byte。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region UInt16
-
-            var isNullable_UInt16 = pInfo_PropertyType == typeof(UInt16?);
-            if (isNullable_UInt16 && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_UInt16 || pInfo_PropertyType == typeof(UInt16))
-            {
-                if (!UInt16.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 UInt16。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region Int16
-
-            var isNullable_Int16 = pInfo_PropertyType == typeof(Int16?);
-            if (isNullable_Int16 && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_Int16 || pInfo_PropertyType == typeof(Int16))
-            {
-                if (!Int16.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Int16。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region UInt32
-
-            var isNullable_UInt32 = pInfo_PropertyType == typeof(UInt32?);
-            if (isNullable_UInt32 && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_UInt32 || pInfo_PropertyType == typeof(UInt32))
-            {
-                if (!UInt16.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 UInt32。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-
-            #endregion
-            #region Int32
-
-            var isNullable_Int32 = pInfo_PropertyType == typeof(Int32?);
-            if (isNullable_Int32 && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_Int32 || pInfo_PropertyType == typeof(Int32))
-            {
-                if (!Int32.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Int32。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-
-            #endregion
-            #region UInt64
-
-            var isNullable_UInt64 = pInfo_PropertyType == typeof(UInt64?);
-            if (isNullable_UInt64 && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_UInt64 || pInfo_PropertyType == typeof(UInt64))
-            {
-                if (!UInt64.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 UInt64。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region Int64
-
-            var isNullable_Int64 = pInfo_PropertyType == typeof(Int64?);
-            if (isNullable_Int64 && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_Int64 || pInfo_PropertyType == typeof(Int64))
-            {
-                if (!Int64.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Int64。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region float
-
-            var isNullable_float = pInfo_PropertyType == typeof(float?);
-            if (isNullable_float && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_float || pInfo_PropertyType == typeof(float))
-            {
-                if (!float.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 float。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region double
-
-            var isNullable_double = pInfo_PropertyType == typeof(double?);
-            if (isNullable_double && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_double || pInfo_PropertyType == typeof(double))
-            {
-                if (!double.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 double。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region decimal
-
-            var isNullable_decimal = pInfo_PropertyType == typeof(decimal?);
-            if (isNullable_decimal && (value is null || value.Length <= 0))
-            {
-                pInfo.SetValue(model, null);
-                return;
-            }
-            if (isNullable_decimal || pInfo_PropertyType == typeof(decimal))
-            {
-                if (!Decimal.TryParse(value, out var result))
-                {
-                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 decimal。"));
-                }
-                pInfo.SetValue(model, result);
-                return;
-            }
-            #endregion
-            #region Enum
-
-            bool isNullable_Enum = Nullable.GetUnderlyingType(pInfo_PropertyType)?.IsEnum == true;
-            if (isNullable_Enum)
-            {
-                if (value is null || value.Length <= 0)
-                {
-                    pInfo.SetValue(model, null);
-                    return;
-                }
-                value = ExtractName(value);
-                var enumType = pInfo_PropertyType.GetProperty("Value").PropertyType;
-                TryThrowExceptionForEnum(pInfo, model, value, enumType, pInfo_PropertyType);
-                var enumValue = Enum.Parse(enumType, value);
-                pInfo.SetValue(model, enumValue);
-                return;
-            }
-            if (pInfo_PropertyType.IsEnum)
-            {
-                if ((value is null || value.Length <= 0))
-                {
-                    throw new ArgumentException($@"无效的{pInfo_PropertyType.FullName}枚举值", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 {pInfo_PropertyType}(Enum类型)"));
-                }
-                value = ExtractName(value);
-                TryThrowExceptionForEnum(pInfo, model, value, pInfo_PropertyType, pInfo_PropertyType);
-                var enumValue = Enum.Parse(pInfo_PropertyType, value);
-                pInfo.SetValue(model, enumValue);
-                return;
-            }
-            #endregion
-
-            throw new Exception("GetList_SetModelValue()时遇到未处理的类型!!!请完善程序");
-        }
-
-        private static void TryThrowExceptionForEnum<T>(PropertyInfo pInfo, T model, string value, Type enumType, Type pInfoType) where T : class, new()
-        {
-            var isDefined = Enum.IsDefined(enumType, value);
-            if (isDefined)
-            {
-                return;
-            }
-            var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
-            if (attrs.Length == 1)
-            {
-                //使用自定义消息
-                var attr = (EnumUndefinedAttribute)attrs[0];
-                if (attr.Args is null || attr.Args.Length <= 0)
-                {
-                    if (string.IsNullOrEmpty(attr.ErrorMessage))
-                    {
-                        throw new ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
-                    }
-
-                    throw new ArgumentException(attr.ErrorMessage);
-                }
-
-                var message = FormatAttributeMsg(pInfo.Name, model, value, attr.ErrorMessage, attr.Args);
-                throw new ArgumentException(message);
-            }
-            else
-            {
-                //使用枚举类型内置的消息: 未找到请求的值“xxx”。
-                //throw new ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
-            }
-        }
-
-        /// <summary>
-        /// 格式化Attribute的错误消息
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="pInfo_Name"></param>
-        /// <param name="model"></param>
-        /// <param name="value"></param>
-        /// <param name="attrErrorMessage"></param>
-        /// <param name="attrArgs"></param>
-        /// <returns></returns>
-        public static string FormatAttributeMsg<T>(string pInfo_Name, T model, string value, string attrErrorMessage, string[] attrArgs) where T : class, new()
-        {
-            //拼接ErrorMessage
-            var allProp = ReflectionHelper.GetProperties<T>();
-
-            for (int i = 0; i < attrArgs.Length; i++)
-            {
-                var propertyName = attrArgs[i];
-                if (string.IsNullOrEmpty(propertyName))
-                {
-                    continue;
-                }
-
-                //注:如果占位符这是常量且刚好和属性名一致,请把占位符拆成多个占位符使用
-                if (propertyName == pInfo_Name)
-                {
-                    attrArgs[i] = value;
-                }
-                else
-                {
-                    var prop = ReflectionHelper.GetProperty(allProp, propertyName, true);
-                    if (prop is null)
+                    //WorkSheetIndex没设置,但是设置了WorkSheetName
+                    if (!string.IsNullOrEmpty(item.WorkSheetName) || item.WorkSheetIndex <= 0)
                     {
                         continue;
                     }
 
-                    attrArgs[i] = prop.GetValue(model).ToString();
+                    var eachCount = 1;
+                    foreach (var ws in excelPackage.Workbook.Worksheets)
+                    {
+                        if (item.WorkSheetIndex == eachCount)
+                        {
+                            item.WorkSheetName = ws.Name;
+                            break;
+                        }
+                        eachCount++;
+                    }
                 }
             }
 
-            string message = string.Format(attrErrorMessage, attrArgs);
-            return message;
+            var list = new List<DefaultConfig>();
+            foreach (var ws in excelPackage.Workbook.Worksheets)
+            {
+                int titleLine = 1;
+                int titleColumn = 1;
+                if (dataConfigInfo is null)
+                {
+                    list.Add(FillExcelDefaultConfig(ws, titleLine, titleColumn, cellCustom));
+                    continue;
+                }
+
+                var configInfo = dataConfigInfo.Find(a => a.WorkSheetName == ws.Name);
+                if (configInfo is null)
+                {
+                    continue;
+                }
+
+                if (configInfo.TitleLine == 0 && configInfo.TitleColumn == 0)
+                {
+                    continue;
+                }
+                var address = ExcelWorksheetHelper.GetMergeCellAddressPrecise(ws, row: configInfo.TitleLine, col: configInfo.TitleColumn);
+                var cellRange = new ExcelCellRange(address);
+                if (cellRange.IsMerge)
+                {
+                    titleLine = cellRange.End.Row;
+                    titleColumn = cellRange.End.Col;
+                }
+                else
+                {
+                    titleLine = cellRange.Start.Row;
+                    titleColumn = cellRange.Start.Col;
+                }
+                list.Add(FillExcelDefaultConfig(ws, titleLine, titleColumn, cellCustom));
+                continue;
+            }
+            return list;
         }
 
-        #endregion
-
-        #region 获得空配置
-
-        public static EPPlusConfig GetEmptyConfig() => new EPPlusConfig()
+        /// <summary>
+        /// 填充excel默认配置
+        /// </summary>
+        /// <param name="ws"></param>
+        /// <param name="titleLineNumber"></param>
+        /// <param name="titleColumnNumber"></param>
+        /// <param name="cellCustom">对单元格进行额外处理</param>
+        /// <returns></returns>
+        public static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber, int titleColumnNumber, Action<ExcelRange> cellCustom = null)
         {
-            Head = new EPPlusConfigFixedCells(),
-            Body = new EPPlusConfigBody()
+            var colNameList = new List<ExcelCellInfoValue>();
+            var nameRepeatCounter = new Dictionary<string, int>();
+
+            string mergeCellAddress;
+            #region 获得colNameList
+
+            int col = titleColumnNumber;
+            while (col <= EPPlusConfig.MaxCol07)
             {
-                ConfigList = new List<EPPlusConfigBodyConfig>()
-            },
-            Foot = new EPPlusConfigFixedCells(),
-            Report = new EPPlusReport(),
-            IsReport = false,
-            DeleteFillDateStartLineWhenDataSourceEmpty = false,
-        };
+                var excelColName = ws.Cells[titleLineNumber, col].Merge
+                    ? ExcelWorksheetHelper.GetMergeCellText(ws, titleLineNumber, col)
+                    : ExcelWorksheetHelper.GetCellText(ws, titleLineNumber, col);
 
-        public static EPPlusConfigSource GetEmptyConfigSource() => new()
-        {
-            Head = new EPPlusConfigSourceHead(),
-            Body = new EPPlusConfigSourceBody(),
-            Foot = new EPPlusConfigSourceFoot(),
-        };
+                var destColVal = NamingHelper.ExtractName(excelColName).Trim().MergeLines();
+                if (string.IsNullOrEmpty(destColVal))
+                {
+                    break;
+                }
+
+                var thisColNameInfo = new ExcelCellInfoValue()
+                {
+                    Name = destColVal,
+                    ExcelColNameIndex = col,
+                    //ExcelColName = excelColName,
+                    ExcelColName = excelColName.Trim().MergeLines(),
+                };
+
+                NamingHelper.AutoRename(colNameList, nameRepeatCounter, thisColNameInfo, true);
+
+                if (ExcelWorksheetHelper.IsMergeCell(ws, titleLineNumber, col, out mergeCellAddress))
+                {
+                    var range = new ExcelCellRange(mergeCellAddress);
+                    col += range.IntervalCol + 1;
+                }
+                else
+                {
+                    col++;
+                }
+            }
+
+            #endregion
+
+            if (colNameList.Count == 0)
+            {
+                return new DefaultConfig()
+                {
+                    WorkSheetName = ws.Name,
+                    CrateDataTableSnippe = null,
+                    CrateClassSnippe = null,
+                    ClassPropertyList = colNameList
+                };
+            }
+
+            #region 给单元格赋值
+
+            int fillBodyLine;
+            if (ExcelWorksheetHelper.IsMergeCell(ws, titleLineNumber, 1, out mergeCellAddress))
+            {
+                var range = new ExcelCellRange(mergeCellAddress);
+                fillBodyLine = range.Start.Row + range.IntervalRow + 1;
+            }
+            else
+            {
+                fillBodyLine = titleLineNumber + 1;
+            }
+
+            for (int i = 0; i < colNameList.Count; i++)
+            {
+                ExcelRange cell = ws.Cells[fillBodyLine, colNameList[i].ExcelColNameIndex];
+                string cellValue = $"$tb1{(colNameList[i].IsRename ? colNameList[i].NameNew : colNameList[i].Name)}";
+                ExcelRangeHelper.SetWorksheetCellValue(cell, cellValue);
+                cellCustom?.Invoke(ws.Cells[titleLineNumber + 1, i + 1]);
+            }
+
+            #endregion
+
+            #region sb_CreateClassSnippet + sb_CreateDateTableSnippet
+
+            StringBuilder sb_CreateClassSnippet = new StringBuilder();
+            sb_CreateClassSnippet.AppendLine($"public class {ws.Name} {{");
+
+            StringBuilder sb_CreateDateTableSnippet = new StringBuilder();
+            sb_CreateDateTableSnippet.AppendLine($@"DataTable dt = new DataTable();");
+            StringBuilder sbColumn = new StringBuilder();
+            StringBuilder sbAddDr = new StringBuilder();
+            StringBuilder sbColumnType = new StringBuilder();
+            sbAddDr.AppendLine($@"//var dr = dt.NewRow();");
+
+            foreach (var colName in colNameList)
+            {
+                var propName = colName.IsRename ? colName.NameNew : colName.Name;
+                sbColumn.AppendLine($"dt.Columns.Add(\"{propName}\");");
+                sbAddDr.AppendLine($"//dr[\"{propName}\"] = ");
+                bool sb_CrateClassSnippe_AppendLine_InForeach = false;
+
+                if (colName.IsRename)
+                {
+                    sb_CreateClassSnippet.AppendLine($" [ExcelColumnIndex({colName.ExcelColNameIndex})]");
+                    sb_CreateClassSnippet.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
+                }
+
+                if (colName.ExcelColName != colName.Name)
+                {
+                    if (!colName.IsRename)//上面添加过了,这里不在添加
+                    {
+                        sb_CreateClassSnippet.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
+                    }
+                }
+
+                if (EpplusHelperConfig.KeysTypeOfDateTime.Any(item => propName.Contains(item)))
+                {
+                    sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(DateTime);");
+                    sb_CreateClassSnippet.AppendLine($" public DateTime {propName} {{ get; set; }}");
+                    sb_CrateClassSnippe_AppendLine_InForeach = true;
+                }
+
+                if (EpplusHelperConfig.KeysTypeOfString.Any(item => propName.Contains(item)))
+                {
+                    sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(string);");
+                    sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
+                    sb_CrateClassSnippe_AppendLine_InForeach = true;
+                }
+
+                if (EpplusHelperConfig.KeysTypeOfDecimal.Any(item => propName.Contains(item)))
+                {
+                    sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(decimal);");
+                    sb_CreateClassSnippet.AppendLine($" public decimal {propName} {{ get; set; }}");
+                    sb_CrateClassSnippe_AppendLine_InForeach = true;
+                }
+
+                if (!sb_CrateClassSnippe_AppendLine_InForeach)
+                {
+                    sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
+                }
+            }
+            sb_CreateDateTableSnippet.Append(sbColumn);
+            sb_CreateDateTableSnippet.Append(sbColumnType);
+            sbAddDr.AppendLine("//dt.Rows.Add(dr);");
+            sb_CreateDateTableSnippet.Append(sbAddDr);
+
+            sb_CreateClassSnippet.AppendLine("}");
+            #endregion
+
+            return new DefaultConfig()
+            {
+                WorkSheetName = ws.Name,
+                CrateDataTableSnippe = sb_CreateDateTableSnippet.ToString(),
+                CrateClassSnippe = sb_CreateClassSnippet.ToString(),
+                ClassPropertyList = colNameList
+            };
+        }
 
         #endregion
 
@@ -2087,21 +922,6 @@ namespace EPPlusExtensions
             return GetList<T>(args);
         }
 
-        private static bool DynamicCalcStep(ScanLine scanLine)
-        {
-            if (scanLine == ScanLine.SingleLine)
-            {
-                return false;
-            }
-
-            if (scanLine == ScanLine.MergeLine)
-            {
-                return true; //在代码的while中进行动态计算
-            }
-
-            throw new Exception("不支持的ScanLine");
-        }
-
         public static IEnumerable<T> GetList<T>(GetExcelListArgs<T> args) where T : class, new()
         {
             string GetValue(PropertyInfo pInfo, int rowStart, int colIndex)
@@ -2117,7 +937,7 @@ namespace EPPlusExtensions
                 //    value = GetMergeCellText(args.ws, rowStart, colIndex);
                 //}
                 //return value;
-                return GetMergeCellText(args.ws, rowStart, colIndex);
+                return ExcelWorksheetHelper.GetMergeCellText(args.ws, rowStart, colIndex);
             }
 
             var colNameList = GetExcelColumnOfModel(args);//主要是计算DataColEnd的值, 放在第一行还是因为 单元测试 03.02的示例
@@ -2151,7 +971,7 @@ namespace EPPlusExtensions
                         }
 
                         //如果数据的第一列的合并单元格,必须确保这一行的所有列都是合并单元格
-                        if (!EPPlusHelper.IsMergeCell(args.ws, row: rowNo, col: args.DataColStart, out var mergeCellAddress))
+                        if (!ExcelWorksheetHelper.IsMergeCell(args.ws, row: rowNo, col: args.DataColStart, out var mergeCellAddress))
                         {
                             i++;
                             continue;
@@ -2169,7 +989,7 @@ namespace EPPlusExtensions
                                 continue;
                             }
 
-                            if (!EPPlusHelper.IsMergeCell(args.ws, row: rowNo, col: colNo))
+                            if (!ExcelWorksheetHelper.IsMergeCell(args.ws, row: rowNo, col: colNo))
                             {
                                 throw new Exception($@"检测到数据的起始列是合并行,请确保当前行的数据都是合并行.当前{new ExcelCellPoint(rowNo, colNo).R1C1}单元格不满足需求."); //参考 示例 03.14  或03.02的模版
                             }
@@ -2462,13 +1282,13 @@ namespace EPPlusExtensions
 
             foreach (var excelCellInfo in colNameList)
             {
-                string propName = GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All);
+                string propName = ExcelAddressHelper.GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol, dictExcelColumnIndexToModelPropName_All);
                 if (string.IsNullOrEmpty(propName))
                 {
                     continue;
                 }
 
-                var pInfo = GetPropertyInfo(propName, type);
+                var pInfo = ReflectionHelper.GetPropertyInfo(propName, type);
 
                 #region 初始化Attr要处理相关的数据
 
@@ -2518,14 +1338,14 @@ namespace EPPlusExtensions
                 var thisRowExceptions = new List<Exception>();
                 foreach (var excelCellInfo in colNameList)
                 {
-                    string propName = GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol,
+                    string propName = ExcelAddressHelper.GetPropName(excelCellInfo.ExcelAddress, dictExcelAddressCol,
                         dictExcelColumnIndexToModelPropName_All);
                     if (string.IsNullOrEmpty(propName))
                     {
                         continue;
                     }
 
-                    var pInfo = GetPropertyInfo(propName, type);
+                    var pInfo = ReflectionHelper.GetPropertyInfo(propName, type);
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
                     var value = GetValue(pInfo, row, col);
 
@@ -2673,7 +1493,7 @@ namespace EPPlusExtensions
                 if (dynamicCalcStep)
                 {
                     //while里面动态计算
-                    if (EPPlusHelper.IsMergeCell(args.ws, row, col: args.DataColStart, out var mergeCellAddress))
+                    if (ExcelWorksheetHelper.IsMergeCell(args.ws, row, col: args.DataColStart, out var mergeCellAddress))
                     {
                         row += new ExcelAddress(mergeCellAddress).Rows;//按第一列合并的行数进行step的增加
                     }
@@ -2786,6 +1606,512 @@ namespace EPPlusExtensions
             #endregion
         }
 
+        /// <summary>
+        /// 是否是动态计算步长
+        /// </summary>
+        /// <param name="scanLine"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private static bool DynamicCalcStep(ScanLine scanLine)
+        {
+            if (scanLine == ScanLine.SingleLine)
+            {
+                return false;
+            }
+
+            if (scanLine == ScanLine.MergeLine)
+            {
+                return true; //在代码的while中进行动态计算
+            }
+
+            throw new Exception("不支持的ScanLine");
+        }
+
+        /// <summary>
+        /// 从Excel 中获得符合C# 类属性定义的列名集合,内部会修改DataColEnd的值
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        private static List<ExcelCellInfo> GetExcelColumnOfModel(GetExcelListArgs args)
+        {
+            List<string> colNameList = null;
+            Dictionary<string, int> nameRepeatCounter = null;
+            if (args.POCO_Property_AutoRename_WhenRepeat)
+            {
+                colNameList = new List<string>();
+                nameRepeatCounter = new Dictionary<string, int>();
+            }
+
+            var list = new List<ExcelCellInfo>();
+            int col = args.DataColStart;
+            int dataColEndActual = 0;
+            while (col <= args.DataColEnd)
+            {
+                if (args.ws.Column(col).Hidden)
+                {
+                    throw new Exception($@"工作簿:'{args.ws.Name}'不允许存在隐藏列,检测到第{ExcelCellPoint.R1C1FormulasReverse(col)}列是隐藏列");
+                }
+                ExcelAddress ea;
+                int newDataColEndActual;
+                var isMergeCell = ExcelWorksheetHelper.IsMergeCell(args.ws, args.DataTitleRow, col, out var mergeCellAddress);
+                if (isMergeCell)
+                {
+                    ea = new ExcelAddress(mergeCellAddress);
+                    newDataColEndActual = col + new ExcelCellRange(mergeCellAddress).IntervalCol;
+                    col += ea.Columns;
+                }
+                else
+                {
+                    ea = new ExcelAddress(args.DataTitleRow, col, args.DataTitleRow, col);
+                    newDataColEndActual = col;
+                    col += 1;
+                }
+
+                var colName = ExcelWorksheetHelper.GetMergeCellText(args.ws, ea.Start.Row, ea.Start.Column);
+                if (string.IsNullOrEmpty(colName))
+                {
+                    break;
+                }
+
+                colName = NamingHelper.ExtractName(colName);
+                if (string.IsNullOrEmpty(colName))
+                {
+                    break;
+                }
+
+                dataColEndActual = newDataColEndActual;
+
+                if (args.POCO_Property_AutoRename_WhenRepeat)
+                {
+                    NamingHelper.AutoRename(colNameList, nameRepeatCounter, colName, args.POCO_Property_AutoRenameFirtName_WhenRepeat);
+                }
+                list.Add(new ExcelCellInfo()
+                {
+                    WorkSheet = args.ws,
+                    ExcelAddress = ea,
+                    Value = colName,
+                });
+            }
+            if (args.DataColEnd == EPPlusConfig.MaxCol07)//当前是恒成立,因为DataColEnd 是internal
+            {
+                args.DataColEnd = dataColEndActual;
+            }
+            else
+            {
+                if (args.DataColEnd != dataColEndActual) //当前 DataColEnd 是internal 的,不会执行到这里,这里是防止以后程序修改而写的.
+                {
+                    throw new Exception("非预期的值,请检查当前程序或使用代码.");
+                }
+            }
+
+            if (args.POCO_Property_AutoRename_WhenRepeat)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list[i].Value = colNameList[i];
+                }
+            }
+
+            if (list.Count == 0)
+            {
+                throw new Exception("未读取到单元格标题");
+            }
+
+            return list;
+        }
+
+        private static void GetList_SetModelValue<T>(PropertyInfo pInfo, T model, string value) where T : class, new()
+        {
+            var pInfo_PropertyType = pInfo.PropertyType;
+            #region string
+
+            if (pInfo_PropertyType == typeof(string))
+            {
+                pInfo.SetValue(model, value);
+                //pInfo.SetValue(model, ws.Cells[row, col].Text);
+                //type.GetProperty(colName)?.SetValue(model, ws.Cells[row, col].Text);
+                return;
+            }
+            #endregion
+            #region Boolean
+
+            var isNullable_Boolean = pInfo_PropertyType == typeof(Boolean?);
+
+            if (isNullable_Boolean && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+
+            if (isNullable_Boolean || pInfo_PropertyType == typeof(Boolean))
+            {
+                if (!Boolean.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的Boolean值", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Boolean。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region DateTime
+
+            var isNullable_DateTime = pInfo_PropertyType == typeof(DateTime?);
+            if (isNullable_DateTime && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+
+            if (isNullable_DateTime || pInfo_PropertyType == typeof(DateTime))
+            {
+                if (!DateTime.TryParse(value, out var result))
+                {
+                    if (!double.TryParse(value, out var resultDouble))
+                    {
+                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 DateTime。"));
+                    }
+                    //excel日期用数字保存的
+
+                    //在百度看到
+                    //excel与VBA开始点有差别:
+                    //excel开始点: 1900-1-1 序号为1
+                    //vba开始点:1899-12-31 序号为1
+                    //原因是excel把1900-2月错误地当29天处理,所以VBA后来自己修改了这个错误,以能与excel相适应.从1900年3月1日开始,VBA与Excel的序号才开始一致.
+
+                    //数字转日期: //参考文章 : https://docs.microsoft.com/zh-cn/dotnet/api/system.datetime.fromoadate   该方法测试发现 DateTime.FromOADate(d)  d值必须>= -657434.999999999941792(后面还能添加数字,未测试) && d<=2958465.999999994(后面还能添加数字,没测试)
+                    //但是在excel 日期最多精确到毫秒3位, 即 yyyy-MM-dd HH:mm:ss.000,对应的日期值的范围是 [1,2958465.99999999],且不能包含[60,61)
+                    //Excel数值对应的日期
+                    //0                 对应 1900-01-00 00:00:00.000   (日期不对)
+                    //1                 对应 1900-01-01 00:00:00.000
+                    //60                对应 1900-02-29 00:00:00.000   (日期不对)
+                    //2958465.99999999  对应 9999-12-31 23:59:59.999  但是  DateTime.Parse("9999-12-31 23:59:59.999").ToOADate()  2958465.9999999884
+                    if (resultDouble >= 1 && resultDouble < 60)
+                    {
+                        result = DateTime.FromOADate(resultDouble + 1);
+                    }
+                    else if (resultDouble >= 61 && resultDouble <= 2958465.99999999)
+                    {
+                        result = DateTime.FromOADate(resultDouble);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("无效的日期", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 DateTime。{value}必须是在[1,60) 或 [61,2958465.99999999]之间的值"));
+                    }
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region sbyte
+
+            var isNullable_sbyte = pInfo_PropertyType == typeof(sbyte?);
+            if (isNullable_sbyte && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_sbyte || pInfo_PropertyType == typeof(sbyte))
+            {
+                if (!sbyte.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 sbyte。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region byte
+
+            var isNullable_byte = pInfo_PropertyType == typeof(byte?);
+            if (isNullable_byte && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_byte || pInfo_PropertyType == typeof(byte))
+            {
+                if (!byte.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 byte。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region UInt16
+
+            var isNullable_UInt16 = pInfo_PropertyType == typeof(UInt16?);
+            if (isNullable_UInt16 && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_UInt16 || pInfo_PropertyType == typeof(UInt16))
+            {
+                if (!UInt16.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 UInt16。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region Int16
+
+            var isNullable_Int16 = pInfo_PropertyType == typeof(Int16?);
+            if (isNullable_Int16 && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_Int16 || pInfo_PropertyType == typeof(Int16))
+            {
+                if (!Int16.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Int16。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region UInt32
+
+            var isNullable_UInt32 = pInfo_PropertyType == typeof(UInt32?);
+            if (isNullable_UInt32 && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_UInt32 || pInfo_PropertyType == typeof(UInt32))
+            {
+                if (!UInt16.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 UInt32。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+
+            #endregion
+            #region Int32
+
+            var isNullable_Int32 = pInfo_PropertyType == typeof(Int32?);
+            if (isNullable_Int32 && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_Int32 || pInfo_PropertyType == typeof(Int32))
+            {
+                if (!Int32.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Int32。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+
+            #endregion
+            #region UInt64
+
+            var isNullable_UInt64 = pInfo_PropertyType == typeof(UInt64?);
+            if (isNullable_UInt64 && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_UInt64 || pInfo_PropertyType == typeof(UInt64))
+            {
+                if (!UInt64.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 UInt64。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region Int64
+
+            var isNullable_Int64 = pInfo_PropertyType == typeof(Int64?);
+            if (isNullable_Int64 && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_Int64 || pInfo_PropertyType == typeof(Int64))
+            {
+                if (!Int64.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 Int64。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region float
+
+            var isNullable_float = pInfo_PropertyType == typeof(float?);
+            if (isNullable_float && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_float || pInfo_PropertyType == typeof(float))
+            {
+                if (!float.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 float。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region double
+
+            var isNullable_double = pInfo_PropertyType == typeof(double?);
+            if (isNullable_double && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_double || pInfo_PropertyType == typeof(double))
+            {
+                if (!double.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 double。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region decimal
+
+            var isNullable_decimal = pInfo_PropertyType == typeof(decimal?);
+            if (isNullable_decimal && (value is null || value.Length <= 0))
+            {
+                pInfo.SetValue(model, null);
+                return;
+            }
+            if (isNullable_decimal || pInfo_PropertyType == typeof(decimal))
+            {
+                if (!Decimal.TryParse(value, out var result))
+                {
+                    throw new ArgumentException("无效的数字", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 decimal。"));
+                }
+                pInfo.SetValue(model, result);
+                return;
+            }
+            #endregion
+            #region Enum
+
+            bool isNullable_Enum = Nullable.GetUnderlyingType(pInfo_PropertyType)?.IsEnum == true;
+            if (isNullable_Enum)
+            {
+                if (value is null || value.Length <= 0)
+                {
+                    pInfo.SetValue(model, null);
+                    return;
+                }
+                value = NamingHelper.ExtractName(value);
+                var enumType = pInfo_PropertyType.GetProperty("Value").PropertyType;
+                TryThrowExceptionForEnum(pInfo, model, value, enumType, pInfo_PropertyType);
+                var enumValue = Enum.Parse(enumType, value);
+                pInfo.SetValue(model, enumValue);
+                return;
+            }
+            if (pInfo_PropertyType.IsEnum)
+            {
+                if ((value is null || value.Length <= 0))
+                {
+                    throw new ArgumentException($@"无效的{pInfo_PropertyType.FullName}枚举值", pInfo.Name, new FormatException($"单元格值:{value}未被识别为有效的 {pInfo_PropertyType}(Enum类型)"));
+                }
+                value = NamingHelper.ExtractName(value);
+                TryThrowExceptionForEnum(pInfo, model, value, pInfo_PropertyType, pInfo_PropertyType);
+                var enumValue = Enum.Parse(pInfo_PropertyType, value);
+                pInfo.SetValue(model, enumValue);
+                return;
+            }
+            #endregion
+
+            throw new Exception("GetList_SetModelValue()时遇到未处理的类型!!!请完善程序");
+        }
+
+        private static void TryThrowExceptionForEnum<T>(PropertyInfo pInfo, T model, string value, Type enumType, Type pInfoType) where T : class, new()
+        {
+            var isDefined = Enum.IsDefined(enumType, value);
+            if (isDefined)
+            {
+                return;
+            }
+            var attrs = ReflectionHelper.GetAttributeForProperty<EnumUndefinedAttribute>(pInfo.DeclaringType, pInfo.Name);
+            if (attrs.Length == 1)
+            {
+                //使用自定义消息
+                var attr = (EnumUndefinedAttribute)attrs[0];
+                if (attr.Args is null || attr.Args.Length <= 0)
+                {
+                    if (string.IsNullOrEmpty(attr.ErrorMessage))
+                    {
+                        throw new ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+                    }
+
+                    throw new ArgumentException(attr.ErrorMessage);
+                }
+
+                var message = FormatAttributeMsg(pInfo.Name, model, value, attr.ErrorMessage, attr.Args);
+                throw new ArgumentException(message);
+            }
+            else
+            {
+                //使用枚举类型内置的消息: 未找到请求的值“xxx”。
+                //throw new ArgumentException($"Value值:'{value}'在枚举值:'{pInfoType.FullName}'中未定义,请检查!!!");
+            }
+        }
+
+        /// <summary>
+        /// 格式化Attribute的错误消息
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pInfo_Name"></param>
+        /// <param name="model"></param>
+        /// <param name="value"></param>
+        /// <param name="attrErrorMessage"></param>
+        /// <param name="attrArgs"></param>
+        /// <returns></returns>
+        public static string FormatAttributeMsg<T>(string pInfo_Name, T model, string value, string attrErrorMessage, string[] attrArgs) where T : class, new()
+        {
+            //拼接ErrorMessage
+            var allProp = ReflectionHelper.GetProperties<T>();
+
+            for (int i = 0; i < attrArgs.Length; i++)
+            {
+                var propertyName = attrArgs[i];
+                if (string.IsNullOrEmpty(propertyName))
+                {
+                    continue;
+                }
+
+                //注:如果占位符这是常量且刚好和属性名一致,请把占位符拆成多个占位符使用
+                if (propertyName == pInfo_Name)
+                {
+                    attrArgs[i] = value;
+                }
+                else
+                {
+                    var prop = ReflectionHelper.GetProperty(allProp, propertyName, true);
+                    if (prop is null)
+                    {
+                        continue;
+                    }
+
+                    attrArgs[i] = prop.GetValue(model).ToString();
+                }
+            }
+
+            string message = string.Format(attrErrorMessage, attrArgs);
+            return message;
+        }
+
         private static void ExcelCellInfoNeedTo(ReadCellValueOption readCellValueOption, out bool toTrim, out bool toMergeLine,
             out bool toDBC)
         {
@@ -2794,51 +2120,6 @@ namespace EPPlusExtensions
             toDBC = (readCellValueOption & ReadCellValueOption.ToDBC) == ReadCellValueOption.ToDBC;
         }
 
-        private static Dictionary<Type, Dictionary<string, PropertyInfo>> _Cache_GetPropertyInfo = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
-
-        private static PropertyInfo GetPropertyInfo(string propName, Type type)
-        {
-            if (propName is null)
-            {
-                throw new ArgumentNullException(nameof(propName));
-            }
-            if (!_Cache_GetPropertyInfo.ContainsKey(type))
-            {
-                _Cache_GetPropertyInfo.Add(type, new Dictionary<string, PropertyInfo>());
-            }
-
-            var cache_PropertyInfo = _Cache_GetPropertyInfo[type];
-
-            if (!cache_PropertyInfo.ContainsKey(propName))
-            {
-                var pInfo = type.GetProperty(propName);
-                if (pInfo is null) //防御式编程判断
-                {
-                    throw new ArgumentException($@"Type:'{type}'的property'{propName}'未找到");
-                }
-                cache_PropertyInfo.Add(propName, pInfo);
-            }
-
-            return cache_PropertyInfo[propName];
-        }
-
-        /// <summary>
-        /// 获得属性名
-        /// </summary>
-        /// <param name="ExcelAddress"></param>
-        /// <param name="dictExcelAddressCol"></param>
-        /// <param name="dictExcelColumnIndexToModelPropName_All"></param>
-        /// <returns>PropName</returns>
-        private static string GetPropName(ExcelAddress ExcelAddress, Dictionary<ExcelAddress, int> dictExcelAddressCol,
-            Dictionary<int, string> dictExcelColumnIndexToModelPropName_All)
-        {
-            int excelCellInfo_ColIndex = dictExcelAddressCol[ExcelAddress];
-            if (dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex] is null) //不存在,跳过
-            {
-                return null;
-            }
-            return dictExcelColumnIndexToModelPropName_All[excelCellInfo_ColIndex];
-        }
 
         /// <summary>
         /// 读取excel, 返回一个DataTable
@@ -2902,7 +2183,7 @@ namespace EPPlusExtensions
 
                     var col = dictExcelAddressCol[excelCellInfo.ExcelAddress];
 
-                    string value = GetMergeCellText(ws, row, col);
+                    string value = ExcelWorksheetHelper.GetMergeCellText(ws, row, col);
                     bool valueIsNullOrEmpty = string.IsNullOrEmpty(value);
 
                     if (!valueIsNullOrEmpty)
@@ -2978,7 +2259,7 @@ namespace EPPlusExtensions
                 }
                 if (dynamicCalcStep)
                 {
-                    if (EPPlusHelper.IsMergeCell(ws, row, col: 1, out var mergeCellAddress))
+                    if (ExcelWorksheetHelper.IsMergeCell(ws, row, col: 1, out var mergeCellAddress))
                     {
                         row += new ExcelAddress(mergeCellAddress).Rows;
                     }
@@ -3266,7 +2547,7 @@ namespace EPPlusExtensions
                 {
                     if (worksheet.Cells[configCellInfo.Address].Merge) //item.Address  D4
                     {
-                        var addressPrecise = EPPlusHelper.GetMergeCellAddressPrecise(worksheet, configCellInfo.Address); //D4:E4格式的
+                        var addressPrecise = ExcelWorksheetHelper.GetMergeCellAddressPrecise(worksheet, configCellInfo.Address); //D4:E4格式的
                         allConfigInterval += new ExcelCellRange(addressPrecise).IntervalCol;
 
                         configCellInfo.FullAddress = addressPrecise;
@@ -3362,7 +2643,7 @@ namespace EPPlusExtensions
                     }
                     if (returnType == typeof(ExcelCellRange))
                     {
-                        var mergeCellAddress = GetMergeCellAddressPrecise(ws, i + 1, j + 1);
+                        var mergeCellAddress = ExcelWorksheetHelper.GetMergeCellAddressPrecise(ws, i + 1, j + 1);
                         var cell = new ExcelCellRange(mergeCellAddress);
                         return cell;
                     }
@@ -3621,289 +2902,31 @@ namespace EPPlusExtensions
 
         #endregion
 
-        #region 一些帮助方法
+        #region 获得空配置
 
-        /// <summary>
-        /// 将workSheetIndex转换为代码中确切的值
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <param name="workSheetIndex">从1开始</param>
-        /// <returns></returns>
-        private static int ConvertWorkSheetIndex(ExcelPackage excelPackage, int workSheetIndex)
+        public static EPPlusConfig GetEmptyConfig() => new EPPlusConfig()
         {
-            //if (!excelPackage.Compatibility.IsWorksheets1Based)
-            //{
-            //    workSheetIndex -= 1; //从0开始的, 需要自己 -1;
-            //}
-            //return workSheetIndex;
-
-            //var offset = excelPackage.Compatibility.IsWorksheets1Based ? 0 : -1;
-            //return workSheetIndex + offset;
-
-            return workSheetIndex + (excelPackage.Compatibility.IsWorksheets1Based ? 0 : -1);
-        }
-
-        /// <summary>
-        /// 获得精确的合并单元格地址
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
-        /// <returns></returns>
-        public static string GetMergeCellAddressPrecise(ExcelWorksheet ws, int row, int col)
-        {
-            return EPPlusHelper.IsMergeCell(ws, row, col, out var mergeCellAddress)
-                ? mergeCellAddress
-                : new ExcelCellPoint(row, col).R1C1;
-        }
-
-        public static string GetMergeCellAddressPrecise(ExcelWorksheet ws, string r1c1)
-        {
-            var excelRange = new ExcelCellRange(r1c1);
-            if (excelRange.End.Col == 0) //r1c1 为 D4  这种值
+            Head = new EPPlusConfigFixedCells(),
+            Body = new EPPlusConfigBody()
             {
-                return GetMergeCellAddressPrecise(ws, excelRange.Start.Row, excelRange.Start.Col);
-            }
-            else
-            {
-                return GetMergeCellAddressPrecise(ws, excelRange.Start.Row, excelRange.End.Col);
-            }
-        }
+                ConfigList = new List<EPPlusConfigBodyConfig>()
+            },
+            Foot = new EPPlusConfigFixedCells(),
+            Report = new EPPlusReport(),
+            IsReport = false,
+            DeleteFillDateStartLineWhenDataSourceEmpty = false,
+        };
 
-        public static string GetLeftCellAddress(ExcelWorksheet ws, string currentCellAddress)
+        public static EPPlusConfigSource GetEmptyConfigSource() => new()
         {
-            var ea = new ExcelAddress(currentCellAddress);
-            var row = ea.Start.Row;
-            var col = ea.Start.Column;
+            Head = new EPPlusConfigSourceHead(),
+            Body = new EPPlusConfigSourceBody(),
+            Foot = new EPPlusConfigSourceFoot(),
+        };
 
-            if (!EPPlusHelper.IsMergeCell(ws, row: row, col: col, out var mergeCellAddress))
-            {
-                return new ExcelCellPoint(row, col - 1).R1C1;
-            }
+        #endregion
 
-            var mergeCell = new ExcelAddress(mergeCellAddress);
-            var leftCellRow = mergeCell.Start.Row;
-            var leftCellCol = mergeCell.Start.Column - 1;
-            if (EPPlusHelper.IsMergeCell(ws, row: leftCellRow, col: leftCellCol, out var leftCellAddress))
-            {
-                return new ExcelAddress(leftCellAddress).Address;
-            }
-            else
-            {
-                return new ExcelCellPoint(leftCellRow, leftCellCol).R1C1; //左边的单元格是普通的单元格
-            }
-        }
-
-        public static bool IsMergeCell(ExcelWorksheet ws, int row, int col)
-        {
-            return IsMergeCell(ws, row, col, out var mergeCellAddress);
-        }
-
-        /// <summary>
-        /// 是不是合并单元格
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
-        /// <param name="mergeCellAddress"></param>
-        /// <returns></returns>
-        public static bool IsMergeCell(ExcelWorksheet ws, int row, int col, out string mergeCellAddress)
-        {
-            mergeCellAddress = ws.MergedCells[row, col];
-            return mergeCellAddress != null;
-        }
-
-        /// <summary>
-        /// 获得合并单元格的值,如果不是合并单元格, 返回单元格的值
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
-        /// <returns></returns>
-        public static string GetMergeCellText(ExcelWorksheet ws, int row, int col)
-        {
-            var isMergeCell = EPPlusHelper.IsMergeCell(ws, row, col, out var mergeCellAddress);
-            if (isMergeCell == false)
-            {
-                return GetCellText(ws, row, col);
-            }
-            var ea = new ExcelAddress(mergeCellAddress);
-            return ws.Cells[ea.Start.Row, ea.Start.Column].Text;
-        }
-
-        /// <summary>
-        /// 如果是合并单元格,请传入第一个合并单元格的坐标
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="row">从1开始</param>
-        /// <param name="col">从1开始</param>
-        /// <param name="when_TextProperty_NullReferenceException_Use_ValueProperty"></param>
-        /// <returns></returns>
-        public static string GetCellText(ExcelWorksheet ws, int row, int col, bool when_TextProperty_NullReferenceException_Use_ValueProperty = true)
-        {
-            return GetCellText(ws.Cells[row, col], when_TextProperty_NullReferenceException_Use_ValueProperty);
-        }
-
-        public static string GetCellText(ExcelRange cell, bool when_TextProperty_NullReferenceException_Use_ValueProperty = true)
-        {
-            //if (cell.Merge) throw new Exception("没遇到过这个情况的");
-            //return cell.Text; //这个没有科学计数法  注:Text是Excel显示的值,Value是实际值.
-            try
-            {
-                //if (cell.Formula?.Length > 0)//cell 是公式
-                //{
-                //}
-                return cell.Text;//有的单元格通过cell.Text取值会发生异常,但cell.Value却是有值的
-
-                //例如，如果你在单元格中输入日期"2024-04-14"并将其格式化为日期格式，
-                //Excel将会在"Text"中显示"2024-04-14"，但在"Value"中存储对应的序列号（如45396）。
-                //详见示例07
-
-                /*
-                我没遇到过这个场景, 这个代码先保留
-
-                if (cell.IsRichText)
-                {
-                    //https://www.cnblogs.com/studyever/archive/2012/08/29/2661850.html
-                    return cell.RichText.Text;
-                }
-                */
-            }
-            catch (NullReferenceException)
-            {
-                if (when_TextProperty_NullReferenceException_Use_ValueProperty)
-                {
-                    return Convert.ToString(cell.Value);
-                }
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// 根据dict检查指定单元格的值是否符合预先定义.
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="dict">k:r1c1, v:具体值</param>
-        public static bool CheckWorkSheetCellValue(ExcelWorksheet ws, Dictionary<string, string> dict)
-        {
-            foreach (var key in dict.Keys)
-            {
-                var cell = new ExcelCellPoint(key);
-                if (EPPlusHelper.GetCellText(ws, cell.Row, cell.Col) != dict[key])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// 冻结窗口面板
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="row">冻结[1,Row)行</param>
-        /// <param name="column">冻结{1,Column) 列</param>
-        public static void FreezePanes(ExcelWorksheet ws, int row, int column)
-        {
-            ws.View.FreezePanes(row, column);
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="fileOutDirectoryName"></param>
-        /// <param name="dataConfigInfo"></param>
-        /// <param name="cellCustom">对单元格进行额外处理</param>
-        /// <returns></returns>
-        public static List<DefaultConfig> FillExcelDefaultConfig(string filePath, string fileOutDirectoryName, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
-        {
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var excelPackage = new ExcelPackage(fs))
-            {
-                var defaultConfigList = FillExcelDefaultConfig(excelPackage, dataConfigInfo, cellCustom);
-
-                var haveConfig = defaultConfigList.Find(a => a.ClassPropertyList.Count > 0) != null;
-                if (haveConfig)
-                {
-                    var path = $@"{fileOutDirectoryName}\{Path.GetFileNameWithoutExtension(filePath)}_Result.xlsx";
-                    EPPlusHelper.Save(excelPackage, path);
-                }
-
-                return defaultConfigList;
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <param name="dataConfigInfo">指定的worksheet</param>
-        /// <param name="cellCustom">对单元格进行额外处理</param>
-        /// <returns>工作簿Name,DatTable的创建代码</returns>
-        public static List<DefaultConfig> FillExcelDefaultConfig(ExcelPackage excelPackage, List<ExcelDataConfigInfo> dataConfigInfo, Action<ExcelRange> cellCustom = null)
-        {
-            if (dataConfigInfo != null)
-            {
-                foreach (var item in dataConfigInfo)
-                {
-                    //WorkSheetIndex没设置,但是设置了WorkSheetName
-                    if (!string.IsNullOrEmpty(item.WorkSheetName) || item.WorkSheetIndex <= 0)
-                    {
-                        continue;
-                    }
-
-                    var eachCount = 1;
-                    foreach (var ws in excelPackage.Workbook.Worksheets)
-                    {
-                        if (item.WorkSheetIndex == eachCount)
-                        {
-                            item.WorkSheetName = ws.Name;
-                            break;
-                        }
-                        eachCount++;
-                    }
-                }
-            }
-
-            var list = new List<DefaultConfig>();
-            foreach (var ws in excelPackage.Workbook.Worksheets)
-            {
-                int titleLine = 1;
-                int titleColumn = 1;
-                if (dataConfigInfo is null)
-                {
-                    list.Add(FillExcelDefaultConfig(ws, titleLine, titleColumn, cellCustom));
-                    continue;
-                }
-
-                var configInfo = dataConfigInfo.Find(a => a.WorkSheetName == ws.Name);
-                if (configInfo is null)
-                {
-                    continue;
-                }
-
-                if (configInfo.TitleLine == 0 && configInfo.TitleColumn == 0)
-                {
-                    continue;
-                }
-                var address = GetMergeCellAddressPrecise(ws, row: configInfo.TitleLine, col: configInfo.TitleColumn);
-                var cellRange = new ExcelCellRange(address);
-                if (cellRange.IsMerge)
-                {
-                    titleLine = cellRange.End.Row;
-                    titleColumn = cellRange.End.Col;
-                }
-                else
-                {
-                    titleLine = cellRange.Start.Row;
-                    titleColumn = cellRange.Start.Col;
-                }
-                list.Add(FillExcelDefaultConfig(ws, titleLine, titleColumn, cellCustom));
-                continue;
-            }
-            return list;
-        }
+        #region 模板配置相关
 
         /// <summary>
         /// 返回模版的 titleLine 和 titleColumn
@@ -3945,273 +2968,6 @@ namespace EPPlusExtensions
             }
         }
 
-        public static List<string> KeysTypeOfDecimal => new List<string>
-        {
-            "金额", "钱", "数额",
-            "money", "Money", "MONEY",
-            "amount", "Amount", "AMOUNT",
-        };
-
-        public static List<string> KeysTypeOfDateTime => new List<string>
-        {
-            "时间", "日期", "date", "Date", "DATE", "time", "Time", "TIME",
-            "今天", "昨天", "明天", "前天",
-            "day", "Day", "DAY",
-            "tomorrow","Tomorrow","TOMORROW",
-        };
-
-        public static List<string> KeysTypeOfString => new List<string>
-        {
-            "序号", "编号", "id", "Id", "ID", "number", "Number", "NUMBER", "No",
-            "身份证", "银行卡", "卡号", "手机", "座机",
-            "mobile", "Mobile", "MOBILE", "tel", "Tel", "TEL",
-        };
-
-        /// <summary>
-        /// 填充excel默认配置
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="titleLineNumber"></param>
-        /// <param name="titleColumnNumber"></param>
-        /// <param name="cellCustom">对单元格进行额外处理</param>
-        /// <returns></returns>
-        public static DefaultConfig FillExcelDefaultConfig(ExcelWorksheet ws, int titleLineNumber, int titleColumnNumber, Action<ExcelRange> cellCustom = null)
-        {
-            var colNameList = new List<ExcelCellInfoValue>();
-            var nameRepeatCounter = new Dictionary<string, int>();
-
-            string mergeCellAddress;
-            #region 获得colNameList
-
-            int col = titleColumnNumber;
-            while (col <= EPPlusConfig.MaxCol07)
-            {
-                var excelColName = ws.Cells[titleLineNumber, col].Merge
-                    ? GetMergeCellText(ws, titleLineNumber, col)
-                    : GetCellText(ws, titleLineNumber, col);
-
-                var destColVal = ExtractName(excelColName).Trim().MergeLines();
-                if (string.IsNullOrEmpty(destColVal))
-                {
-                    break;
-                }
-
-                var thisColNameInfo = new ExcelCellInfoValue()
-                {
-                    Name = destColVal,
-                    ExcelColNameIndex = col,
-                    //ExcelColName = excelColName,
-                    ExcelColName = excelColName.Trim().MergeLines(),
-                };
-
-                AutoRename(colNameList, nameRepeatCounter, thisColNameInfo, true);
-
-                if (EPPlusHelper.IsMergeCell(ws, titleLineNumber, col, out mergeCellAddress))
-                {
-                    var range = new ExcelCellRange(mergeCellAddress);
-                    col += range.IntervalCol + 1;
-                }
-                else
-                {
-                    col++;
-                }
-            }
-
-            #endregion
-
-            if (colNameList.Count == 0)
-            {
-                return new DefaultConfig()
-                {
-                    WorkSheetName = ws.Name,
-                    CrateDataTableSnippe = null,
-                    CrateClassSnippe = null,
-                    ClassPropertyList = colNameList
-                };
-            }
-
-            #region 给单元格赋值
-
-            int fillBodyLine;
-            if (EPPlusHelper.IsMergeCell(ws, titleLineNumber, 1, out mergeCellAddress))
-            {
-                var range = new ExcelCellRange(mergeCellAddress);
-                fillBodyLine = range.Start.Row + range.IntervalRow + 1;
-            }
-            else
-            {
-                fillBodyLine = titleLineNumber + 1;
-            }
-
-            for (int i = 0; i < colNameList.Count; i++)
-            {
-                ExcelRange cell = ws.Cells[fillBodyLine, colNameList[i].ExcelColNameIndex];
-                string cellValue = $"$tb1{(colNameList[i].IsRename ? colNameList[i].NameNew : colNameList[i].Name)}";
-                SetWorksheetCellValue(cell, cellValue);
-                cellCustom?.Invoke(ws.Cells[titleLineNumber + 1, i + 1]);
-            }
-
-            #endregion
-
-            #region sb_CreateClassSnippet + sb_CreateDateTableSnippet
-
-            StringBuilder sb_CreateClassSnippet = new StringBuilder();
-            sb_CreateClassSnippet.AppendLine($"public class {ws.Name} {{");
-
-            StringBuilder sb_CreateDateTableSnippet = new StringBuilder();
-            sb_CreateDateTableSnippet.AppendLine($@"DataTable dt = new DataTable();");
-            StringBuilder sbColumn = new StringBuilder();
-            StringBuilder sbAddDr = new StringBuilder();
-            StringBuilder sbColumnType = new StringBuilder();
-            sbAddDr.AppendLine($@"//var dr = dt.NewRow();");
-
-            foreach (var colName in colNameList)
-            {
-                var propName = colName.IsRename ? colName.NameNew : colName.Name;
-                sbColumn.AppendLine($"dt.Columns.Add(\"{propName}\");");
-                sbAddDr.AppendLine($"//dr[\"{propName}\"] = ");
-                bool sb_CrateClassSnippe_AppendLine_InForeach = false;
-
-                if (colName.IsRename)
-                {
-                    sb_CreateClassSnippet.AppendLine($" [ExcelColumnIndex({colName.ExcelColNameIndex})]");
-                    sb_CreateClassSnippet.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
-                }
-
-                if (colName.ExcelColName != colName.Name)
-                {
-                    if (!colName.IsRename)//上面添加过了,这里不在添加
-                    {
-                        sb_CreateClassSnippet.AppendLine($" [DisplayExcelColumnName(\"{colName.ExcelColName}\")]");
-                    }
-                }
-
-                if (KeysTypeOfDateTime.Any(item => propName.Contains(item)))
-                {
-                    sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(DateTime);");
-                    sb_CreateClassSnippet.AppendLine($" public DateTime {propName} {{ get; set; }}");
-                    sb_CrateClassSnippe_AppendLine_InForeach = true;
-                }
-
-                if (KeysTypeOfString.Any(item => propName.Contains(item)))
-                {
-                    sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(string);");
-                    sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
-                    sb_CrateClassSnippe_AppendLine_InForeach = true;
-                }
-
-                if (KeysTypeOfDecimal.Any(item => propName.Contains(item)))
-                {
-                    sbColumnType.AppendLine($"dt.Columns[\"{propName}\"].DataType = typeof(decimal);");
-                    sb_CreateClassSnippet.AppendLine($" public decimal {propName} {{ get; set; }}");
-                    sb_CrateClassSnippe_AppendLine_InForeach = true;
-                }
-
-                if (!sb_CrateClassSnippe_AppendLine_InForeach)
-                {
-                    sb_CreateClassSnippet.AppendLine($" public string {propName} {{ get; set; }}");
-                }
-            }
-            sb_CreateDateTableSnippet.Append(sbColumn);
-            sb_CreateDateTableSnippet.Append(sbColumnType);
-            sbAddDr.AppendLine("//dt.Rows.Add(dr);");
-            sb_CreateDateTableSnippet.Append(sbAddDr);
-
-            sb_CreateClassSnippet.AppendLine("}");
-            #endregion
-
-            return new DefaultConfig()
-            {
-                WorkSheetName = ws.Name,
-                CrateDataTableSnippe = sb_CreateDateTableSnippet.ToString(),
-                CrateClassSnippe = sb_CreateClassSnippet.ToString(),
-                ClassPropertyList = colNameList
-            };
-        }
-
-        /// <summary>
-        /// 自动重命名
-        /// </summary>
-        /// <param name="nameList">重名后的name集合</param>
-        /// <param name="nameRepeatCounter">name重复的次数</param>
-        /// <param name="name">要传入的name值</param>
-        /// <param name="renameFirstNameWhenRepeat">当重名时,重命名第一个名字</param>
-        private static void AutoRename(List<string> nameList, Dictionary<string, int> nameRepeatCounter, string name, bool renameFirstNameWhenRepeat)
-        {
-            if (!nameRepeatCounter.ContainsKey(name))
-            {
-                nameRepeatCounter.Add(name, 0);
-            }
-
-            if (!nameList.Contains(name) && nameRepeatCounter[name] == 0)
-            {
-                nameList.Add(name);
-            }
-            else
-            {
-                //如果出现重复,把第一个名字添加后缀1
-                if (renameFirstNameWhenRepeat && nameRepeatCounter[name] == 1)
-                {
-                    for (int i = 0; i < nameList.Count; i++)
-                    {
-                        if (nameList[i] == name)
-                        {
-                            nameList[i] = nameList[i] + "1";
-                            break;
-                        }
-                    }
-                }
-                //必须要先用一个变量保存,使用 ++colNames_Counter[destColVal] 会把 colNames_Counter[destColVal] 值变掉
-                var currentCounterVal = nameRepeatCounter[name];
-                nameList.Add($@"{name}{++currentCounterVal}");
-            }
-
-            nameRepeatCounter[name] = ++nameRepeatCounter[name];
-        }
-
-        /// <summary>
-        /// 自动重命名
-        /// </summary>
-        /// <param name="nameList">重名后的name集合</param>
-        /// <param name="nameRepeatCounter">name重复的次数</param>
-        /// <param name="name">要传入的name值</param>
-        /// <param name="renameFirstNameWhenRepeat">当重名时,重命名第一个名字</param>
-        private static void AutoRename(List<ExcelCellInfoValue> nameList, Dictionary<string, int> nameRepeatCounter, ExcelCellInfoValue name, bool renameFirstNameWhenRepeat)
-        {
-            if (!nameRepeatCounter.ContainsKey(name.Name))
-            {
-                nameRepeatCounter.Add(name.Name, 0);
-            }
-
-            if (nameList.Find(a => a.Name == name.Name) is null && nameRepeatCounter[name.Name] == 0)
-            {
-                nameList.Add(name);
-            }
-            else
-            {
-                //如果出现重复,把第一个名字添加后缀1
-                if (renameFirstNameWhenRepeat && nameRepeatCounter[name.Name] == 1)
-                {
-                    foreach (var t in nameList)
-                    {
-                        if (t.Name != name.Name)
-                        {
-                            continue;
-                        }
-
-                        t.IsRename = true;
-                        t.NameNew = t.Name + "1";
-                        break;
-                    }
-                }
-                //必须要先用一个变量保存,使用 ++colNames_Counter[destColVal] 会把 colNames_Counter[destColVal] 值变掉
-                var currentCounterVal = nameRepeatCounter[name.Name];
-                name.IsRename = true;
-                name.NameNew = $@"{name.Name}{++currentCounterVal}";
-                nameList.Add(name);
-            }
-            nameRepeatCounter[name.Name] = ++nameRepeatCounter[name.Name];
-        }
 
         /// <summary>
         /// 获得excel填写的配置内容
@@ -4239,7 +2995,10 @@ namespace EPPlusExtensions
             StringBuilder sbColumn = new StringBuilder();
             foreach (var item in splits)
             {
-                var newName = alias.ContainsKey(item) ? ExtractName(alias[item]) : ExtractName(item);
+                var newName = alias.ContainsKey(item)
+                    ? NamingHelper.ExtractName(alias[item])
+                    : NamingHelper.ExtractName(item);
+
                 sb.Append($@"{outResultPrefix}{newName}{excel_cell_split[0]}");
                 sbColumn.AppendLine($"dt.Columns.Add(\"{newName}\");");
             }
@@ -4251,57 +3010,6 @@ namespace EPPlusExtensions
             //sb.Append(sbColumn.ToString());
 
             return sb.ToString();
-        }
-
-        #region 获得单元格
-
-        /// <summary>
-        /// 根据值获的excel中对应的单元格
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static List<ExcelCellInfo> GetCellsBy(ExcelWorksheet ws, string value)
-        {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-            return GetCellsBy(ws, ws.Cells.Value as object[,], a => a != null && a.ToString() == value);
-        }
-
-        /// <summary>
-        /// 根据值获的excel中对应的单元格
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="cellsValue">一般通过ws.Cells.Value as object[,] 获得 </param>
-        /// <param name="match">示例: a => a != null &amp;&amp; a.GetType() == typeof(string) &amp;&amp; ((string) a == "备注")</param>
-        /// <returns></returns>
-        public static List<ExcelCellInfo> GetCellsBy(ExcelWorksheet ws, object[,] cellsValue, Predicate<object> match)
-        {
-            if (cellsValue is null)
-            {
-                throw new ArgumentNullException(nameof(cellsValue));
-            }
-
-            var result = new List<ExcelCellInfo>();
-            for (int i = 0; i < cellsValue.GetLength(0); i++)
-            {
-                for (int j = 0; j < cellsValue.GetLength(1); j++)
-                {
-                    if (match != null && match.Invoke(cellsValue[i, j]))
-                    {
-                        result.Add(new ExcelCellInfo
-                        {
-                            WorkSheet = ws,
-                            ExcelAddress = new ExcelAddress(i + 1, j + 1, i + 1, j + 1),
-                            Value = cellsValue[i, j]
-                        });
-                    }
-                }
-            }
-
-            return result;
         }
 
         #endregion
@@ -4384,8 +3092,9 @@ namespace EPPlusExtensions
                 return ScientificNotationFormatToString(excelPackage, fileSaveAsPath, containNoMatchCell);
             }
         }
-
         #endregion
+
+        #region GetListErrorMsg
 
         /// <summary>
         /// 获得错误消息
@@ -4441,133 +3150,22 @@ namespace EPPlusExtensions
             var txt = sb.ToString();
             return txt;
         }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="rowStartIndex">从1开始</param>
-        /// <param name="rowEndIndex">最大值:EPPlusConfig.MaxRow07</param>
-        /// <param name="action">一般用于修改Hidden状态</param>
-        /// <returns></returns>
-        public static void EachHiddenRow(ExcelWorksheet ws, int rowStartIndex, int rowEndIndex, Action<ExcelRow> action)
-        {
-            if (action is null)
-            {
-                return;
-            }
-
-            if (rowEndIndex > EPPlusConfig.MaxRow07)
-            {
-                rowEndIndex = EPPlusConfig.MaxRow07;
-            }
-            for (int rowStart = rowStartIndex; rowStart <= rowEndIndex; rowStart++)
-            {
-                if (ws.Row(rowStart).Hidden)
-                {
-                    action.Invoke(ws.Row(rowStart));
-                }
-            }
-        }
-
-        public static bool HaveHiddenRow(ExcelWorksheet ws, int rowStartIndex = 1, int rowEndIndex = EPPlusConfig.MaxRow07)
-        {
-            if (rowEndIndex > EPPlusConfig.MaxRow07)
-            {
-                rowEndIndex = EPPlusConfig.MaxRow07;
-            }
-            for (int rowIndex = rowStartIndex; rowIndex <= rowEndIndex; rowIndex++)
-            {
-                if (ws.Row(rowIndex).Hidden)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ws"></param>
-        /// <param name="columnStartIndex">从1开始</param>
-        /// <param name="columnEndIndex">最大值:EPPlusConfig.MaxCol07</param>
-        /// <param name="action">一般用于修改Hidden状态</param>
-        /// <returns></returns>
-        public static void EachHiddenColumn(ExcelWorksheet ws, int columnStartIndex, int columnEndIndex, Action<ExcelRow> action)
-        {
-            if (action is null)
-            {
-                return;
-            }
-
-            if (columnEndIndex > EPPlusConfig.MaxCol07)
-            {
-                columnEndIndex = EPPlusConfig.MaxCol07;
-            }
-            for (int columnIndex = columnStartIndex; columnIndex <= columnEndIndex; columnIndex++)
-            {
-                if (ws.Column(columnIndex).Hidden)
-                {
-                    action.Invoke(ws.Row(columnIndex));
-                }
-            }
-        }
-
-        public static bool HaveHiddenColumn(ExcelWorksheet ws, int columnStartIndex = 1, int columnEndIndex = EPPlusConfig.MaxCol07)
-        {
-            if (columnEndIndex > EPPlusConfig.MaxCol07)
-            {
-                columnEndIndex = EPPlusConfig.MaxCol07;
-            }
-            for (int columnIndex = columnStartIndex; columnIndex <= columnEndIndex; columnIndex++)
-            {
-                if (ws.Column(columnIndex).Hidden)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         #endregion
 
-        #region 一些帮助方法(文件类)
+        #region 文件相关的帮助方法
 
         /// <summary>
         /// 读取一个文件,获得一个文件流
         /// </summary>
         /// <param name="filePath"></param>
-        /// <param name="mode"></param>
-        /// <param name="access"></param>
-        /// <param name="share"></param>
         /// <returns></returns>
-        public static FileStream GetFileStream(string filePath,
-            FileMode mode = FileMode.Open,
-            FileAccess access = FileAccess.Read,
-            FileShare share = FileShare.ReadWrite)
+        public static FileStream GetFileStream(string filePath)
         {
-            return new FileStream(filePath, mode, access, share);
+            FileMode mode = FileMode.Open;
+            FileAccess access = FileAccess.Read;
+            FileShare share = FileShare.ReadWrite;
+            return FileHelper.GetFileStream(filePath, mode, access, share);
         }
-
-        /// <summary>
-        /// 获得内存流
-        /// </summary>
-        /// <param name="excelPackage"></param>
-        /// <returns></returns>
-        public static MemoryStream GetMemoryStream(ExcelPackage excelPackage)
-        {
-            var ms = new MemoryStream();
-            excelPackage.SaveAs(ms);
-            if (ms.CanSeek && ms.Position != 0)
-            {
-                ms.Position = 0;
-                //ms.Seek(0, SeekOrigin.Begin);
-            }
-            return ms;
-        }
-
 
         /// <summary>
         /// 保存文件
@@ -4576,25 +3174,10 @@ namespace EPPlusExtensions
         /// <param name="filePath">文件路径</param>
         public static void Save(ExcelPackage excelPackage, string filePath)
         {
-            //File.Delete(savePath); //删除文件。如果文件不存在,也不报错
-
-            var dirPath = Path.GetDirectoryName(filePath);
-            if (Directory.Exists(dirPath) == false)
-            {
-                Directory.CreateDirectory(dirPath);
-            }
-
-            using var memoryStream = GetMemoryStream(excelPackage);
-            using var file = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-
-            //byte[] bytes = new byte[memoryStream.Length];
-            //_ = memoryStream.Read(bytes, 0, (int)memoryStream.Length);
-            byte[] bytes = memoryStream.ToArray();
-            file.Write(bytes, 0, bytes.Length);
+            ExcelPackageHelper.Save(excelPackage, filePath);
         }
 
         #endregion
-
 
     }
 }
