@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace EPPlusExtensions.Helpers
@@ -9,7 +10,7 @@ namespace EPPlusExtensions.Helpers
     /// <summary>
     /// 命名帮助类
     /// </summary>
-    public sealed class NamingHelper
+    internal sealed class NamingHelper
     {
         /// <summary>
         /// 提取符合c#规范的名字
@@ -22,7 +23,6 @@ namespace EPPlusExtensions.Helpers
             colName = RegexHelper.GetStringByReg(colName, reg).Aggregate("", (current, item) => current + item);
             return colName;
         }
-
 
         /// <summary>
         /// 自动重命名
@@ -106,6 +106,51 @@ namespace EPPlusExtensions.Helpers
                 nameList.Add(name);
             }
             nameRepeatCounter[name.Name] = ++nameRepeatCounter[name.Name];
+        }
+
+        /// <summary>
+        /// 自动修复Excel工作表名称,确保获得的Excel工作表名词是正确的
+        /// </summary>
+        /// <param name="sheetName">需要修复的工作表名称</param>
+        /// <param name="replacement">非法字符的代替字符</param>
+        /// <returns>修复后的有效工作表名称</returns>
+        internal static string FixSheetName(string sheetName, string replacement = "_")
+        {
+            sheetName = sheetName?.Trim();
+
+            // 如果名称为空，返回默认名称
+            if (string.IsNullOrWhiteSpace(sheetName))
+            {
+                return $"Sheet_{DateTime.Now.ToString("yyyyMMddHHmmssfff")}";
+            }
+
+            // 移除非法字符: \ / ? * [ ] 或 .
+            string fixedName = Regex.Replace(sheetName, @"[\\/\?\*\[\]\.]", replacement ?? "_");
+
+            // 如果首尾字符是单引号，则移除
+            while (fixedName.StartsWith("'"))
+            {
+                fixedName = fixedName.Substring(1);
+            }
+
+            while (fixedName.EndsWith("'"))
+            {
+                fixedName = fixedName.Substring(0, fixedName.Length - 1);
+            }
+
+            // 如果修复后名称为空，返回默认名称
+            if (string.IsNullOrWhiteSpace(fixedName))
+            {
+                return $"Sheet_{DateTime.Now.ToString("yyyyMMddHHmmssfff")}";
+            }
+
+            // 截断超过31个字符的部分
+            if (fixedName.Length > 31)
+            {
+                fixedName = fixedName.Substring(0, 31);
+            }
+
+            return fixedName;
         }
 
     }
