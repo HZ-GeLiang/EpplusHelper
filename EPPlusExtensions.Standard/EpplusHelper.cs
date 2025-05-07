@@ -422,7 +422,7 @@ namespace EPPlusExtensions
 
         #endregion
 
-        #region 填充Excel相关的帮助方法
+        #region FillExcelDefaultConfig
 
         /// <summary>
         ///
@@ -685,7 +685,7 @@ namespace EPPlusExtensions
 
         #endregion
 
-        #region 设置Head与foot配置的数据源
+        #region SetConfigSource xxx (Head与foot配置数据源)
 
         /// <summary>
         /// 设置Head配置的数据源
@@ -2488,6 +2488,15 @@ namespace EPPlusExtensions
             }
 
             throw new Exception(nameof(GetMatchingModel) + "程序不对,需要修改");
+        }
+
+        #endregion
+
+        #region 设置单元格值
+
+        public static void SetWorksheetCellValue(ExcelRange cell, string cellValue)
+        {
+            ExcelRangeHelper.SetWorksheetCellValue(cell, cellValue);
         }
 
         #endregion

@@ -87,19 +87,19 @@ namespace EPPlusTool
             {
                 var cellValue = ExcelRangeHelper.GetCellText(cell);
 
-                foreach (var key in EPPlusHelper.KeysTypeOfDateTime.Where(item => cellValue.Contains(item)))
+                foreach (var key in EpplusHelperConfig.KeysTypeOfDateTime.Where(item => cellValue.Contains(item)))
                 {
                     cell.Style.Numberformat.Format = "yyyy-mm-dd"; //默认显示的格式
                     break;
                 }
 
-                foreach (var key in EPPlusHelper.KeysTypeOfString.Where(item => cellValue.Contains(item)))
+                foreach (var key in EpplusHelperConfig.KeysTypeOfString.Where(item => cellValue.Contains(item)))
                 {
                     cell.Style.Numberformat.Format = "@"; //Format as text
                     break;
                 }
 
-                foreach (var key in EPPlusHelper.KeysTypeOfDecimal.Where(item => cellValue.Contains(item)))
+                foreach (var key in EpplusHelperConfig.KeysTypeOfDecimal.Where(item => cellValue.Contains(item)))
                 {
                     //cell.Style.Numberformat.Format = "@"; //Format as text
                     break;
