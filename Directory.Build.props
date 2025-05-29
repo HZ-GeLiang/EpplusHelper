@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 	<PropertyGroup>
 		<!--使用dotnet.ruleset-->
 		<!--<NoWarn>1701;1702;1591</NoWarn>
@@ -17,7 +17,7 @@
 	</PropertyGroup>
 
 	<!--性能耗时 start-->
-	<ItemGroup Condition="Exists('../_timer')==true">
+	<ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU' And Exists('../_timer')">
 		<PackageReference Include="Fody" Version="6.8.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
