@@ -67,7 +67,7 @@ namespace SampleApp._03读取excel内容
             public string b { get; set; }
 
             [Ingore]
-            public string trest { get; set; }
+            public string test { get; set; }
 
             public override bool Equals(object obj)
             {

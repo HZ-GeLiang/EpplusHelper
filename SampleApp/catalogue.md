@@ -23,12 +23,12 @@
 | Sample02   | 合并行读取                                                   | 默认的读取方式 |
 | Sample03   | 指定行读取:标题和数据行不连续                                |                |
 | Sample04   | 使用了kv类型                                                 |                |
-| Sample04_2 | 使用了kv类型,同时还有state信息                               |                |
-| Sample05   | 使用了kv类型,多个属性用个数据源,但是 KVSetAttribute 的 MustInset 值不一样 |                |
+| Sample04_2 | 使用了kv类型,构造器采纳数增加了 state                        |                |
+| Sample05   | 使用了kv类型,多个属性用个数据源,但是 KVSetAttribute 构造器参数的 MustInset  值不一样 |                |
 | Sample06   | 支持 System.ComponentModel.DataAnnotations                   |                |
 | Sample07   | 内置 Attribute 的示例                                        |                |
 | Sample08   | 当excel列名字重复时,按顺序映射重命名excel的标题,然后映射到对应的model属性中 |                |
-| Sample09   | GetList() 时可以获得模版数据检测提示                         |                |
+| Sample09   | GetList() 时可以获得模版数据检测提示,也可以设置忽略特定的属性 |                |
 | Sample10   | 获取数据新增方法 GetDataTable() + args.WhereFilter 和 args.HavingFilter 参数的使用 |                |
 | Sample11   | 解决excel列内容是重复的<br>GetList() 新增2个Attribute: ExcelColumnIndexAttribute 和 DisplayExcelColumnNameAttribute |                |
 | Sample12   | GetList() 数据源的数据存在错误时,查看给出的消息提示<br> 有2个参数 args.GetList_NeedAllException 和 args.GetList_ErrorMessage_OnlyShowColomn |                |
