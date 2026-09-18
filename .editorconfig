@@ -7,6 +7,7 @@ end_of_line = crlf
 indent_size = 4
 
 [*.cs]
+charset = utf-8-bom
 #Meziantou.Analyzer: https://github.com/meziantou/Meziantou.Analyzer
 MA0051.maximum_lines_per_method = 300  #每个方法建议在多少行之内
 MA0051.maximum_statements_per_method = 80 #方法名+参数的合计字符数
